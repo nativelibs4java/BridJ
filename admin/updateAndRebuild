@@ -1,0 +1,53 @@
+#!/bin/bash
+
+BRIDJ_DIR=`pwd`
+DYNCALL_BASE=$BRIDJ_DIR/dyncall
+export DYNCALL_HOME=$DYNCALL_BASE/dyncall
+DYNCALL_PATCH=$BRIDJ_DIR/src/main/cpp/bridj/dyncall.diff
+
+rm $BRIDJ_DIR/*.log > /dev/null
+
+echo "Updating BridJ"
+cd $BRIDJ_DIR
+#git stash
+git pull origin master > $BRIDJ_DIR/git-pull.log 2>&1  || ( cat $BRIDJ_DIR/git-pull.log && exit 1 )
+
+echo "Checking out dyncall"
+rm -fR $DYNCALL_BASE
+mkdir $DYNCALL_BASE
+svn co https://dyncall.org/svn/dyncall/trunk/dyncall $DYNCALL_HOME > $BRIDJ_DIR/dyncall-checkout.log 2>&1  || ( cat $BRIDJ_DIR/dyncall-checkout.log && exit 1 )
+
+echo "Patching dyncall"
+cd $DYNCALL_BASE
+( gpatch -i $DYNCALL_PATCH -N -p0 || patch -i $DYNCALL_PATCH -N -p0 ) > $BRIDJ_DIR/dyncall-patch.log 2>&1 || ( cat $BRIDJ_DIR/dyncall-patch.log && exit 1 )
+
+cd $BRIDJ_DIR
+
+echo "Cleaning Maven build"
+mvn clean > $BRIDJ_DIR/maven-clean.log 2>&1 || ( cat $BRIDJ_DIR/maven-clean.log && exit 1 )
+
+echo "Compiling sources"
+mvn test-compile > $BRIDJ_DIR/maven-compile.log 2>&1 || ( cat $BRIDJ_DIR/maven-compile.log && exit 1 )
+
+
+if [[ -d /Applications ]] ; then
+	BUILD_TARGETS="default ios android" ;
+else
+	BUILD_TARGETS="default" ;
+fi
+
+for T in $BUILD_TARGETS ; do
+	echo "Cleaning native $T build"
+	TARGET=$T ./CleanNative > $BRIDJ_DIR/clean-native-$T.log 2>&1 || ( cat $BRIDJ_DIR/clean-native-$T.log && exit 1 )
+	echo "Building native $T libraries"
+	TARGET=$T ./BuildNative > $BRIDJ_DIR/build-native-$T.log 2>&1 || ( cat $BRIDJ_DIR/build-native-$T.log && exit 1 ) ;
+done
+
+export BRIDJ_NO_OBJC=1
+
+echo "Installing Maven artifacts"
+mvn install > $BRIDJ_DIR/mvn-install.log 2>&1 || ( cat $BRIDJ_DIR/mvn-install.log && exit 1 )
+
+$BRIDJ_DIR/CommitBinaries > $BRIDJ_DIR/git-commit-binaries.log 2>&1 || ( cat $BRIDJ_DIR/git-commit-binaries.log && exit 1 )
+
+git push origin master > $BRIDJ_DIR/git-push.log 2>&1 || ( cat $BRIDJ_DIR/git-push.log && exit 1 )

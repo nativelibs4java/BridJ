@@ -1,0 +1,8 @@
+OpenBSD 4.6 / sparc64 :
+ssh -p 9204 ochafik@gcc64.fsffrance.org
+
+Linux 2.6 / sparc64 :
+ssh -p 9084 ochafik@gcc64.fsffrance.org
+
+Sourceforge Shell :
+ssh -t opentator,nativelibs4java@shell.sourceforge.net create

@@ -1,0 +1,144 @@
+diff --git a/GSPFramework/src/main/java/com/bridj/Demangler.java b/GSPFramework/src/main/java/com/bridj/Demangler.java
+index fa2510d..9f92ce8 100644
+--- a/GSPFramework/src/main/java/com/bridj/Demangler.java
++++ b/GSPFramework/src/main/java/com/bridj/Demangler.java
+@@ -232,12 +232,22 @@ public abstract class Demangler {
+ 
+ 	}
+ 
+-    public static class PointerType {
++    public static class PointerTypeRef extends TypeRef {
++        
++        public TypeRef pointedType;
++
++        public PointerTypeRef(TypeRef pointedType) {
++            this.pointedType = pointedType;
++        }
+ 
++        @Override
++        public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
++            return b.append("com.bridj.Pointer");
++        }
+     }
+ 
+     protected static TypeRef pointerType(TypeRef tr) {
+-        return classType(Pointer.class); // TODO
++        return new PointerTypeRef(tr);
+     }
+     protected static TypeRef classType(final Class<?> c, Class<? extends Annotation>... annotations) {
+         return classType(c, null, annotations);
+diff --git a/GSPFramework/src/main/java/com/bridj/cpp/GCC4Demangler.java b/GSPFramework/src/main/java/com/bridj/cpp/GCC4Demangler.java
+index 8e779d5..7df1f65 100644
+--- a/GSPFramework/src/main/java/com/bridj/cpp/GCC4Demangler.java
++++ b/GSPFramework/src/main/java/com/bridj/cpp/GCC4Demangler.java
+@@ -1,35 +1,67 @@
+ package com.bridj.cpp;
+ 
+ import java.util.ArrayList;
+-import java.util.HashMap;
+ import java.util.List;
+-import java.util.Map;
+ 
+ import com.bridj.Demangler;
+ import com.bridj.JNI;
+ import com.bridj.NativeLibrary;
+-import com.bridj.Pointer;
+ import com.bridj.Demangler.ClassRef;
+ import com.bridj.Demangler.DemanglingException;
+ import com.bridj.Demangler.MemberRef;
+ import com.bridj.Demangler.NamespaceRef;
+ import com.bridj.Demangler.TypeRef;
+ import com.bridj.Demangler.SpecialName;
++import java.util.HashMap;
++import java.util.Map;
+ 
+ public class GCC4Demangler extends Demangler {
+ 	
+ 	public GCC4Demangler(NativeLibrary library, String symbol) {
+ 		super(library, symbol);
+ 	}
+-	
++
++    private Map<String, TypeRef> shortcuts = new HashMap<String, TypeRef>();
++    int nextShortcutId = -1;
++    private String nextShortcutId() {
++        int n = nextShortcutId++;
++        return n == -1 ? "_" : Integer.toString(n, 36).toUpperCase() + "_";
++    }
++
++    private TypeRef parseShortcutType() {
++        if (peekChar() == '_') {
++            return shortcuts.get(Character.toString(consumeChar()));
++        }
++        String id = "";
++        while (peekChar() != '_') {
++            id += consumeChar();
++        }
++        id += consumeChar();
++        TypeRef res = shortcuts.get(id);
++        return res;
++    }
++    private TypeRef parsePointerType() throws DemanglingException {
++        TypeRef pointed = parseType();
++        TypeRef res = pointerType(pointed);
++        String id = nextShortcutId();
++        shortcuts.put(id, res);
++        return res;
++    }
++
+ 	public TypeRef parseType() throws DemanglingException {
+-		if (Character.isDigit(peekChar()))
+-			return simpleType(parseName());
++		if (Character.isDigit(peekChar())) {
++                    String name = parseName();
++                    String id = nextShortcutId();
++                    TypeRef res = simpleType(name);
++                    shortcuts.put(id, res);
++                    return res;
++                }
+ 		
+ 		switch (consumeChar()) {
++		case 'S':
++			return parseShortcutType();
+ 		case 'P':
+-			parseType(); // TODO we don't care what this points to right now
+-			return classType(Pointer.class);
++			return parsePointerType();
+ 		case 'F':
+ 			// TODO parse function type correctly !!!
+ 			while (consumeChar() != 'E') {}
+@@ -42,8 +74,9 @@ public class GCC4Demangler extends Demangler {
+ 		case 'c':
+ 		case 'a':
+ 		case 'h': // unsigned
+-		case 'b': // bool
+ 			return classType(Byte.TYPE);
++		case 'b': // bool
++			return classType(Boolean.TYPE);
+ 		case 'l':
+ 		case 'm': // unsigned
+ 			return classType(JNI.is64Bits() ? Long.TYPE : Integer.TYPE);
+@@ -90,7 +123,9 @@ public class GCC4Demangler extends Demangler {
+ 			mr.setMemberName(str);
+ 			return mr;
+ 		}
+-		consumeCharIf('_');
++		// REVIEW-IT: ignore _ _ instead of counting it as _
++		if (peekChar() == '_')
++			return null; // can be a type info, a virtual table or strange things like that
+ 		expectChars('Z');
+ 		
+ 		if (peekChar() == 'T')
+@@ -99,8 +134,11 @@ public class GCC4Demangler extends Demangler {
+ 		List<String> ns = new ArrayList<String>();
+ 		if (consumeCharIf('N')) {
+ 			do {
++                            // TODO better than simple increment
++                            nextShortcutId++;
+ 				ns.add(parseName());
+ 			} while (Character.isDigit(peekChar()));
++			nextShortcutId--; // correct the fact that we parsed one too much
+ 			mr.setMemberName(ns.remove(ns.size() - 1));
+ 			if (!ns.isEmpty()) {
+ 				ClassRef parent = new ClassRef();
+

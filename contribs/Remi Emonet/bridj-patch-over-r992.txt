@@ -1,0 +1,39 @@
+
+=== version de base ===
+
+Si mes commentaires de commit dans mon historique sont corrects, la version du svn que j'ai modifiée est la révision 992.
+
+
+=== taille du prefix pour le patch ===
+
+Depuis le dossier parent de "com/" ("src/main/java" dans le cas de maven), la taille du prefix est 5 (-p5).
+   cd src/main/java
+   patch -p5 < bridj-patch-over-r992.patch
+
+
+=== Copyright Transfert Declaration ===
+
+I, Rémi Emonet, declare being the only author of the attached patch file "bridj-patch-over-r992.patch"
+(with sha1sum: 1c2ddd23c08cc76b19c8805b1277ab3059c884a2). 
+
+I fully transfer the copyright for this patch to Olivier Chafik for a
+possible integration into the "BridJ" project provided it uses
+opensource licenses such as BSD license, Apache license, MIT license
+or any equivalent licensing scheme.
+
+
+
+
+=== NOTES INTERNES ===
+
+git diff -p 393941 HEAD com/ > ../../../bridj-patch-over-r992.txt
+
+== HEAD
+commit 45199b5a18cfee500939dd6fe7ea35ca71489600
+Author: Rémi Emonet <remi.emonet@idiap.ch>
+Date:   Tue Jul 27 20:51:54 2010 +0200
+== 393941
+commit 39394111ba4f11cf1428cca41d7205f6b51d6dc9
+Author: Rémi Emonet <remi.emonet@idiap.ch>
+Date:   Fri May 21 23:58:47 2010 +0200
+

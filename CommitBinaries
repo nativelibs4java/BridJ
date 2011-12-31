@@ -1,0 +1,14 @@
+#!/bin/bash
+
+./GitConfig
+
+FILES=`git status | egrep 'modified:|new file:' | sed 's/#//' | sed 's/modified://' | sed 's/new file://' | egrep '\.so|\.dylib'`
+
+PLATFORM="$1"
+if [[ -z "$PLATFORM" ]] ; then
+	PLATFORM="`uname -sm`" ;
+fi
+
+if [[ ! -z "$FILES" ]] ; then
+	git commit -m "BridJ: updated binaries for $PLATFORM" $FILES ;
+fi

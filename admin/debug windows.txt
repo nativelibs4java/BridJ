@@ -1,0 +1,7 @@
+32 bits :
+
+c:\Program Files (x86)\Java\jdk1.6.0_20\bin\java.exe
+-cp C:\src\nativelibs4java\libraries\Runtime\BridJ\target\bridj-0.7-SNAPSHOT.jar Run
+C:\src\nativelibs4java\libraries\Runtime\BridJ
+BRIDJ_LIBRARY=C:\src\nativelibs4java\libraries\Runtime\BridJ\src\main\cpp\buildsys\vs2008\Debug\bridj.dll
+

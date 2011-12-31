@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [[ ! -f junit.jar ]] ; then 		cp ~/.m2/repository/junit/junit/4.8.2/junit-4.8.2.jar junit.jar ; fi
+if [[ ! -f jna.jar ]] ; then 			cp ~/.m2/repository/net/java/dev/jna/jna/3.2.7/jna-3.2.7.jar jna.jar ; fi
+if [[ ! -f javolution.jar ]] ; then 	cp ~/.m2/repository/javolution/javolution/5.5.1/javolution-5.5.1.jar javolution.jar ; fi
+
+MVN_VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`" 
+
+mvn clean package -DskipTests
+
+echo "#\n# ARM binaries :"
+unzip -l target/bridj-$MVN_VERSION.jar | grep arm
+
+if [[ "$1" == "copy" ]] ; then
+	for F in junit.jar jna.jar javolution.jar target/bridj-$MVN_VERSION.jar target/bridj-$MVN_VERSION-tests.jar ; do
+		scp $F mobile@iphone:src/nativelibs4java/Runtime/BridJ/$F ;
+	done ;
+else
+	#export JUNIT_TEST_CLASSES="`find target/test-classes/org/bridj/*Test.class | sed 's/\.class//' | sed 's/target\/test-classes\/org\/bridj\///' | tr / .`"
+	#export JUNIT_TEST_CLASSES="`find target/test-classes/org/bridj/*Test.class | sed 's/\.class//' | sed 's/target\/test-classes\///' | tr / .`"
+	
+	JUNIT_TESTS="`unzip -l target/bridj-$MVN_VERSION-tests.jar | grep '.*Test.class' | grep -v '\\$' | sed 's/.*org/org/' | sed 's/\.class//' | tr / . `"
+	
+	java -cp target/bridj-$MVN_VERSION.jar:target/bridj-$MVN_VERSION-tests.jar:junit.jar:jna.jar:javolution.jar org.junit.runner.JUnitCore $JUNIT_TESTS ;
+
+fi

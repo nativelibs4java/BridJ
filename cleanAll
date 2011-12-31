@@ -1,0 +1,13 @@
+mvn clean
+
+rm -fR src/main/cpp/bridj/build_out/
+
+ANDROID_TEST_LIB_DIR=src/main/cpp/android-test
+rm -fR $ANDROID_TEST_LIB_DIR/lib/*
+rm -fR $ANDROID_TEST_LIB_DIR/bin
+rm -fR $ANDROID_TEST_LIB_DIR/libs
+rm -fR $ANDROID_TEST_LIB_DIR/obj
+rm -fR $ANDROID_TEST_LIB_DIR/gen
+
+rm -fR src/test/cpp/bridj/build_out/
+

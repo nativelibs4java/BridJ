@@ -1,0 +1,42 @@
+#pragma once
+#ifndef _OBJC_PROXY_H
+#define _OBJC_PROXY_H
+
+#include <jni.h>
+
+#import <Cocoa/Cocoa.h>
+
+// http://borkware.com/rants/agentm/elegant-delegation/
+
+@interface ObjCProxy : NSObject // NSProxy 
+
+	{
+		jobject javaInstance;
+	}
+
+	- (id) initWithEnv: (JNIEnv*)env javaInstance: (jobject)theJavaInstance;
+	
+	- dealloc;
+	
+	- (void)forwardInvocation: (NSInvocation*)anInvocation;
+	
+	- (NSMethodSignature*)methodSignatureForSelector: (SEL)aSelector;
+	
+	// NSProxy :
+	
+	//- (BOOL)respondsTo: (SEL)aSelector;
+	
+	//- (NSString*)description;
+	/*
+	- (id)performSelector: (SEL)aSelector;
+	
+	- (void)doesNotRecognizeSelector:(SEL)aSelector;
+
+	- (BOOL) conformsTo: (Protocol *)aProtocolObject;
+	+ (BOOL) conformsTo: (Protocol *)aProtocolObject;
+	*/
+@end
+
+id newObjCProxy(JNIEnv* env, jobject javaInstance);
+
+#endif // _OBJC_PROXY_H

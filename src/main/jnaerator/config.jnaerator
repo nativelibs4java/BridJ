@@ -1,0 +1,28 @@
+-runtime BridJ
+-noJar 
+-noComp
+-nocpp
+
+-DJNICALL=
+-Djboolean=bool
+-Djint=int
+-Djobject=void*
+"-Djlong=long long"
+
+/*
+-library jawt
+-package org.bridj.jawt
+	"-I$(JAVA_HOME)/include"
+	"-I$(JAVA_HOME)/include/win32"
+	"$(JAVA_HOME)/include/jawt.h"
+	"$(JAVA_HOME)/include/win32/jawt_md.h"
+	//-o "$(DIR)/../../../target/generated-sources/java"
+*/	
+
+-library dyncall
+-package org.bridj.dyncall
+	"-I$(DYNCALL_HOME)/dyncall"
+	"$(DYNCALL_HOME)/dyncall/dyncall.h"
+	"$(DYNCALL_HOME)/dyncall/dyncall_signature.h"
+	
+	

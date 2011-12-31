@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+alias javac="java -jar ~/bin/ecj-3.7M7.jar"
+DYNCALL_HOME=~/src/dyncall/dyncall
+
+JUNIT_VERSION=4.8.2
+JUNIT_JAR_NAME=junit-$JUNIT_VERSION.jar
+JUNIT_JAR=~/bin/$JUNIT_JAR_NAME
+JUNIT_URL=https://github.com/downloads/KentBeck/junit/$JUNIT_JAR_NAME
+
+BRIDJ_VERSION=0.5-SNAPSHOT
+BRIDJ_JAR_NAME=bridj-$BRIDJ_VERSION.jar
+BRIDJ_JAR=target/$BRIDJ_JAR_NAME
+BRIDJ_URL=http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/bridj/$BRIDJ_VERSION/$BRIDJ_JAR_NAME
+
+JAVA_SOURCE=1.6
+JAVA_TARGET=1.6
+
+JAVA_ARGS="-source $JAVA_SOURCE -target $JAVA_TARGET "
+
+if [[ -z "$NO_MVN" ]] ; then
+	mvn velocity:generate ;
+fi
+sh BuildNative
+
+if [[ "$DOWNLOAD_JAR" != "1" ]] ; then
+	javac -d target/classes/ `find src/main/java -name '*.java'` `find target/generated-sources/main -name '*.java'` -sourcepath src/main/java $JAVA_ARGS || (echo "Compilation of main failed" && exit 1) ;
+else
+	if [[ ! -e "$BRIDJ_JAR" ]] ; then
+		wget -P target $BRIDJ_URL ;
+	fi ;
+fi
+
+javac -d target/test-classes/ -classpath target/bridj-*-SNAPSHOT.jar:target/classes `find src/test/java -name '*.java'` `find target/generated-sources/test -name '*.java'` -sourcepath src/test/java $JAVA_ARGS || (echo "Compilation of tests failed" && exit 1)
+
+if [[ ! -e "$JUNIT_JAR" ]] ; then
+	wget --no-check-certificate -P ~/bin $JUNIT_URL ;
+fi
+
+ALL_TEST_CLASSES=`ls src/test/java/org/bridj/*.java target/generated-sources/test/org/bridj/*.java | sed 's/src\/test\/java\///g' | sed 's/\.java//g'` | tr '/' '.'
+
+echo "Available test classes :\n$ALL_TEST_CLASSES"
+TEST_CLASSES=${TEST_CLASSES:-$ALL_TEST_CLASSES}
+
+java -cp $JUNIT_JAR:target/bridj-*-SNAPSHOT.jar:target/classes:target/test-classes org.junit.runner.JUnitCore $TEST_CLASSES
+
+

@@ -1,0 +1,23 @@
+echo "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
+		 <modelVersion>4.0.0</modelVersion>
+		  <groupId>com.nativelibs4java</groupId>
+		  <artifactId>com.google.android.dx</artifactId>
+		  <name>Android SDK's dx Tool</name>
+		  <url>http://developer.android.com/guide/developing/tools/index.html</url>
+		  <version>$ANDROID_SDK_VERSION</version>
+		  <packaging>jar</packaging>
+		  <description>
+			dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
+		  </description> 
+
+		<licenses>
+		  <license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		  </license>
+		</licenses>
+		
+	</project>
+" > android-sdk-dx.pom

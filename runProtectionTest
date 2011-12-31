@@ -1,0 +1,1 @@
+BRIDJ_PROTECTED=1 mvn test -o -Dtest=ExceptionsTest

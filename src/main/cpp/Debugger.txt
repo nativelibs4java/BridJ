@@ -1,0 +1,3 @@
+"$(JAVA_HOME)\bin\java.exe"
+-cp c:\Users\Olivier\Prog\dyncall\dyncall\bridj\java\build\classes bridj.Main
+c:\Users\Olivier\Prog\dyncall\dyncall\buildsys\vs2008\x64\Debug

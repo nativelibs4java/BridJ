@@ -1,0 +1,19 @@
+DIR=src/main/resources/org/bridj/lib
+
+echo "Before :"
+ls -l $DIR/*/*.so* $DIR/*/*.dylib* $DIR/*/*.dll*
+
+# rm -fR src/main/resources/lib src/main/resources/org/bridj/lib/iphoneos*
+# 7z a src/main/resources/lib.7z src/main/resources/org/bridj/lib
+# rm -fR src/main/resources/org
+# exit 1
+
+
+for F in `find $DIR -name '*.so' -or -name '*.dylib' -or -name '*.dll'` ; do 
+	7z a $F.7z $F > /dev/null ; 
+done
+
+rm $DIR/*/*.so $DIR/*/*.dylib $DIR/*/*.dll
+
+echo "After :"
+ls -l $DIR/*/*.so* $DIR/*/*.dylib* $DIR/*/*.dll*

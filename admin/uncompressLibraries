@@ -1,0 +1,8 @@
+DIR=src/main/resources/org/bridj/lib
+
+for F in `find $DIR -name '*.7z'` ; do 
+	echo 7z e $(F/.\//) `dirname $F` ; 
+done
+
+#ls -l */*.so* */*.dylib*
+#rm */*.7z

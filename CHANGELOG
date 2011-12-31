@@ -1,0 +1,195 @@
+Current version : BridJ 0.7-SNAPSHOT
+
+- Fixed deletion of temporary extracted library files with shutdown hook (issue #197)
+- Fixed Unix binaries dependency on GLIBC 2.11 (lowered to version 2.2.5) (issue #195)
+- Fixed some pointer methods : 3D pointers allocation, Pointer.setXXXsAtOffset, float endianness conversion
+- Fixed regression on struct-valued struct fields (when implemented by java fields) (issue #200)
+- Fixed crash with valued enum return values (issue #196)
+- Fixed crash of dynamic callbacks on Win32
+- Fixed attachment of native threads in native -> Java callbacks (should attach them as JVM daemon threads)
+- Enhanced multi-threaded performance of PointerIO.getInstance (issue #203)
+- Added Pointer.getXxxs(XxxBuffer)
+- Added alias mechanism for annotations : any annotation which class is itself annotated by @Ptr / @CLong can serve as an alias (issue #202)
+- Added error log when failed to load Windows DLL
+- Enabled all compiler optimizations on all platforms
+- Updated doc of Pointer.getXxxs()
+
+BridJ 0.6 (20111107, commit 4950e5c58f32869ce460dbbc59fe969865dd9288)
+
+- Added errno/GetLastError() mechanism : declare methods to throw org.bridj.LastError and it's all handled automatically (issue #74)
+- Added protected mode (-Dbridj.protected=true / BRIDJ_PROTECTED=1), to prevent native crashes (makes BridJ bindings slower + disables optimized raw calls).
+- Added proxy-based Objective-C delegates support (forwards unknown methods to a Java instance) (issue #188)
+- Added Objective-C 2.0 blocks support (similar to callbacks, inherit from ObjCBlock instead of Callback) (issue #192)
+- Added Pointer.asList() and .asList(ListType) to get a List view of the pointed memory 
+	- depending on the ListType, the view can be mutable / resizeable
+	- removed the List interface from Pointer (which is now just an Iterable)
+	- added Pointer.allocateList(type, capacity) to create a NativeList from scratch (has a .getPointer method to grab the resulting memory at the end)
+- Added Pointer.moveBytesTo(Pointer)
+- Added support for embedded libraries extraction from "lib/arch" paths (along with "org/bridj/lib/arch", where arch uses BridJ's convention)
+- Added TimeT (time_t), timeval classes (issue #72)
+- Added Platform.getMachine() (same result as `uname -m`)
+- Added support for multiarch Linux distributions (issue #2)
+- Added support for versioned library file names (issue #72)
+- Added global allocated memory alignment setting (BRIDJ_DEFAULT_ALIGNMENT env. var. & bridj.defaultAlignment property), + Pointer.allocateAlignedArray
+- Added basic calls log mechanism (disables direct mode) : -Dbridj.logCalls=true or BRIDJ_LOG_CALLS=1 (only logs the method name & signature, not the arguments or returned values)
+- Added BridJ.setMinLogLevel(Level) (issue #190)
+- Added Platform.addEmbeddedLibraryResourceRoot(root) to use & customize the embedded library extraction feature in user projects
+- Added support for packed structs (@Struct(pack = 1), or any other pack value)
+- Added check of BridJ environment variables and Java properties : if any BRIDJ_* env. var. or bridj.* property does not exist, it will log warnings + full list of valid options
+- Added @JNIBound annotation to mark native methods that should not be bound by BridJ but by plain old JNI
+- Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
+- Fixed Pointer.getNativeObjectAtOffset(long byteOffset, Type type)
+- Fixed struct fields implemented as Java fields
+- Fixed resolution of MacOS X "ApplicationServices" framework binaries, such as CoreGraphics
+- Fixed some COM bugs with IUnknown
+- Fixed demangling/matching of CLong & SizeT
+- Fixed CLong & SizeT arguments
+- Fixed Objective-C runtime (basic features), added NSString constructor & NSDictionary (with conversion to/from Map<NSString, NSObject>)
+- Fixed crashes on Win32 (when using Pointer class in bound function arguments)
+- Fixed crash during deallocation of Callbacks + fixed leak of Callbacks (now need to retain a reference to callbacks or use BridJ.protectFromGC / unprotectFromGC)
+- Made the StructIO customization mechanism more flexible
+- Made JawtLibrary public
+- Various Javadoc tweaks
+
+BridJ 0.5 (r2128, 20110621)
+
+- Added support for Android(arm) platform
+- Added Pointer.clone() that duplicates the memory (requires a pointer with bounds information)
+- Added various pre-packaged specialized subsets of BridJ : c-only, windows-only, macosx-only, unix-only, linux-only, ios-only, android
+- Added Pointer.allocateDynamicCallback(DynamicCallback<R>, callingConv, returnType, paramTypes...)
+- Added BridJ native library path override : one can set the BRIDJ_LIBRARY environment variable or the "bridj.library" property to the full path of libbridj.so/.dylib/.dll
+
+BridJ 0.4.2 (r2009, 20110527)
+
+- Fixed behaviour in environments with a null default classloader (as in Scala 2.9.0) 
+- Added support for Java 1.5 (issue #57)
+- Added support for MacOS X 10.4, 10.5 (was previously restricted to 10.6)
+
+BridJ 0.4.1 (r1990, 20110513)
+
+- Fixed callbacks on Windows x86
+- Fixed multithreaded callbacks ! (callbacks called in a different thread than the one that created them used to hang indefinitely)
+- Fixed Pointer and ValuedEnum arguments and return values in callbacks
+- Fixed loading of libraries that depend on other libraries in the same directory on Windows (issue #65)
+- Fixed BridJ.sizeOf(Pointer.class), sizeOf(SizeT.class), sizeOf(CLong.class)...
+- Enhanced C++ templates support
+- Added support for Windows APIs Unicode vs. ANSI functions renaming (e.g. SendMessage being one of SendMessageW or SendMessageA, depending on Platform.useUnicodeVersionOfWindowsAPIs)
+- Added deprecated support for struct fields implemented as Java fields, to ease up migration from JNA (needs manual calls to BridJ.writeToNative(struct) and BridJ.readFromNative(struct)) (issue #54)
+- Added preliminary read-only support for STL's std::vector<T> C++ type
+- Added BridJ.describe(Type) to describe structs layouts (automatically logged for each struct type when BRIDJ_DEBUG=1 or -Dbridj.debug=true)
+- Added BridJ.describe(NativeObject).
+- Added StructObject.toString() (calls BridJ.describe(this))
+- Added BRIDJ_DEBUG_POINTERS=1 (or -Dbridj.debug.pointers=true) to display extended pointer allocation / deallocation debug information
+- Reorganized Windows COM packages (moved out DirectX code to it own top-level project : com.nativelibs4java:directx4java)
+- Implemented FlagSet.equals
+
+BridJ 0.4 (r1869, 20110408)
+
+- Added parsing of GNU LD scripts (issue #61)
+- Fixed demangling of size_t / long C types with GCC
+- Fixed Linux x86 symbols
+- Added experimental C++ virtual overrides : it is now possible to subclass C++ classes from Java, even with anonymous inner classes ! (no support for multiple inheritance yet)
+- Fixed crash in C++ destructors at the JVM shutdown (issue #60)
+- Fixed callbacks with float args
+- Added support for varargs functions
+- Fixed size computation of structs with array fields (issue #64) 
+
+BridJ 0.3.1 (r1817, 20110329)
+
+- Introduced basic C++ templates support (binding of compiled template classes, not template methods / functions yet)
+- Added dynamic functions support : Pointer.asDynamicFunction(callConv, returnType, argTypes...)
+- Added support for arbitrary C++ constructors
+- Added support for __stdcall callbacks
+- Added COM VARIANT class with very basic data conversion support
+- Added many COM UUID definitions (from uuids.h, codecapi.h, ksuuids.h)
+- Added Solaris x86 support
+- Added @DisableDirect annotation to force-disable raw assembly optimizations (also see BRIDJ_DIRECT=0 or -Dbridj.direct=false for global disable)
+- Fixed long return values (issue #47)
+- Fixed '@Ptr long' return values on 32 bits platforms
+- Fixed structs sub-structs and array fields
+- Fixed unions : 
+	- pure unions can be created with the @Union annotation on the union class (+ fields annotated with @Field(value = uniqueId))
+	- structs with unioned fields can be defined with fields annotated with @Field(value = uniqueId, unionWith = indexOfTheFirstFieldOfTheUnion) 
+- Fixed size computation of unions & structs (issue #51)
+- Fixed JAWTUtils on win32 (issue #52)
+- Fixed Pointer.pointerToAddress(long, Class, Releaser) (issue #48)
+- Fixed incomplete refactoring (issue #58)
+- Moved all the is64Bits(), isWindows()... methods and SIZE_T_SIZE constants out of JNI class into new Platform class
+- Moved the C++ symbols demanglers to package org.bridj.demangling
+- Renamed Pointer.asPointerTo(Type) to Pointer.as(Type)
+- Enhanced FlagSet (added toString(), toEnum(), fromValue(ValuedEnum<E>))
+- Enhanced Pointer (added allocate(Type), allocateArray(Type, long))
+- Greatly enhanced the API Javadoc
+
+BridJ 0.3 (r1638, 20110204):
+
+- Fixed binding of "c" library on Unix
+- Fixed iteration on unbound native-allocated pointers (issue 37). 
+- Fixed Visual C++ demangling (issue 36 : bad handling of back-references).
+- Added Pointer.getBuffer(), getSizeTs(), getCLongs() and other missing methods.
+- Fixed byteOffset-related issues in CLong and SizeT pointer read/write methods.
+- Renamed most pointer byteOffset methods with an -AtOffset suffix (for instance, Pointer.getInt(long) becomes getIntAtOffset(long))
+- Inverted charset and StringType arguments in Pointer.getString / .setString methods
+- Renamed Pointer.withIO(PointerIO<U>) to Pointer.as(PointerIO<U>)
+- Added Pointer.asUntyped() (equiv. to Pointer.as((Class<?>)null))
+- Allow pointerToBuffer on a non-direct buffer (and added Pointer.updateBuffer
+to copy data back to non-direct buffer if needed)
+- Assume @Runtime(CRuntime.class) by default
+- Autodetect calling convention on Windows (based on name mangling), unless convention is explicitely specified with @Convention(Style.X)
+- Added BRIDJ_<LIBNAME>_LIBRARY environment variables to hard-code the shared library path in priority
+- Added library alias mechanism : BridJ.setNativeLibraryActualName, .addNativeLibraryAlias
+- Fixed callbacks-related Win32 crashes
+- Fixed super-critical bug on Windows 32 bits with size_t arguments !
+- Fixed some Pointer endianness bugs
+
+BridJ 0.2 (r1330, 20101011):
+
+- Renamed package com.bridj to org.bridj
+- Vastly improved JNAerator support : now decent and complete :-)
+- Enhanced C support
+	- Faster structs that rely more on JNAerator
+	- Optimized structs performance (added comparison tests with Javolution & JNA)
+- Enhanced C++ support :
+	- Automatic call of C++ destructors
+	- Better GCC demangling (contributed by Remi Emonet)
+	- Fixed long and size_t signature matching (@CLong and @Ptr annotations)
+	- Fixed size computation of (simply) inherited structs and classes
+- Enhanced Pointer<T> class :
+	- Full JavaDocs
+	- Implements List<T>
+	- Support for 2D & 3D arrays, with syntax directly equivalent to C :
+			float array[100][200];
+			float value = array[i][j];
+		Is now :
+			Pointer<Pointer<Float>> array = pointerToFloats(new float[width][height]);
+			// or
+			Pointer<Pointer<Float>> array = pointerToFloats(width, height);
+			float value = array.get(i).get(j);
+	- More consistent read/write methods, added variants for CLong, SizeT, Boolean, CString, WideCString, PascalString, WidePascalString...
+	- Renamed getRemainingElements to getValidElements, getRemainingBytes to getValidBytes 
+	- Added standard bounds-checked util methods : 
+		- Pointer.copyTo (memcpy)
+		- moveTo (memmov)
+		- clearBytes (memset)
+		- findByte (memchr)
+	- Fixed multiple-endianness support for floats and doubles
+- Added JAWTUtils.getNativePeerHandle(Component)
+- Refactored native libraries (a bit smaller)
+- Enhanced runtime :
+	- Accept .drv as .dll files on Windows
+	- Support for name aliasing (@Name, in addition to the @Symbol annotation that bypasses demangling)
+	- Now compiling native libraries with full optimizations
+	- Fixed assembler optimizations on Win32, added experimental optimizations for Linux64
+	- Can now control assembler optimizations : BridJ.setDirectModeEnabled(boolean)
+- Built for Win32/64, MacOS X (Universal: x86, x64, ppc), Ubuntu Linux (x86, x64)
+
+BridJ 0.1
+
+- Basic support for C (enums, functions, callbacks, structs with native getters/setters)
+- Basic support for C++ with annotations- and demangling-based dynamic signature matching :
+	- Normal and virtual methods
+	- No class fields
+	- No templates
+	- No destructors
+	- No non-trivial constructors)
+- Built for Win32/64, MacOS X (Universal: x86, x64, ppc), Linux32

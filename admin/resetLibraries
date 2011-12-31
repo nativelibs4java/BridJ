@@ -1,0 +1,2 @@
+rm -fR src/main/resources/*
+git checkout src/main/resources/
