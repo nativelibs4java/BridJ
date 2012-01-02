@@ -131,6 +131,7 @@ public class Platform {
                     arch.equalsIgnoreCase("sparcv9");
             }
         }
+        systemClassLoader = createClassLoader();
         
         addEmbeddedLibraryResourceRoot("lib/");
         if (!isAndroid())
@@ -149,8 +150,6 @@ public class Platform {
 		CLONG_SIZE = sizeOf_long();
         
         is64Bits = POINTER_SIZE == 8;
-        
-        systemClassLoader = createClassLoader();
         
         Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
             shutdown();
