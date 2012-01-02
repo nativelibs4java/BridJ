@@ -101,8 +101,11 @@ public class BytecodeAnalyzer {
     public static List<String> getMethodNames(Class c, Class recurseTo) throws IOException {
         return new BytecodeAnalyzer(c, recurseTo, EnumSet.of(Features.MethodNames)).getMethodNames();
     }
-    static class EmptyVisitor implements ClassVisitor {
+    static class EmptyVisitor extends ClassVisitor {
 
+        public EmptyVisitor() {
+            super(Opcodes.ASM4);
+        }
         public void visit(int i, int i1, String string, String string1, String string2, String[] strings) {
             
         }
