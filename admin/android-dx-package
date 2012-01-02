@@ -1,0 +1,137 @@
+#!/bin/bash
+#
+# This script bundles Android's dx tool for OSS Sonatype Maven Repository.
+# For more details, see http://docs.sonatype.org/x/vgBl
+#
+
+GIT_URL="https://android.googlesource.com/platform/dalvik"
+
+git clone $GIT_URL || ( echo "Failed to clone $GIT_URL" && exit 1 )
+
+cd dalvik/dx
+
+DX_VERSION=`cat src/com/android/dx/Version.java | grep VERSION | sed -E 's/^.*"(.*)".*$/\1/'`
+
+if [[ -z "$DX_VERSION" ]]
+then 
+	echo "Failed to detect version of dx"
+	exit 1
+else
+	echo "Detected version of dx : $DX_VERSION"
+fi
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.google.android.platform.dalvik</groupId>
+	<artifactId>dx</artifactId>
+	<name>Android SDK's dx Tool</name>
+	<url>http://developer.android.com/guide/developing/tools/index.html</url>
+	<version>$DX_VERSION</version>
+	<packaging>jar</packaging>
+	
+	<description>
+		dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
+	</description> 
+	
+	<licenses>
+		<license>
+			<name>Apache 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>
+Copyright (C) 2006 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0 (the \"License\");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an \"AS IS\" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+			</comments>
+		</license>
+	</licenses>
+
+	<developers>
+		<!-- Probably lots of people from Google should be inserted here -->
+		<developer>
+			<id>danfuzz</id>
+			<name>Dan Bornstein</name>
+			<email>danfuzz@milk.com</email>
+			<url>http://www.milk.com/home/danfuzz/</url>
+		</developer>
+	</developers>
+	
+	<scm>
+		<connection>scm:git:$GIT_URL</connection>
+		<url>$GIT_URL</url>
+	</scm>
+	
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+	
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+</project>
+" > pom.xml
+
+mvn clean install $@ || ( echo "Failed" && exit 1 )
+
+cd target
+jar -cvf ../bundle.jar *.*
+cd ..
+echo "
+Generation of bundle succeeded.
+Now please upload file `pwd`/bundle.jar to https://oss.sonatype.org/ (in \"Staging Upload\" tab)
+(for more details, see http://docs.sonatype.org/x/vgBl)"
