@@ -6,6 +6,8 @@ package org.bridj;
 
 import com.android.dx.dex.cf.CfOptions;
 import com.android.dx.dex.cf.CfTranslator;
+import com.android.dx.dex.file.DexFile;
+import com.android.dx.dex.DexOptions;
 import dalvik.system.DexClassLoader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,8 +40,10 @@ class AndroidClassDefiner implements ClassDefiner {
     
     private static final byte[] dex(String className, byte[] classData) throws ClassFormatError {
         try {
-            com.android.dx.dex.file.DexFile dxFile = new com.android.dx.dex.file.DexFile();
-            dxFile.add(CfTranslator.translate(className.replace('.', '/') + ".class", classData, new CfOptions()));
+            DexOptions dexOptions = new DexOptions();
+            DexFile dxFile = new DexFile(dexOptions);
+            CfOptions cfOptions = new CfOptions();
+            dxFile.add(CfTranslator.translate(className.replace('.', '/') + ".class", classData, cfOptions, dexOptions));
             StringWriter out = BridJ.debug ? new StringWriter() : null;
             byte[] dexData = dxFile.toDex(out, false);
             if (BridJ.debug)

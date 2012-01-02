@@ -1,4 +1,5 @@
 package org.bridj.util;
+import org.bridj.Platform;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -78,7 +79,7 @@ public class BytecodeAnalyzer {
     static URL getClassResource(Class c) throws FileNotFoundException {
         String n = c.getName();
         String p = n.replace('.', '/') + ".class";
-        URL u = c.getClassLoader().getResource(p);
+        URL u = Platform.getClassLoader(c).getResource(p);
         if (u == null)
             throw new FileNotFoundException("Resource '" + p + "'");
         return u;
