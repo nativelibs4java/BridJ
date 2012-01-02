@@ -23,7 +23,7 @@ fi
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.google.android.platform.dalvik</groupId>
+	<groupId>com.google.android.tools</groupId>
 	<artifactId>dx</artifactId>
 	<name>Android SDK's dx Tool</name>
 	<url>http://developer.android.com/guide/developing/tools/index.html</url>
@@ -83,20 +83,6 @@ limitations under the License.
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>1.4</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<executions>
 					<execution>
@@ -123,6 +109,32 @@ limitations under the License.
 		</plugins>
 	</build>
 	
+	<profiles>
+		<profile>
+			<id>gpg</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
 " > pom.xml
 

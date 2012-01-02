@@ -7,29 +7,33 @@
 	<url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
 	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
-
+	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
 		<version>1.7-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-
+	
+	<properties>
+		<shadedArtifactAttached>false</shadedArtifactAttached>
+	</properties>
+	
 	<dependencies>
-  	
+		
 		<dependency>
 			<groupId>asm</groupId>
 			<artifactId>asm</artifactId>
 			<version>3.3.1</version>
 		</dependency>
-	
+		
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
 			<version>3.4.0</version>
 			<scope>test</scope>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>javolution</groupId>
 			<artifactId>javolution</artifactId>
@@ -38,15 +42,9 @@
 		</dependency>
 	
 	</dependencies>
-
+	
 	<build>
 		<plugins>
-			<!--plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<excludes><exclude>**/Android*</exclude></excludes>
-				</configuration>
-			</plugin-->
   		<!--plugin>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>native-maven-plugin</artifactId>
@@ -69,7 +67,7 @@
 			  </javahClassNames>
 			</configuration>
 		</plugin-->
-  		
+			
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-velocity-plugin</artifactId>
@@ -82,7 +80,7 @@
 					</execution>
 				</executions>
 			</plugin>
-		
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -97,13 +95,13 @@
 					</execution>
 				</executions>
 			</plugin>
-		
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>1.4</version>
 				<executions>
-			
+					
 					<execution>
 						<id>c-package</id>
 						<phase>package</phase>
@@ -116,6 +114,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -132,7 +131,7 @@
 							</filters>
 						</configuration>
 					</execution>
-			
+					
 					<execution>
 						<id>mac-package</id>
 						<phase>package</phase>
@@ -145,6 +144,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -177,6 +177,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -197,32 +198,6 @@
 							</filters>
 						</configuration>
 					</execution>
-			  <!--execution>
-			  	<id>stripped-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>without-binaries</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/lib/**</exclude>
-								<exclude>lib/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution-->
-			
 					<execution>
 						<id>win-package</id>
 						<phase>package</phase>
@@ -235,6 +210,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -253,7 +229,7 @@
 							</filters>
 						</configuration>
 					</execution>
-			
+					
 					<execution>
 						<id>unix-package</id>
 						<phase>package</phase>
@@ -266,6 +242,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -282,7 +259,7 @@
 							</filters>
 						</configuration>
 					</execution>
-			
+					
 					<execution>
 						<id>linux-package</id>
 						<phase>package</phase>
@@ -295,6 +272,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -316,7 +294,7 @@
 							</filters>
 						</configuration>
 					</execution>
-			
+					
 					<execution>
 						<id>android-package</id>
 						<phase>package</phase>
@@ -343,7 +321,7 @@
 							</filters>
 						</configuration>
 					</execution>
-			
+					
 					<execution>
 						<id>desktop-package</id>
 						<phase>package</phase>
@@ -355,6 +333,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
@@ -369,34 +348,9 @@
 							</filters>
 						</configuration>
 					</execution>
-			
+				
 				</executions>
 			</plugin>
-		<!--
-		<plugin>
-		  <groupId>org.codehaus.mojo</groupId>
-		  <artifactId>cobertura-maven-plugin</artifactId>
-		  <version>2.4</version>
-		  <executions>
-		  	<execution>
-		  		<id>clean</id>
-		  		<phase>pre-site</phase>
-		  		<goals>
-		  			<goal>clean</goal>
-		  		</goals>
-		  	</execution>
-		  	<execution>
-		  		<id>instrument</id>
-		  		<phase>site</phase>
-		  		<goals>
-		  			<goal>instrument</goal>
-		  			<goal>cobertura</goal>
-		  			<goal>check</goal>
-		  		</goals>
-		  	</execution>
-		  </executions>
-		</plugin>
-		-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -442,21 +396,9 @@
 					</groups>
 				</configuration>
 			</plugin>
-  	 <!--
-		<plugin>
-			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>${jnaerator.version}</version>
-			<configuration>
-				<javaOutputDirectory>src/main/java</javaOutputDirectory>
-				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
-			</configuration>
-		</plugin>
-		-->
 		</plugins>
-		<!--sourceDirectory>src/main/android</sourceDirectory-->
 	</build>
-
+	
 	<profiles>
 		<profile>
 			<id>skip-android</id>
@@ -475,11 +417,9 @@
 							<testExcludes>
 								<exclude>**/Android*</exclude>
 							</testExcludes>
-							<!--includes><include>**/Android*</include></includes-->
 						</configuration>
 					</plugin>
 				</plugins>
-				<!--sourceDirectory>src/main/android</sourceDirectory-->
 			</build>
 		</profile>
 		<profile>
@@ -495,63 +435,18 @@
 					<version>2.3.3</version>
 					<scope>provided</scope>
 				</dependency>
-			
+				
 				<dependency>
-				<!--
-				First, download and install the Android SDK, and install the "Android SDK Platform-tools" from the Android SDK GUI :
-				
-					http://developer.android.com/sdk/index.html
-				
-				Then define some variables :
-				
-					export ANDROID_SDK_HOME=~/bin/android-sdk_r11-mac_x86
-					export ANDROID_SDK_VERSION=11
-					export ANDROID_DEX_JAR=$ANDROID_SDK_HOME/platform-tools/lib/dx.jar
-					
-				Write some pom stub :
-				
-					echo "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
-							 <modelVersion>4.0.0</modelVersion>
-							  <groupId>com.nativelibs4java</groupId>
-							  <artifactId>com.google.android.dx</artifactId>
-							  <name>Android SDK's dx Tool</name>
-							  <url>http://developer.android.com/guide/developing/tools/index.html</url>
-							  <version>$ANDROID_SDK_VERSION</version>
-							  <packaging>jar</packaging>
-							  <description>
-								dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
-							  </description> 
-		
-							<licenses>
-							  <license>
-								<name>Apache 2</name>
-								<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-								<distribution>repo</distribution>
-								<comments>A business-friendly OSS license</comments>
-							  </license>
-							</licenses>
-							
-						</project>
-					" > android-sdk-dx.pom
-					
-				And finally type this to deploy to the NativeLibs4Java repository :
-				
-					mvn deploy:deploy-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR -DrepositoryId=nativelibs4java-repo -Durl=sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven
-					
-				Or type this to install dx in the local Maven repository :
-				
-					mvn install:install-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR 
-					
-				-->
-					<!--groupId>com.nativelibs4java</groupId>
-					<artifactId>com.google.android.dx</artifactId-->
-					<groupId>com.google.android.platform.dalvik</groupId>
+					<!-- 
+					To build BridJ for Android, run :
+						mvn install -Pandroid
+						
+					You'll need to install dx into your local repository first :
+						admin/android-dx-package
+					-->
+					<groupId>com.google.android.tools</groupId>
 					<artifactId>dx</artifactId>
 					<version>1.7</version>
-					<scope>provided</scope>
-				<!--
-				<scope>provided</scope>
-				-->
 				</dependency>
 			</dependencies>
 		</profile>
@@ -575,13 +470,13 @@
 								<goals>
 									<goal>exec</goal>
 								</goals>
-						
+								
 								<configuration>
 									<executable>${basedir}/BuildNative</executable>
 									<workingDirectory>${basedir}</workingDirectory>
-						  <!--arguments>
-						  	<argument>${basedir}/BuildNative</argument>
-						  </arguments-->
+									<!--arguments>
+										<argument>${basedir}/BuildNative</argument>
+									</arguments-->
 								</configuration>
 							</execution>
 						</executions>
