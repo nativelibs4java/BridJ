@@ -1,5 +1,6 @@
 Current version : BridJ 0.7-SNAPSHOT
 
+- Fixed @Name annotation
 - Fixed deletion of temporary extracted library files with shutdown hook (issue #197)
 - Fixed Unix binaries dependency on GLIBC 2.11 (lowered to version 2.2.5) (issue #195)
 - Fixed some pointer methods : 3D pointers allocation, Pointer.setXXXsAtOffset, float endianness conversion
@@ -7,12 +8,19 @@ Current version : BridJ 0.7-SNAPSHOT
 - Fixed crash with valued enum return values (issue #196)
 - Fixed crash of dynamic callbacks on Win32
 - Fixed attachment of native threads in native -> Java callbacks (should attach them as JVM daemon threads)
+- Fixed C++ inner class name-mangling matching
+- Fixed signature of ITaskbarList3.SetProgressValue (issue #218)
+- Added ProcessUtils.getCurrentProcessId()
+- Added support of shortcuts in GCC4Demangler (contrib from RŽmi ƒmonet, issue #211)
+- Allow libname.so and name.so for embedded libraries on Unix (issue #215)
 - Enhanced multi-threaded performance of PointerIO.getInstance (issue #203)
 - Added Pointer.getXxxs(XxxBuffer)
 - Added alias mechanism for annotations : any annotation which class is itself annotated by @Ptr / @CLong can serve as an alias (issue #202)
-- Added error log when failed to load Windows DLL
-- Enabled all compiler optimizations on all platforms
+- Added native error log when LoadLibrary or dlopen failed
+- Enabled all compiler optimizations on all platforms but win32
 - Updated doc of Pointer.getXxxs()
+- Added experimental by-value struct support on amd64 for structs larger than 64 bits
+- 
 
 BridJ 0.6 (20111107, commit 4950e5c58f32869ce460dbbc59fe969865dd9288)
 
