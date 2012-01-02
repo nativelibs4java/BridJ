@@ -37,73 +37,16 @@
 			<scope>test</scope>
 		</dependency>
 	
-		<dependency>
-			<groupId>com.google.android</groupId>
-			<artifactId>android</artifactId>
-			<version>2.3.3</version>
-			<scope>provided</scope>
-		</dependency>
-	
-		<dependency>
-		<!--
-		First, download and install the Android SDK, and install the "Android SDK Platform-tools" from the Android SDK GUI :
-		
-			http://developer.android.com/sdk/index.html
-		
-		Then define some variables :
-		
-			export ANDROID_SDK_HOME=~/bin/android-sdk_r11-mac_x86
-			export ANDROID_SDK_VERSION=11
-			export ANDROID_DEX_JAR=$ANDROID_SDK_HOME/platform-tools/lib/dx.jar
-			
-		Write some pom stub :
-		
-			echo "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
-					 <modelVersion>4.0.0</modelVersion>
-					  <groupId>com.nativelibs4java</groupId>
-					  <artifactId>com.google.android.dx</artifactId>
-					  <name>Android SDK's dx Tool</name>
-					  <url>http://developer.android.com/guide/developing/tools/index.html</url>
-					  <version>$ANDROID_SDK_VERSION</version>
-					  <packaging>jar</packaging>
-					  <description>
-					  	dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
-					  </description> 
-
-					<licenses>
-					  <license>
-						<name>Apache 2</name>
-						<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-						<distribution>repo</distribution>
-						<comments>A business-friendly OSS license</comments>
-					  </license>
-					</licenses>
-					
-				</project>
-			" > android-sdk-dx.pom
-			
-		And finally type this to deploy to the NativeLibs4Java repository :
-		
-			mvn deploy:deploy-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR -DrepositoryId=nativelibs4java-repo -Durl=sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven
-			
-		Or type this to install dx in the local Maven repository :
-		
-			mvn install:install-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR 
-			
-		-->
-			<groupId>com.nativelibs4java</groupId>
-			<artifactId>com.google.android.dx</artifactId>
-			<version>11</version>
-			<scope>provided</scope>
-		<!--
-		<scope>provided</scope>
-		-->
-		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!--plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<excludes><exclude>**/Android*</exclude></excludes>
+				</configuration>
+			</plugin-->
   		<!--plugin>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>native-maven-plugin</artifactId>
@@ -511,10 +454,107 @@
 		</plugin>
 		-->
 		</plugins>
-
+		<!--sourceDirectory>src/main/android</sourceDirectory-->
 	</build>
 
 	<profiles>
+		<profile>
+			<id>skip-android</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				
+				<plugins>
+					<plugin>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<excludes>
+								<exclude>**/Android*</exclude>
+							</excludes>
+							<testExcludes>
+								<exclude>**/Android*</exclude>
+							</testExcludes>
+							<!--includes><include>**/Android*</include></includes-->
+						</configuration>
+					</plugin>
+				</plugins>
+				<!--sourceDirectory>src/main/android</sourceDirectory-->
+			</build>
+		</profile>
+		<profile>
+			<id>android</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				
+				<dependency>
+					<groupId>com.google.android</groupId>
+					<artifactId>android</artifactId>
+					<version>2.3.3</version>
+					<scope>provided</scope>
+				</dependency>
+			
+				<dependency>
+				<!--
+				First, download and install the Android SDK, and install the "Android SDK Platform-tools" from the Android SDK GUI :
+				
+					http://developer.android.com/sdk/index.html
+				
+				Then define some variables :
+				
+					export ANDROID_SDK_HOME=~/bin/android-sdk_r11-mac_x86
+					export ANDROID_SDK_VERSION=11
+					export ANDROID_DEX_JAR=$ANDROID_SDK_HOME/platform-tools/lib/dx.jar
+					
+				Write some pom stub :
+				
+					echo "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
+							 <modelVersion>4.0.0</modelVersion>
+							  <groupId>com.nativelibs4java</groupId>
+							  <artifactId>com.google.android.dx</artifactId>
+							  <name>Android SDK's dx Tool</name>
+							  <url>http://developer.android.com/guide/developing/tools/index.html</url>
+							  <version>$ANDROID_SDK_VERSION</version>
+							  <packaging>jar</packaging>
+							  <description>
+								dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
+							  </description> 
+		
+							<licenses>
+							  <license>
+								<name>Apache 2</name>
+								<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+								<distribution>repo</distribution>
+								<comments>A business-friendly OSS license</comments>
+							  </license>
+							</licenses>
+							
+						</project>
+					" > android-sdk-dx.pom
+					
+				And finally type this to deploy to the NativeLibs4Java repository :
+				
+					mvn deploy:deploy-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR -DrepositoryId=nativelibs4java-repo -Durl=sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven
+					
+				Or type this to install dx in the local Maven repository :
+				
+					mvn install:install-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR 
+					
+				-->
+					<!--groupId>com.nativelibs4java</groupId>
+					<artifactId>com.google.android.dx</artifactId-->
+					<groupId>com.google.android.platform.dalvik</groupId>
+					<artifactId>dx</artifactId>
+					<version>1.7</version>
+					<scope>provided</scope>
+				<!--
+				<scope>provided</scope>
+				-->
+				</dependency>
+			</dependencies>
+		</profile>
 		<profile>
 			<id>native</id>
 			<activation>
