@@ -1,56 +1,50 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
- <modelVersion>4.0.0</modelVersion>
-  <groupId>com.nativelibs4java</groupId>
-  <artifactId>bridj</artifactId>
-  <name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
-  <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
-  <version>0.7-SNAPSHOT</version>
-  <packaging>jar</packaging>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>bridj</artifactId>
+	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
+	<url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
+	<version>0.7-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-  <!--
-  Local site:
-  mvn clean site site:deploy -Dsite.url=file://`pwd`/target/site-deployed
-  -->
-  
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.7-SNAPSHOT</version>
-	  <relativePath>..</relativePath>
-  </parent>
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.7-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 
-  <dependencies>
+	<dependencies>
+  	
+		<dependency>
+			<groupId>asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>3.3.1</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>3.4.0</version>
+			<scope>test</scope>
+		</dependency>
 
-  	<dependency>
-		<groupId>asm</groupId>
-		<artifactId>asm</artifactId>
-		<version>3.3.1</version>
-	</dependency>
+		<dependency>
+			<groupId>javolution</groupId>
+			<artifactId>javolution</artifactId>
+			<version>5.5.1</version>
+			<scope>test</scope>
+		</dependency>
 	
-	<dependency>
-      <groupId>net.java.dev.jna</groupId>
-      <artifactId>jna</artifactId>
-      <version>3.4.0</version>
-      <scope>test</scope>
-    </dependency>
+		<dependency>
+			<groupId>com.google.android</groupId>
+			<artifactId>android</artifactId>
+			<version>2.3.3</version>
+			<scope>provided</scope>
+		</dependency>
 	
-    <dependency>
-          <groupId>javolution</groupId>
-          <artifactId>javolution</artifactId>
-          <version>5.5.1</version>
-          <scope>test</scope>
-	</dependency>  
-	
-	<dependency>
-		<groupId>com.google.android</groupId>
-		<artifactId>android</artifactId>
-		<version>2.3.3</version>
-		<scope>provided</scope>
-	</dependency>
-	
-	<dependency>
+		<dependency>
 		<!--
 		First, download and install the Android SDK, and install the "Android SDK Platform-tools" from the Android SDK GUI :
 		
@@ -97,19 +91,19 @@
 			mvn install:install-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR 
 			
 		-->
-		<groupId>com.nativelibs4java</groupId>
-		<artifactId>com.google.android.dx</artifactId>
-		<version>11</version>
-		<scope>provided</scope>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>com.google.android.dx</artifactId>
+			<version>11</version>
+			<scope>provided</scope>
 		<!--
 		<scope>provided</scope>
 		-->
-	</dependency>
-	
-  </dependencies>
+		</dependency>
 
-  <build>
-  	<plugins>
+	</dependencies>
+
+	<build>
+		<plugins>
   		<!--plugin>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>native-maven-plugin</artifactId>
@@ -132,134 +126,134 @@
 			  </javahClassNames>
 			</configuration>
 		</plugin-->
+  		
+			<plugin>
+				<groupId>com.nativelibs4java</groupId>
+				<artifactId>maven-velocity-plugin</artifactId>
+				<version>${maven-velocity-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		
-  		<plugin>
-			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-velocity-plugin</artifactId>
-			<version>${maven-velocity-plugin.version}</version>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>generate</goal>
-				</goals>
-			  </execution>
-			</executions>
-		</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.2</version>
+				<executions>
+					<execution>
+						<id>test-jar</id>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		
-		<plugin> 
-		  	<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-jar-plugin</artifactId>
-			<version>2.3.2</version>
-			<executions> 
-				<execution>
-					<id>test-jar</id> 
-					<phase>package</phase> 
-					<goals> 
-						<goal>test-jar</goal> 
-					</goals> 
-				</execution>
-			</executions> 
-		</plugin> 
-		
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.4</version>
-			<executions>
-			  
-			  <execution>
-			  	<id>c-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>c-only</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/cpp/**</exclude>
-								<exclude>org/bridj/objc/**</exclude>
-								<exclude>org/bridj/cs/**</exclude>
-								<exclude>org/bridj/lib/android_*/**</exclude>
-								<exclude>lib/armeabi/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  
-			  <execution>
-			  	<id>mac-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>macosx-only</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/cpp/com/**</exclude>
-								<exclude>org/bridj/cpp/mfc/**</exclude>
-								<exclude>org/bridj/cs/**</exclude>
-								<exclude>org/bridj/lib/linux_*/**</exclude>
-								<exclude>org/bridj/lib/android_*/**</exclude>
-								<exclude>lib/armeabi/**</exclude>
-								<exclude>org/bridj/lib/sunos_*/**</exclude>
-								<exclude>org/bridj/lib/win*/**</exclude>
-								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  <execution>
-			  	<id>ios-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>ios-only</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/cpp/com/**</exclude>
-								<exclude>org/bridj/cpp/mfc/**</exclude>
-								<exclude>org/bridj/cs/**</exclude>
-								<exclude>org/bridj/lib/linux_*/**</exclude>
-								<exclude>org/bridj/lib/android_*/**</exclude>
-								<exclude>lib/armeabi/**</exclude>
-								<exclude>org/bridj/lib/sunos_*/**</exclude>
-								<exclude>org/bridj/lib/win*/**</exclude>
-								<exclude>org/bridj/lib/darwin_universal/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+			
+					<execution>
+						<id>c-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>c-only</shadedClassifierName>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/cpp/**</exclude>
+										<exclude>org/bridj/objc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+			
+					<execution>
+						<id>mac-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>macosx-only</shadedClassifierName>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/cpp/com/**</exclude>
+										<exclude>org/bridj/cpp/mfc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/lib/linux_*/**</exclude>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+										<exclude>org/bridj/lib/sunos_*/**</exclude>
+										<exclude>org/bridj/lib/win*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+					<execution>
+						<id>ios-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>ios-only</shadedClassifierName>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/cpp/com/**</exclude>
+										<exclude>org/bridj/cpp/mfc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/lib/linux_*/**</exclude>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+										<exclude>org/bridj/lib/sunos_*/**</exclude>
+										<exclude>org/bridj/lib/win*/**</exclude>
+										<exclude>org/bridj/lib/darwin_universal/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
 			  <!--execution>
 			  	<id>stripped-package</id>
 				<phase>package</phase>
@@ -285,156 +279,156 @@
 					</filters>
 				</configuration>
 			  </execution-->
-			  
-			  <execution>
-			  	<id>win-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>windows-only</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/objc/**</exclude>
-								<exclude>org/bridj/lib/linux_*/**</exclude>
-								<exclude>org/bridj/lib/android_*/**</exclude>
-								<exclude>lib/armeabi/**</exclude>
-								<exclude>org/bridj/lib/sunos_*/**</exclude>
-								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-								<exclude>org/bridj/lib/darwin_*/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  
-			  <execution>
-			  	<id>unix-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>unix-only</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/cpp/com/**</exclude>
-								<exclude>org/bridj/cpp/mfc/**</exclude>
-								<exclude>org/bridj/cs/**</exclude>
-								<exclude>org/bridj/objc/**</exclude>
-								<exclude>org/bridj/lib/win*/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  
-			  <execution>
-			  	<id>linux-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>linux-only</shadedClassifierName>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/cpp/com/**</exclude>
-								<exclude>org/bridj/cpp/mfc/**</exclude>
-								<exclude>org/bridj/objc/**</exclude>
-								<exclude>org/bridj/cs/**</exclude>
-								<exclude>org/bridj/lib/win*/**</exclude>
-								<exclude>org/bridj/lib/sunos_*/**</exclude>
-								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-								<exclude>org/bridj/lib/darwin_*/**</exclude>
-								<exclude>org/bridj/lib/android_*/**</exclude>
-								<exclude>lib/armeabi/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  
-			  <execution>
-			  	<id>android-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<shadedClassifierName>android</shadedClassifierName>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/cpp/com/**</exclude>
-								<exclude>org/bridj/cpp/mfc/**</exclude>
-								<exclude>org/bridj/cs/**</exclude>
-								<exclude>org/bridj/lib/linux_*/**</exclude>
-								<exclude>org/bridj/lib/sunos_*/**</exclude>
-								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-								<exclude>org/bridj/lib/darwin_*/**</exclude>
-								<exclude>org/bridj/lib/win*/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  
-			  <execution>
-			  	<id>desktop-package</id>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>false</shadedArtifactAttached>
-					<artifactSet>
-						<excludes>
-						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
-						</excludes>
-					</artifactSet>
-					<filters>
-					  	<filter>
-							<artifact>com.nativelibs4java:bridj</artifact>
-							<excludes>
-								<exclude>org/bridj/lib/android_*/**</exclude>
-								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-								<exclude>lib/armeabi/**</exclude>
-							</excludes>
-						</filter>
-					</filters>
-				</configuration>
-			  </execution>
-			  
-			</executions>
-		</plugin>
+			
+					<execution>
+						<id>win-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>windows-only</shadedClassifierName>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/objc/**</exclude>
+										<exclude>org/bridj/lib/linux_*/**</exclude>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+										<exclude>org/bridj/lib/sunos_*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+										<exclude>org/bridj/lib/darwin_*/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+			
+					<execution>
+						<id>unix-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>unix-only</shadedClassifierName>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/cpp/com/**</exclude>
+										<exclude>org/bridj/cpp/mfc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/objc/**</exclude>
+										<exclude>org/bridj/lib/win*/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+			
+					<execution>
+						<id>linux-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>linux-only</shadedClassifierName>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/cpp/com/**</exclude>
+										<exclude>org/bridj/cpp/mfc/**</exclude>
+										<exclude>org/bridj/objc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/lib/win*/**</exclude>
+										<exclude>org/bridj/lib/sunos_*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+										<exclude>org/bridj/lib/darwin_*/**</exclude>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+			
+					<execution>
+						<id>android-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>android</shadedClassifierName>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/cpp/com/**</exclude>
+										<exclude>org/bridj/cpp/mfc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/lib/linux_*/**</exclude>
+										<exclude>org/bridj/lib/sunos_*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+										<exclude>org/bridj/lib/darwin_*/**</exclude>
+										<exclude>org/bridj/lib/win*/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+			
+					<execution>
+						<id>desktop-package</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<artifactSet>
+								<excludes>
+									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+			
+				</executions>
+			</plugin>
 		<!--
 		<plugin>
 		  <groupId>org.codehaus.mojo</groupId>
@@ -460,51 +454,51 @@
 		  </executions>
 		</plugin>
 		-->
-		<plugin>
-		  <groupId>org.apache.maven.plugins</groupId>
-		  <artifactId>maven-javadoc-plugin</artifactId>
-		  <version>2.8</version>
-		  <configuration>
-			  <executions>
-				<execution>
-				  <id>attach-javadocs</id>
-				  <goals>
-					<goal>jar</goal>
-				  </goals>
-				</execution>
-		      </executions>
-		  	<aggregate>true</aggregate>
-		  	<minmemory>128m</minmemory>
-		  	<maxmemory>512</maxmemory>
-		  	<breakiterator>true</breakiterator>
-		  	<quiet>true</quiet>
-		  	<source>1.5</source>
-		  	<verbose>false</verbose>
-		  	<linksource>true</linksource>
-		  	<show>public</show>
-		  	<links>
-		  	  <link>http://download.oracle.com/javase/6/docs/api/</link>
-		  	</links>
-		  	<groups>
-		  	  <group>
-		  		<title>Core Packages</title>
-		  		<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
-		  	  </group>
-		  	  <group>
-		  		<title>Extension Packages</title>
-		  		<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
-		  	  </group>
-		  	  <group>
-		  		<title>Demos Packages</title>
-		  		<packages>org.bridj.demos</packages>
-		  	  </group>
-		  	  <group>
-		  		<title>Shouldn't-be-there-really Packages</title>
-		  		<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
-		  	  </group>
-		  	</groups>
-		  </configuration>
-		</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
+				<configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+					<aggregate>true</aggregate>
+					<minmemory>128m</minmemory>
+					<maxmemory>512</maxmemory>
+					<breakiterator>true</breakiterator>
+					<quiet>true</quiet>
+					<source>1.5</source>
+					<verbose>false</verbose>
+					<linksource>true</linksource>
+					<show>public</show>
+					<links>
+						<link>http://download.oracle.com/javase/6/docs/api/</link>
+					</links>
+					<groups>
+						<group>
+							<title>Core Packages</title>
+							<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
+						</group>
+						<group>
+							<title>Extension Packages</title>
+							<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
+						</group>
+						<group>
+							<title>Demos Packages</title>
+							<packages>org.bridj.demos</packages>
+						</group>
+						<group>
+							<title>Shouldn't-be-there-really Packages</title>
+							<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
+						</group>
+					</groups>
+				</configuration>
+			</plugin>
   	 <!--
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
@@ -516,91 +510,91 @@
 			</configuration>
 		</plugin>
 		-->
-  	</plugins>
+		</plugins>
 
-  </build>
-  
-  <profiles>
-  	<profile>
-		<id>native</id>
-		<activation>
-			<activeByDefault>false</activeByDefault>
-			<property>
-				<name>native</name>
-			</property>
-		</activation>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>1.2.1</version>
-					<executions>
-					  <execution>
-					  	<phase>generate-resources</phase>
-						<goals>
-						  <goal>exec</goal>
-						</goals>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>native</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>native</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.2.1</version>
+						<executions>
+							<execution>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
 						
-						<configuration>
-						  <executable>${basedir}/BuildNative</executable>
-						  <workingDirectory>${basedir}</workingDirectory>
+								<configuration>
+									<executable>${basedir}/BuildNative</executable>
+									<workingDirectory>${basedir}</workingDirectory>
 						  <!--arguments>
 						  	<argument>${basedir}/BuildNative</argument>
 						  </arguments-->
-						</configuration>
-					  </execution>
-					</executions>
-			  </plugin>
-			  <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<aggregate>true</aggregate>
-							<minmemory>128m</minmemory>
-							<maxmemory>512</maxmemory>
-							<breakiterator>true</breakiterator>
-							<quiet>true</quiet>
-							<source>1.5</source>
-							<verbose>false</verbose>
-							<linksource>true</linksource>
-							<show>public</show>
-							<links>
-							  <link>http://download.oracle.com/javase/6/docs/api/</link>
-							</links>
-							<groups>
-							  <group>
-								<title>Core Packages</title>
-								<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.demangling:org.bridj.ann</packages>
-							  </group>
-							  <group>
-								<title>Extension Packages</title>
-								<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
-							  </group>
-							  <group>
-								<title>Demos Packages</title>
-								<packages>org.bridj.demos</packages>
-							  </group>
-							  <group>
-								<title>Shouldn't-be-there-really Packages</title>
-								<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
-							  </group>
-							</groups>
-						</configuration>
-					</execution>
-				</executions>
-			  </plugin>
-			</plugins>
-		</build>
-	</profile>
-  </profiles>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.8</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<aggregate>true</aggregate>
+									<minmemory>128m</minmemory>
+									<maxmemory>512</maxmemory>
+									<breakiterator>true</breakiterator>
+									<quiet>true</quiet>
+									<source>1.5</source>
+									<verbose>false</verbose>
+									<linksource>true</linksource>
+									<show>public</show>
+									<links>
+										<link>http://download.oracle.com/javase/6/docs/api/</link>
+									</links>
+									<groups>
+										<group>
+											<title>Core Packages</title>
+											<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.demangling:org.bridj.ann</packages>
+										</group>
+										<group>
+											<title>Extension Packages</title>
+											<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
+										</group>
+										<group>
+											<title>Demos Packages</title>
+											<packages>org.bridj.demos</packages>
+										</group>
+										<group>
+											<title>Shouldn't-be-there-really Packages</title>
+											<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
+										</group>
+									</groups>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
 
 
