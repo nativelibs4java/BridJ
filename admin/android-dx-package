@@ -34,6 +34,11 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 		dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
 	</description> 
 	
+	<!--
+		Issue about deploying Android SDK's artifacts to Maven Central (Declined) :
+		http://code.google.com/p/android/issues/detail?id=4577
+	-->
+	
 	<licenses>
 		<license>
 			<name>Apache 2.0</name>
@@ -59,12 +64,6 @@ limitations under the License.
 
 	<developers>
 		<!-- Probably lots of people from Google should be inserted here -->
-		<developer>
-			<id>danfuzz</id>
-			<name>Dan Bornstein</name>
-			<email>danfuzz@milk.com</email>
-			<url>http://www.milk.com/home/danfuzz/</url>
-		</developer>
 	</developers>
 	
 	<scm>
@@ -141,7 +140,17 @@ limitations under the License.
 mvn clean install $@ || ( echo "Failed" && exit 1 )
 
 cd target
-jar -cvf ../bundle.jar *.*
+#jar -cvf ../dx-$DX_VERSION.jar *.*
+jar -cvf ../dx-$DX_VERSION.jar \
+	dx-$DX_VERSION.pom \
+	dx-$DX_VERSION.pom.asc \
+	dx-$DX_VERSION.jar \
+	dx-$DX_VERSION.jar.asc \
+	dx-$DX_VERSION-sources.jar \
+	dx-$DX_VERSION-sources.jar.asc \
+	dx-$DX_VERSION-javadoc.jar \
+	dx-$DX_VERSION-javadoc.jar.asc
+	
 cd ..
 echo "
 Generation of bundle succeeded.
