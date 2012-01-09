@@ -70,7 +70,7 @@ public class StructIO {
     		void afterBuild(StructIO io);
     }
     public static class DefaultCustomizer implements Customizer {
-    		public void beforeAggregation(StructIO io, List<¤l> fieldDecls) {}
+    		public void beforeAggregation(StructIO io, List<FieldDecl> fieldDecls) {}
     		public void beforeLayout(StructIO io, List<AggregatedFieldDesc> aggregatedFields) {}
     		public void afterLayout(StructIO io, List<AggregatedFieldDesc> aggregatedFields) {}
     		public void afterBuild(StructIO io) {}
