@@ -140,7 +140,7 @@ limitations under the License.
 mvn clean install $@ || ( echo "Failed" && exit 1 )
 
 cd target
-#jar -cvf ../dx-$DX_VERSION.jar *.*
+
 jar -cvf ../dx-$DX_VERSION.jar \
 	dx-$DX_VERSION.pom \
 	dx-$DX_VERSION.pom.asc \

@@ -27,3 +27,4 @@ dependency-reduced-pom.xml
 dyncall/*
 dyncallBefore/*
 *.log
+dalvik

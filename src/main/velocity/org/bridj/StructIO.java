@@ -70,7 +70,7 @@ public class StructIO {
     		void afterBuild(StructIO io);
     }
     public static class DefaultCustomizer implements Customizer {
-    		public void beforeAggregation(StructIO io, List<FieldDecl> fieldDecls) {}
+    		public void beforeAggregation(StructIO io, List<¤l> fieldDecls) {}
     		public void beforeLayout(StructIO io, List<AggregatedFieldDesc> aggregatedFields) {}
     		public void afterLayout(StructIO io, List<AggregatedFieldDesc> aggregatedFields) {}
     		public void afterBuild(StructIO io) {}
@@ -142,7 +142,7 @@ public class StructIO {
 			return "Field(byteOffset = " + byteOffset + ", byteLength = " + byteLength + ", bitOffset = " + bitOffset + ", bitLength = " + bitLength + (nativeTypeOrPointerTargetType == null ? "" : ", ttype = " + nativeTypeOrPointerTargetType) + ")";
         }
 	}
-	protected static class FieldDecl {
+	public static class FieldDecl {
 		final FieldDesc desc = new FieldDesc();
 		Method setter;
 		long index = -1, unionWith = -1;//, byteOffset = -1;

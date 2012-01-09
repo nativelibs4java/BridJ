@@ -111,7 +111,6 @@
 							<shadedClassifierName>c-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
@@ -141,7 +140,6 @@
 							<shadedClassifierName>macosx-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
@@ -174,7 +172,6 @@
 							<shadedClassifierName>ios-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
@@ -207,7 +204,6 @@
 							<shadedClassifierName>windows-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
@@ -239,7 +235,6 @@
 							<shadedClassifierName>unix-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
@@ -269,7 +264,6 @@
 							<shadedClassifierName>linux-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
@@ -330,7 +324,6 @@
 							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<artifactSet>
 								<excludes>
-									<exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 									<exclude>com.google.android.tools:dx</exclude>
 								</excludes>
 							</artifactSet>
