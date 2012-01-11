@@ -733,20 +733,20 @@ public class BridJ {
             for (String path : paths) {
                 File pathFile = path == null ? null : new File(path);
                 File f = new File(name);
-                if (!f.exists() && pathFile != null) {
+                if (!f.isFile() && pathFile != null) {
                     String[] possibleFileNames = getPossibleFileNames(name);
                     for (String possibleFileName : possibleFileNames) { 
                         f = new File(pathFile, possibleFileName);
-                        if (f.exists())
+                        if (f.isFile())
                             break;
                     }
 
-                    if (!f.exists() && isLinux()) {
+                    if (!f.isFile() && isLinux()) {
                         String[] files = pathFile.list();
                         if (files != null)
                             for (String possibleFileName : possibleFileNames) {
                                 File ff = findFileWithGreaterVersion(pathFile, files, possibleFileName);
-                                if (ff != null && (f = ff).exists()) {
+                                if (ff != null && (f = ff).isFile()) {
                                     if (verbose)
                                         log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
                                     break;
@@ -772,7 +772,7 @@ public class BridJ {
                 }) {
                     try {
                         File f = new File(new File(s, name + ".framework"), name);
-                        if (f.exists() && !f.isDirectory())
+                        if (f.isFile())
                             return f.getCanonicalFile();
                     } catch (IOException ex) {
                         ex.printStackTrace();
