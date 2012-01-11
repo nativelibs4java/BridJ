@@ -513,6 +513,18 @@ public class BridJ {
     		additionalPaths.add(path);
     		paths = null; // invalidate cached paths
     }
+    private static void addPathsFromEnv(List<String> out, String name) {
+        String env = getenv(name);
+        if (BridJ.verbose)
+            BridJ.log(Level.INFO, "Environment var " + name + " = " + env);
+        addPaths(out, env);
+    }
+    private static void addPathsFromProperty(List<String> out, String name) {
+        String env = getProperty(name);
+        if (BridJ.verbose)
+            BridJ.log(Level.INFO, "Property " + name + " = " + env);
+        addPaths(out, env);
+    }
     private static void addPaths(List<String> out, String env) {
     		if (env == null)
     			return;
@@ -534,16 +546,16 @@ public class BridJ {
             paths.add(null);
             paths.add(".");
 			
-			addPaths(paths, getenv("LD_LIBRARY_PATH"));
-			addPaths(paths, getenv("DYLD_LIBRARY_PATH"));
-			addPaths(paths, getenv("PATH"));
-			addPaths(paths, getProperty("java.library.path"));
-			addPaths(paths, getProperty("gnu.classpath.boot.library.path"));
+			addPathsFromEnv(paths, "LD_LIBRARY_PATH");
+			addPathsFromEnv(paths, "DYLD_LIBRARY_PATH");
+			addPathsFromEnv(paths, "PATH");
+			addPathsFromProperty(paths, "java.library.path");
+			addPathsFromProperty(paths, "gnu.classpath.boot.library.path");
             
             File javaHome = new File(getProperty("java.home"));
             paths.add(new File(javaHome, "bin").toString());
             if (isMacOSX()) {
-            		paths.add(new File(javaHome, "../Libraries").toString());
+                paths.add(new File(javaHome, "../Libraries").toString());
             }
             
             
