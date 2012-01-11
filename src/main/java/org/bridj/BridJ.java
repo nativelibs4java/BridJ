@@ -755,7 +755,7 @@ public class BridJ {
                     }
                 }
 
-                if (!f.exists())
+                if (!f.isFile())
                     continue;
 
                 try {
@@ -787,7 +787,7 @@ public class BridJ {
                 else
                     f = extractEmbeddedLibraryResource(name);
 
-                if (f == null || !f.exists())
+                if (f == null || !f.isFile())
                     throw new FileNotFoundException(StringUtils.implode(possibleNames, ", "));
                 
                 return f;
