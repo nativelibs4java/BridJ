@@ -82,6 +82,8 @@ public class BridJ {
             return 1;
         else if (NativeObject.class.isAssignableFrom(c))
             return getRuntime(c).getTypeInfo(type).sizeOf();
+        else if (IntValuedEnum.class.isAssignableFrom(c))
+            return 4;
         /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);

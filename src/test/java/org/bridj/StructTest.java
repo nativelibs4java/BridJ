@@ -2,6 +2,8 @@ package org.bridj;
 
 import com.sun.jna.Memory;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Iterator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -773,6 +775,34 @@ public class StructTest {
         assertEquals("Invalid packed struct size", 6, ps);
         assertTrue("Packed size (" + ps + ") same as size (" + s + ") !", s != ps); 
         //assertTrue(ps < s);
+    }
+    
+    public static class EnumsStruct extends StructObject {
+        public enum E implements IntValuedEnum<E > {
+            A(0),
+            B(1),
+            C(2);
+            E(long value) {
+                this.value = value;
+            }
+            public final long value;
+            public long value() {
+                return this.value;
+            }
+            public Iterator<E > iterator() {
+                return Collections.singleton(this).iterator();
+            }
+            public static ValuedEnum<E > fromValue(long value) {
+                return FlagSet.fromValue(value, values());
+            }
+        };
+        @Array(5)
+        @Field(0)
+        public Pointer<IntValuedEnum<E>> p;
+    }
+    @Test
+    public void testEnumsStruct() {
+        assertEquals(5 * BridJ.sizeOf(IntValuedEnum.class), BridJ.sizeOf(EnumsStruct.class));
     }
 }
 
