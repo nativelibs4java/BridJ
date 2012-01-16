@@ -351,11 +351,11 @@
 						<execution>
 							<id>attach-javadocs</id>
 							<goals>
+								<goal>aggregate</goal>
 								<goal>jar</goal>
 							</goals>
 						</execution>
 					</executions>
-					<aggregate>true</aggregate>
 					<minmemory>128m</minmemory>
 					<maxmemory>512</maxmemory>
 					<breakiterator>true</breakiterator>
