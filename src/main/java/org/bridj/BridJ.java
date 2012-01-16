@@ -14,6 +14,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -384,7 +385,8 @@ public class BridJ {
             hasUnknown = true;
         }
         
-        for (String n : System.getProperties().stringPropertyNames()) {
+        for (Enumeration<String> e = (Enumeration)System.getProperties().propertyNames(); e.hasMoreElements();) {
+        	String n = e.nextElement();
             if (!n.startsWith("bridj.") || props.contains(n))
                 continue;
             
