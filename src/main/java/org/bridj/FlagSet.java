@@ -15,7 +15,7 @@ import java.util.WeakHashMap;
 
 /**
  * Set of int-valued enum values that is itself int-valued (bitwise OR of all the values).<br>
- * This helps use Java enums (that implement {@link ValuedEnum}) as combinable C flags (see {@link FlagSet#fromValues(E[]) }).
+ * This helps use Java enums (that implement {@link ValuedEnum}) as combinable C flags (see {@link FlagSet#fromValues(Enum[]) fromValues(E...) }).
  * @author ochafik
  */
 public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
