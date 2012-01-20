@@ -83,6 +83,11 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.2</version>
+		        <configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+		        </configuration>
 				<executions>
 					<execution>
 						<id>test-jar</id>
@@ -321,7 +326,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>desktop-only</shadedClassifierName>
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
@@ -345,47 +351,34 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.8</version>
-				<configuration>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>aggregate</goal>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-					<minmemory>128m</minmemory>
-					<maxmemory>512</maxmemory>
-					<breakiterator>true</breakiterator>
-					<quiet>true</quiet>
-					<source>1.5</source>
-					<verbose>false</verbose>
-					<linksource>true</linksource>
-					<show>public</show>
-					<links>
-						<link>http://download.oracle.com/javase/6/docs/api/</link>
-					</links>
-					<groups>
-						<group>
-							<title>Core Packages</title>
-							<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
-						</group>
-						<group>
-							<title>Extension Packages</title>
-							<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
-						</group>
-						<group>
-							<title>Demos Packages</title>
-							<packages>org.bridj.demos</packages>
-						</group>
-						<group>
-							<title>Shouldn't-be-there-really Packages</title>
-							<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
-						</group>
-					</groups>
-				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<groups>
+								<group>
+									<title>Core Packages</title>
+									<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
+								</group>
+								<group>
+									<title>Extension Packages</title>
+									<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
+								</group>
+								<group>
+									<title>Demos Packages</title>
+									<packages>org.bridj.demos</packages>
+								</group>
+								<group>
+									<title>Shouldn't-be-there-really Packages</title>
+									<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
+								</group>
+							</groups>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

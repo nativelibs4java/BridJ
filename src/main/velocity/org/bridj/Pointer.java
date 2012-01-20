@@ -1522,6 +1522,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 
 #foreach ($prim in $primitives)
+//-- primitive: $prim.Name --
+
     #docAllocateCopy($prim.Name $prim.WrapperName)
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}(${prim.Name} value) {
         Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance());
@@ -1601,6 +1603,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 #end
 #foreach ($prim in $primitivesNoBool)
+//-- primitive (no bool): $prim.Name --
 
 	/**
      * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}.<br>
@@ -1884,7 +1887,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 	#foreach ($sizePrim in ["SizeT", "CLong"])
-	
+//-- size primitive: $sizePrim --
+
 #docAllocateCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}(long value) {
 		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
@@ -1998,7 +2002,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values) {
     		return set${sizePrim}sAtOffset(byteOffset, values, 0, values.length);
 	}
-#docSetArrayOffset($sizePrim $sizePrim)
+#docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(long[])")
     public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
@@ -2256,6 +2260,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 
 #foreach ($prim in $primitives)
+//-- primitive: $prim.Name --
 
 	/**
 	 * Write a ${prim.Name} value to the pointed memory location
@@ -2344,6 +2349,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
 #end
 #foreach ($prim in $primitivesNoBool)
+//-- primitive (no bool): $prim.Name --
 
     /**
 	 * Read ${prim.Name} values into the specified destination array from the pointed memory location
@@ -2837,7 +2843,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 	
 #foreach ($string in ["C", "WideC"])
-	
+//-- StringType: $string --
+
 	/**
 	 * Read a ${string} string using the default charset from the pointed memory location (see {@link StringType#${string}}).<br>
 	 * See {@link Pointer#get${string}StringAtOffset(long)}, {@link Pointer#getString(StringType)} and {@link Pointer#getStringAtOffset(long, StringType, Charset)} for more options
