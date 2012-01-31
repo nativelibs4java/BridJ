@@ -30,48 +30,48 @@ public class OLEAutomationLibrary {
 	
 	/// <i>native declaration : line 33</i>
 	public static class ITypeLib extends CPPObject {
-		public ITypeLib() {
-			super();
-		}
-		public ITypeLib(Pointer pointer) {
-			super(pointer);
-		}
+//		public ITypeLib() {
+//			super();
+//		}
+//		public ITypeLib(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	/// <i>native declaration : line 34</i>
 	public static class ICreateTypeLib extends CPPObject {
-		public ICreateTypeLib() {
-			super();
-		}
-		public ICreateTypeLib(Pointer pointer) {
-			super(pointer);
-		}
+//		public ICreateTypeLib() {
+//			super();
+//		}
+//		public ICreateTypeLib(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	/// <i>native declaration : line 35</i>
 	public static class ICreateTypeLib2 extends CPPObject {
-		public ICreateTypeLib2() {
-			super();
-		}
-		public ICreateTypeLib2(Pointer pointer) {
-			super(pointer);
-		}
+//		public ICreateTypeLib2() {
+//			super();
+//		}
+//		public ICreateTypeLib2(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	/// <i>native declaration : line 36</i>
 	public static class ICreateErrorInfo extends CPPObject {
-		public ICreateErrorInfo() {
-			super();
-		}
-		public ICreateErrorInfo(Pointer pointer) {
-			super(pointer);
-		}
+//		public ICreateErrorInfo() {
+//			super();
+//		}
+//		public ICreateErrorInfo(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	/// <i>native declaration : line 37</i>
 	public static class IErrorInfo extends CPPObject {
-		public IErrorInfo() {
-			super();
-		}
-		public IErrorInfo(Pointer pointer) {
-			super(pointer);
-		}
+//		public IErrorInfo() {
+//			super();
+//		}
+//		public IErrorInfo(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	
 	public enum SYSKIND implements IntValuedEnum<SYSKIND > {
@@ -198,26 +198,26 @@ public class OLEAutomationLibrary {
 		public DATE() {
 			super();
 		}
-		public DATE(Pointer pointer) {
-			super(pointer);
-		}
+//		public DATE(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	public static class DISPPARAMS extends StructObject {
 		public DISPPARAMS() {
 			super();
 		}
-		public DISPPARAMS(Pointer pointer) {
-			super(pointer);
-		}
+//		public DISPPARAMS(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	/// <i>native declaration : line 22</i>
 	public static class EXCEPINFO extends StructObject {
 		public EXCEPINFO() {
 			super();
 		}
-		public EXCEPINFO(Pointer pointer) {
-			super(pointer);
-		}
+//		public EXCEPINFO(Pointer pointer) {
+//			super(pointer);
+//		}
 	};
 	
 	
@@ -225,9 +225,9 @@ public class OLEAutomationLibrary {
 		public CUSTDATAITEM() {
 			super();
 		}
-		public CUSTDATAITEM(Pointer pointer) {
-			super(pointer);
-		}
+//		public CUSTDATAITEM(Pointer pointer) {
+//			super(pointer);
+//		}
 		/// C type : GUID
 		@Field(0) 
 		public GUID guid() {
@@ -243,9 +243,9 @@ public class OLEAutomationLibrary {
 		public CUSTDATA() {
 			super();
 		}
-		public CUSTDATA(Pointer pointer) {
-			super(pointer);
-		}
+//		public CUSTDATA(Pointer pointer) {
+//			super(pointer);
+//		}
 		@Field(0) 
 		public int cCustData() {
 			return this.io.getIntField(this, 0);
@@ -280,9 +280,9 @@ public class OLEAutomationLibrary {
 		public SYSTEMTIME() {
 			super();
 		}
-		public SYSTEMTIME(Pointer pointer) {
-			super(pointer);
-		}
+//		public SYSTEMTIME(Pointer pointer) {
+//			super(pointer);
+//		}
 		@Field(0) 
 		public short wYear() {
 			return this.io.getShortField(this, 0);
@@ -392,9 +392,9 @@ public class OLEAutomationLibrary {
 		public UDATE() {
 			super();
 		}
-		public UDATE(Pointer pointer) {
-			super(pointer);
-		}
+//		public UDATE(Pointer pointer) {
+//			super(pointer);
+//		}
 		/// C type : SYSTEMTIME
 		@Field(0) 
 		public SYSTEMTIME st() {
@@ -421,9 +421,9 @@ public class OLEAutomationLibrary {
 		public NUMPARSE() {
 			super();
 		}
-		public NUMPARSE(Pointer pointer) {
-			super(pointer);
-		}
+//		public NUMPARSE(Pointer pointer) {
+//			super(pointer);
+//		}
 		/**
 		 * Number of parsed digits<br>
 		 * C type : INT
@@ -561,9 +561,9 @@ public class OLEAutomationLibrary {
 		public PARAMDATA() {
 			super();
 		}
-		public PARAMDATA(Pointer pointer) {
-			super(pointer);
-		}
+//		public PARAMDATA(Pointer pointer) {
+//			super(pointer);
+//		}
 		/**
 		 * Name of Parameter<br>
 		 * C type : OLECHAR*
@@ -613,9 +613,9 @@ public class OLEAutomationLibrary {
 		public METHODDATA() {
 			super();
 		}
-		public METHODDATA(Pointer pointer) {
-			super(pointer);
-		}
+//		public METHODDATA(Pointer pointer) {
+//			super(pointer);
+//		}
 		/**
 		 * Name of method<br>
 		 * C type : OLECHAR*
@@ -792,9 +792,9 @@ public class OLEAutomationLibrary {
 		public INTERFACEDATA() {
 			super();
 		}
-		public INTERFACEDATA(Pointer pointer) {
-			super(pointer);
-		}
+//		public INTERFACEDATA(Pointer pointer) {
+//			super(pointer);
+//		}
 		/**
 		 * Methods of the object<br>
 		 * C type : METHODDATA*

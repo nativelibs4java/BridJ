@@ -13,12 +13,6 @@ import org.bridj.ann.Runtime;
  */
 @Runtime(CRuntime.class) 
 public class SAFEARRAY extends StructObject {
-	public SAFEARRAY() {
-		super();
-	}
-	public SAFEARRAY(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : USHORT
 	@Field(0) 
 	public short cDims() {

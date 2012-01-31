@@ -22,9 +22,9 @@ public class NSDictionary extends NSObject {
     public NSDictionary() {
         super();
     }
-    public NSDictionary(Map<String, NSObject> map) {
-        super(pointerToNSDictionary(map));
-    }
+//    public NSDictionary(Map<String, NSObject> map) {
+//        super(pointerToNSDictionary(map));
+//    }
     
     public native Pointer<NSObject> valueForKey(Pointer<NSString> key);
     public native Pointer<NSObject> objectForKey(Pointer<NSObject> key);

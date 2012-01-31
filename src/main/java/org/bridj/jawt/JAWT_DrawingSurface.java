@@ -14,12 +14,6 @@ import org.bridj.ann.Convention;
 @Library("jawt") 
 @Convention(Convention.Style.StdCall)
 public class JAWT_DrawingSurface extends StructObject {
-	public JAWT_DrawingSurface() {
-		super();
-	}
-	public JAWT_DrawingSurface(Pointer pointer) {
-		super(pointer);
-	}
 	/**
 	 * Cached reference to the Java environment of the calling thread.<br>
 	 * If Lock(), Unlock(), GetDrawingSurfaceInfo() or<br>

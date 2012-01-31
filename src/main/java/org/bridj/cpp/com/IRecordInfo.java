@@ -11,12 +11,12 @@ import org.bridj.ann.Virtual;
  */
 @IID("0000002F-0000-0000-C000-000000000046")
 public class IRecordInfo extends IUnknown {
-	public IRecordInfo() {
-		super();
-	}
-	public IRecordInfo(Pointer pointer) {
-		super(pointer);
-	}
+//	public IRecordInfo() {
+//		super();
+//	}
+//	public IRecordInfo(Pointer pointer) {
+//		super(pointer);
+//	}
 	@Virtual(0) 
 	public native int RecordInit(Pointer<? > pvNew);
 	@Virtual(1) 

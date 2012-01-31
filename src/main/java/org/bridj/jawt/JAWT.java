@@ -15,12 +15,6 @@ import org.bridj.ann.Convention;
 @Library("jawt") 
 @Convention(Convention.Style.StdCall)
 public class JAWT extends StructObject {
-	public JAWT() {
-		super();
-	}
-	public JAWT(Pointer pointer) {
-		super(pointer);
-	}
 	/**
 	 * Version of this structure.  This must always be set before<br>
 	 * calling JAWT_GetAWT()

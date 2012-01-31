@@ -12,12 +12,6 @@ import org.bridj.ann.Runtime;
  */
 @Runtime(CRuntime.class) 
 public class DECIMAL extends StructObject {
-	public DECIMAL() {
-		super();
-	}
-	public DECIMAL(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : USHORT
 	@Field(0) 
 	public short wReserved() {

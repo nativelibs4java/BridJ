@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("jawt") 
 public class JAWT_DrawingSurfaceInfo extends StructObject {
-	public JAWT_DrawingSurfaceInfo() {
-		super();
-	}
-	public JAWT_DrawingSurfaceInfo(Pointer pointer) {
-		super(pointer);
-	}
 	/**
 	 * Pointer to the platform-specific information.  This can be safely<br>
 	 * cast to a JAWT_Win32DrawingSurfaceInfo on Windows or a<br>

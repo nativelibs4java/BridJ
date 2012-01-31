@@ -14,11 +14,6 @@ import static org.bridj.cpp.com.COMRuntime.*;
 public class IUnknown extends CPPObject {
 	protected boolean autoRelease;
 
-	public IUnknown() {}
-	public IUnknown(Pointer<? extends IUnknown> peer) {
-		super(peer);
-	}
-
 	public static IUnknown wrap(Object object) {
 		if (object instanceof IUnknown)
 			return (IUnknown)object;

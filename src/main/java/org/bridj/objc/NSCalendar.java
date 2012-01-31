@@ -11,9 +11,9 @@ public class NSCalendar extends ObjCObject {
         BridJ.register();
     }
 
-    public NSCalendar(Pointer<? extends NSCalendar> peer) {
-        super(peer);
-    }
+//    public NSCalendar(Pointer<? extends NSCalendar> peer) {
+//        super(peer);
+//    }
 
     public NSCalendar() {
         super();

@@ -14,12 +14,6 @@ import org.bridj.ann.Runtime;
  */
 @Runtime(CRuntime.class) 
 public class GUID extends StructObject {
-	public GUID() {
-		super();
-	}
-	public GUID(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int Data1() {
 		return this.io.getIntField(this, 0);

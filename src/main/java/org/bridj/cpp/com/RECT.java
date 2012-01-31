@@ -13,12 +13,6 @@ import org.bridj.ann.Library;
  */
 @Runtime(CRuntime.class) 
 public class RECT extends StructObject {
-	public RECT() {
-		super();
-	}
-	public RECT(Pointer pointer) {
-		super(pointer);
-	}
 	@CLong 
 	@Field(0) 
 	public long left() {

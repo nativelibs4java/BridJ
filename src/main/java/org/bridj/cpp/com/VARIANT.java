@@ -16,13 +16,10 @@ import org.bridj.ann.Runtime;
 public class VARIANT extends StructObject {
 	public VARIANT(Object value) {
 		super();
-                COMRuntime.setValue(this, value);
+        COMRuntime.setValue(this, value);
 	}
 	public VARIANT() {
 		super();
-	}
-	public VARIANT(Pointer pointer) {
-		super(pointer);
 	}
 	public VARIANT clone() {
 		return COMRuntime.clone(this);
@@ -38,9 +35,9 @@ public class VARIANT extends StructObject {
 		public __VARIANT_NAME_1_union() {
 			super();
 		}
-		public __VARIANT_NAME_1_union(Pointer pointer) {
-			super(pointer);
-		}
+//		public __VARIANT_NAME_1_union(Pointer pointer) {
+//			super(pointer);
+//		}
 		/// C type : __tagVARIANT
 		@Field(0)
 		public VARIANT.__VARIANT_NAME_1_union.__tagVARIANT __VARIANT_NAME_2() {
@@ -56,9 +53,9 @@ public class VARIANT extends StructObject {
 			public __tagVARIANT() {
 				super();
 			}
-			public __tagVARIANT(Pointer pointer) {
-				super(pointer);
-			}
+//			public __tagVARIANT(Pointer pointer) {
+//				super(pointer);
+//			}
 			/// C type : VARTYPE
 			@Field(0)
 			public short vt() {
@@ -125,9 +122,9 @@ public class VARIANT extends StructObject {
 				public __VARIANT_NAME_3_union() {
 					super();
 				}
-				public __VARIANT_NAME_3_union(Pointer pointer) {
-					super(pointer);
-				}
+//				public __VARIANT_NAME_3_union(Pointer pointer) {
+//					super(pointer);
+//				}
 				/// VT_I8
 				@Field(0)
 				public long llval() {
@@ -1076,9 +1073,9 @@ public class VARIANT extends StructObject {
 					public __tagBRECORD() {
 						super();
 					}
-					public __tagBRECORD(Pointer pointer) {
-						super(pointer);
-					}
+//					public __tagBRECORD(Pointer pointer) {
+//						super(pointer);
+//					}
 					/// C type : PVOID
 					@Field(0)
 					public Pointer<? > pvRecord() {

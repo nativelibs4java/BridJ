@@ -12,12 +12,6 @@ import org.bridj.ann.Runtime;
  */
 @Runtime(CRuntime.class) 
 public class CY extends StructObject {
-	public CY() {
-		super();
-	}
-	public CY(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public long int64() {
 		return this.io.getLongField(this, 0);

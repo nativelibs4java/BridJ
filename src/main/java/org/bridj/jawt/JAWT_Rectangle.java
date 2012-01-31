@@ -11,12 +11,6 @@ import org.bridj.ann.Library;
  */
 @Library("jawt") 
 public class JAWT_Rectangle extends StructObject {
-	public JAWT_Rectangle() {
-		super();
-	}
-	public JAWT_Rectangle(Pointer pointer) {
-		super(pointer);
-	}
 	@Field(0) 
 	public int x() {
 		return this.io.getIntField(this, 0);

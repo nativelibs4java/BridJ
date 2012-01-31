@@ -13,12 +13,6 @@ import org.bridj.ann.Library;
  */
 @Runtime(CRuntime.class) 
 public class SAFEARRAYBOUND extends StructObject {
-	public SAFEARRAYBOUND() {
-		super();
-	}
-	public SAFEARRAYBOUND(Pointer pointer) {
-		super(pointer);
-	}
 	/// C type : ULONG
 	@Field(0) 
 	public int cElements() {
