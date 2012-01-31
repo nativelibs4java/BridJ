@@ -799,7 +799,7 @@ public class StructIO {
                     ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength, fd.arrayLength);
                     
                     if (fd.isCLong && CLong.SIZE == 4 || fd.isSizeT && SizeT.SIZE == 4)
-                    	value = (Integer)(Long)value;
+                    	value = (int)(long)(Long)value;
                     
                     ptr.set(value);
                 }
