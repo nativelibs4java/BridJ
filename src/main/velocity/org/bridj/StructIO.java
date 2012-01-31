@@ -797,6 +797,10 @@ public class StructIO {
                     Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
                     ptr = ptr.as(tpe);
                     ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength, fd.arrayLength);
+                    
+                    if (fd.isCLong && CLong.SIZE == 4 || fd.isSizeT && SizeT.SIZE == 4)
+                    	value = (Integer)(Long)value;
+                    
                     ptr.set(value);
                 }
             } catch (Throwable th) {
