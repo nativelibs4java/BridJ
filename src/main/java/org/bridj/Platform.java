@@ -162,7 +162,7 @@ public class Platform {
         }
     }
     private static void shutdown() {
-        releaseNativeLibraries();
+    	//releaseNativeLibraries();
         deleteTemporaryExtractedLibraryFiles();
     }
     private static void releaseNativeLibraries() {
