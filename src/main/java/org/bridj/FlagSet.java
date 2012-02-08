@@ -107,6 +107,14 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, Class<EE> enumClass) {
         return new FlagSet<EE>(value, enumClass, null);
     }
+    public static class IntFlagSet<E extends Enum<E>> extends FlagSet<E> implements IntValuedEnum<E> {
+    	protected IntFlagSet(long value, Class<E> enumClass, E[] enumClassValues) {
+    		super(value, enumClass, enumClassValues);
+    	}
+    }
+    public static <EE extends Enum<EE>> IntFlagSet<EE> fromValue(int value, Class<EE> enumClass) {
+        return new IntFlagSet<EE>(value, enumClass, null);
+    }
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(ValuedEnum<EE> value) {
         if (value instanceof Enum)
             return FlagSet.fromValue(value.value(), (EE)value);
