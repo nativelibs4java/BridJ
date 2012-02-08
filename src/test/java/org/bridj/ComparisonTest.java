@@ -637,7 +637,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 1.7); // */
+        assertBridJFaster(bridJFaster, 1.6); // */
 	}
 	static void assertBridJFaster(double factor, double minExpectedFactor) {
 		if (factor < 0)
