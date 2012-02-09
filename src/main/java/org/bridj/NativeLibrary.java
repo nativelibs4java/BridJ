@@ -58,7 +58,7 @@ public class NativeLibrary {
 		this.path = path;
 		this.handle = handle;
 		this.symbols = symbols;
-        this.canonicalFile = new File(path).getCanonicalFile();
+        this.canonicalFile = path == null ? null : new File(path).getCanonicalFile();
         
         Platform.addNativeLibrary(this);
 	}
@@ -140,7 +140,7 @@ public class NativeLibrary {
 		JNI.freeLibrary(handle);
 		handle = 0;
         
-        if (Platform.temporaryExtractedLibraryCanonicalFiles.remove(canonicalFile)) {
+        if (canonicalFile != null && Platform.temporaryExtractedLibraryCanonicalFiles.remove(canonicalFile)) {
             if (canonicalFile.delete()) {
                 if (BridJ.verbose)
                     BridJ.log(Level.INFO, "Deleted temporary library file '" + canonicalFile + "'");
