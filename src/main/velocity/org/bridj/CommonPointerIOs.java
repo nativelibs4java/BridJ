@@ -46,8 +46,7 @@ class CommonPointerIOs {
 		@Override
 		public void set(Pointer<N> pointer, long index, N value) {
 			Pointer<N> ps = Pointer.pointerTo(value);
-			long s = getTargetSize();
-			pointer.getByteBufferAtOffset(index * s, s).put(ps.getByteBuffer());
+			ps.copyTo(pointer.offset(index * getTargetSize()));
 		}
 	}
 	static class StructPointerIO<S extends StructObject> extends NativeObjectPointerIO<S> {

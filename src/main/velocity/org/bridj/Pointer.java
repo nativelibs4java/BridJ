@@ -2328,14 +2328,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
 #docGetArray(${prim.Name} ${prim.WrapperName})
 	public ${prim.Name}[] get${prim.CapName}s(int length) {
-    		return get${prim.CapName}sAtOffset(0, length);
+		return get${prim.CapName}sAtOffset(0, length);
     }
     
   
 #docGetRemainingArray(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s() {
-    		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
-		return get${prim.CapName}s((int)rem);
+		long validBytes = getValidBytes("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
+		return get${prim.CapName}s((int)(rem / ${prim.Size}));
     }
 
 #docGetArrayOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}s(int)")
@@ -2421,8 +2421,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Get a direct buffer of ${prim.Name} values that points to this pointer's target memory location shifted by a byte offset
 	 */
 	public ${prim.BufferName} get${prim.BufferName}() {
-    		long rem = getValidElements("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
-		return get${prim.BufferName}AtOffset(0, rem);
+		long validBytes = getValidBytes("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
+		return get${prim.BufferName}AtOffset(0, validElements / ${prim.Size});
 	}
 	
 	/**

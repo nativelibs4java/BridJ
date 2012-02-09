@@ -139,6 +139,17 @@ public class PointerTest {
 	}
 	
 	@Test
+	public void testDebugBulkPut() {
+		long s = BridJ.sizeOf(int.class);
+		Pointer<Integer> a = pointerToInts(-1, 2, -3);
+		Pointer<Integer> b = allocateInts(4);
+		
+		b.getByteBufferAtOffset(1 * s, 3 * s).put(a.getByteBuffer());
+		
+		assertEquals(Arrays.asList(0, -1, 2, -3), b.asList());
+	}
+	
+	@Test
 	public void testDebugFloatEndian() {
 		float value = 10.0f;
 		for (ByteOrder order : new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN }) {
