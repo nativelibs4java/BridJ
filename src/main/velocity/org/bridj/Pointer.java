@@ -2335,7 +2335,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docGetRemainingArray(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s() {
 		long validBytes = getValidBytes("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
-		return get${prim.CapName}s((int)(rem / ${prim.Size}));
+		return get${prim.CapName}s((int)(validBytes / ${prim.Size}));
     }
 
 #docGetArrayOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}s(int)")
@@ -2422,7 +2422,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 */
 	public ${prim.BufferName} get${prim.BufferName}() {
 		long validBytes = getValidBytes("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
-		return get${prim.BufferName}AtOffset(0, validElements / ${prim.Size});
+		return get${prim.BufferName}AtOffset(0, validBytes / ${prim.Size});
 	}
 	
 	/**
