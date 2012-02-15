@@ -804,5 +804,37 @@ public class StructTest {
     public void testEnumsStruct() {
         assertEquals(5 * BridJ.sizeOf(IntValuedEnum.class), BridJ.sizeOf(EnumsStruct.class));
     }
+    
+    public enum cec_device_type implements IntValuedEnum<cec_device_type> {
+
+        A, B;
+
+        public long value() {
+            return ordinal();
+        }
+
+        public Iterator<cec_device_type> iterator() {
+            return FlagSet.fromValue(value(), cec_device_type.class).iterator();
+        }
+        
+    }
+    public static class cec_device_type_list extends StructObject {
+       public cec_device_type_list() {
+               super();
+       }
+       /// C type : cec_device_type[5]
+       @Array({5})
+       @Field(0)
+       public Pointer<IntValuedEnum<cec_device_type > > types() {
+               return this.io.getPointerField(this, 0);
+       }
+    }
+    
+    @Test
+    public void testEnumsFieldRegression() {
+        Pointer<cec_device_type_list> pDeviceTypeList = Pointer.pointerTo(new cec_device_type_list());
+        cec_device_type_list deviceTypeList = pDeviceTypeList.get();
+        Pointer<IntValuedEnum<cec_device_type>> pDeviceTypes = deviceTypeList.types();
+    }
 }
 

@@ -132,6 +132,13 @@ public abstract class PointerIO<T> {
 					io = new CommonPointerIOs.CallbackPointerIO(cl);
 				else if (NativeObject.class.isAssignableFrom(cl))
 					io = new CommonPointerIOs.NativeObjectPointerIO(type);
+				else if (IntValuedEnum.class.isAssignableFrom(cl)) {
+					if (type instanceof ParameterizedType) {
+						Type enumType = ((ParameterizedType)type).getActualTypeArguments()[0];
+						if (enumType instanceof Class)
+							io = new CommonPointerIOs.IntValuedEnumPointerIO((Class)enumType);
+					}
+				}
 			}
             //else
             //throw new UnsupportedOperationException("Cannot create pointer io to type " + type + ((type instanceof Class) && ((Class)type).getSuperclass() != null ? " (parent type : " + ((Class)type).getSuperclass().getName() + ")" : ""));

@@ -169,6 +169,25 @@ class CommonPointerIOs {
 		}
 	}
 	
+	static class IntValuedEnumPointerIO<E extends Enum<E>> extends PointerIO<IntValuedEnum<E>> {
+		final Class<E> enumClass;
+
+		public IntValuedEnumPointerIO(Class<E> enumClass) {
+			super(IntValuedEnum.class, 4, null);
+			this.enumClass = enumClass;
+		}
+		
+		@Override
+		public IntValuedEnum<E> get(Pointer<IntValuedEnum<E>> pointer, long index) {
+			return FlagSet.fromValue(pointer.getIntAtOffset(4 * index), enumClass);
+		}
+
+		@Override
+		public void set(Pointer<IntValuedEnum<E>> pointer, long index, IntValuedEnum<E> value) {
+			pointer.setIntAtOffset(4 * index, (int)value.value());
+		}
+	}
+	
 	static class TypedPointerPointerIO<P extends TypedPointer> extends PointerIO<P> {
 		final java.lang.reflect.Constructor cons;
 		//final java.lang.reflect.Constructor cons2;
