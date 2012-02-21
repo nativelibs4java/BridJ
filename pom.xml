@@ -15,10 +15,6 @@
 		<relativePath>..</relativePath>
 	</parent>
 	
-	<properties>
-		<shadedArtifactAttached>false</shadedArtifactAttached>
-	</properties>
-	
 	<dependencies>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
@@ -395,8 +391,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>desktop-only</shadedClassifierName>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<!--shadedClassifierName>desktop-only</shadedClassifierName-->
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
