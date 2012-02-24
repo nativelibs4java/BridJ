@@ -124,6 +124,9 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, EE... enumValue) {
         return new FlagSet<EE>(value, null, enumValue);
     }
+    public static <EE extends Enum<EE>> IntFlagSet<EE> fromValue(int value, EE... enumValue) {
+        return new IntFlagSet<EE>(value, null, enumValue);
+    }
     /**
      * Isolate bits that are set in the value.<br>
      * For instance, {@code getBits(0xf)} yields {@literal 0x1, 0x2, 0x4, 0x8}
