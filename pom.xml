@@ -105,6 +105,21 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>1.4</version>
+				<configuration>
+					<relocations>
+						<relocation>
+							<pattern>org.objectweb.asm</pattern>
+							<shadedPattern>org.bridj.relocated.org.objectweb.asm</shadedPattern>
+							<includes>
+								<include>org.objectweb.asm.*</include>
+								<include>org.objectweb.asm.signature.*</include>
+							</includes>
+							<!--excludes>
+								<exclude>org.apache.maven.Public*</exclude>
+							</excludes-->
+						</relocation>
+					</relocations>
+				</configuration>
 				<executions>
 					
 					<execution>
