@@ -31,7 +31,7 @@ import java.util.Stack;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
-import org.ochafik.util.string.StringUtils;
+import org.bridj.util.StringUtils;
 import static org.bridj.Platform.*;
 import static java.lang.System.*;
 

@@ -35,7 +35,7 @@ import java.util.Collection;
 import org.bridj.Platform.DeleteFiles;
 import org.bridj.demangling.Demangler;
 import org.bridj.util.ProcessUtils;
-import org.ochafik.util.string.StringUtils;
+import org.bridj.util.StringUtils;
 
 /**
  * Representation of a native shared library, with symbols retrieval / matching facilities.<br>

@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.logging.Level;
-import org.ochafik.util.string.StringUtils;
+import org.bridj.util.StringUtils;
 
 /**
  * Information about the execution platform (OS, architecture, native sizes...) and platform-specific actions.
@@ -134,8 +134,11 @@ public class Platform {
         systemClassLoader = createClassLoader();
         
         addEmbeddedLibraryResourceRoot("lib/");
-        if (!isAndroid())
-            addEmbeddedLibraryResourceRoot("org/bridj/lib/");
+        if (!isAndroid()) {
+        	addEmbeddedLibraryResourceRoot("org/bridj/lib/");
+        	if (!Version.VERSION_SPECIFIC_SUB_PACKAGE.equals(""))
+        		addEmbeddedLibraryResourceRoot("org/bridj/" + Version.VERSION_SPECIFIC_SUB_PACKAGE + "/lib/");
+        }
         	
         try {
             initLibrary();

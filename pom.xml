@@ -8,6 +8,10 @@
 	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
+	<properties>
+		<versionSpecificSubPackage>v0_7</versionSpecificSubPackage>
+	</properties>
+	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
@@ -398,7 +402,6 @@
 							</filters>
 						</configuration>
 					</execution>
-					
 					<execution>
 						<id>full-package</id>
 						<phase>package</phase>
@@ -408,6 +411,51 @@
 						<configuration>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<!--shadedClassifierName>desktop-only</shadedClassifierName-->
+							<artifactSet>
+								<excludes>
+									<exclude>com.google.android.tools:dx</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+										<exclude>lib/armeabi/**</exclude>
+									</excludes>
+								</filter>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+										<exclude>META-INF/maven/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+					<execution>
+						<id>version-specific-packages</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<relocations>
+								<relocation>
+									<pattern>org.objectweb.asm</pattern>
+									<shadedPattern>org.bridj.${versionSpecificSubPackage}.relocated.org.objectweb.asm</shadedPattern>
+								</relocation>
+								<relocation>
+									<pattern>org.bridj</pattern>
+									<shadedPattern>org.bridj.${versionSpecificSubPackage}</shadedPattern>
+								</relocation>
+							</relocations>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>version-specific-packages</shadedClassifierName>
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
