@@ -1,99 +1,6 @@
-Index: dyncall/configure
-===================================================================
---- dyncall/configure	(revision 1284)
-+++ dyncall/configure	(working copy)
-@@ -84,6 +84,8 @@
-   echo "                     with iPhone SDK version (2.0-4.0)"
-   echo "  --with-macosxsdk=<version>"
-   echo "                     with Mac OS X SDK version (10.4u, 10.5, 10.6)"
-+  echo "  --with-androidndk=<prefix>"
-+  echo "                     with Android NDK toolchain prefix (e.g. ~/bin/android-ndk-r5b/toolchains/arm-eabi-4.4.0/prebuilt/darwin-x86/bin/arm-eabi-)"
-   echo 
-   echo "  --asm-as           use GNU Assembler"
-   echo "  --asm-nasm         use NASM Assembler"
-@@ -243,6 +245,15 @@
-       --with-macosxsdk=*)
-         CONFIG_MACOSXSDK_VERSION=`echo $OPT | cut -c 18-`
-         ;;
-+      --with-androidndk=*)
-+      	CONFIG_ANDROID_TOOLS_PREFIX=`echo $OPT | cut -c 19-`
-+      	CONFIG_OS=android
-+      	CONFIG_TOOL=androidndk
-+      	CONFIG_ASM=${ANDROID_TOOLS_PREFIX}gcc
-+      	;;
-+      --with-sysroot=*)
-+      	CONFIG_SYSROOT=`echo $OPT | cut -c 16-`
-+        ;;
-       --target-universal)
-         CONFIG_ARCH=universal
-         ;;
-@@ -311,6 +322,11 @@
-         CONFIG_ASM=as
-         CONFIG_PREFIX=`psp-config -P`
-         ;;
-+      --tool-androidndk)
-+      	CONFIG_OS=android
-+      	CONFIG_TOOL=androidndk
-+      	CONFIG_ASM=${CONFIG_ANDROID_TOOLS_PREFIX}gcc
-+        ;;
-       --tool-llvm-gcc)
-         CONFIG_TOOL=llvm_gcc
-         ;;
-@@ -410,9 +426,18 @@
-   if [ $CONFIG_IPHONESDK_VERSION ]; then
-     echo "CONFIG_IPHONESDK_VERSION=$CONFIG_IPHONESDK_VERSION" >>$1
-   fi
-+  if [ $CONFIG_ANDROIDNDK_HOME ]; then
-+    echo "CONFIG_ANDROIDNDK_HOME=$CONFIG_ANDROIDNDK_HOME" >>$1
-+  fi
-   if [ $CONFIG_MACOSXSDK_VERSION ]; then
-     echo "CONFIG_MACOSXSDK_VERSION=$CONFIG_MACOSXSDK_VERSION" >>$1
-   fi
-+  if [ $CONFIG_ANDROID_TOOLS_PREFIX ]; then
-+    echo "CONFIG_ANDROID_TOOLS_PREFIX=$CONFIG_ANDROID_TOOLS_PREFIX" >>$1
-+  fi
-+  if [ $CONFIG_SYSROOT ]; then
-+    echo "CONFIG_SYSROOT=$CONFIG_SYSROOT" >>$1
-+  fi
-   echo "" >>$1
- }
- 
-Index: dyncall/dyncallback/GNUmakefile
-===================================================================
---- dyncall/dyncallback/GNUmakefile	(revision 1284)
-+++ dyncall/dyncallback/GNUmakefile	(working copy)
-@@ -61,6 +61,10 @@
- UNITS += dyncall_callback_arch
- endif
- 
-+ifdef BUILD_TOOL_androidndk
-+UNITS += dyncall_callback_arch
-+endif
-+
- ifdef BUILD_TOOL_llvm_gcc
- UNITS += dyncall_callback_arch
- endif
-Index: dyncall/dyncall/dyncall_struct.c
-===================================================================
---- dyncall/dyncall/dyncall_struct.c	(revision 1284)
-+++ dyncall/dyncall/dyncall_struct.c	(working copy)
-@@ -169,7 +169,13 @@
- 	return s->size;
- }
- 
-+DCsize dcStructAlignment(DCstruct* s)
-+{
-+	assert(!s->pCurrentStruct && "Struct was not closed");
-+	return s->alignment;
-+}
- 
-+
- void dcArgStructUnroll(DCCallVM* vm, DCstruct* s, DCpointer  value)
- {
- 	DCsize i;
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_syms_mach-o.c	(revision 1284)
+--- dyncall/dynload/dynload_syms_mach-o.c	(revision 1354)
 +++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -28,6 +28,7 @@
   dynamic symbol resolver for Mach-O
@@ -156,54 +63,20 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  	return NULL;
 Index: dyncall/dynload/dynload_unix.c
 ===================================================================
---- dyncall/dynload/dynload_unix.c	(revision 1284)
+--- dyncall/dynload/dynload_unix.c	(revision 1354)
 +++ dyncall/dynload/dynload_unix.c	(working copy)
 @@ -40,7 +40,7 @@
  
  DLLib* dlLoadLibrary(const char* libPath)
  {
--  return (DLLib*)dlopen(libPath,RTLD_NOW);
-+  return (DLLib*)dlopen(libPath, RTLD_LAZY | RTLD_GLOBAL);
+-  return (DLLib*)dlopen(libPath,RTLD_NOW|RTLD_GLOBAL);
++  return (DLLib*)dlopen(libPath,RTLD_LAZY|RTLD_GLOBAL);
  }
  
  
-Index: dyncall/buildsys/gmake/os/android.gmake
-===================================================================
---- dyncall/buildsys/gmake/os/android.gmake	(revision 0)
-+++ dyncall/buildsys/gmake/os/android.gmake	(revision 0)
-@@ -0,0 +1,29 @@
-+#//////////////////////////////////////////////////////////////////////////////
-+#
-+# Copyright (c) 2007,2009 Daniel Adler <dadler@uni-goettingen.de>, 
-+#                         Tassilo Philipp <tphilipp@potion-studios.com>
-+#
-+# Permission to use, copy, modify, and distribute this software for any
-+# purpose with or without fee is hereby granted, provided that the above
-+# copyright notice and this permission notice appear in all copies.
-+#
-+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-+#
-+#//////////////////////////////////////////////////////////////////////////////
-+
-+DLL_PREFIX=lib
-+DLL_SUFFIX=.so
-+
-+LIBTOOL_STATIC=$(CONFIG_ANDROID_TOOLS_PREFIX)ar rcs $@ $^
-+
-+# Make sure TARGET_MACH variable equals TARGET_ARCH
-+TARGET_MACH?=$(TARGET_ARCH)
-+
-+include $(GMAKE_TOP)/tool/$(BUILD_TOOL).gmake
-+
 Index: dyncall/buildsys/gmake/os/darwin.gmake
 ===================================================================
---- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1284)
+--- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1354)
 +++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
 @@ -23,7 +23,8 @@
  LIBTOOL_STATIC=libtool -static -o $@ $^
@@ -217,7 +90,7 @@ Index: dyncall/buildsys/gmake/os/darwin.gmake
  ifdef BUILD_ARCH_ppc32
 Index: dyncall/buildsys/gmake/tool/gcc.gmake
 ===================================================================
---- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1284)
+--- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1354)
 +++ dyncall/buildsys/gmake/tool/gcc.gmake	(working copy)
 @@ -86,6 +86,13 @@
  
@@ -233,188 +106,3 @@ Index: dyncall/buildsys/gmake/tool/gcc.gmake
  # --- Compile C++ -------------------------------------------------------------
  
  $(BUILD_DIR)/%.o: %.cpp
-Index: dyncall/buildsys/gmake/tool/androidndk.gmake
-===================================================================
---- dyncall/buildsys/gmake/tool/androidndk.gmake	(revision 0)
-+++ dyncall/buildsys/gmake/tool/androidndk.gmake	(revision 0)
-@@ -0,0 +1,180 @@
-+#//////////////////////////////////////////////////////////////////////////////
-+#
-+# Copyright (c)      2011 Olivier Chafik <olivier.chafik@gmail.com>
-+#
-+# Permission to use, copy, modify, and distribute this software for any
-+# purpose with or without fee is hereby granted, provided that the above
-+# copyright notice and this permission notice appear in all copies.
-+#
-+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-+#
-+#//////////////////////////////////////////////////////////////////////////////
-+
-+#//////////////////////////////////////////////////////////////////////////////
-+# GNU Make Buildsystem
-+# GNU Compiler Collection configuration
-+#//////////////////////////////////////////////////////////////////////////////
-+
-+CC	= $(CONFIG_ANDROID_TOOLS_PREFIX)gcc
-+CXX	= $(CONFIG_ANDROID_TOOLS_PREFIX)g++
-+AR	= $(CONFIG_ANDROID_TOOLS_PREFIX)ar
-+AS	= $(CONFIG_ANDROID_TOOLS_PREFIX)as
-+LD	= $(CONFIG_ANDROID_TOOLS_PREFIX)ld
-+
-+OBJ_SUFFIX	= .o
-+LIB_PREFIX	= lib
-+LIB_SUFFIX	= .a
-+
-+# --- build configuration -----------------------------------------------------
-+
-+include $(GMAKE_TOP)/tool/gcc_$(BUILD_CONFIG).gmake
-+
-+ifdef BUILD_ARCH_arm32_thumb
-+ASFLAGS  += -mthumb -mthumb-interwork
-+CFLAGS   += -mthumb -mthumb-interwork
-+CXXFLAGS += -mthumb -mthumb-interwork
-+LDFLAGS  += -mthumb -mthumb-interwork
-+endif
-+
-+# --- Assemble ----------------------------------------------------------------
-+
-+$(BUILD_DIR)/%.o: %.s
-+	$(COMPILE.s) $(OUTPUT_OPTION) $<
-+
-+$(BUILD_DIR)/%.o: %.S
-+	$(COMPILE.S) $(OUTPUT_OPTION) $<
-+
-+#	auto-dependency: disabled, due to problems when including *.d files, see targets.gmake for details 
-+#	$(CC) -MM -MT $@ $(CPPFLAGS) $< > $(BUILD_DIR)/$*.d
-+
-+# ---Compile flags ------------------------------------------------------------
-+
-+
-+ifdef BUILD_ARCH_x86
-+NDKFLAGS += -msoft-float -fpic -ffunction-sections -funwind-tables -fstack-protector -fno-short-enums
-+endif
-+
-+ifdef BUILD_ARCH_arm32_thumb
-+NDKFLAGS   += -fpic \
-+    -mthumb-interwork \
-+    -ffunction-sections \
-+    -funwind-tables \
-+    -fstack-protector \
-+    -fno-short-enums \
-+    -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ \
-+    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ 
-+endif
-+
-+ifdef BUILD_ARCH_arm32_arm
-+NDKFLAGS   += -fpic \
-+    -ffunction-sections \
-+    -funwind-tables \
-+    -fstack-protector \
-+    -D__ARM_ARCH_5__ -D__ARM_ARCH_5T__ \
-+    -D__ARM_ARCH_5E__ -D__ARM_ARCH_5TE__ 
-+endif
-+
-+NDKFLAGS += -I$(CONFIG_SYSROOT)/usr/include -I$(CONFIG_SYSROOT)/../../../sources/cxx-stl/gnu-libstdc++/include --sysroot=$(CONFIG_SYSROOT)
-+
-+#NDKFLAGS +=	-D_SSIZE_T_DEFINED_
-+
-+CFLAGS   += $(NDKFLAGS)
-+CXXFLAGS += $(NDKFLAGS)
-+
-+LDFLAGS += --sysroot=$(CONFIG_SYSROOT) -L$(CONFIG_SYSROOT)/usr/lib
-+
-+# --- C++ Compiler flags ------------------------------------------------------
-+
-+ifeq ("$(CXX_EXCEPTIONS)","0")
-+CXXFLAGS	+= -fno-exceptions
-+endif
-+
-+ifeq ("$(CXX_RTTI)","0")
-+CXXFLAGS	+= -fno-rtti
-+endif
-+
-+# --- Compile C ---------------------------------------------------------------
-+
-+$(BUILD_DIR)/%.o: %.c
-+	$(COMPILE.c) $< $(OUTPUT_OPTION)
-+
-+#	$(CC) -MM -MT $@ $(CPPFLAGS) $(CFLAGS) $< > $(BUILD_DIR)/$*.d
-+
-+# --- Compile C++ -------------------------------------------------------------
-+
-+$(BUILD_DIR)/%.o: %.cpp
-+	$(COMPILE.cpp) $< $(OUTPUT_OPTION)
-+
-+$(BUILD_DIR)/%.o: %.cc
-+	$(COMPILE.cpp) $< $(OUTPUT_OPTION)
-+
-+#	$(CXX) -MM -MT $@ $(CPPFLAGS) $(CXXFLAGS) $< > $(BUILD_DIR)/$*.d
-+
-+# --- static library ----------------------------------------------------------
-+
-+LIBTOOL_STATIC ?= $(RM) $@ ; $(AR) -rcs $@ $^ 
-+
-+$(BUILD_DIR)/%.a:
-+	$(LIBTOOL_STATIC)
-+
-+# --- dynamic library ---------------------------------------------------------
-+
-+ifdef LINK_DIRS
-+LDFLAGS +=$(foreach X,$(LINK_DIRS),-L$X)
-+endif
-+
-+ifdef LINK_LIBS
-+LDLIBS	+=$(foreach X,$(LINK_LIBS),-l$X)
-+endif
-+
-+# --- Build executable --------------------------------------------------------
-+
-+LINK	?= "c"
-+LINKCMD	?= $(CC)
-+
-+ifeq ("$(LINK)","c++")
-+LINKCMD=$(CXX)
-+endif
-+
-+ifeq ("$(LINK)","c")
-+LINKCMD=$(CC)
-+endif
-+
-+# --- Build dynamic library ---------------------------------------------------
-+
-+DLL_SUFFIX ?= .so
-+
-+ifdef BUILD_OS_windows
-+ifdef DLL_IMPORTLIB
-+TARGETS += $(LIB_FILE)
-+$(BUILD_DIR)/lib%.a $(BUILD_DIR)/%.dll:
-+	$(LINKCMD) -shared $^ -Wl,--out-implib,$(BUILD_DIR)/lib$(*F).a $(LDFLAGS) $(TARGET_ARCH) $(LDLIBS) $(OUTPUT_OPTION)
-+else
-+$(BUILD_DIR)/%.dll:
-+	$(LINKCMD) -shared $^ $(LDFLAGS) $(TARGET_ARCH) $(LDLIBS) $(OUTPUT_OPTION)
-+endif
-+endif
-+
-+$(BUILD_DIR)/%.so:
-+	$(LINKCMD) -shared $^ $(LDFLAGS) $(TARGET_ARCH) $(LDLIBS) $(OUTPUT_OPTION)
-+
-+$(BUILD_DIR)/lib%.dylib:
-+	$(LINKCMD) -dynamiclib $^ $(LDFLAGS) $(TARGET_ARCH) $(LDLIBS) $(OUTPUT_OPTION)
-+
-+
-+# --- last rule ---------------------------------------------------------------
-+
-+$(BUILD_DIR)/%$(APP_SUFFIX):
-+	$(LINKCMD) $^ $(LDFLAGS) $(TARGET_ARCH) $(LDLIBS) $(OUTPUT_OPTION) 
-+
-+# --- Dependencies ------------------------------------------------------------
-+
-+# -include $(OBJS:.o=.d)
-+
-+
