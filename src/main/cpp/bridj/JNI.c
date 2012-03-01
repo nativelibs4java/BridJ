@@ -401,7 +401,6 @@ wchar_t* ConvertStringToWide(JNIEnv* env, jstring javaString) {
 jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
 	jlong ret = 0;
-	const char* rawPath = GET_CHARS(pathStr);
 #if defined(DC_WINDOWS)
 	wchar_t* widePath = ConvertStringToWide(env, pathStr);
 	const char* path = (char*)(void*)widePath;
@@ -411,6 +410,7 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring 
 	//MultiByteToWideChar(CP_UTF8, 0, rawPath, -1, widePath, pathStrLength);
 	//ret = PTR_TO_JLONG((DLLib*) LoadLibraryW(widePath));
 #else
+	const char* rawPath = GET_CHARS(pathStr);
 	const char* path = rawPath;
 	//ret = PTR_TO_JLONG(dlLoadLibrary(path));
 #endif
@@ -420,16 +420,17 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring 
 		printf("# BridJ: dlopen error when loading %s : %s\n", path, dlerror());
 #elif defined(DC_WINDOWS)
 		jstring message = formatWin32ErrorMessage(env, GetLastError());
-		const char* msg = GET_CHARS(message);
-		printf("# BridJ: LoadLibrary error when loading %s : %s\n", rawPath, msg);
-		RELEASE_CHARS(message, msg);
+		wchar_t* msg = ConvertStringToWide(env, message);
+		//const char* msg = GET_CHARS(message);
+		wprintf(L"# BridJ: LoadLibrary error when loading %s : %s\n", widePath, msg);
+		//RELEASE_CHARS(message, msg);
 #endif
 	}
 #if defined(DC_WINDOWS)
 	free(widePath);
-#endif
-
+#else
 	RELEASE_CHARS(pathStr, rawPath);
+#endif
 	return ret;
 }
 
