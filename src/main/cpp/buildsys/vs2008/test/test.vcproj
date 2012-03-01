@@ -207,8 +207,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="0"
+				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TEST_EXPORTS"
 				ExceptionHandling="1"
@@ -436,11 +438,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\test\cpp\test\test.cpp"
+				RelativePath="..\..\..\..\..\test\cpp\test\templates.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\test\cpp\test\templates.cpp"
+				RelativePath="..\..\..\..\..\test\cpp\test\test.cpp"
 				>
 			</File>
 		</Filter>

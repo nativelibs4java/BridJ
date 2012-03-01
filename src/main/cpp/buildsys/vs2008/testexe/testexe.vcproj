@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
+				AdditionalIncludeDirectories="Z:\src\pkcs11\PKCS11;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;&quot;$(DYNCALL_HOME)\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncallback&quot;;&quot;$(DYNCALL_HOME)\dyncall\dynload&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,83 +69,6 @@
 				AdditionalLibraryDirectories="D:\Experiments\n4\libraries\Runtime\BridJ\src\test\cpp\test;&quot;$(JAVA_HOME32)\lib&quot;;..\Debug"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib ole32.lib dyncall32.lib dyncallback32.lib dynload.lib dbghelp.lib"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="$(JAVA_HOME32)\lib;..\Debug"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -196,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
+				AdditionalIncludeDirectories="Z:\src\pkcs11\PKCS11;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;&quot;$(DYNCALL_HOME)\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncallback&quot;;&quot;$(DYNCALL_HOME)\dyncall\dynload&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -222,6 +145,83 @@
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;&quot;$(DYNCALL_HOME)\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncallback&quot;;&quot;$(DYNCALL_HOME)\dyncall\dynload&quot;;Z:\src\pkcs11\PKCS11"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="2"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="jvm.lib ole32.lib dyncall32.lib dyncallback32.lib dynload.lib dbghelp.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="$(JAVA_HOME32)\lib;..\Debug"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -273,7 +273,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
+				AdditionalIncludeDirectories="Z:\src\pkcs11\PKCS11;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;&quot;$(DYNCALL_HOME)\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncall&quot;;&quot;$(DYNCALL_HOME)\dyncall\dyncallback&quot;;&quot;$(DYNCALL_HOME)\dyncall\dynload&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -344,7 +344,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -352,7 +352,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

@@ -386,22 +386,50 @@ char* dlerror();
 jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode);
 #endif
 
+#if defined(DC_WINDOWS)
+wchar_t* ConvertStringToWide(JNIEnv* env, jstring javaString) {
+	const char* utfStr = GET_CHARS(javaString);
+	int len = (*env)->GetStringLength(env, javaString);
+	wchar_t* wideStr = (wchar_t*)malloc((len + 1) * sizeof(wchar_t));
+	wideStr[len] = L'\0';
+	MultiByteToWideChar(CP_UTF8, 0, utfStr, -1, wideStr, len);	
+	RELEASE_CHARS(javaString, utfStr);
+	return wideStr;
+}
+#endif
+
 jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
-	const char* path = GET_CHARS(pathStr);
-	jlong ret = PTR_TO_JLONG(dlLoadLibrary(path));
+	jlong ret = 0;
+	const char* rawPath = GET_CHARS(pathStr);
+#if defined(DC_WINDOWS)
+	wchar_t* widePath = ConvertStringToWide(env, pathStr);
+	const char* path = (char*)(void*)widePath;
+	//int pathStrLength = (*env)->GetStringLength(env, pathStr);
+	//wchar_t* widePath = (wchar_t*)malloc((pathStrLength + 1) * sizeof(wchar_t));
+	//widePath[pathStrLength] = L'\0';
+	//MultiByteToWideChar(CP_UTF8, 0, rawPath, -1, widePath, pathStrLength);
+	//ret = PTR_TO_JLONG((DLLib*) LoadLibraryW(widePath));
+#else
+	const char* path = rawPath;
+	//ret = PTR_TO_JLONG(dlLoadLibrary(path));
+#endif
+	ret = PTR_TO_JLONG(dlLoadLibrary(path));
 	if (!ret) {
 #if defined(DC_UNIX)
 		printf("# BridJ: dlopen error when loading %s : %s\n", path, dlerror());
 #elif defined(DC_WINDOWS)
 		jstring message = formatWin32ErrorMessage(env, GetLastError());
 		const char* msg = GET_CHARS(message);
-		printf("# BridJ: LoadLibrary error when loading %s : %s\n", path, msg);
+		printf("# BridJ: LoadLibrary error when loading %s : %s\n", rawPath, msg);
 		RELEASE_CHARS(message, msg);
 #endif
 	}
+#if defined(DC_WINDOWS)
+	free(widePath);
+#endif
 
-	RELEASE_CHARS(pathStr, path);
+	RELEASE_CHARS(pathStr, rawPath);
 	return ret;
 }
 
@@ -414,15 +442,22 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, j
 {
 	DLSyms* pSyms = NULL;
 	const char* libPathStr;
+	wchar_t* widePath;
 
 	// Force protection (override global protection switch)
 	jboolean gProtected = JNI_TRUE;
 	BEGIN_TRY_CALL(env);
 	
+#if defined(DC_WINDOWS)
+	widePath = ConvertStringToWide(env, libPath);
+	libPathStr = (char*)(void*)widePath;
+	pSyms = dlSymsInit(libPathStr);
+	free(widePath);
+#else
 	libPathStr = GET_CHARS(libPath);
 	pSyms = dlSymsInit(libPathStr);
 	RELEASE_CHARS(libPath, libPathStr);
-	
+#endif
 	END_TRY_CALL(env);	
 	return PTR_TO_JLONG(pSyms);
 	
