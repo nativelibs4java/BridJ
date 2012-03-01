@@ -1,3 +1,18 @@
+Index: dyncall/dynload/dynload_windows.c
+===================================================================
+--- dyncall/dynload/dynload_windows.c	(revision 1354)
++++ dyncall/dynload/dynload_windows.c	(working copy)
+@@ -40,7 +40,9 @@
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
+   if (libPath != NULL) {
+-    return (DLLib*) LoadLibraryA(libPath);
++    return (DLLib*) LoadLibraryW((wchar_t*)(void*)libPath);
++  	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
++    // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
+     /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
+   } else {
+     return (DLLib*) GetModuleHandle(NULL);
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
 --- dyncall/dynload/dynload_syms_mach-o.c	(revision 1354)
