@@ -319,6 +319,8 @@ JNIEXPORT void JNICALL Java_org_bridj_Platform_init(JNIEnv *env, jclass clazz)
 	//initMethods(env);
 }
 
+#include "../../../../target/generated-sources/main/org/bridj/Init.c"
+
 jlong JNICALL Java_org_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
 {
 	return PTR_TO_JLONG(env);
