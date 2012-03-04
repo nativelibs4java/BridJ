@@ -280,10 +280,11 @@ public class Platform {
 		return value;
 	}
 
-    public static void initLibrary() {
+    public static synchronized void initLibrary() {
         if (inited) {
             return;
         }
+		inited = true;
 
         try {
             boolean loaded = false;
@@ -324,7 +325,6 @@ public class Platform {
             BridJ.log(Level.INFO, "Loaded library " + lib);
 
             init();
-            inited = true;
 
             //if (BridJ.protectedMode)
             //		BridJ.log(Level.INFO, "Protected mode enabled");
