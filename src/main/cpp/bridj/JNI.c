@@ -376,14 +376,9 @@ jlong JNICALL Java_org_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jt
 	ret = !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
 	return ret;
 }
-
-jlong JNICALL Java_org_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
-{
-	return PTR_TO_JLONG(object);
-}
  
 #if defined(DC_UNIX)
-char* dlerror();
+//char* dlerror();
 #else
 jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode);
 #endif

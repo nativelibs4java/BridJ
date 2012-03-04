@@ -83,9 +83,9 @@ public class JNI {
 #foreach ($prim in $primitives)
 
     @Deprecated
-    static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, boolean[] pIsCopy);
+    static native long get${prim.CapName}ArrayElements(${prim.Name}[] array, boolean[] pIsCopy);
     @Deprecated
-    static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
+    static native void release${prim.CapName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
 
     @Deprecated
     static native ${prim.Name} get_${prim.Name}(long peer);

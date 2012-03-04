@@ -63,6 +63,7 @@ UNITS += RawNativeForwardCallback_arch
 
 ifndef BUILD_OS_darwin
 CPPFLAGS += -Werror
+CPPFLAGS += -D_DARWIN_C_SOURCE
 endif
 
 CPPFLAGS += -std=c99

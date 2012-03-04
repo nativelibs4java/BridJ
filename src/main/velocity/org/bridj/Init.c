@@ -1,66 +1,98 @@
 #set ($replacedSubPackage = $versionSpecificSubPackage.replaceAll("_", "_1"))
+
+\#include "../autovar/autovar_OS.h"
+\#include "../autovar/autovar_OSFAMILY.h"
+
+\#if defined(OS_Darwin)
+\#include <dlfcn.h>
+
+JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv *env, jclass clazz);
+
+const char* getBridJLibPath()
+{
+	const char* libPath;
+	Dl_info info;
+	dladdr(Java_org_bridj_${replacedSubPackage}_Platform_init, &info);
+	libPath = info.dli_fname;
+	printf("INFO: BridJ library = '%s'\n", libPath);
+	return libPath;
+}
+\#else
+const char* getBridJLibPath()
+{
+	printf("WARN: NOT DARWIN\n");
+	return NULL;
+}
+#endif
+
+\#if defined(OSFAMILY_Unix)
+\#include <dlfcn.h>
+
+void* getSelfSymbol(DLLib* pLib, const char* name) {
+	void *sym, *handle;
+\#if defined(OS_Darwin)
+	handle = RTLD_SELF;
+\#else
+	handle = RTLD_DEFAULT;
+#endif
+	
+	sym = dlsym(handle, name);
+	if (!sym && *name == '_')
+		sym = dlsym(handle, name + 1);
+	
+	printf("Sym for %s = %p\n", name, sym);
+	return sym;
+}
+\#else
+void* getSelfSymbol(DLLib* pLib, const char* name) {
+	return dlFindSymbol(pLib, name);
+}
+#endif
+
 JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv *env, jclass clazz)
 {
-	DLLib* pLib = dlLoadLibrary(NULL);
-	DLSyms* pSyms = dlSymsInit(NULL);
+	const char* libPath = getBridJLibPath();
+	DLLib* pLib = dlLoadLibrary(libPath);
+	DLSyms* pSyms = dlSymsInit(libPath);
 	int nSyms = dlSymsCount(pSyms);
 	
 	jclass objectClass = (*env)->FindClass(env, "java/lang/Object");
 	jclass signatureHelperClass = (*env)->FindClass(env, "org/bridj/$versionSpecificSubPackage/util/JNIUtils");
-	jmethodID decodeMethodNameClassAndSignatureMethod = (*env)->GetStaticMethodID(env, signatureHelperClass, "decodeMethodNameClassAndSignature", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;"); 
+	jmethodID decodeVersionSpecificMethodNameClassAndSignatureMethod = (*env)->GetStaticMethodID(env, signatureHelperClass, "decodeVersionSpecificMethodNameClassAndSignature", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;"); 
 	
 	JNINativeMethod meth;
 	memset(&meth, 0, sizeof(JNINativeMethod));
 	
-	char* tmp = NULL;
-	int tmpLen = 0;
-	
 	const char* packagePattern = "Java_org_bridj_";
 	int packagePatternLen = strlen(packagePattern);
-	const char* subPackage = "${replacedSubPackage}_";
-	int subPackageLen = strlen(subPackage);
 	
 	jobjectArray nameAndSigArray = (*env)->NewObjectArray(env, 2, objectClass, NULL);
 	
-	printf("INFO: Found %d symbols\n", nSyms);
+	//printf("INFO: Found %d symbols\n", nSyms);
 	
 	for (int iSym = 0; iSym < nSyms; iSym++) {
 		const char* symbolName = dlSymsName(pSyms, iSym);
-		const char* occ = strstr(symbolName, packagePattern);
-		if (occ) {
-			size_t symbolNameLen = strlen(symbolName);
-			if (tmpLen < symbolNameLen) {
-				if (tmp)
-					free(tmp);
-				tmpLen = symbolNameLen < 100 ? symbolNameLen : 100;
-				tmp = malloc(tmpLen + 1);
-			}
-			int actualPackageLen = (occ - symbolName) + packagePatternLen;
-			char* out = tmp;
-			
-			memcpy(out, symbolName, actualPackageLen);
-			out += actualPackageLen;
-			
-			memcpy(out, subPackage, subPackageLen);
-			out += subPackageLen;
-			
-			strcpy(out, occ + packagePatternLen);
-			
-			if (meth.fnPtr = dlFindSymbol(pLib, tmp)) {
-				jstring declaringClassName = (*env)->CallStaticObjectMethod(env, signatureHelperClass, decodeMethodNameClassAndSignatureMethod, (*env)->NewStringUTF(env, symbolName), nameAndSigArray);
+		if (strstr(symbolName, packagePattern)) {
+			if (meth.fnPtr = getSelfSymbol(pLib, symbolName)) {
+				jstring declaringClassName = (*env)->CallStaticObjectMethod(env, signatureHelperClass, decodeVersionSpecificMethodNameClassAndSignatureMethod, (*env)->NewStringUTF(env, symbolName), nameAndSigArray);
 				
 				if ((*env)->ExceptionCheck(env))
 					goto version_specific_init_failed;
 				
+				if (!declaringClassName) {
+					printf("ERROR: Failed to find method for symbol '%s'\n", symbolName);
+					continue;
+				}
+					
 				if (declaringClassName) {
-					jstring methodName = (*env)->GetObjectArrayElement(env, nameAndSigArray, 1);
-					jstring methodSignature = (*env)->GetObjectArrayElement(env, nameAndSigArray, 0);
+					jstring methodName = (*env)->GetObjectArrayElement(env, nameAndSigArray, 0);
+					jstring methodSignature = (*env)->GetObjectArrayElement(env, nameAndSigArray, 1);
 					const char* declaringClassNameStr = (char*)GET_CHARS(declaringClassName);
 					jclass declaringClass = (*env)->FindClass(env, declaringClassNameStr);
 					meth.name = (char*)GET_CHARS(methodName);
 					meth.signature = (char*)GET_CHARS(methodSignature);
 					
-					printf("INFO: Registering %s.%s with signature %s as %s\n", declaringClassNameStr, methodName, methodSignature, tmp);
+					printf("INFO: Registering %s.%s with signature %s as %s\n", declaringClassNameStr, meth.name, meth.signature, symbolName);
 					(*env)->RegisterNatives(env, declaringClass, &meth, 1);
 					
 					RELEASE_CHARS(methodName, meth.name);
@@ -68,17 +100,14 @@ JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv
 					RELEASE_CHARS(declaringClassName, declaringClassNameStr);
 				}
 			} else {
-				printf("ERROR: Could not find symbol %s\n", tmp); 
+				printf("ERROR: Could not find symbol %s\n", symbolName); 
 			}
 		}
 	}
-	dlSymsCleanup(pSyms);
-	//dlFreeLibrary(pLib); // TODO ?
 	
 	Java_org_bridj_Platform_init(env, clazz);
 	
 version_specific_init_failed:
-	if (tmp)
-		free(tmp);
-	
+	//dlFreeLibrary(pLib); // TODO ?
+	dlSymsCleanup(pSyms);
 }
