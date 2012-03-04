@@ -1,5 +1,6 @@
 package org.bridj.util;
 
+import java.io.IOException;
 import org.bridj.demangling.Demangler;
 import java.util.Collection;
 
@@ -18,7 +19,7 @@ public class JNIUtilsTest {
     public static native void test_method_1(int i);
     
     @Test
-    public void testDecode() throws ClassNotFoundException, NoSuchMethodException {
+    public void testDecode() throws NoSuchMethodException, IOException {
         String className = getClass().getName();
         Object[] nameAndSigArray = new Object[2];
         String enclosingClassName = JNIUtils.decodeMethodNameClassAndSignature("Java_" + className.replaceAll("_", "_1").replace('.', '_') + "_test_1method_11", nameAndSigArray, "", "");

@@ -40,7 +40,6 @@ void* getSelfSymbol(DLLib* pLib, const char* name) {
 	if (!sym && *name == '_')
 		sym = dlsym(handle, name + 1);
 	
-	printf("Sym for %s = %p\n", name, sym);
 	return sym;
 }
 \#else
@@ -69,21 +68,20 @@ JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv
 	jobjectArray nameAndSigArray = (*env)->NewObjectArray(env, 2, objectClass, NULL);
 	
 	//printf("INFO: Found %d symbols\n", nSyms);
-	
 	for (int iSym = 0; iSym < nSyms; iSym++) {
 		const char* symbolName = dlSymsName(pSyms, iSym);
+		if (!strcmp(*symbolName == '_' ? symbolName + 1 : symbolName, "Java_org_bridj_${replacedSubPackage}_Platform_init"))
+			continue;
+		
 		if (strstr(symbolName, packagePattern)) {
 			if (meth.fnPtr = getSelfSymbol(pLib, symbolName)) {
 				jstring declaringClassName = (*env)->CallStaticObjectMethod(env, signatureHelperClass, decodeVersionSpecificMethodNameClassAndSignatureMethod, (*env)->NewStringUTF(env, symbolName), nameAndSigArray);
 				
-				if ((*env)->ExceptionCheck(env))
+				if ((*env)->ExceptionCheck(env)) {
+					printf("ERROR: Exception when trying to find method for symbol '%s'\n", symbolName);
 					goto version_specific_init_failed;
-				
-				if (!declaringClassName) {
-					printf("ERROR: Failed to find method for symbol '%s'\n", symbolName);
-					continue;
 				}
-					
+				
 				if (declaringClassName) {
 					jstring methodName = (*env)->GetObjectArrayElement(env, nameAndSigArray, 0);
 					jstring methodSignature = (*env)->GetObjectArrayElement(env, nameAndSigArray, 1);
@@ -92,12 +90,14 @@ JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv
 					meth.name = (char*)GET_CHARS(methodName);
 					meth.signature = (char*)GET_CHARS(methodSignature);
 					
-					printf("INFO: Registering %s.%s with signature %s as %s\n", declaringClassNameStr, meth.name, meth.signature, symbolName);
+					//printf("INFO: Registering %s.%s with signature %s as %s\n", declaringClassNameStr, meth.name, meth.signature, symbolName);
 					(*env)->RegisterNatives(env, declaringClass, &meth, 1);
 					
 					RELEASE_CHARS(methodName, meth.name);
 					RELEASE_CHARS(methodSignature, meth.signature);
 					RELEASE_CHARS(declaringClassName, declaringClassNameStr);
+				} else {
+					printf("ERROR: Failed to find method for symbol '%s'\n", symbolName);
 				}
 			} else {
 				printf("ERROR: Could not find symbol %s\n", symbolName); 
@@ -108,6 +108,8 @@ JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv
 	Java_org_bridj_Platform_init(env, clazz);
 	
 version_specific_init_failed:
+	//printf("INFO: Finished binding of symbols\n");
+				
 	//dlFreeLibrary(pLib); // TODO ?
 	dlSymsCleanup(pSyms);
 }

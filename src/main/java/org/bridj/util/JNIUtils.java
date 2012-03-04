@@ -4,6 +4,7 @@
  */
 package org.bridj.util;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 import org.bridj.BridJ;
+import org.bridj.Platform;
 import org.bridj.Version;
 
 /**
@@ -21,25 +23,24 @@ import org.bridj.Version;
 public class JNIUtils {
     
     private static class NativeMethodsCache {
-        Map<String, Method> methods = new HashMap<String, Method>();
-        public NativeMethodsCache(Class cls) {
-            for (Method method : cls.getDeclaredMethods()) {
-                if (Modifier.isNative(method.getModifiers()))
-                    methods.put(method.getName(), method);
+        Map<String, String> signatures = new HashMap<String, String>();
+        public NativeMethodsCache(String internalClassName) throws IOException {
+            for (String[] sig : BytecodeAnalyzer.getNativeMethodSignatures(internalClassName, Platform.getClassLoader())) {
+                signatures.put(sig[1], sig[2]);
             }
         }
-        public Method get(String name) {
-            return methods.get(name);
+        public String get(String name) {
+            return signatures.get(name);
         }
         public Set<String> getNames() {
-            return methods.keySet();
+            return signatures.keySet();
         }
     }
-    private static Map<Class, NativeMethodsCache> nativeMethodsCache = new WeakHashMap<Class, NativeMethodsCache>();
-    private static synchronized NativeMethodsCache getNativeMethodsCache(Class cls) {
-        NativeMethodsCache cache = nativeMethodsCache.get(cls);
+    private static Map<String, NativeMethodsCache> nativeMethodsCache = new WeakHashMap<String, NativeMethodsCache>();
+    private static synchronized NativeMethodsCache getNativeMethodsCache(String internalClassName) throws IOException {
+        NativeMethodsCache cache = nativeMethodsCache.get(internalClassName);
         if (cache == null)
-            nativeMethodsCache.put(cls, cache = new NativeMethodsCache(cls));
+            nativeMethodsCache.put(internalClassName, cache = new NativeMethodsCache(internalClassName));
         return cache;
     }
     private static final String bridjPackage = BridJ.class.getPackage().getName();
@@ -56,11 +57,11 @@ public class JNIUtils {
         } while (i > 0);
         return -1;
     }
-    public static String decodeVersionSpecificMethodNameClassAndSignature(String symbolName, Object[] nameAndSigArray) throws ClassNotFoundException, NoSuchMethodException {
+    public static String decodeVersionSpecificMethodNameClassAndSignature(String symbolName, Object[] nameAndSigArray) throws NoSuchMethodException, IOException {
         return decodeMethodNameClassAndSignature(symbolName, nameAndSigArray, bridjNormalPackagePrefix, bridjVersionSpecificPackagePrefix);
     }
     
-    static String decodeMethodNameClassAndSignature(String symbolName, Object[] nameAndSigArray, String normalClassPrefix, String replacementClassPrefix) throws ClassNotFoundException, NoSuchMethodException {
+    static String decodeMethodNameClassAndSignature(String symbolName, Object[] nameAndSigArray, String normalClassPrefix, String replacementClassPrefix) throws NoSuchMethodException, IOException {
         if (symbolName.startsWith("_"))
             symbolName = symbolName.substring(1);
         if (symbolName.startsWith("Java_"))
@@ -68,18 +69,19 @@ public class JNIUtils {
         
         int i = findLastNonEscapeUnderscore(symbolName);
         String className = symbolName.substring(0, i).replace('_', '.');
-        if (className.startsWith(normalClassPrefix))
-            className = replacementClassPrefix + className.substring(normalClassPrefix.length());
-        
+        if (normalClassPrefix != null) {
+            if (className.startsWith(normalClassPrefix) && !className.startsWith(replacementClassPrefix))
+                className = replacementClassPrefix + className.substring(normalClassPrefix.length());
+        }
         String methodName = symbolName.substring(i + 1).replaceAll("_1", "_");
-        Class cls = Class.forName(className);
-        NativeMethodsCache mc = getNativeMethodsCache(cls);
-        Method method = mc.get(methodName);
-        if (method == null)
+        
+        NativeMethodsCache mc = getNativeMethodsCache(className.replace('.', '/'));
+        String sig = mc.get(methodName);
+        if (sig == null)
             throw new NoSuchMethodException("Method " + methodName + " not found in class " + className + " : known method names = " + StringUtils.implode(mc.getNames(), ", "));
         
-        nameAndSigArray[0] = method.getName();//cls.getSimpleName();
-        nameAndSigArray[1] = getNativeSignature(method);
+        nameAndSigArray[0] = methodName;
+        nameAndSigArray[1] = sig;
         
         String internalClassName = className.replace('.', '/');
         return internalClassName;//className;
