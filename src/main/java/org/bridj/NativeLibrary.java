@@ -167,7 +167,6 @@ public class NativeLibrary {
 	}
 
     public synchronized Symbol getSymbol(AnnotatedElement member) throws FileNotFoundException {
-        //libHandle = libHandle & 0xffffffffL;
     	org.bridj.ann.Symbol mg = getAnnotation(org.bridj.ann.Symbol.class, member);
     	String name = null;
     	if (member instanceof Member)
