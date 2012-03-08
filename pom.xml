@@ -10,6 +10,7 @@
 	
 	<properties>
 		<versionSpecificSubPackage>v0_7</versionSpecificSubPackage>
+		<exportedPackages>org.bridj,org.bridj.ann,org.bridj.cpp,org.bridj.cpp.com,org.bridj.cpp.com.shell,org.bridj.demangling,org.bridj.jawt,org.bridj.objc,org.bridj.util</exportedPackages>
 	</properties>
 	
 	<parent>
@@ -84,27 +85,6 @@
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-velocity-plugin</artifactId>
 			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.2</version>
-		        <configuration>
-					<archive>
-						<addMavenDescriptor>false</addMavenDescriptor>
-					</archive>
-		        </configuration>
-				<executions>
-					<execution>
-						<id>test-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
