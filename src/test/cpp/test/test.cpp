@@ -436,6 +436,20 @@ TEST_API int __cdecl MyEnumToInt(MyEnum value) {
 	return (int)value;
 }
 
+int Module::add(int a, int b) { 
+    return a + b; 
+}
+AModule::AModule() {
+} 
+AModule::~AModule() {} 
+int AModule::add(int a, int b) { 
+    return a + b; 
+}
+
+int AModule::subtract(int a, int b) { 
+    return a - b; 
+}
+
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32

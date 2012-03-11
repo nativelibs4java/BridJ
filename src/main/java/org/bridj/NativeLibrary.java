@@ -351,6 +351,9 @@ public class NativeLibrary {
 	}
 
 	public MemberRef parseSymbol(String symbol) throws DemanglingException {
+        if ("__cxa_pure_virtual".equals(symbol))
+            return null;
+        
 		Demangler demangler;
 		if (Platform.isWindows())
 			demangler = new VC9Demangler(this, symbol);

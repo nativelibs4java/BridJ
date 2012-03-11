@@ -893,12 +893,30 @@ public abstract class Demangler {
 			if (memberName instanceof SpecialName)
             	return false; // use matchesConstructor... 
 
+            if (!matchesEnclosingType(method))
+                return false;
+		
+            return matchesSignature(method);
+        }
+        public boolean matchesEnclosingType(Method method) {
+            TypeRef et = getEnclosingType();
+            if (et != null) {
+                Annotations annotations = annotations(method);
+                Class dc = method.getDeclaringClass();
+                do {
+                    if (et.matches(dc, annotations))
+                        return true;
+                    
+                    dc = dc.getSuperclass();
+                } while (dc != null && dc != Object.class);
+            }
+			return false;
+        }
+        public boolean matchesSignature(Method method) {
+        	
             if (getArgumentsStackSize() != null && getArgumentsStackSize().intValue() != getArgumentsStackSize(method))
                 return false;
             
-			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass(), annotations(method)))
-				return false;
-			
 			if (getMemberName() != null && !getMemberName().toString().equals(getMethodName(method)))
 				return false;
 			

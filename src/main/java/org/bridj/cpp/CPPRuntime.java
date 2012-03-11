@@ -53,6 +53,7 @@ import java.util.TreeMap;
 import org.bridj.ann.Convention.Style;
 import org.bridj.demangling.Demangler.SpecialName;
 import static org.bridj.Pointer.*;
+import org.bridj.demangling.Demangler;
 
 /**
  * C++ runtime (derives from the C runtime).<br>
@@ -274,39 +275,56 @@ public class CPPRuntime extends CRuntime {
                 log(Level.INFO, "Registering " + method + " as C++ method " + symbol.getName());
             }
         } else {
-            int virtualIndex = va.value();
             if (Modifier.isStatic(modifiers)) {
                 log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
             }
-
-            if (virtualIndex < 0) {
-                Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? (Pointer)pointerToAddress(getVirtualTable(type, typeLibrary), Pointer.class) : null;
-                if (pVirtualTable == null) {
-                    log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found.");
+            
+            int theoreticalVirtualIndex = va.value();
+            int theoreticalAbsoluteVirtualIndex = theoreticalVirtualIndex < 0 ? - 1 : getAbsoluteVirtualIndex(method, theoreticalVirtualIndex, type);
+            
+            int absoluteVirtualIndex;
+            
+            Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? (Pointer)pointerToAddress(getVirtualTable(type, typeLibrary), Pointer.class) : null;
+            if (pVirtualTable == null) {
+                if (theoreticalAbsoluteVirtualIndex < 0) {
+                    log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found and the virtual method index is not provided in its @Virtual annotation.");
                     return;
                 }
-
-                virtualIndex = getPositionInVirtualTable(pVirtualTable, method, typeLibrary);
-                if (virtualIndex < 0) {
-                    log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
-                    return;
+                absoluteVirtualIndex = theoreticalAbsoluteVirtualIndex;
+            } else {
+                int guessedAbsoluteVirtualIndex = getPositionInVirtualTable(pVirtualTable, method, typeLibrary);
+                if (guessedAbsoluteVirtualIndex < 0) {
+                    if (theoreticalAbsoluteVirtualIndex < 0) {
+                        log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
+                        return;
+                    } else {
+                        absoluteVirtualIndex = theoreticalAbsoluteVirtualIndex;
+                    }
+                } else {
+                    if (theoreticalAbsoluteVirtualIndex >= 0 && guessedAbsoluteVirtualIndex != theoreticalAbsoluteVirtualIndex) {
+                        log(Level.WARNING, "Method " + method.toGenericString() + " has @Virtual annotation indicating virtual index " + theoreticalAbsoluteVirtualIndex + ", but analysis of the actual virtual table rather indicates it has index " + guessedAbsoluteVirtualIndex + " (using the guess)");
+                    }
+                    absoluteVirtualIndex = guessedAbsoluteVirtualIndex;
                 }
             }
-            Class<?> superclass = type.getSuperclass();
-            int virtualOffset = getVirtualMethodsCount(superclass);
-            boolean isNewVirtual = true;
-            if (superclass != null) {
-            	try {
-            		// TODO handle polymorphism in overloads :
-            		superclass.getMethod(method.getName(), method.getParameterTypes());
-            		isNewVirtual = false;
-            	} catch (NoSuchMethodException ex) {}
-            }
-            int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
             mci.setVirtualIndex(absoluteVirtualIndex);
-            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
+            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
             builder.addVirtualMethod(mci);
         }
+    }
+    int getAbsoluteVirtualIndex(Method method, int virtualIndex, Class<?> type) {
+        Class<?> superclass = type.getSuperclass();
+        int virtualOffset = getVirtualMethodsCount(superclass);
+        boolean isNewVirtual = true;
+        if (superclass != null) {
+            try {
+                // TODO handle polymorphism in overloads :
+                superclass.getMethod(method.getName(), method.getParameterTypes());
+                isNewVirtual = false;
+            } catch (NoSuchMethodException ex) {}
+        }
+        int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
+        return absoluteVirtualIndex;
     }
     public static class MemoryOperators {
     		protected DynamicFunction<Pointer<?>> newFct;
@@ -371,22 +389,28 @@ public class CPPRuntime extends CRuntime {
 	}
 
 	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method, NativeLibrary library) {
-		String methodName = method.getName();
 		//Pointer<?> typeInfo = pVirtualTable.get(1);
-		int methodsOffset = library.isMSVC() ? 0 : -2;///2;
+		int methodsOffset = 0;//library.isMSVC() ? 0 : -2;///2;
 		String className = getCPPClassName(method.getDeclaringClass());
 		for (int iVirtual = 0;; iVirtual++) {
 			Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
 			String virtualMethodName = pMethod == null ? null : library.getSymbolName(pMethod.getPeer());
 			//System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
-			if (virtualMethodName == null)
-				return -1;
-			
-			if (virtualMethodName != null && virtualMethodName.contains(methodName)) {
-				// TODO cross check !!!
-				return iVirtual;
-			} else if (library.isMSVC() && !virtualMethodName.contains(className))
-				break; // no NULL terminator in MSVC++ vtables, so we have to guess when we've reached the end
+			if (virtualMethodName == null) {
+                log(Level.INFO, "\tVtable(" + className + ")[" + iVirtual + "] = null");
+                return -1;
+            }
+            try {
+                MemberRef mr = library.parseSymbol(virtualMethodName);
+                log(Level.INFO, "\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
+                if (mr != null && mr.matchesSignature(method))
+                    return iVirtual;
+                else if (library.isMSVC() && !mr.matchesEnclosingType(method))
+                    break; // no NULL terminator in MSVC++ vtables, so we have to guess when we've reached the end
+            } catch (Demangler.DemanglingException ex) {
+                BridJ.log(Level.WARNING, "Failed to demangle '" + virtualMethodName + "' during inspection of virtual table for '" + method.toGenericString() + "' : " + ex);
+            }
+            
 		}
 		return -1;
 	}
@@ -689,11 +713,30 @@ public class CPPRuntime extends CRuntime {
 				Symbol symbol = library.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) { 
 					return symbol.matchesVirtualTable(typeClass);
 				}});
-				if (symbol != null)
+				if (symbol != null) {
 					log(Level.INFO, "Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
+//                    Pointer<Pointer> pp = pointerToAddress(symbol.getAddress(), Pointer.class);
+//                    
+//                    for (int i = 0; i < 6; i++) {
+//                        Pointer p = pp.get(i);
+////                        if (p == null)
+////                            break;
+//                        String n = p == null ? null : library.getSymbolName(p.getPeer());
+//                        log(Level.INFO, "\tVtable entry " + i + " = " + p + " (" + n + ")");
+////                        if (n == null)
+////                            break;
+//                    }
+                }
                 else if (getVirtualMethodsCount(typeClass) > 0)
                     log(Level.SEVERE, "Failed to find a vtable for type " + Utils.toString(type));
-				vtables.put(type, vtable = symbol == null ? 0 : symbol.getAddress());//*/
+                
+                if (symbol != null) {
+                    long address = symbol.getAddress();
+                    vtable = library.isMSVC() ? address : address + 2 * Pointer.SIZE;
+                } else {
+                    vtable = 0L;
+                }
+				vtables.put(type, vtable);//*/
 			}
         }
         return vtable;

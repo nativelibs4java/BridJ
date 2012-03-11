@@ -97,3 +97,24 @@ extern "C" {
 
 	TEST_API void __cdecl setLastWindowsError();
 }
+
+class TEST_API Module {
+public: 
+    virtual ~Module() {}; 
+    virtual int add(int a, int b); 
+};
+
+class TEST_API IModule {
+public: 
+    virtual ~IModule() {}; 
+    virtual int add(int a, int b) = 0; 
+    virtual int subtract(int a, int b) = 0; 
+};
+
+class TEST_API AModule : public IModule {
+public:
+    AModule();
+    virtual ~AModule();
+    virtual int add(int a, int b);
+    virtual int subtract(int a, int b);
+};
