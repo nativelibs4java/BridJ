@@ -900,17 +900,19 @@ public abstract class Demangler {
         }
         public boolean matchesEnclosingType(Method method) {
             TypeRef et = getEnclosingType();
-            if (et != null) {
-                Annotations annotations = annotations(method);
-                Class dc = method.getDeclaringClass();
-                do {
-                    if (et.matches(dc, annotations))
-                        return true;
-                    
-                    dc = dc.getSuperclass();
-                } while (dc != null && dc != Object.class);
-            }
-			return false;
+            if (et == null)
+                return true;
+            
+            Annotations annotations = annotations(method);
+            Class dc = method.getDeclaringClass();
+            do {
+                if (et.matches(dc, annotations))
+                    return true;
+
+                dc = dc.getSuperclass();
+            } while (dc != null && dc != Object.class);
+            
+            return false;
         }
         public boolean matchesSignature(Method method) {
         	
