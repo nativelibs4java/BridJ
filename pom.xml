@@ -9,6 +9,7 @@
 	<packaging>jar</packaging>
 	
 	<properties>
+		<osgiBundleVersion>0.7</osgiBundleVersion>
 		<versionSpecificSubPackage>v0_7</versionSpecificSubPackage>
 		<exportedPackages>org.bridj,org.bridj.ann,org.bridj.cpp,org.bridj.cpp.com,org.bridj.cpp.com.shell,org.bridj.demangling,org.bridj.jawt,org.bridj.objc,org.bridj.util</exportedPackages>
 	</properties>
@@ -52,7 +53,7 @@
 			<artifactId>dx</artifactId>
 			<version>1.7</version>
 		</dependency>
-
+	
 	
 	</dependencies>
 	
