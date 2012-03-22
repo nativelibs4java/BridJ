@@ -325,9 +325,9 @@ public class MethodCallInfo {
         	direct = false;
         	return ValueType.eEllipsis;
         }
-        if (c == ValuedEnum.class) {//.isAssignableFrom(c)) {
+        if (ValuedEnum.class.isAssignableFrom(c)) {
         	direct = false;
-            CallIO cio = CallIO.Utils.createValueEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
+            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
             if (BridJ.veryVerbose)
                 System.out.println("CallIO : " + cio);
             addCallIO(cio);
@@ -425,7 +425,7 @@ public class MethodCallInfo {
                 break;
             case eIntFlagSet:
             	dcChar = DC_SIGCHAR_INT;
-            	javaChar = "Lorg/bridj/ValuedEnum;";
+            	javaChar = "L" + parameterType.getName().replace('.', '/') + ";";//"Lorg/bridj/ValuedEnum;";
             	direct = false;
             	break;
             case eCLongObjectValue:
@@ -550,6 +550,10 @@ public class MethodCallInfo {
 	public void setVirtualIndex(int virtualIndex) {
 		//new RuntimeException("Setting virtualIndex of " + getMethod().getName() + " = " + virtualIndex).printStackTrace();
 		this.virtualIndex = virtualIndex;
+        
+        if (BridJ.veryVerbose) {
+            System.out.println("\t-> virtualIndex " + virtualIndex);
+        }
 	}
 
 
