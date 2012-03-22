@@ -39,7 +39,7 @@ public class FunctionTest {
     @Name("testAddDyncall")
     public native int fooBar(int a, int b);
     
-    public enum ETest implements ValuedEnum<ETest> {
+    public enum ETest implements IntValuedEnum<ETest> {
     	eFirst(0),
     	eSecond(1),
     	eThird(2);
@@ -59,6 +59,8 @@ public class FunctionTest {
 		}
     }
     public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);
+    @Name("testEnum")
+    public static native IntValuedEnum<ETest> testIntEnum(IntValuedEnum<ETest> e);
     
     @Test
     public void add() {
@@ -76,6 +78,9 @@ public class FunctionTest {
     public void testEnumCalls() {
         for (ETest e : ETest.values()) {
             ValuedEnum<ETest> r = testEnum(e);
+            assertEquals(e.value(), r.value());
+            
+            r = testIntEnum(e);
             assertEquals(e.value(), r.value());
             //assertEquals(e, r);
         }

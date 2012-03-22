@@ -18,7 +18,7 @@ interface CallIO {
         public static CallIO createPointerCallIOToTargetType(Type targetType) {
             return new CallIO.GenericPointerHandler(targetType);
         }
-        public static <EE extends Enum<EE>> CallIO createValueEnumCallIO(final Class<EE> enumClass) {
+        public static <EE extends Enum<EE>> CallIO createValuedEnumCallIO(final Class<EE> enumClass) {
             return new CallIO() {
 
                 public Object newInstance(long value) {
