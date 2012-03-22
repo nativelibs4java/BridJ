@@ -1,5 +1,6 @@
 package org.bridj;
 
+import java.util.logging.Level;
 import org.junit.Ignore;
 import org.bridj.ann.Library;
 import org.junit.Test;
@@ -15,7 +16,10 @@ import static org.bridj.dyncall.DyncallLibrary.*;
 @Library("test")
 public class StructByValueTest {
     static {
-        BridJ.register();
+        if (!BridJ.Switch.StructsByValue.enabled)
+            BridJ.log(Level.WARNING, "Structs by value are not enabled (see " + BridJ.Switch.StructsByValue.getFullDescription() + ")");
+        else
+            BridJ.register();
     }
     public static class SimpleStruct extends StructObject {
 		@Field(0)
@@ -88,6 +92,9 @@ public class StructByValueTest {
     
     @Test
     public void testStructSizes() {
+        if (!BridJ.Switch.StructsByValue.enabled)
+            return;
+        
         StructIO io = StructIO.getInstance(SimpleStruct.class);
         Pointer<DCstruct> struct = DyncallStructs.buildDCstruct(io);
         assertNotNull(struct);
@@ -96,6 +103,9 @@ public class StructByValueTest {
     //@Ignore
     @Test
     public void testIncrInt() {
+        if (!BridJ.Switch.StructsByValue.enabled)
+            return;
+        
         int value = 12345;
         S_int s = new S_int();
         s.a = value;
@@ -107,6 +117,9 @@ public class StructByValueTest {
     @Ignore
     @Test
     public void testIncrLong4() {
+        if (!BridJ.Switch.StructsByValue.enabled)
+            return;
+        
         long value = 12345;
         S_jlong4 s = new S_jlong4();
         s.a = 10;
@@ -119,6 +132,8 @@ public class StructByValueTest {
     
     @Test
     public void testIncrLong10() {
+        if (!BridJ.Switch.StructsByValue.enabled)
+            return;
         
         long tot = 0;
         S_jlong10 s = new S_jlong10();

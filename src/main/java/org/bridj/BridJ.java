@@ -343,6 +343,9 @@ public class BridJ {
         ),
         Direct("bridj.direct", "BRIDJ_DIRECT", true,
             "Direct mode (uses optimized assembler glue when possible to speed up calls)"
+        ),
+        StructsByValue("bridj.structsByValue", "BRIDJ_STRUCT_BY_VALUE", false,
+            "Enable experimental support for structs-by-value arguments and return values for C/C++ functions and methods."
         );
         
         public final boolean enabled, enabledByDefault;
@@ -360,6 +363,9 @@ public class BridJ {
             this.propertyName = propertyName;
             this.envName = envName;
             this.description = description;
+        }
+        public String getFullDescription() {
+            return envName + " / " + propertyName + " (" + (enabledByDefault ? "enabled" : "disabled") + " by default) :\n\t" + description.replaceAll("\n", "\n\t");
         }
     }
     
@@ -400,7 +406,7 @@ public class BridJ {
             StringBuilder b = new StringBuilder();
             b.append("Available options (ENVIRONMENT_VAR_NAME / javaPropertyName) :\n");
             for (Switch s : Switch.values()) {
-                b.append(s.envName + " / " + s.propertyName + " (" + (s.enabledByDefault ? "enabled" : "disabled") + " by default) :\n\t" + s.description.replaceAll("\n", "\n\t") + "\n");
+                b.append(s.getFullDescription() + "\n");
             }
             log(Level.SEVERE, b.toString());
         }

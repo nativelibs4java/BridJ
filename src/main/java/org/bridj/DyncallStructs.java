@@ -16,6 +16,9 @@ class DyncallStructs {
         return structIOAlignment <= 0 ? DEFAULT_ALIGNMENT : (int)structIOAlignment;
     }
     public static Pointer<DCstruct> buildDCstruct(StructIO io) {
+        if (!BridJ.Switch.StructsByValue.enabled)
+            return null;
+        
         List<AggregatedFieldDesc> aggregatedFields = io.getAggregatedFields();
         Pointer<DCstruct> struct = dcNewStruct(aggregatedFields.size(), toDCAlignment(io.getStructAlignment())).withReleaser(new Pointer.Releaser() {
             public void release(Pointer<?> p) {
@@ -34,7 +37,7 @@ class DyncallStructs {
         }
         return struct;
     }
-    public static void fillDCstruct(Type structType, Pointer<DCstruct> struct, List<AggregatedFieldDesc> aggregatedFields) {
+    protected static void fillDCstruct(Type structType, Pointer<DCstruct> struct, List<AggregatedFieldDesc> aggregatedFields) {
         for (AggregatedFieldDesc aggregatedField : aggregatedFields) {
             FieldDecl field = aggregatedField.fields.get(0);
             Type fieldType = field.desc.nativeTypeOrPointerTargetType;

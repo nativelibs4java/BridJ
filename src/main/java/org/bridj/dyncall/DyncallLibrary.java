@@ -4,6 +4,7 @@ import org.bridj.CRuntime;
 import org.bridj.Pointer;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Library;
+import org.bridj.ann.Optional;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 /**
@@ -143,7 +144,8 @@ public class DyncallLibrary {
 	public static native void dcArgFloat(Pointer<DyncallLibrary.DCCallVM > vm, float value);
 	public static native void dcArgDouble(Pointer<DyncallLibrary.DCCallVM > vm, double value);
 	public static native void dcArgPointer(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > value);
-	public static native void dcArgStruct(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<DyncallLibrary.DCstruct > s, Pointer<? > value);
+	@Optional
+    public static native void dcArgStruct(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<DyncallLibrary.DCstruct > s, Pointer<? > value);
 	public static native void dcCallVoid(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr);
 	public static native int dcCallBool(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr);
 	public static native byte dcCallChar(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr);
@@ -155,19 +157,29 @@ public class DyncallLibrary {
 	public static native float dcCallFloat(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr);
 	public static native double dcCallDouble(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr);
 	public static native Pointer<? > dcCallPointer(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr);
-	public static native void dcCallStruct(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr, Pointer<DyncallLibrary.DCstruct > s, Pointer<? > returnValue);
+	@Optional
+    public static native void dcCallStruct(Pointer<DyncallLibrary.DCCallVM > vm, Pointer<? > funcptr, Pointer<DyncallLibrary.DCstruct > s, Pointer<? > returnValue);
 	public static native int dcGetError(Pointer<DyncallLibrary.DCCallVM > vm);
-	public static native Pointer<DyncallLibrary.DCstruct > dcNewStruct(@Ptr long fieldCount, int alignment);
-	public static native void dcStructField(Pointer<DyncallLibrary.DCstruct > s, int type, int alignment, @Ptr long arrayLength);
-	public static native void dcSubStruct(Pointer<DyncallLibrary.DCstruct > s, @Ptr long fieldCount, int alignment, @Ptr long arrayLength);
-	public static native void dcCloseStruct(Pointer<DyncallLibrary.DCstruct > s);
-	@Ptr 
+	@Optional
+    public static native Pointer<DyncallLibrary.DCstruct > dcNewStruct(@Ptr long fieldCount, int alignment);
+	@Optional
+    public static native void dcStructField(Pointer<DyncallLibrary.DCstruct > s, int type, int alignment, @Ptr long arrayLength);
+	@Optional
+    public static native void dcSubStruct(Pointer<DyncallLibrary.DCstruct > s, @Ptr long fieldCount, int alignment, @Ptr long arrayLength);
+	@Optional
+    public static native void dcCloseStruct(Pointer<DyncallLibrary.DCstruct > s);
+	@Optional
+    @Ptr 
 	public static native long dcStructSize(Pointer<DyncallLibrary.DCstruct > s);
-	@Ptr 
+	@Optional
+    @Ptr 
 	public static native long dcStructAlignment(Pointer<DyncallLibrary.DCstruct > s);
-	public static native void dcFreeStruct(Pointer<DyncallLibrary.DCstruct > s);
-	public static native Pointer<DyncallLibrary.DCstruct > dcDefineStruct(Pointer<Byte > signature);
-	/// Undefined type
+	@Optional
+    public static native void dcFreeStruct(Pointer<DyncallLibrary.DCstruct > s);
+	@Optional
+    public static native Pointer<DyncallLibrary.DCstruct > dcDefineStruct(Pointer<Byte > signature);
+	
+    /// Undefined type
 	public static interface DCstruct {
 		
 	};
