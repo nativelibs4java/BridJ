@@ -118,3 +118,11 @@ public:
     virtual int add(int a, int b);
     virtual int subtract(int a, int b);
 };
+
+class TEST_API IVirtual {
+public:
+	virtual ~IVirtual() {}
+	virtual int add(int a, int b) = 0;
+};
+
+TEST_API int testIVirtualAdd(IVirtual* pVirtual, int a, int b);

@@ -450,7 +450,11 @@ int AModule::subtract(int a, int b) {
     return a - b; 
 }
 
-#include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
+int testIVirtualAdd(IVirtual* pVirtual, int a, int b) {
+	return pVirtual->add(a, b);
+}
+
+#include "../../../../target/generated-test-resources/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32
 

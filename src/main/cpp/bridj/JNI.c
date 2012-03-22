@@ -319,7 +319,7 @@ JNIEXPORT void JNICALL Java_org_bridj_Platform_init(JNIEnv *env, jclass clazz)
 	//initMethods(env);
 }
 
-#include "../../../../target/generated-sources/main/org/bridj/Init.c"
+#include "../../../../target/generated-resources/org/bridj/Init.c"
 
 jlong JNICALL Java_org_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
 {
@@ -393,6 +393,10 @@ wchar_t* ConvertStringToWide(JNIEnv* env, jstring javaString) {
 	RELEASE_CHARS(javaString, utfStr);
 	return wideStr;
 }
+#endif
+
+#if defined(DC_UNIX)
+#include "dlfcn.h"
 #endif
 
 jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
