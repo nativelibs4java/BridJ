@@ -1,10 +1,12 @@
 package org.bridj.demangling;
 
+import java.io.EOFException;
 import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
@@ -44,7 +46,16 @@ char * TestLib::Class1::f(char *,char *)
 public abstract class Demangler {
 	
 	public static void main(String[] args) {
-		for (String arg : args) {
+//        try {
+////            String s = "?f@@YA?AW4E@@W41@@Z";
+//            String s = "?f@@YAPADPADPAF1@Z"; // "byte* f(byte*, short*, short*)"
+//            //String s = "?m@C@@SAPAV1@XZ";
+//            MemberRef mr = new VC9Demangler(null, s).parseSymbol();
+//            System.out.println(mr);
+//        } catch (DemanglingException ex) {
+//            Logger.getLogger(Demangler.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        for (String arg : args) {
 			try {
 				System.out.println("VC9: " + new VC9Demangler(null, arg).parseSymbol());
 			} catch (Exception ex) {
@@ -101,7 +112,10 @@ public abstract class Demangler {
 	
 	public static class DemanglingException extends Exception {
 		public DemanglingException(String mess) {
-			super(mess);
+			this(mess, null);
+		}
+        public DemanglingException(String mess, Throwable cause) {
+			super(mess, cause);
 		}
 	}
 	public abstract MemberRef parseSymbol() throws DemanglingException;
@@ -159,22 +173,29 @@ public abstract class Demangler {
 	protected char lastChar() {
 		return position == 0 ? 0 : str.charAt(position - 1);
 	}
-	protected char consumeChar() {
+	protected char consumeChar() throws DemanglingException {
 		char c = peekChar();
 		if (c != 0)
 			position++;
+        else
+            throw new DemanglingException("Reached end of string '" + str + "'");
 		return c;
 	}
     protected boolean consumeCharsIf(char... nextChars) {
         int initialPosition = position;
-        for (char c : nextChars) {
-			char cc = consumeChar();
-			if (cc != c) {
-                position = initialPosition;
-                return false;
+        try {
+            for (char c : nextChars) {
+                char cc = consumeChar();
+                if (cc != c) {
+                    position = initialPosition;
+                    return false;
+                }
             }
-		}
-        return true;
+            return true;
+        } catch (DemanglingException ex) {
+            position = initialPosition;
+            return false;
+        }
     }
 	protected boolean consumeCharIf(char... allowedChars) {
 		char c = peekChar();
@@ -383,6 +404,11 @@ public abstract class Demangler {
             String typeName = typeClass.getSimpleName();
 			return thisName.equals(typeName) || thisName.equals(typeClass.getName());
 		}
+
+        @Override
+        public boolean equals(Object obj) {
+            return toString().equals(obj.toString());
+        }
 		
 	}
 

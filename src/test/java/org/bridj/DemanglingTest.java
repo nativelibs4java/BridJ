@@ -48,6 +48,17 @@ public class DemanglingTest {
             //clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
         );
     }
+    public static class C {}
+    @Test
+    public void testStaticMethod() {
+        demangle(
+            "?m@C@@SAPAV1@XZ",
+            null,
+            C.class,
+            ident("m"),
+            paramType(Pointer.class, C.class)
+        );
+    }
     @Test
     public void testCLongsBackReference() {
         demangle(
