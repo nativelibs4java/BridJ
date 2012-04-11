@@ -53,22 +53,20 @@ JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv
 	const char* libPath = getBridJLibPath();
 	DLLib* pLib = dlLoadLibrary(libPath);
 	DLSyms* pSyms = dlSymsInit(libPath);
-	int nSyms = dlSymsCount(pSyms);
+	const char* packagePattern = "Java_org_bridj_";
+	size_t packagePatternLen = strlen(packagePattern);
+	int iSym, nSyms = dlSymsCount(pSyms);
 	
 	jclass objectClass = (*env)->FindClass(env, "java/lang/Object");
 	jclass signatureHelperClass = (*env)->FindClass(env, "org/bridj/$versionSpecificSubPackage/util/JNIUtils");
 	jmethodID decodeVersionSpecificMethodNameClassAndSignatureMethod = (*env)->GetStaticMethodID(env, signatureHelperClass, "decodeVersionSpecificMethodNameClassAndSignature", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;"); 
+	jobjectArray nameAndSigArray = (*env)->NewObjectArray(env, 2, objectClass, NULL);
 	
 	JNINativeMethod meth;
 	memset(&meth, 0, sizeof(JNINativeMethod));
 	
-	const char* packagePattern = "Java_org_bridj_";
-	int packagePatternLen = strlen(packagePattern);
-	
-	jobjectArray nameAndSigArray = (*env)->NewObjectArray(env, 2, objectClass, NULL);
-	
 	//printf("INFO: Found %d symbols\n", nSyms);
-	for (int iSym = 0; iSym < nSyms; iSym++) {
+	for (iSym = 0; iSym < nSyms; iSym++) {
 		const char* symbolName = dlSymsName(pSyms, iSym);
 		if (!strcmp(*symbolName == '_' ? symbolName + 1 : symbolName, "Java_org_bridj_${replacedSubPackage}_Platform_init"))
 			continue;
