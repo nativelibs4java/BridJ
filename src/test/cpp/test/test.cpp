@@ -149,9 +149,23 @@ Ctest::~Ctest()
 	//cout << "Destructor of Ctest is called !\n";
 }
 
+
+Ctest* Ctest::getInstance() {
+	return new Ctest();
+}
+ETest* Ctest::getEnum() {
+	return new ETest[1];
+}
+int* Ctest::getInt() {
+	return new int[1];
+}
 const string& Ctest2::toString() {
 	static string s = "";
 	return s;
+}
+
+Ctest* Ctest2::getCtestInstance() {
+	return new Ctest();
 }
 
 TEST_API size_t __cdecl sizeOfCtest() {
