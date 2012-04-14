@@ -9,8 +9,8 @@
 	<packaging>jar</packaging>
 	
 	<properties>
-		<osgiBundleVersion>0.7</osgiBundleVersion>
-		<versionSpecificSubPackage>v0_7</versionSpecificSubPackage>
+		<osgiBundleVersion>0.6.1</osgiBundleVersion>
+		<versionSpecificSubPackage>v0_6_1</versionSpecificSubPackage>
 		<exportedPackages>org.bridj,org.bridj.ann,org.bridj.cpp,org.bridj.cpp.com,org.bridj.cpp.com.shell,org.bridj.demangling,org.bridj.jawt,org.bridj.objc,org.bridj.util</exportedPackages>
 	</properties>
 	
@@ -99,9 +99,6 @@
 								<include>org.objectweb.asm.*</include>
 								<include>org.objectweb.asm.signature.*</include>
 							</includes>
-							<!--excludes>
-								<exclude>org.apache.maven.Public*</exclude>
-							</excludes-->
 						</relocation>
 					</relocations>
 				</configuration>
@@ -418,6 +415,7 @@
 							</filters>
 						</configuration>
 					</execution>
+					<!--
 					<execution>
 						<id>version-specific-packages</id>
 						<phase>package</phase>
@@ -463,7 +461,7 @@
 							</filters>
 						</configuration>
 					</execution>
-				
+					-->
 				</executions>
 			</plugin>
 			<plugin>
