@@ -15,6 +15,9 @@ Current version : BridJ 0.7-SNAPSHOT
 - Fixed handling of CLong / SizeT java fields in structs (cf. issue #253)
 - Fixed StructIO.FieldDecl accessibility to allow override of all StructIO.Customizer methods (cf. issue #220)	
 - Fixed regression on libc, created with null path (issue #217)
+- Fixed back-references in Visual C++ demangler (issue #291)
+- Fixed binding of IntValuedEnum<E> types
+- Fixed handling of virtual destructors with GCC-compiled libraries (and virtual table pointer + runtime guess / check of virtual index for virtual methods) (issue #281)
 - Added support for PointerIO<IntValuedEnum<E>> (issue #261)
 - Added ProcessUtils.getCurrentProcessId()
 - Added support of shortcuts in GCC4Demangler (contrib from RŽmi ƒmonet, issue #211)
@@ -23,9 +26,10 @@ Current version : BridJ 0.7-SNAPSHOT
 - Added Pointer.getXxxs(XxxBuffer)
 - Added alias mechanism for annotations : any annotation which class is itself annotated by @Ptr / @CLong can serve as an alias (issue #202)
 - Added native error log when LoadLibrary or dlopen failed
+- Added IntValuedEnum<E> FlagSet.fromValue(int, E...)
 - Enabled all compiler optimizations on all platforms but win32
 - Updated doc of Pointer.getXxxs()
-- Added experimental by-value struct support on amd64 for structs larger than 64 bits
+- Added experimental by-value struct support on amd64 for structs larger than 64 bits (disabled by default, set -Dbridj.structsByValue=true or BRIDJ_STRUCTS_BY_VALUE=1 to enable)
 
 BridJ 0.6 (20111107, commit 4950e5c58f32869ce460dbbc59fe969865dd9288)
 
