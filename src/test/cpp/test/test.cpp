@@ -468,6 +468,10 @@ int testIVirtualAdd(IVirtual* pVirtual, int a, int b) {
 	return pVirtual->add(a, b);
 }
 
+TEST_API const wchar_t* getSomeWString() {
+	return L"1234567890";
+}
+
 #include "../../../../target/generated-test-resources/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32
