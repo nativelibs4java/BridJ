@@ -145,18 +145,18 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getDirectBufferCapacity
 
 /*
  * Class:     org_bridj_JNI
- * Method:    getIntegerArrayElements
+ * Method:    getIntArrayElements
  * Signature: ([I[Z)J
  */
-JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getIntegerArrayElements
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getIntArrayElements
   (JNIEnv *, jclass, jintArray, jbooleanArray);
 
 /*
  * Class:     org_bridj_JNI
- * Method:    releaseIntegerArrayElements
+ * Method:    releaseIntArrayElements
  * Signature: ([IJI)V
  */
-JNIEXPORT void JNICALL Java_org_bridj_JNI_releaseIntegerArrayElements
+JNIEXPORT void JNICALL Java_org_bridj_JNI_releaseIntArrayElements
   (JNIEnv *, jclass, jintArray, jlong, jint);
 
 /*
@@ -433,18 +433,18 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_set_1byte_1array
 
 /*
  * Class:     org_bridj_JNI
- * Method:    getCharacterArrayElements
+ * Method:    getCharArrayElements
  * Signature: ([C[Z)J
  */
-JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getCharacterArrayElements
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getCharArrayElements
   (JNIEnv *, jclass, jcharArray, jbooleanArray);
 
 /*
  * Class:     org_bridj_JNI
- * Method:    releaseCharacterArrayElements
+ * Method:    releaseCharArrayElements
  * Signature: ([CJI)V
  */
-JNIEXPORT void JNICALL Java_org_bridj_JNI_releaseCharacterArrayElements
+JNIEXPORT void JNICALL Java_org_bridj_JNI_releaseCharArrayElements
   (JNIEnv *, jclass, jcharArray, jlong, jint);
 
 /*
