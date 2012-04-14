@@ -1183,7 +1183,7 @@ jlong JNICALL Java_org_bridj_JNI_wcslen(JNIEnv *env, jclass clazz, jlong ptr)
 {
 	jlong r = 0;
 	BEGIN_TRY_CALL(env);
-	r = strlen(JLONG_TO_PTR(ptr));
+	r = wcslen(JLONG_TO_PTR(ptr));
 	END_TRY_CALL(env);
 	return r;
 }

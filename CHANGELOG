@@ -1,5 +1,6 @@
 Current version : BridJ 0.7-SNAPSHOT
 
+- Fixed wchar_t and  WideCString on MacOS X (issue #295)
 - Fixed @Name annotation
 - Fixed deletion of temporary extracted library files with shutdown hook (issue #197)
 - Fixed Unix binaries dependency on GLIBC 2.11 (lowered to version 2.2.5) (issue #195)

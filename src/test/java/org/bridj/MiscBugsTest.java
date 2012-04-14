@@ -15,6 +15,18 @@ public class MiscBugsTest {
 	@Optional
 	public static native void whatever(SizeT v);
 	
+	@Library("test")
+	public static native Pointer<Character> getSomeWString();
+		
+	/** 
+	 * Issue 295 : wchar_t broken on MacOS X
+	 * https://github.com/ochafik/nativelibs4java/issues/295
+	 */
+	@Test 
+	public void testWideCharReadout() {
+		assertEquals("1234567890", getSomeWString().getWideCString());	
+	}
+	
 	/** 
 	 * Issue 68 : simple SizeT calls are broken
 	 * http://code.google.com/p/nativelibs4java/issues/detail?id=68

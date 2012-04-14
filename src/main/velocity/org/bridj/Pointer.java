@@ -2273,6 +2273,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
 	public Pointer<T> set${prim.CapName}AtOffset(long byteOffset, ${prim.Name} value) {
+    	#if ($prim.Name == "char")
+		if (Platform.WCHAR_T_SIZE == 4)
+			return setIntAtOffset(byteOffset, (int)value);
+		#end
     	#if ($prim.Name != "byte" && $prim.Name != "boolean")
 		if (!isOrdered()) {
 			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
@@ -2302,7 +2306,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given array offset and for the given length from the provided array.
 	 */
 	public Pointer<T> set${prim.CapName}sAtOffset(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        #if ($prim.Name != "byte" && $prim.Name != "boolean")
+        #if ($prim.Name == "char")
+		if (Platform.WCHAR_T_SIZE == 4)
+			return setIntsAtOffset(byteOffset, wcharsToInts(values, valuesOffset, length));
+		#end
+    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered()) {
         	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
         	return this;
@@ -2319,7 +2327,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
 #docGetOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}()")
 	public ${prim.Name} get${prim.CapName}AtOffset(long byteOffset) {
-        #if ($prim.Name != "byte" && $prim.Name != "boolean")
+        #if ($prim.Name == "char")
+		if (Platform.WCHAR_T_SIZE == 4)
+			return (char)getIntAtOffset(byteOffset);
+		#end
+    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
         	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
         #end
@@ -2340,7 +2352,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 #docGetArrayOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}s(int)")
 	public ${prim.Name}[] get${prim.CapName}sAtOffset(long byteOffset, int length) {
-        #if ($prim.Name != "byte" && $prim.Name != "boolean")
+        #if ($prim.Name == "char")
+		if (Platform.WCHAR_T_SIZE == 4)
+			return intsToWChars(getIntsAtOffset(byteOffset, length));
+		#end
+    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
         	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
         #end
@@ -2889,10 +2905,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Get the length of the wide C string at the pointed memory location shifted by a byte offset (see {@link StringType#WideC}).
 	 */
 	protected long wcslen(long byteOffset) {
-		long len = 0;
-		while (getShortAtOffset(byteOffset + len * 2) != 0)
-			len++;
-		return len; //BUGGY: JNI.wcslen(getCheckedPeer(byteOffset, 1));
+		return JNI.wcslen(getCheckedPeer(byteOffset, Platform.WCHAR_T_SIZE));
 	}
 	
 	/**
@@ -3033,5 +3046,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
     public static <E> NativeList<E> allocateList(Type type, long capacity) {
         return (NativeList)allocateList(PointerIO.getInstance(type), capacity);
+    }
+    
+    private static char[] intsToWChars(int[] in) {
+    	int n = in.length;
+    	char[] out = new char[n];
+    	for (int i = 0; i < n; i++)
+    		out[i] = (char)in[i];
+    	return out;
+    }
+    private static int[] wcharsToInts(char[] in, int valuesOffset, int length) {
+    	int[] out = new int[length];
+    	for (int i = 0; i < length; i++)
+    		out[i] = in[valuesOffset + i];
+    	return out;
     }
 }
