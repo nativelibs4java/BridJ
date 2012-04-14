@@ -1,4 +1,5 @@
 package org.bridj;
+import java.nio.CharBuffer;
 import org.bridj.ann.*;
 import org.junit.Test;
 
@@ -18,7 +19,7 @@ public class MiscBugsTest {
 	@Library("test")
 	public static native Pointer<Character> getSomeWString();
 		
-	/** 
+    /** 
 	 * Issue 295 : wchar_t broken on MacOS X
 	 * https://github.com/ochafik/nativelibs4java/issues/295
 	 */

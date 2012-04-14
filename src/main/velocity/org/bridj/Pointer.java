@@ -39,7 +39,8 @@ import java.util.logging.Level;
  *  </li>
  *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br>
 #foreach ($prim in $primitivesNoBool)
-*		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / {@link Pointer#set${prim.CapName}s(${prim.BufferName})}<br>
+#if ($prim.Name != "char")*		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / {@link Pointer#set${prim.CapName}s(${prim.BufferName})}<br>
+#end
 #end
  *  </li>
  *  <li>Reading / writing a String from / to the pointed memory location using the default charset :<br>
@@ -103,6 +104,22 @@ import java.util.logging.Level;
  *  </li>
  *	<li>Cast a pointer to a complex type pointer (use {@link org.bridj.cpp.CPPType#getCPPType(Object[])} to create a C++ template type, for instance) :<br>
  *		{@link Pointer#as(Type) }
+ *  </li>
+ *	<li>Get an untyped pointer :<br>
+ *		{@link Pointer#asUntyped() }
+ *  </li>
+ * </ul>
+ * <p>
+ * <u><b>Dealing with pointer bounds</b></u>
+ * <p>
+ * <ul>
+ *	<li>Pointers to memory allocated through Pointer.pointerTo*, Pointer.allocate* have validity bounds that help prevent buffer overflows, at least when the Pointer API is used
+ *  </li>
+ *	<li>{@link Pointer#offset(long)}, {@link Pointer#next(long)} and other similar methods retain pointer bounds
+ *  </li>
+ *	<li>{@link Pointer#getValidBytes()} and {@link Pointer#getValidElements()} return the amount of valid memory readable from the pointer 
+ *  </li>
+ *	<li>Bounds can be declared manually with {@link Pointer#validBytes(long)} (useful for memory allocated by native code) 
  *  </li>
  * </ul>
  */
@@ -1512,16 +1529,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			}
 		} else {
 			#foreach ($prim in $primitivesNoBool)
+			#if ($prim.Name != "char")
 			if (buffer instanceof ${prim.BufferName}) {
 				((${prim.BufferName})buffer).duplicate().put(get${prim.BufferName}());
 				return;
 			}
+			#end
 			#end
 			throw new UnsupportedOperationException("Unhandled buffer type : " + buffer.getClass().getName());
 		}
 	}
 
 #foreach ($prim in $primitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
+
 //-- primitive: $prim.Name --
 
     #docAllocateCopy($prim.Name $prim.WrapperName)
@@ -1547,7 +1568,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		int dim1 = values.length, dim2 = values[0].length;
 		Pointer<Pointer<${prim.WrapperName}>> mem = allocate${prim.CapName}s(dim1, dim2);
 		for (int i1 = 0; i1 < dim1; i1++)
-        	mem.set${prim.CapName}sAtOffset(i1 * dim2 * ${prim.Size}, values[i1], 0, dim2);
+        	mem.set${prim.CapName}sAtOffset(i1 * dim2 * ${primSize}, values[i1], 0, dim2);
 		return mem;
     }
     
@@ -1561,7 +1582,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         	int offset1 = i1 * dim2;
         	for (int i2 = 0; i2 < dim2; i2++) {
         		int offset2 = (offset1 + i2) * dim3;
-				mem.set${prim.CapName}sAtOffset(offset2 * ${prim.Size}, values[i1][i2], 0, dim3);
+				mem.set${prim.CapName}sAtOffset(offset2 * ${primSize}, values[i1][i2], 0, dim3);
 			}
 		}
 		return mem;
@@ -1603,6 +1624,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 #end
 #foreach ($prim in $primitivesNoBool)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 //-- primitive (no bool): $prim.Name --
 
 	/**
@@ -1623,7 +1645,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		long size = JNI.getDirectBufferCapacity(buffer);
 		
 		// HACK (TODO?) the JNI spec says size is in bytes, but in practice on mac os x it's in elements !!!
-		size *= ${prim.Size};
+		size *= ${primSize};
 		//System.out.println("Buffer capacity = " + size);
 		
 		if (address == 0 || size == 0)
@@ -2097,16 +2119,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p;
 	}
 	
-	/*
-	static Class<?> getPrimitiveType(Buffer buffer) {
-
-        #foreach ($prim in $primitivesNoBool)
-		if (buffer instanceof ${prim.BufferName})
-			return ${prim.WrapperName}.TYPE;
-		#end
-        throw new UnsupportedOperationException();
-    }*/
-    
     /**
      * Copy all values from an NIO buffer to the pointed memory location shifted by a byte offset
      */
@@ -2260,6 +2272,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 
 #foreach ($prim in $primitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 //-- primitive: $prim.Name --
 
 	/**
@@ -2279,11 +2292,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		#end
     	#if ($prim.Name != "byte" && $prim.Name != "boolean")
 		if (!isOrdered()) {
-			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
+			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${primSize}), value);
 			return this;
 		}
 		#end
-		JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
+		JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${primSize}), value);
 		return this;
     }
 
@@ -2312,11 +2325,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		#end
     	#if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered()) {
-        	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
+        	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${primSize} * length), values, valuesOffset, length);
         	return this;
     	}
         #end
-		JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
+		JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${primSize} * length), values, valuesOffset, length);
         return this;
 	}
 	
@@ -2333,9 +2346,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		#end
     	#if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
-        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
+        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${primSize}));
         #end
-        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
+        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${primSize}));
     }
     
 #docGetArray(${prim.Name} ${prim.WrapperName})
@@ -2347,7 +2360,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docGetRemainingArray(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s() {
 		long validBytes = getValidBytes("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
-		return get${prim.CapName}s((int)(validBytes / ${prim.Size}));
+		return get${prim.CapName}s((int)(validBytes / ${primSize}));
     }
 
 #docGetArrayOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}s(int)")
@@ -2358,15 +2371,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		#end
     	#if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
-        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${primSize} * length), length);
         #end
-        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${primSize} * length), length);
     }
     
 #end
 #foreach ($prim in $primitivesNoBool)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 //-- primitive (no bool): $prim.Name --
 
+    #if ($prim.Name != "char")
     /**
 	 * Read ${prim.Name} values into the specified destination array from the pointed memory location
 	 */
@@ -2387,6 +2402,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public void get${prim.CapName}sAtOffset(long byteOffset, ${prim.Name}[] dest, int destOffset, int length) {
     		get${prim.BufferName}AtOffset(byteOffset, length).get(dest, destOffset, length);
     }
+    #end
     
 	/**
 	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location
@@ -2408,24 +2424,36 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public Pointer<T> set${prim.CapName}sAtOffset(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length) {
         if (values == null)
 			throw new IllegalArgumentException("Null values");
-		if (values.isDirect()) {
-            long len = length * ${prim.Size}, off = valuesOffset * ${prim.Size};
+		#if ($prim.Name == "char")
+		if (Platform.WCHAR_T_SIZE == 4) {
+			for (int i = 0; i < length; i++)
+				setCharAtOffset(byteOffset + i, values.get((int)(valuesOffset + i)));
+			return this;
+		}
+		#end
+    	if (values.isDirect()) {
+            long len = length * ${primSize}, off = valuesOffset * ${primSize};
             long cap = JNI.getDirectBufferCapacity(values);
             // HACK (TODO?) the JNI spec says size is in bytes, but in practice on mac os x it's in elements !!!
-            cap *= ${prim.Size};
+            cap *= ${primSize};
 		
             if (cap < off + len)
                 throw new IndexOutOfBoundsException("The provided buffer has a capacity (" + cap + " bytes) smaller than the requested write operation (" + len + " bytes starting at byte offset " + off + ")");
             
-			JNI.memcpy(getCheckedPeer(byteOffset, ${prim.Size} * length), JNI.getDirectBufferAddress(values) + off, len);
-        } else if (values.isReadOnly()) {
+			JNI.memcpy(getCheckedPeer(byteOffset, ${primSize} * length), JNI.getDirectBufferAddress(values) + off, len);
+        }
+        #if ($prim.Name != "char")
+        else if (values.isReadOnly()) {
             get${prim.BufferName}AtOffset(byteOffset, length).put(values.duplicate());
-        } else {
+        } 
+        #end
+        else {
             set${prim.CapName}sAtOffset(byteOffset, values.array(), (int)(values.arrayOffset() + valuesOffset), (int)length);
         }
         return this;
     }
     
+    #if ($prim.Name != "char")
     /**
 	 * Get a direct buffer of ${prim.Name} values of the specified length that points to this pointer's target memory location shifted by a byte offset
 	 */
@@ -2433,19 +2461,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return get${prim.BufferName}AtOffset(0, length);
 	}
 	
-    /**
+	/**
 	 * Get a direct buffer of ${prim.Name} values that points to this pointer's target memory location shifted by a byte offset
 	 */
 	public ${prim.BufferName} get${prim.BufferName}() {
 		long validBytes = getValidBytes("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
-		return get${prim.BufferName}AtOffset(0, validBytes / ${prim.Size});
+		return get${prim.BufferName}AtOffset(0, validBytes / ${primSize});
 	}
 	
 	/**
 	 * Get a direct buffer of ${prim.Name} values of the specified length that points to this pointer's target memory location shifted by a byte offset
 	 */
 	public ${prim.BufferName} get${prim.BufferName}AtOffset(long byteOffset, long length) {
-        long blen = ${prim.Size} * length;
+        long blen = ${primSize} * length;
         ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, blen), blen);
         buffer.order(order()); // mutates buffer order
         #if ($prim.Name == "byte")
@@ -2454,6 +2482,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return buffer.as${prim.BufferName}();
         #end
     }
+    #end
     
 #end
 
@@ -2571,7 +2600,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		boolean wide = type == StringType.WideSTL;
 		
 		int fixedBuffLength = 16;
-		int fixedBuffSize = wide ? fixedBuffLength * 2 : fixedBuffLength;
+		int fixedBuffSize = wide ? fixedBuffLength * Platform.WCHAR_T_SIZE : fixedBuffLength;
 		long length = getSizeTAtOffset(byteOffset + fixedBuffSize + Pointer.SIZE);
 		long pOff;
 		Pointer<?> p;
@@ -2582,7 +2611,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			pOff = 0;
 			p = getPointerAtOffset(byteOffset + fixedBuffSize + Pointer.SIZE);
 		}
-		int endChar = wide ? p.getCharAtOffset(pOff + length * 2) : p.getByteAtOffset(pOff + length);
+		int endChar = wide ? p.getCharAtOffset(pOff + length * Platform.WCHAR_T_SIZE) : p.getByteAtOffset(pOff + length);
 		if (endChar != 0)
 			notAString(type, "STL string format is not recognized : did not find a NULL char at the expected end of string of expected length " + length);
 		return p.getStringAtOffset(pOff, wide ? StringType.WideC : StringType.C, charset);
@@ -2592,7 +2621,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		boolean wide = type == StringType.WideSTL;
 		
 		int fixedBuffLength = 16;
-		int fixedBuffSize = wide ? fixedBuffLength * 2 : fixedBuffLength;
+		int fixedBuffSize = wide ? fixedBuffLength * Platform.WCHAR_T_SIZE : fixedBuffLength;
 		long lengthOffset = byteOffset + fixedBuffSize + Pointer.SIZE;
 		long capacityOffset = lengthOffset + Pointer.SIZE;
 		
@@ -2621,7 +2650,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			p = pointer.getPointerAtOffset(byteOffset + fixedBuffSize + SizeT.SIZE);
 		}
 		
-		int endChar = wide ? p.getCharAtOffset(pOff + currentLength * 2) : p.getByteAtOffset(pOff + currentLength);
+		int endChar = wide ? p.getCharAtOffset(pOff + currentLength * Platform.WCHAR_T_SIZE) : p.getByteAtOffset(pOff + currentLength);
 		if (endChar != 0)
 			notAString(type, "STL string format is not recognized : did not find a NULL char at the expected end of string of expected length " + currentLength);
 		
@@ -2654,7 +2683,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 				//len = wcslen(byteOffset);
 				if (getCharAtOffset(byteOffset + len) != 0)
 					notAString(type, "no null short after the " + len + " declared bytes");
-				return new String(getCharsAtOffset(byteOffset, safeIntCast(len / 2)));
+				return new String(getCharsAtOffset(byteOffset, safeIntCast(len / Platform.WCHAR_T_SIZE)));
 			case PascalAnsi:
 				checkIntRefCount(type, byteOffset - 8);
 				len = getIntAtOffset(byteOffset - 4);
@@ -2740,7 +2769,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 				break;
 			case WideC:
 				chars = s.toCharArray();
-				bytesCount = chars.length * 2;
+				bytesCount = chars.length * Platform.WCHAR_T_SIZE;
 				if (pointer == null)
 					pointer = (Pointer<U>)allocateChars(bytesCount + 2);
 				pointer.setCharsAtOffset(byteOffset, chars);
@@ -2749,7 +2778,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			case PascalWide:
 				headerBytes = 8;
 				chars = s.toCharArray();
-				bytesCount = chars.length * 2;
+				bytesCount = chars.length * Platform.WCHAR_T_SIZE;
 				if (pointer == null) {
 					pointer = (Pointer<U>)allocateChars(headerBytes + bytesCount + 2);
 					byteOffset = headerShift = headerBytes;
@@ -2779,7 +2808,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			case BSTR:
 				headerBytes = 4;
 				chars = s.toCharArray();
-				bytesCount = chars.length * 2;
+				bytesCount = chars.length * Platform.WCHAR_T_SIZE;
 				if (pointer == null) {
 					pointer = (Pointer<U>)allocateChars(headerBytes + bytesCount + 2);
 					byteOffset = headerShift = headerBytes;

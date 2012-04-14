@@ -387,6 +387,7 @@ public class PointerTest {
 	*/
 
 #foreach ($prim in $bridJPrimitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 
 	@Test
 	public void testAllocateArrayPrim_${prim.Name}() {
@@ -443,6 +444,7 @@ public class PointerTest {
 		assertEquals(null, pointerToBuffer(null));
 		
 #foreach ($prim in $bridJPrimitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 		{
 			assertTrue(pointerTo${prim.CapName}s((${prim.Name}[])null) == null);
 #if ($prim.Name == "SizeT" || $prim.Name == "CLong")
@@ -452,6 +454,7 @@ public class PointerTest {
 		}
 #end
 #foreach ($prim in $primitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 		{
 			// TODO implement 2D and 3D arrays for CLong, SizeT !
 			assertTrue(pointerTo${prim.CapName}s((${prim.Name}[][])null) == null);
@@ -459,6 +462,7 @@ public class PointerTest {
 		}
 #end
 #foreach ($prim in $primitivesNoBool)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 		{
 			assertTrue(pointerTo${prim.CapName}s((${prim.BufferName})null) == null);
 		}
@@ -487,6 +491,7 @@ public class PointerTest {
 	}
 	
 #foreach ($prim in $bridJPrimitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 
 #if ($prim.Name == "double" || $prim.Name == "float")
 #set ($precisionArg = ", (" + $prim.Name + ")0.00001")
@@ -516,8 +521,8 @@ public class PointerTest {
 	public void setBufferSet${prim.CapName}s() {
 		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("-1")}, ${prim.value("-2")}, ${prim.value("0")}, ${prim.value($v1)} }) {
 		//for (${prim.Name} value : new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} }) {
-			Pointer<${prim.WrapperName}> p = allocateBytes(${prim.Size}).as(${prim.WrapperName}.class);
-			ByteBuffer bb = ByteBuffer.allocateDirect(${prim.Size}).order(ByteOrder.nativeOrder());
+			Pointer<${prim.WrapperName}> p = allocateBytes(${primSize}).as(${prim.WrapperName}.class);
+			ByteBuffer bb = ByteBuffer.allocateDirect(${primSize}).order(ByteOrder.nativeOrder());
 			assertEquals(bb.order(), p.order());
 			bb = bb.order(ByteOrder.LITTLE_ENDIAN);
 			${prim.BufferName} b;
@@ -582,9 +587,9 @@ public class PointerTest {
 		assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 		
 		p = Pointer.pointerTo${prim.CapName}s(${prim.rawValue($v1)}, ${prim.rawValue($v2)}, ${prim.rawValue($v3)});
-		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}AtOffset(0 * ${prim.Size})$precisionArg);
-		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtOffset(1 * ${prim.Size})$precisionArg);
-		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtOffset(2 * ${prim.Size})$precisionArg);
+		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}AtOffset(0 * ${primSize})$precisionArg);
+		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtOffset(1 * ${primSize})$precisionArg);
+		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtOffset(2 * ${primSize})$precisionArg);
 		
 		$rawType[] arr = p.get${prim.CapName}s();
 		assertEquals(${prim.rawValue($v1)}, arr[0]$precisionArg);
@@ -638,8 +643,8 @@ public class PointerTest {
 			case 4:
 				values = new $rawType[n];
 				for (int i = 0; i < n; i++) {
-					p.set${prim.CapName}AtOffset(i * ${prim.Size}, expected[i]);
-					values[i] = p.get${prim.CapName}AtOffset(i * ${prim.Size}); 
+					p.set${prim.CapName}AtOffset(i * ${primSize}, expected[i]);
+					values[i] = p.get${prim.CapName}AtOffset(i * ${primSize}); 
 				}
 				break;
 			}
@@ -662,13 +667,13 @@ public class PointerTest {
 			p.set${prim.CapName}(${prim.value($v1)});
 			assertEquals(${prim.rawValue($v1)}, ($rawType)p.get${prim.CapName}()$precisionArg);
 			
-			p.set${prim.CapName}AtOffset(${prim.Size}, ${prim.value("-2")});
-			assertEquals(${prim.rawValue("-2")}, ($rawType)p.get${prim.CapName}AtOffset(${prim.Size})$precisionArg);
+			p.set${prim.CapName}AtOffset(${primSize}, ${prim.value("-2")});
+			assertEquals(${prim.rawValue("-2")}, ($rawType)p.get${prim.CapName}AtOffset(${primSize})$precisionArg);
 			
-			p.set${prim.CapName}sAtOffset(${prim.Size}, new ${prim.Name}[] { ${prim.value("5")}, ${prim.value("6")} });
+			p.set${prim.CapName}sAtOffset(${primSize}, new ${prim.Name}[] { ${prim.value("5")}, ${prim.value("6")} });
 			assertEquals(${prim.value("5")}, (${prim.Name})p.get(1)$precisionArg);
 			assertEquals(${prim.value("6")}, (${prim.Name})p.get(2)$precisionArg);
-			$rawType[] a = p.get${prim.CapName}sAtOffset(${prim.Size}, 2);
+			$rawType[] a = p.get${prim.CapName}sAtOffset(${primSize}, 2);
 			assertEquals(2, a.length);
 			assertEquals(${prim.rawValue("5")}, a[0]$precisionArg);
 			assertEquals(${prim.rawValue("6")}, a[1]$precisionArg);
@@ -693,6 +698,7 @@ public class PointerTest {
 #end
 
 #foreach ($prim in $primitivesNoBool)	
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 
 #if ($prim.Name == "double" || $prim.Name == "float")
 #set ($precisionArg = ", 0")
@@ -704,7 +710,7 @@ public class PointerTest {
     public void testAllocateBounds_${prim.Name}_ok() {
 		assertEquals(${prim.value("0")}, (${prim.Name})Pointer.allocate${prim.CapName}().get(0)$precisionArg);
 		assertEquals(${prim.value("0")}, (${prim.Name})Pointer.allocate${prim.CapName}s(1).get(0)$precisionArg);
-		assertEquals(${prim.value("0")}, (${prim.Name})Pointer.allocate${prim.CapName}s(2).offset(${prim.Size}).get(-1)$precisionArg);
+		assertEquals(${prim.value("0")}, (${prim.Name})Pointer.allocate${prim.CapName}s(2).offset(${primSize}).get(-1)$precisionArg);
 		
 		//TODO slide, slideBytes
 	}
@@ -724,7 +730,7 @@ public class PointerTest {
 			else
 				p = Pointer.pointerTo${prim.CapName}s(b);
 			
-			assertEquals(3 * ${prim.Size}, p.getValidBytes());
+			assertEquals(3 * ${primSize}, p.getValidBytes());
 			assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
 			assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
 			assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
@@ -737,10 +743,11 @@ public class PointerTest {
 		assertEquals(${prim.value("22")}, (${prim.Name})b.get(1)$precisionArg);
 	}
 	
+	#if ($prim.Name != "char")
+	
 	@Test 
     public void testGet${prim.BufferName}s() {
-	
-    		for (int type = 0; type < 6; type++) {
+		for (int type = 0; type < 6; type++) {
 			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}s(n);
 			${prim.Name}[] expected = createExpected${prim.CapName}s(n);
 			${prim.BufferName} buf = ${prim.BufferName}.wrap(expected);
@@ -779,11 +786,11 @@ public class PointerTest {
 			}
 		}
 	}
-
+	
 	@Test 
     public void testPointerTo_${prim.Name}_DirectBuffer() {
     		Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}s(3);
-    		assertEquals(3 * ${prim.Size}, p.getValidBytes());
+    		assertEquals(3 * ${primSize}, p.getValidBytes());
 		p.set(0, ${prim.value($v1)});
 		p.set(1, ${prim.value($v2)});
 		p.set(2, ${prim.value($v3)});
@@ -796,12 +803,13 @@ public class PointerTest {
 			else
 				p = Pointer.pointerTo${prim.CapName}s(b);
 			
-			assertEquals(3 * ${prim.Size}, p.getValidBytes());
+			assertEquals(3 * ${primSize}, p.getValidBytes());
 			assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
 			assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
 			assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 		}
 	}
+	#end
 	
 	public void testPointerTo_${prim.Name}_Values2D(${prim.Name}[][] values, Pointer<Pointer<${prim.typeRef}>> p, int dim1, int dim2) {
 		for (int i = 0; i < dim1; i++)
@@ -844,7 +852,7 @@ public class PointerTest {
 		int dim2 = values[0].length;
 		int dim3 = values[0][0].length;
 		
-		int subSize = dim2 * dim3 * ${prim.Size};
+		int subSize = dim2 * dim3 * ${primSize};
 		for (int i = 0; i < dim1; i++) {
 			for (int j = 0; j < dim2; j++) {
 				for (int k = 0; k < dim3; k++) {
@@ -871,16 +879,16 @@ public class PointerTest {
     public void testAllocateRemaining_${prim.Name}_ok() {
     	Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}s(2);
     	assertEquals(2, p.getValidElements());
-		assertEquals(2 * ${prim.Size}, p.getValidBytes());
+		assertEquals(2 * ${primSize}, p.getValidBytes());
 		
 		Pointer<${prim.typeRef}> n = p.next();
-		Pointer<${prim.typeRef}> o = p.offset(${prim.Size});
+		Pointer<${prim.typeRef}> o = p.offset(${primSize});
 		assertEquals(n, o);
 		
 		assertEquals(1, n.getValidElements());
-		assertEquals(${prim.Size}, n.getValidBytes());
+		assertEquals(${primSize}, n.getValidBytes());
 		assertEquals(1, o.getValidElements());
-		assertEquals(${prim.Size}, o.getValidBytes());
+		assertEquals(${primSize}, o.getValidBytes());
 		
 		//TODO slide, slideBytes
 	}
@@ -915,10 +923,10 @@ public class PointerTest {
 			p.set(value);
 		    assertEquals(ByteOrder.$order, p.order());
 		    assertEquals(ByteOrder.$order, p.get${prim.BufferName}AtOffset(0, 1).order());
-		    assertEquals((${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get(), p.getByteBufferAtOffset(0, ${prim.Size}).order(ByteOrder.$order).as${prim.BufferName}().get()$precisionArg); // always true (?) : NIO consistency
+		    assertEquals((${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get(), p.getByteBufferAtOffset(0, ${primSize}).order(ByteOrder.$order).as${prim.BufferName}().get()$precisionArg); // always true (?) : NIO consistency
 		    
 			assertEquals(value, (${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get()$precisionArg); // check that the NIO buffer was created with the correct order by default
-			assertEquals(value, p.getByteBufferAtOffset(0, ${prim.Size}).order(ByteOrder.$order).as${prim.BufferName}().get()$precisionArg);
+			assertEquals(value, p.getByteBufferAtOffset(0, ${primSize}).order(ByteOrder.$order).as${prim.BufferName}().get()$precisionArg);
 		}
 	}
 	#end
