@@ -1,4 +1,8 @@
-Current version : BridJ 0.7-SNAPSHOT
+Current development version (0.7-SNAPSHOT)
+
+...
+
+BridJ 0.6.1 (20120415) 
 
 - Fixed wchar_t and  WideCString on MacOS X (issue #295)
 - Fixed @Name annotation
