@@ -89,7 +89,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.4</version>
 				<configuration>
 					<relocations>
 						<relocation>
@@ -354,6 +353,14 @@
 						<configuration>
 							<shadedArtifactAttached>true</shadedArtifactAttached>
 							<shadedClassifierName>android</shadedClassifierName>
+							<artifactSet>
+								<includes>
+									<include>com.google.android.tools:dx</include>
+								</includes>
+								<excludes>
+									<exclude>junit:junit</exclude>
+								</excludes>
+							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
