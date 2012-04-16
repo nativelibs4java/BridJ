@@ -5,19 +5,17 @@
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>http://code.google.com/p/bridj/</url>
-	<version>0.6.1</version>
+	<version>0.6.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<properties>
-		<osgiBundleVersion>0.6.1</osgiBundleVersion>
-		<versionSpecificSubPackage>v0_6_1</versionSpecificSubPackage>
-		<exportedPackages>org.bridj,org.bridj.ann,org.bridj.cpp,org.bridj.cpp.com,org.bridj.cpp.com.shell,org.bridj.demangling,org.bridj.jawt,org.bridj.objc,org.bridj.util</exportedPackages>
+		<versionSpecificSubPackage>v0_6_2</versionSpecificSubPackage>
 	</properties>
 	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.7</version>
+		<version>1.8-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
@@ -53,7 +51,6 @@
 			<artifactId>dx</artifactId>
 			<version>1.7</version>
 		</dependency>
-	
 	
 	</dependencies>
 	
@@ -121,6 +118,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
@@ -159,6 +157,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
@@ -200,6 +199,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
@@ -241,6 +241,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
@@ -281,6 +282,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
@@ -319,6 +321,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
@@ -405,6 +408,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 										<exclude>lib/armeabi/**</exclude>
