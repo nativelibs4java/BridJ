@@ -4,6 +4,7 @@ Current development version (0.7-SNAPSHOT)
 
 BridJ 0.6.1 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc) 
 
+- Release artifacts are available in Maven Central
 - Fixed wchar_t and  WideCString on MacOS X (issue #295)
 - Fixed @Name annotation
 - Fixed deletion of temporary extracted library files with shutdown hook (issue #197)
