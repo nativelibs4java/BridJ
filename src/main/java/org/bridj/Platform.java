@@ -575,9 +575,8 @@ public class Platform {
                 execArgs("explorer", file.getAbsolutePath());
             } else {
                 execArgs("start", file.getAbsolutePath());
-        }
-        }
-        if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
+            }
+        } else if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
             execArgs("gnome-open", file.toString());
         } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
             execArgs("konqueror", file.toString());
