@@ -472,11 +472,14 @@ void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jl
 
 jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle)
 {
-    jclass stringClass;
-    jarray ret;
+	// Force protection (override global protection switch)
+	jboolean gProtected = JNI_TRUE;
+	jclass stringClass;
+    jarray ret = NULL;
     DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
 	int count, i;
-	if (!pSyms)
+	BEGIN_TRY_CALL(env);
+    if (!pSyms)
 		return NULL;
 
 	count = dlSymsCount(pSyms);
@@ -484,10 +487,17 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
 		const char* name = dlSymsName(pSyms, i);
+		jstring jname;
 		if (!name)
 			continue;
-		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
+		printf("\tsetting symbol %d / %d\n", i, count);
+		//return NULL;
+		printf("\t\"%s\"\n", name);
+		//sleep(1);
+		jname = (*env)->NewStringUTF(env, name);
+		(*env)->SetObjectArrayElement(env, ret, i, jname);
     }
+	END_TRY_CALL(env);
     return ret;
 }
 
