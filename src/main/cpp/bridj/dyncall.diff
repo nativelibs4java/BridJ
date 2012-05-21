@@ -29,19 +29,19 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  #include <dlfcn.h>
  #include <string.h>
  
-+#define DEBUG_TRIES 0
-+#if DEBUG_TRIES
++#define DEBUG_SYMS 0
++#if DEBUG_SYMS
 +#include <stdio.h>
 +#endif
 +
  #if defined(ARCH_X64)
  #define MACH_HEADER_TYPE mach_header_64
-+#define MACH_MAGIC MH_MAGIC
++#define MACH_MAGIC MH_MAGIC_64
  #define SEGMENT_COMMAND segment_command_64
  #define NLIST_TYPE nlist_64
  #else
  #define MACH_HEADER_TYPE mach_header
-+#define MACH_MAGIC MH_MAGIC_64
++#define MACH_MAGIC MH_MAGIC
  #define SEGMENT_COMMAND segment_command
  #define NLIST_TYPE nlist
  #endif
@@ -65,7 +65,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  DLSyms* dlSymsInit(const char* libPath) 
  {
  	DLSyms* pSyms = NULL;
-@@ -70,23 +89,41 @@
+@@ -70,23 +89,43 @@
  	for (iImage = 0, nImages = _dyld_image_count(); iImage < nImages; iImage++)
  	{
  		const char* name = _dyld_get_image_name(iImage);
@@ -94,7 +94,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  				for (iCmd = 0; iCmd < nCmds; iCmd++) 
  				{
 -					if (cmd->cmd == LC_SYMTAB) 
-+					#if DEBUG_TRIES
++					#if DEBUG_SYMS
 +					if (cmd->cmd == LC_DYLD_INFO_ONLY) {
 +                        //const struct dyld_info_command* dcmd = (const struct dyld_info_command*)cmd;
 +                        //const char* trie = dcmd = (pBase + dcmd->export_off);
@@ -105,14 +105,16 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
 +                    }
 +                    #endif
 +
-+                    if (cmd->cmd & LC_REQ_DYLD)
++                    if (cmd->cmd & LC_REQ_DYLD) {
++                    	//printf("Found unhandled command in '%s' : %d\n", libPath, (int)cmd->cmd);
 +                    	return NULL; // "unknown load command required for execution";
++                    }
 +                    
 +                    if (cmd->cmd == LC_SYMTAB) 
  					{
  						const struct symtab_command* scmd = (const struct symtab_command*)cmd;
  					
-@@ -100,7 +137,6 @@
+@@ -100,7 +139,6 @@
  					cmd = (const struct load_command*)(((char*)cmd) + cmd->cmdsize);
  				}
  			}
@@ -120,7 +122,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  		}
  	}
  	return NULL;
-@@ -132,6 +168,11 @@
+@@ -132,6 +170,11 @@
  	if (nl->n_un.n_strx <= 1)
  		return NULL; // would be empty string anyway
  	

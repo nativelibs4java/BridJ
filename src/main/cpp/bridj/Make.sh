@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Avoid LC_DYLD_INFO (https://discussions.apple.com/thread/3197542?start=0&tstart=0)
+export MACOSX_DEPLOYMENT_TARGET=10.5
+
 # Avoid locale in diff :
 LANG=C
 

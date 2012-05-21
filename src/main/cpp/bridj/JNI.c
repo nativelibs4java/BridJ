@@ -487,15 +487,9 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
 		const char* name = dlSymsName(pSyms, i);
-		jstring jname;
 		if (!name)
 			continue;
-		printf("\tsetting symbol %d / %d\n", i, count);
-		//return NULL;
-		printf("\t\"%s\"\n", name);
-		//sleep(1);
-		jname = (*env)->NewStringUTF(env, name);
-		(*env)->SetObjectArrayElement(env, ret, i, jname);
+		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
     }
 	END_TRY_CALL(env);
     return ret;
