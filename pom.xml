@@ -181,6 +181,7 @@
 							</filters>
 						</configuration>
 					</execution>
+					<!--
 					<execution>
 						<id>ios-package</id>
 						<phase>package</phase>
@@ -223,6 +224,7 @@
 							</filters>
 						</configuration>
 					</execution>
+					-->
 					<execution>
 						<id>win-package</id>
 						<phase>package</phase>
