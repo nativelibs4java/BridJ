@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Avoid LC_DYLD_INFO (https://discussions.apple.com/thread/3197542?start=0&tstart=0)
-export MACOSX_DEPLOYMENT_TARGET=10.5
-
 # Avoid locale in diff :
 LANG=C
 
@@ -90,7 +87,9 @@ case $TARGET in
 	default)
 		NEEDS_TEST=1
 		export PATH=/Developer-old/usr/bin:$PATH
-		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then 
+		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then
+			# Avoid LC_DYLD_INFO (https://discussions.apple.com/thread/3197542?start=0&tstart=0)
+			export MACOSX_DEPLOYMENT_TARGET=10.4
 			sh ./configure --target-universal || fail "Failed to configure MacOS X Universal build"
 		else 
 			sh ./configure || fail "Failed to configure default build"

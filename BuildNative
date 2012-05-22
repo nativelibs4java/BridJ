@@ -7,7 +7,8 @@ fi
 
 if [[ -z "$BRIDJ_TARGETS" ]] ; then
 	if [[ -d /Applications ]] ; then
-		BRIDJ_TARGETS="default ios android" ;
+		#BRIDJ_TARGETS="default ios android" ;
+		BRIDJ_TARGETS="default android" ;
 	else
 		BRIDJ_TARGETS="default" ;
 	fi ;
