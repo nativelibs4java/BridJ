@@ -467,7 +467,9 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, j
 void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
 	DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
+	//BEGIN_TRY_CALL(env);
 	dlSymsCleanup(pSyms);
+	//END_TRY_CALL(env);	
 }
 
 jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle)
@@ -478,11 +480,12 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
     jarray ret = NULL;
     DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
 	int count, i;
-	BEGIN_TRY_CALL(env);
+	//BEGIN_TRY_CALL(env);
     if (!pSyms)
 		return NULL;
 
 	count = dlSymsCount(pSyms);
+	printf("getLibrarySymbols has %d symbols\n", (int)count);
 	stringClass = (*env)->FindClass(env, "java/lang/String");
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
@@ -491,7 +494,7 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 			continue;
 		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
     }
-	END_TRY_CALL(env);
+	//END_TRY_CALL(env);
     return ret;
 }
 
