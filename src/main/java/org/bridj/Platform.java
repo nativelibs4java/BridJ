@@ -65,7 +65,13 @@ public class Platform {
     }
     public static InputStream getResourceAsStream(String path) {
     	URL url = getResource(path);
-    	return url != null ? url.openStream() : null;
+    	try {
+    		return url != null ? url.openStream() : null;
+    	} catch (IOException ex) {
+    		if (BridJ.verbose)
+    			BridJ.log(Level.WARNING, "Failed to get resource '" + path + "'", ex);
+    		return null;
+    	}
     }
     public static URL getResource(String path) {
     	if (!path.startsWith("/"))
