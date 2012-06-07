@@ -2228,16 +2228,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     /**
     * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(Pointer, long)}, {@link Pointer#getValidBytes()})
      */
-    public void copyTo(Pointer<?> destination) {
-    		copyTo(destination, getValidElements());
+    public Pointer<T> copyTo(Pointer<?> destination) {
+    		return copyTo(destination, getValidElements());
     }
     
     /**
     * Copy remaining elements from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesAtOffsetTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
-    public void copyTo(Pointer<?> destination, long elementCount) {
+    public Pointer<T> copyTo(Pointer<?> destination, long elementCount) {
     		PointerIO<T> io = getIO("Cannot copy untyped pointer without byte count information. Please use copyBytesAtOffsetTo(offset, destination, destinationOffset, byteCount) instead");
-    		copyBytesAtOffsetTo(0, destination, 0, elementCount * io.getTargetSize());
+    		return copyBytesAtOffsetTo(0, destination, 0, elementCount * io.getTargetSize());
     }
     
     /**
