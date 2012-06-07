@@ -500,6 +500,41 @@ public class PointerTest {
 #end
 
 #if ($prim.Name != "SizeT" && $prim.Name != "CLong" && $prim.Name != "Pointer" && $prim.Name != "boolean" && $prim.Name != "char")	
+
+	
+	@Test
+	public void testCopy${prim.CapName}s() {
+		$prim.Name 
+			zero = ${prim.value("0")}, 
+			one = ${prim.value("1")}, 
+			two = ${prim.value("2")},
+			three = ${prim.value("3")};
+		
+		Pointer<${prim.WrapperName}> src = pointerTo${prim.CapName}s(one, two, three);
+		Pointer<${prim.WrapperName}> dest = allocate${prim.CapName}s(4);
+		
+		dest.clearValidBytes();
+		src.copyTo(dest, 1);
+		assertEquals(one, (${prim.Name})dest.get(0)$precisionArg);
+		assertEquals(zero, (${prim.Name})dest.get(1)$precisionArg);
+		assertEquals(zero, (${prim.Name})dest.get(2)$precisionArg);
+		assertEquals(zero, (${prim.Name})dest.get(3)$precisionArg);
+		
+		dest.clearValidBytes();
+		src.copyTo(dest, 2);
+		assertEquals(one, (${prim.Name})dest.get(0)$precisionArg);
+		assertEquals(two, (${prim.Name})dest.get(1)$precisionArg);
+		assertEquals(zero, (${prim.Name})dest.get(2)$precisionArg);
+		assertEquals(zero, (${prim.Name})dest.get(3)$precisionArg);
+		
+		dest.clearValidBytes();
+		src.copyTo(dest);
+		assertEquals(one, (${prim.Name})dest.get(0)$precisionArg);
+		assertEquals(two, (${prim.Name})dest.get(1)$precisionArg);
+		assertEquals(three, (${prim.Name})dest.get(2)$precisionArg);
+		assertEquals(zero, (${prim.Name})dest.get(3)$precisionArg);
+	}
+	
 	@Test
 	public void test${prim.BufferName}Update() {
 		// Non-direct buffer
