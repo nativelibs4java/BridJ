@@ -2290,13 +2290,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (Platform.WCHAR_T_SIZE == 4)
 			return setIntAtOffset(byteOffset, (int)value);
 		#end
-    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
-		if (!isOrdered()) {
-			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${primSize}), value);
+    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize});
+		#if ($prim.Name != "byte" && $prim.Name != "boolean")
+    	if (!isOrdered()) {
+			JNI.set_${prim.Name}_disordered(checkedPeer, value);
 			return this;
 		}
 		#end
-		JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${primSize}), value);
+		JNI.set_${prim.Name}(checkedPeer, value);
 		return this;
     }
 
@@ -2323,13 +2324,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (Platform.WCHAR_T_SIZE == 4)
 			return setIntsAtOffset(byteOffset, wcharsToInts(values, valuesOffset, length));
 		#end
-    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
-        if (!isOrdered()) {
-        	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${primSize} * length), values, valuesOffset, length);
+    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize} * length);
+        #if ($prim.Name != "byte" && $prim.Name != "boolean")
+    	if (!isOrdered()) {
+        	JNI.set_${prim.Name}_array_disordered(checkedPeer, values, valuesOffset, length);
         	return this;
     	}
         #end
-		JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${primSize} * length), values, valuesOffset, length);
+		JNI.set_${prim.Name}_array(checkedPeer, values, valuesOffset, length);
         return this;
 	}
 	
@@ -2344,11 +2346,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (Platform.WCHAR_T_SIZE == 4)
 			return (char)getIntAtOffset(byteOffset);
 		#end
-    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
-        if (!isOrdered())
-        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${primSize}));
+    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize});
+        #if ($prim.Name != "byte" && $prim.Name != "boolean")
+    	if (!isOrdered())
+        	return JNI.get_${prim.Name}_disordered(checkedPeer);
         #end
-        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${primSize}));
+        return JNI.get_${prim.Name}(checkedPeer);
     }
     
 #docGetArray(${prim.Name} ${prim.WrapperName})
@@ -2369,11 +2372,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (Platform.WCHAR_T_SIZE == 4)
 			return intsToWChars(getIntsAtOffset(byteOffset, length));
 		#end
-    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
-        if (!isOrdered())
-        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${primSize} * length), length);
+    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize} * length);
+        #if ($prim.Name != "byte" && $prim.Name != "boolean")
+    	if (!isOrdered())
+        	return JNI.get_${prim.Name}_array_disordered(checkedPeer, length);
         #end
-        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${primSize} * length), length);
+        return JNI.get_${prim.Name}_array(checkedPeer, length);
     }
     
 #end
