@@ -27,6 +27,24 @@ public class PointerTest {
 	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
     
 	@Test
+	public void testValidity() {
+		Pointer<Short> p = allocateShorts(10), p2 = p.next(2), p2w = p2.withoutValidityInformation();
+		Pointer<?> p2u = p2.asUntyped();
+		
+		assertEquals(p.getPeer() + 4, p2.getPeer());
+		assertEquals(p2.getPeer(), p2u.getPeer());
+		assertEquals(p2.getPeer(), p2w.getPeer());
+		
+		assertEquals(p.getValidStart(), p2.getValidStart());
+		assertEquals(p.getValidEnd(), p2.getValidEnd());
+		
+		assertEquals(p.getValidStart(), p2u.getValidStart());
+		assertEquals(p.getValidEnd(), p2u.getValidEnd());
+		
+		assertEquals(p.getIO(), p2w.getIO());
+	}
+	
+	@Test
 	public void testRelease() {
 		final boolean called[] = new boolean[1]; 
 		Pointer<Integer> p = allocateInts(3).withReleaser(new Releaser() {

@@ -429,7 +429,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			throw new IndexOutOfBoundsException("Cannot extend validity of pointed memory from " + validEnd + " to " + newValidEnd);
 		
 		Object newSibling = getSibling() != null ? getSibling() : this;
-		return newPointer(getIO(), peer, ordered, peer, newValidEnd, parent, offsetInParent, null, newSibling);    	
+		return newPointer(getIO(), peer, ordered, validStart, newValidEnd, parent, offsetInParent, null, newSibling);    	
+	}
+	
+	/**
+	 * Creates a pointer that forgot any memory validity information.<br>
+	 * Such pointers are typically faster than validity-aware pointers, since they perform less checks at each operation, but they're more prone to crashes if misused.
+	 */
+	public Pointer<T> withoutValidityInformation() {
+		long peer = getPeer();
+		if (validStart == UNKNOWN_VALIDITY)
+			return this;
+		
+		Object newSibling = getSibling() != null ? getSibling() : this;
+		return newPointer(getIO(), peer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, parent, offsetInParent, null, newSibling);    	
 	}
 	
 	/**
