@@ -435,7 +435,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	/**
 	 * Creates a pointer that forgot any memory validity information.<br>
 	 * Such pointers are typically faster than validity-aware pointers, since they perform less checks at each operation, but they're more prone to crashes if misused.
-	 */
+	 * @deprecated Pointers obtained via this method are faster but unsafe and are likely to cause crashes hard to debug if your logic is wrong.
+     */
+	@Deprecated
 	public Pointer<T> withoutValidityInformation() {
 		long peer = getPeer();
 		if (validStart == UNKNOWN_VALIDITY)
