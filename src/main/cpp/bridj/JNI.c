@@ -15,6 +15,7 @@
 
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
+#pragma warning(disable:4055) // cast from data pointer to function pointer
 
 jboolean gLog = JNI_FALSE;
 jboolean gProtected = JNI_FALSE;
