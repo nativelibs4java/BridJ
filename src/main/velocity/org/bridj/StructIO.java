@@ -519,6 +519,12 @@ public class StructIO {
 		return fieldDescs.toArray(new FieldDesc[fieldDescs.size()]);
 	}
 
+	protected long alignmentOf(Type tpe) {
+	  Class c = PointerIO.getClass(tpe);
+	  if (StructObject.class.isAssignableFrom(c))
+	    return StructIO.getInstance(c).getStructAlignment();
+	  return BridJ.sizeOf(tpe);
+	}
 	protected AggregatedFieldDesc aggregateFields(List<FieldDecl> fieldGroup) {
 		AggregatedFieldDesc aggregatedField = new AggregatedFieldDesc();
     		boolean isMultiFields = fieldGroup.size() > 1;
@@ -563,6 +569,7 @@ public class StructIO {
 					field.desc.nativeTypeOrPointerTargetType = tpe;
 				if (field.desc.isArray) {
 					field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
+					field.desc.alignment = alignmentOf(field.desc.nativeTypeOrPointerTargetType);
 				} else
 					field.desc.byteLength = Pointer.SIZE;
 				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
@@ -593,16 +600,16 @@ public class StructIO {
 					throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
 			}
 			
-			long length = field.desc.arrayLength * field.desc.byteLength;
-			if (length >= aggregatedField.byteLength)
-				aggregatedField.byteLength = length;
-			
 			aggregatedField.alignment = Math.max(
 				aggregatedField.alignment, 
 				field.desc.alignment >= 0 ?
 				field.desc.alignment :
 				field.desc.byteLength
 			);
+			
+			long length = field.desc.arrayLength * field.desc.byteLength;
+			if (length >= aggregatedField.byteLength)
+				aggregatedField.byteLength = length;
 			
 			if (field.desc.bitLength >= 0) {
 				if (isMultiFields)
@@ -766,7 +773,9 @@ public class StructIO {
 			if (fd.bitLength != -1)
 				b.append("bitLength = ").append(fd.bitLength).append(", ");
 			if (fd.arrayLength != 1)
-				b.append("arrayLength = ").append(fd.arrayLength);//.append(", ");
+				b.append("arrayLength = ").append(fd.arrayLength).append(", ");
+			if (fd.alignment != 1)
+				b.append("alignment = ").append(fd.alignment);//.append(", ");
 		}
 		b.append("\n}");
 		return b.toString();

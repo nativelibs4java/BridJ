@@ -495,3 +495,33 @@ TEST_API void __cdecl setLastWindowsError() {
 
 #endif
 
+typedef struct {
+      char part1[100];
+      char part2[100];
+      char part3[100];
+} stuff;
+
+typedef struct {
+      char type[100];
+      char date[100];
+      char time[100];
+      stuff stuff1, stuff2;
+} container;
+
+typedef struct {
+      char text[512];
+      container cont[1];
+} message;
+
+TEST_API size_t sizeOf_message() {
+	return sizeof(message);
+}
+
+TEST_API size_t sizeOf_stuff() {
+	return sizeof(stuff);
+}
+
+TEST_API size_t sizeOf_container() {
+	return sizeof(container);
+}
+
