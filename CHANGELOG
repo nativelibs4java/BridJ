@@ -5,6 +5,7 @@ Current development version (0.6.2-SNAPSHOT)
 - Fixed handling of classloaders in some use-cases (issue #283)
 - Fixed Platform.open(File) (issue #306)
 - Fixed Pointer.copyTo(dest, elementCount) (issue #317)
+- Fixed alignment of struct array fields (issue #319)
 - Removed ios-package (binaries for iOS/arm) 
 
 BridJ 0.6.1 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc) 
