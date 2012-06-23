@@ -4,6 +4,7 @@
  */
 package org.bridj;
 
+import org.bridj.util.ClassDefiner;
 import android.app.Application;
 import android.content.pm.ApplicationInfo;
 import android.os.Environment;
