@@ -5,20 +5,37 @@
 package org.bridj.util;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import org.bridj.Pointer;
 import org.objectweb.asm.*;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
- *
+ * Utilities for <a href="http://asm.ow2.org/">ASM</a>.
  * @author ochafik
  */
 public class ASMUtils {
-    public static class Sub extends ASMUtils {
-        public Sub() {
-            super();
+    
+    public static String typeDesc(java.lang.reflect.Type t) {
+        if (t instanceof Class) {
+            Class c = (Class)t;
+            if (c == Pointer.class)
+                return "Pointer";
+            if (c.isPrimitive()) {
+                String s = c.getSimpleName();
+                return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+            } else if (c.isArray()) {
+                return typeDesc(c.getComponentType()) + "Array";
+            }
+            return c.getName().replace('.', '_');
+        } else {
+            ParameterizedType p = (ParameterizedType)t;
+            StringBuilder b = new StringBuilder(typeDesc(p.getRawType()));
+            for (java.lang.reflect.Type pp : p.getActualTypeArguments())
+                b.append("_").append(typeDesc(pp));
+            return b.toString();
         }
     }
-
     public static void addSuperCall(ClassVisitor cv, String superClassInternalName) {
         MethodVisitor mv = cv.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
