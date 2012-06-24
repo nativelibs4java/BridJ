@@ -1130,7 +1130,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @param peer native memory address that is to be converted to a pointer
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
      */
-    static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
+    public static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
     	return newPointer(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
 	}
 	/**
