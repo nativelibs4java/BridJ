@@ -270,6 +270,10 @@ public class CRuntime extends AbstractBridJRuntime {
 			return new MethodCallInfo(method);
 		}
     }
+	@Override
+	public void unregister(Type type) {
+		registeredTypes.remove(typeClass);
+	}
 	synchronized void register(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
         Class typeClass = Utils.getClass(type);
         if (!BridJ.getRuntimeClass(typeClass).isInstance(this)) {
