@@ -272,7 +272,8 @@ public class CRuntime extends AbstractBridJRuntime {
     }
 	@Override
 	public void unregister(Type type) {
-		registeredTypes.remove(typeClass);
+		Class typeClass = Utils.getClass(type);
+        registeredTypes.remove(typeClass);
 	}
 	synchronized void register(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
         Class typeClass = Utils.getClass(type);
