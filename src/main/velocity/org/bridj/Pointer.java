@@ -2048,9 +2048,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (${sizePrim}.SIZE == 8) {
 			setLongsAtOffset(byteOffset, values, valuesOffset, length);
 		} else {
-			int n = length, s = 4;
-			for (int i = 0; i < n; i++)
-				setIntAtOffset(byteOffset + i * s, (int)values[valuesOffset + i]);
+			int n = length;
+			long checkedPeer = getCheckedPeer(byteOffset, n * 4);
+            
+			long peer = checkedPeer;
+			int valuesIndex = valuesOffset;
+			for (int i = 0; i < n; i++) {
+				int value = (int)values[valuesIndex];
+				if (isOrdered()) {
+					JNI.set_int(peer, value);
+				} else {
+					JNI.set_int_disordered(peer, value);
+				}
+				peer += 4;
+				valuesIndex++;
+			}
 		}
 		return this;
 	}
