@@ -377,17 +377,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     @Override 
     public String toString() {
-    		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
+		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
     }
     
-    private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
-		long offsetPeer = getPeer() + byteOffset;
-		///*
-		if (validStart != UNKNOWN_VALIDITY) {
+    private final void checkPeer(long offsetPeer, long validityCheckLength) {
 			if (offsetPeer < validStart || (offsetPeer + validityCheckLength) > validEnd)
 				throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (offsetPeer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
-		}
-		//*/
+	}
+	
+    private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
+		long offsetPeer = peer + byteOffset;
+		if (validStart != UNKNOWN_VALIDITY)
+			checkPeer(offsetPeer, validityCheckLength);
 		return offsetPeer;
     }
 
@@ -2066,9 +2067,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (${sizePrim}.SIZE == 4) {
 			setIntsAtOffset(byteOffset, values);
 		} else {
-			int n = values.length, s = 8;
-			for (int i = 0; i < n; i++)
-				setLongAtOffset(i * s, values[i]);
+			int n = values.length;
+			long checkedPeer = getCheckedPeer(byteOffset, n * 8);
+            
+			long peer = checkedPeer;
+			for (int i = 0; i < n; i++) {
+				int value = values[i];
+				if (isOrdered()) {
+					JNI.set_long(peer, value);
+				} else {
+					JNI.set_long_disordered(peer, value);
+				}
+				peer += 8;
+			}
 		}
 		return this;
 	}
