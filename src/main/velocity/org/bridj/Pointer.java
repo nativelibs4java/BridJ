@@ -380,9 +380,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
     }
     
-    private final void checkPeer(long offsetPeer, long validityCheckLength) {
-			if (offsetPeer < validStart || (offsetPeer + validityCheckLength) > validEnd)
-				throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (offsetPeer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
+    private final void checkPeer(long peer, long validityCheckLength) {
+		if (peer < validStart || (peer + validityCheckLength) > validEnd) {
+			throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (peer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
+		}
 	}
 	
     private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
