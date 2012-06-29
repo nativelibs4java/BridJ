@@ -7,15 +7,17 @@ package org.bridj;
  * }</pre>
  * @author ochafik
  */
-public class TypedPointer extends Pointer {
+public class TypedPointer extends Pointer.OrderedPointer {
 	Pointer<?> copy;
+	
+	private TypedPointer(PointerIO<?> io, long peer) {
+		super(io, peer, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, null);
+	}
 	public TypedPointer(long address) {
-        //TODO
-        super(PointerIO.getPointerInstance(), address);
+        this(PointerIO.getPointerInstance(), address);
 	}
 	public TypedPointer(Pointer<?> ptr) {
-		//TODO
-        super(PointerIO.getPointerInstance(), ptr.getPeer());
+        this(PointerIO.getPointerInstance(), ptr.getPeer());
 		copy = ptr;
 	}
 }
