@@ -126,28 +126,6 @@ import java.util.logging.Level;
 public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 {
 
-#macro (setPrimitiveValue $primName $peer $value)
-	#if ($primName != "byte" && $primName != "boolean")
-	if (isOrdered()) // isOrdered()
-		JNI.set_${primName}($peer, value);
-	else
-		JNI.set_${primName}_disordered($peer, $value);
-	#else
-	JNI.set_${primName}($peer, value);
-	#end
-#end
-
-#macro (returnPrimitiveValue $primName $peer)
-	#if ($primName != "byte" && $primName != "boolean")
-	if (isOrdered()) // isOrdered()
-		return JNI.get_${primName}($peer);
-	else
-		return JNI.get_${primName}_disordered($peer);
-	#else
-	return JNI.get_${primName}($peer);
-	#end
-#end
-
 #macro (declareCheckedPeer $validityCheckLength)
 		long checkedPeer = peer;
 		if (validStart != UNKNOWN_VALIDITY)
@@ -412,6 +390,57 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return JNI.get_${prim.Name}(checkedPeer);
 			#end
 		}
+#end
+
+
+#foreach ($sizePrim in ["SizeT", "CLong"])
+
+#macro (setPrimitiveValue $primName $peer $value)
+	#if ($primName != "byte" && $primName != "boolean")
+	JNI.set_${primName}${nativeSuffix}($peer, $value);
+	#else
+	JNI.set_${primName}($peer, value);
+	#end
+#end
+
+	@Override
+    public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length) {
+		if (values == null)
+			throw new IllegalArgumentException("Null values");
+		if (${sizePrim}.SIZE == 8) {
+			setLongsAtOffset(byteOffset, values, valuesOffset, length);
+		} else {
+			int n = length;
+			#declareCheckedPeerAtOffset("byteOffset" "n * 4")
+            
+			long peer = checkedPeer;
+			int valuesIndex = valuesOffset;
+			for (int i = 0; i < n; i++) {
+				int value = (int)values[valuesIndex];
+				#setPrimitiveValue("int" "peer" "value")
+				peer += 4;
+				valuesIndex++;
+			}
+		}
+		return this;
+	}
+#docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(int[])")
+	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, int[] values) {
+		if (${sizePrim}.SIZE == 4) {
+			setIntsAtOffset(byteOffset, values);
+		} else {
+			int n = values.length;
+			#declareCheckedPeerAtOffset("byteOffset" "n * 8")
+            
+			long peer = checkedPeer;
+			for (int i = 0; i < n; i++) {
+				int value = values[i];
+				#setPrimitiveValue("long" "peer" "value")
+				peer += 8;
+			}
+		}
+		return this;
+	}
 #end
 	}
 #end
@@ -2104,10 +2133,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docGetRemainingArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s() {
 		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
+		if (${sizePrim}.SIZE == 8)
+    		return getLongs((int)rem);
 		return get${sizePrim}s((int)rem);
 	}
 #docGetArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s(int arrayLength) {
+    	if (${sizePrim}.SIZE == 8)
+    		return getLongs(arrayLength);
 		return get${sizePrim}sAtOffset(0, arrayLength);
 	}
 #docGetArrayOffset($sizePrim $sizePrim "Pointer#get${sizePrim}s(int)")
@@ -2153,10 +2186,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 #docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long[] values) {
+		if (${sizePrim}.SIZE == 8)
+    		return setLongs(values);
 		return set${sizePrim}sAtOffset(0, values);
 	}
 #docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(int[] values) {
+    	if (${sizePrim}.SIZE == 4)
+    		return setInts(values);
 		return set${sizePrim}sAtOffset(0, values);
 	}
 #docSetArray($sizePrim $sizePrim)
@@ -2168,26 +2205,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		return set${sizePrim}sAtOffset(byteOffset, values, 0, values.length);
 	}
 #docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(long[])")
-    public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length) {
-		if (values == null)
-			throw new IllegalArgumentException("Null values");
-		if (${sizePrim}.SIZE == 8) {
-			setLongsAtOffset(byteOffset, values, valuesOffset, length);
-		} else {
-			int n = length;
-			#declareCheckedPeerAtOffset("byteOffset" "n * 4")
-            
-			long peer = checkedPeer;
-			int valuesIndex = valuesOffset;
-			for (int i = 0; i < n; i++) {
-				int value = (int)values[valuesIndex];
-				#setPrimitiveValue("int" "peer" "value")
-				peer += 4;
-				valuesIndex++;
-			}
-		}
-		return this;
-	}
+    public abstract Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length);
 #docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(${sizePrim}...)")
 	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, ${sizePrim}... values) {
 		if (values == null)
@@ -2198,22 +2216,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return this;
 	}
 #docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(int[])")
-	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, int[] values) {
-		if (${sizePrim}.SIZE == 4) {
-			setIntsAtOffset(byteOffset, values);
-		} else {
-			int n = values.length;
-			#declareCheckedPeerAtOffset("byteOffset" "n * 8")
-            
-			long peer = checkedPeer;
-			for (int i = 0; i < n; i++) {
-				int value = values[i];
-				#setPrimitiveValue("long" "peer" "value")
-				peer += 8;
-			}
-		}
-		return this;
-	}
+	public abstract Pointer<T> set${sizePrim}sAtOffset(long byteOffset, int[] values);
 	
 	#end
 	
