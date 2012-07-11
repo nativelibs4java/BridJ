@@ -4,6 +4,7 @@
  */
 package org.bridj;
 
+import org.bridj.util.ClassDefiner;
 import com.android.dx.dex.cf.CfOptions;
 import com.android.dx.dex.cf.CfTranslator;
 import com.android.dx.dex.file.DexFile;

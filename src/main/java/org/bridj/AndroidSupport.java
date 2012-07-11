@@ -4,6 +4,7 @@
  */
 package org.bridj;
 
+import org.bridj.util.ClassDefiner;
 import android.app.Application;
 import android.content.pm.ApplicationInfo;
 import android.os.Environment;
@@ -108,7 +109,7 @@ public class AndroidSupport extends PlatformSupport {
         if (app != null)
             return app.getPackageName();
         else {
-            URL resource = Platform.getClassLoader().getResource(someKnownResource);
+            URL resource = Platform.getResource(someKnownResource);
             if (resource == null)
                 throw new FileNotFoundException("Resource does not exist : " + someKnownResource);
 

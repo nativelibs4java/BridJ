@@ -59,7 +59,38 @@ public class Platform {
     }
     public static ClassLoader getClassLoader(Class<?> cl) {
     		ClassLoader loader = cl == null ? null : cl.getClassLoader();
+    		if (loader == null)
+    			loader = Thread.currentThread().getContextClassLoader();
     		return loader == null ? systemClassLoader : loader;
+    }
+    public static InputStream getResourceAsStream(String path) {
+    	URL url = getResource(path);
+    	try {
+    		return url != null ? url.openStream() : null;
+    	} catch (IOException ex) {
+    		if (BridJ.verbose)
+    			BridJ.log(Level.WARNING, "Failed to get resource '" + path + "'", ex);
+    		return null;
+    	}
+    }
+    public static URL getResource(String path) {
+    	if (!path.startsWith("/"))
+    		path = "/" + path;
+    	
+    	URL in = BridJ.class.getResource(path);
+    	if (in != null)
+    		return in;
+    	
+    	ClassLoader[] cls = {
+    		BridJ.class.getClassLoader(),
+    		Thread.currentThread().getContextClassLoader(),
+    		systemClassLoader
+    	};
+    	for (ClassLoader cl : cls) { 
+			if (cl != null && (in = cl.getResource(path)) != null)
+				return in;
+		}
+		return null;
     }
     
     /*
@@ -307,7 +338,7 @@ public class Platform {
                     try {
                         File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
                         if (libFile == null) {
-                            throw new FileNotFoundException(BridJLibraryName);
+                            throw new FileNotFoundException("Failed to extract embedded library '" + BridJLibraryName + "' (could be a classloader issue, or missing binary in resource path " + StringUtils.implode(embeddedLibraryResourceRoots, ", ") + ")");
                         }
 
                         BridJ.log(Level.INFO, "Loading library " + libFile);
@@ -506,7 +537,7 @@ public class Platform {
 			String ext = i < 0 ? "" : libraryResource.substring(i);
 			int len;
 			byte[] b = new byte[8196];
-			InputStream in = getClassLoader().getResourceAsStream(libraryResource);
+			InputStream in = getResourceAsStream(libraryResource);
 			if (in == null) {
 				File f = new File(libraryResource);
 				if (!f.exists())
@@ -575,9 +606,8 @@ public class Platform {
                 execArgs("explorer", file.getAbsolutePath());
             } else {
                 execArgs("start", file.getAbsolutePath());
-        }
-        }
-        if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
+            }
+        } else if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
             execArgs("gnome-open", file.toString());
         } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
             execArgs("konqueror", file.toString());

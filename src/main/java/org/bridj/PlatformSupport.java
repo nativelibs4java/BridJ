@@ -4,6 +4,7 @@
  */
 package org.bridj;
 
+import org.bridj.util.ClassDefiner;
 import java.io.IOException;
 
 class PlatformSupport {

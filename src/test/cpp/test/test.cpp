@@ -149,9 +149,23 @@ Ctest::~Ctest()
 	//cout << "Destructor of Ctest is called !\n";
 }
 
+
+Ctest* Ctest::getInstance() {
+	return new Ctest();
+}
+ETest* Ctest::getEnum() {
+	return new ETest[1];
+}
+int* Ctest::getInt() {
+	return new int[1];
+}
 const string& Ctest2::toString() {
 	static string s = "";
 	return s;
+}
+
+Ctest* Ctest2::getCtestInstance() {
+	return new Ctest();
 }
 
 TEST_API size_t __cdecl sizeOfCtest() {
@@ -454,6 +468,10 @@ int testIVirtualAdd(IVirtual* pVirtual, int a, int b) {
 	return pVirtual->add(a, b);
 }
 
+TEST_API const wchar_t* getSomeWString() {
+	return L"1234567890";
+}
+
 #include "../../../../target/generated-test-resources/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32
@@ -476,4 +494,34 @@ TEST_API void __cdecl setLastWindowsError() {
 }
 
 #endif
+
+typedef struct {
+      char part1[100];
+      char part2[100];
+      char part3[100];
+} stuff;
+
+typedef struct {
+      char type[100];
+      char date[100];
+      char time[100];
+      stuff stuff1, stuff2;
+} container;
+
+typedef struct {
+      char text[512];
+      container cont[1];
+} message;
+
+TEST_API size_t sizeOf_message() {
+	return sizeof(message);
+}
+
+TEST_API size_t sizeOf_stuff() {
+	return sizeof(stuff);
+}
+
+TEST_API size_t sizeOf_container() {
+	return sizeof(container);
+}
 

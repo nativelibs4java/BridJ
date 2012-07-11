@@ -446,7 +446,8 @@ public class VC9Demangler extends Demangler {
         
         // TODO fix this :
         //names.add(0, parseFirstQualifiedTypeNameComponent());
-		names.set(0, new Ident((String)names.get(0)));
+        Object first = names.get(0);
+		names.set(0, first instanceof String ? new Ident((String)first) : ((ClassRef)first).getIdent());
         
 		if (names.size() == 1 && (names.get(0) instanceof TypeRef)) {
 			return (TypeRef)names.get(0);

@@ -15,6 +15,7 @@
 
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
+#pragma warning(disable:4055) // cast from data pointer to function pointer
 
 jboolean gLog = JNI_FALSE;
 jboolean gProtected = JNI_FALSE;
@@ -467,19 +468,25 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, j
 void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
 	DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
+	//BEGIN_TRY_CALL(env);
 	dlSymsCleanup(pSyms);
+	//END_TRY_CALL(env);	
 }
 
 jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle)
 {
-    jclass stringClass;
-    jarray ret;
+	// Force protection (override global protection switch)
+	jboolean gProtected = JNI_TRUE;
+	jclass stringClass;
+    jarray ret = NULL;
     DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
 	int count, i;
-	if (!pSyms)
+	//BEGIN_TRY_CALL(env);
+    if (!pSyms)
 		return NULL;
 
 	count = dlSymsCount(pSyms);
+	printf("getLibrarySymbols has %d symbols\n", (int)count);
 	stringClass = (*env)->FindClass(env, "java/lang/String");
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
@@ -488,6 +495,7 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 			continue;
 		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
     }
+	//END_TRY_CALL(env);
     return ret;
 }
 
@@ -1183,7 +1191,7 @@ jlong JNICALL Java_org_bridj_JNI_wcslen(JNIEnv *env, jclass clazz, jlong ptr)
 {
 	jlong r = 0;
 	BEGIN_TRY_CALL(env);
-	r = strlen(JLONG_TO_PTR(ptr));
+	r = wcslen(JLONG_TO_PTR(ptr));
 	END_TRY_CALL(env);
 	return r;
 }

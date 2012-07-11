@@ -1,5 +1,18 @@
-Current version : BridJ 0.7-SNAPSHOT
+Current development version (0.6.2-SNAPSHOT)
 
+- Added parsing of Mach-O compressed symbols tries (LC_DYLD_INFO command) to dyncall (issue #311)
+- Added Pointer.withoutValidityInformation() (yields faster, unsafe pointer)
+- Added BridJ.subclassWithSynchronizedNativeMethods(Class) to create a subclass where all native methods are overridden
+- Fixed handling of classloaders in some use-cases (issue #283)
+- Fixed Platform.open(File) (issue #306)
+- Fixed Pointer.copyTo(dest, elementCount) (issue #317)
+- Fixed alignment of struct array fields (issue #319)
+- Removed ios-package (binaries for iOS/arm) 
+
+BridJ 0.6.1 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc) 
+
+- Release artifacts are available in Maven Central
+- Fixed wchar_t and  WideCString on MacOS X (issue #295)
 - Fixed @Name annotation
 - Fixed deletion of temporary extracted library files with shutdown hook (issue #197)
 - Fixed Unix binaries dependency on GLIBC 2.11 (lowered to version 2.2.5) (issue #195)
@@ -15,17 +28,21 @@ Current version : BridJ 0.7-SNAPSHOT
 - Fixed handling of CLong / SizeT java fields in structs (cf. issue #253)
 - Fixed StructIO.FieldDecl accessibility to allow override of all StructIO.Customizer methods (cf. issue #220)	
 - Fixed regression on libc, created with null path (issue #217)
+- Fixed back-references in Visual C++ demangler (issue #291)
+- Fixed binding of IntValuedEnum<E> types
+- Fixed handling of virtual destructors with GCC-compiled libraries (and virtual table pointer + runtime guess / check of virtual index for virtual methods) (issue #281)
+- Fixed shortcuts in GCC4Demangler (contrib from RŽmi ƒmonet, issue #211)
 - Added support for PointerIO<IntValuedEnum<E>> (issue #261)
 - Added ProcessUtils.getCurrentProcessId()
-- Added support of shortcuts in GCC4Demangler (contrib from RŽmi ƒmonet, issue #211)
 - Allow libname.so and name.so for embedded libraries on Unix (issue #215)
 - Enhanced multi-threaded performance of PointerIO.getInstance (issue #203)
 - Added Pointer.getXxxs(XxxBuffer)
 - Added alias mechanism for annotations : any annotation which class is itself annotated by @Ptr / @CLong can serve as an alias (issue #202)
 - Added native error log when LoadLibrary or dlopen failed
+- Added IntValuedEnum<E> FlagSet.fromValue(int, E...)
 - Enabled all compiler optimizations on all platforms but win32
 - Updated doc of Pointer.getXxxs()
-- Added experimental by-value struct support on amd64 for structs larger than 64 bits
+- Added experimental by-value struct support on amd64 for structs larger than 64 bits (disabled by default, set -Dbridj.structsByValue=true or BRIDJ_STRUCTS_BY_VALUE=1 to enable)
 
 BridJ 0.6 (20111107, commit 4950e5c58f32869ce460dbbc59fe969865dd9288)
 

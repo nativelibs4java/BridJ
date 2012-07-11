@@ -27,6 +27,14 @@ CURR="`pwd`"
 LD=gcc
 COMPILE_PIC=1
 BUILD_DIR=
+
+function fail() {
+	echo "#"
+	echo "# ERROR: $@"
+	echo "#"
+	exit 1
+}
+
 #echo BUILD_DIR = $BUILD_DIR
 #echo BUILD_CONFIG = $BUILD_CONFIG
 #echo LINK_DIRS = $LINK_DIRS
@@ -38,7 +46,7 @@ svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" >
 #svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
 echo "# Configuring dyncall"
-cd "$DYNCALL_HOME" || ( echo "Please set DYNCALL_HOME" && exit 1 )
+cd "$DYNCALL_HOME" || fail "DYNCALL_HOME not set"
 
 TARGET=${TARGET:-default}
 ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5c}
@@ -50,24 +58,21 @@ case $TARGET in
 		
 		if [[ ! -d "$ANDROID_NDK_HOME" ]] 
 		then
-			echo "ANDROID_NDK_HOME not set and $ANDROID_NDK_HOME does not exist" 
-			exit 1
+			fail "ANDROID_NDK_HOME not set and $ANDROID_NDK_HOME does not exist"
 		fi
 		
 		ANDROID_PREBUILT_DIR=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt
 		
 		if [[ ! -d "$ANDROID_PREBUILT_DIR" ]] 
 		then
-			echo "Cannot find $ANDROID_PREBUILT_DIR" 
-			exit 1
+			fail "Cannot find $ANDROID_PREBUILT_DIR"
 		fi
 		
-		echo sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
-		sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
+		sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm || fail "Failed to configure Android/arm build"
 		;;
 	android-emulator)
 		NEEDS_TEST=0
-		sh ./configure --tool-androidndk --target-x86
+		sh ./configure --tool-androidndk --target-x86 || fail "Failed to configure Android/x86 build"
 		;;
 	ios)
 		#export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
@@ -77,17 +82,22 @@ case $TARGET in
 		#export CPPFLAGS
 		NEEDS_TEST=1
 		export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
-		sh ./configure --target-iphoneos --with-iphonesdk=4.3
+		sh ./configure --target-iphoneos --with-iphonesdk=4.3 || fail "Failed to configure iOS build"
 		;;
 	default)
 		NEEDS_TEST=1
 		export PATH=/Developer-old/usr/bin:$PATH
-		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then sh ./configure --target-universal ; 
-		else sh ./configure ; fi
+		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then
+			# Avoid LC_DYLD_INFO (https://discussions.apple.com/thread/3197542?start=0&tstart=0)
+			export MACOSX_DEPLOYMENT_TARGET=10.4
+			sh ./configure --target-universal || fail "Failed to configure MacOS X Universal build"
+		else 
+			sh ./configure || fail "Failed to configure default build"
+		fi
 		;;
 	*)
-		echo "Unknown TARGET : $TARGET
-		Valid targets are android, android-emulator and default" && exit 1
+		fail "Unknown TARGET : $TARGET
+		Valid targets are android, android-emulator and default"
 	;;	
 esac
 
@@ -100,16 +110,16 @@ if [[ -z "$SHAREDLIB_SUFFIX" ]] ; then
 fi
 
 echo "# Making dyncall with '$MAKE_CMD $@'"
-$MAKE_CMD $@ || ( echo "Failed to make dyncall" && exit 1 )
+$MAKE_CMD $@ || fail "Failed to make dyncall"
 
 echo "# Making BridJ"
 cd "$CURR"
-$MAKE_CMD $@ || ( echo "Failed to make BridJ" && exit 1 )
+$MAKE_CMD $@ || fail "Failed to make BridJ"
 
 if [[ "$NEEDS_TEST" == "1" ]] ; then
 	echo "# Making test library"
 	cd "../../../test/cpp/test"
-	$MAKE_CMD $@ || ( echo "Failed to make BridJ's test library" && exit 1 ) ;
+	$MAKE_CMD $@ || fail "Failed to make BridJ's test library" ;
 fi
 
 cd "$CURR"

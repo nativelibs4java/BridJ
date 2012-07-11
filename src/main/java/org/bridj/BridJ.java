@@ -34,6 +34,8 @@ import java.net.URL;
 import org.bridj.util.StringUtils;
 import static org.bridj.Platform.*;
 import static java.lang.System.*;
+import org.bridj.util.ClassDefiner;
+import org.bridj.util.ASMUtils;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 /**
@@ -163,6 +165,19 @@ public class BridJ {
     		throw new RuntimeException("Failed to register class " + name, ex);
     	}
     }
+    
+    /**
+     * Create a subclass of the provided original class with synchronized overrides for all native methods.
+     * Non-default constructors are not currently handled.
+     * @param <T>
+     * @param original
+     * @throws IOException 
+     */
+    public static <T> Class<? extends T> subclassWithSynchronizedNativeMethods(Class<T> original) throws IOException {
+        ClassDefiner classDefiner = getRuntimeByRuntimeClass(CRuntime.class).getCallbackNativeImplementer();
+        return ASMUtils.createSubclassWithSynchronizedNativeMethodsAndNoStaticFields(original, classDefiner);
+    }
+    
     enum CastingType {
         None, CastingNativeObject, CastingNativeObjectReturnType
     }

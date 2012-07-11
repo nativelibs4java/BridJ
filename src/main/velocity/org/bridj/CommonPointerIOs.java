@@ -225,21 +225,26 @@ class CommonPointerIOs {
 	}
 	
 #foreach ($prim in $primitives)
-		
-	public static final PointerIO<${prim.WrapperName}> ${prim.Name}IO = new PointerIO<${prim.WrapperName}>(${prim.WrapperName}.class, ${prim.Size}, null) {
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
+
+	public static final PointerIO<${prim.WrapperName}> ${prim.Name}IO = new PointerIO<${prim.WrapperName}>(${prim.WrapperName}.class, ${primSize}, null) {
 		@Override
 		public ${prim.WrapperName} get(Pointer<${prim.WrapperName}> pointer, long index) {
-			return pointer.get${prim.CapName}AtOffset(index * ${prim.Size});
+			return pointer.get${prim.CapName}AtOffset(index * ${primSize});
 		}
 
 		@Override
 		public void set(Pointer<${prim.WrapperName}> pointer, long index, ${prim.WrapperName} value) {
-			pointer.set${prim.CapName}AtOffset(index * ${prim.Size}, value);
+			pointer.set${prim.CapName}AtOffset(index * ${primSize}, value);
 		}
 		
 		@Override
 		public <B extends Buffer> B getBuffer(Pointer<${prim.WrapperName}> pointer, long byteOffset, int length) {
+			#if ($prim.Name == "char")
+			throw new UnsupportedOperationException("Creating direct char buffers in a cross-platform way is tricky, so it's currently disabled");
+			#else
 			return (B)pointer.get${prim.BufferName}AtOffset(byteOffset, length);
+			#end
 		}
 		
 		@Override

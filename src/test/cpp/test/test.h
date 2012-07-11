@@ -32,6 +32,9 @@ public:
 	int __stdcall testAddStdCall(void* ptr, int a, int b);
 	
 	static void static_void();
+	static Ctest* getInstance();
+	static ETest* getEnum();
+	static int* getInt();
 };
 
 TEST_API int testIndirectVirtualAdd(Ctest* pTest, int a, int b);
@@ -48,6 +51,7 @@ public:
 	virtual int testVirtualAdd(int a, int b);
 	int testAdd(int a, int b);
 	const std::string& toString();
+	static Ctest* getCtestInstance();
 };
 
 template <int n, typename T>
