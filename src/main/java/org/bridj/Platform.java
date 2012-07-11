@@ -445,7 +445,7 @@ public class Platform {
                     path = root + "armeabi/"; // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
                 } 
                 else if (isLinux())
-                    path = root + (is64Bits() ? "linux_x64/" : "linux_x86/");
+                    path = root + (isArm() ? "linux_arm32_arm/" : is64Bits() ? "linux_x64/" : "linux_x86/");
                 else if (isSolaris()) {
                     if (isSparc()) {	
                         path = root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/");
