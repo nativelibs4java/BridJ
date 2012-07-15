@@ -340,10 +340,10 @@ public class NativeLibrary {
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
 		if (BridJ.debug) {
-			System.out.println("Found " + nameToSym.size() + " symbols in '" + path + "' :");
+			BridJ.log(Level.INFO, "Found " + nameToSym.size() + " symbols in '" + path + "' :");
 			
 			for (Symbol sym : nameToSym.values())
-				System.out.println("DEBUG(BridJ): library=\"" + path + "\", symbol=\"" + sym.getSymbol() + "\", address=" + Long.toHexString(sym.getAddress()) + ", demangled=\"" + sym.getParsedRef() + "\""); 
+				BridJ.log(Level.INFO, "DEBUG(BridJ): library=\"" + path + "\", symbol=\"" + sym.getSymbol() + "\", address=" + Long.toHexString(sym.getAddress()) + ", demangled=\"" + sym.getParsedRef() + "\""); 
 			
 			//for (Symbol sym : nameToSym.values())
 			//	System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());

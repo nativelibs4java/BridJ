@@ -10,6 +10,7 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.NoSuchElementException;
 import org.bridj.ann.Convention;
 import org.bridj.ann.DisableDirect;
@@ -132,7 +133,7 @@ public class MethodCallInfo {
         	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
 		if (BridJ.veryVerbose)
-			System.out.println("Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
+			BridJ.log(Level.INFO, "Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
         
         if (isObjCBlock)
             appendToSignature(0, ValueType.ePointerValue, Pointer.class, Pointer.class, null, dcSig, null);
@@ -144,7 +145,7 @@ public class MethodCallInfo {
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
             if (BridJ.veryVerbose)
-				System.out.println("\tparam " + paramValueType);
+				BridJ.log(Level.INFO, "\tparam " + paramValueType);
         	paramsValueTypes[iParam] = paramValueType.ordinal();
 
             appendToSignature(iParam, paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
@@ -155,7 +156,7 @@ public class MethodCallInfo {
 
         ValueType retType = getValueType(-1, nParams, returnType, genericReturnType, annotatedElement, returnAnnotations);
         if (BridJ.veryVerbose)
-			System.out.println("\treturns " + retType);
+			BridJ.log(Level.INFO, "\treturns " + retType);
 		appendToSignature(-1, retType, returnType, genericReturnType, javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
 
@@ -182,11 +183,11 @@ public class MethodCallInfo {
             this.direct = false;
 
         if (BridJ.veryVerbose) {
-			System.out.println("\t-> direct " + direct);
-			System.out.println("\t-> javaSignature " + javaSignature);
-			System.out.println("\t-> callIOs " + callIOs);
-			System.out.println("\t-> asmSignature " + asmSignature);
-			System.out.println("\t-> dcSignature " + dcSignature);
+			BridJ.log(Level.INFO, "\t-> direct " + direct);
+			BridJ.log(Level.INFO, "\t-> javaSignature " + javaSignature);
+			BridJ.log(Level.INFO, "\t-> callIOs " + callIOs);
+			BridJ.log(Level.INFO, "\t-> asmSignature " + asmSignature);
+			BridJ.log(Level.INFO, "\t-> dcSignature " + dcSignature);
 		}
 		
         assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
@@ -218,7 +219,7 @@ public class MethodCallInfo {
 			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 		}
 		if (BridJ.veryVerbose)
-			System.out.println("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
+			BridJ.log(Level.INFO, "Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
 		
 	}
 	void addCallIO(CallIO handler) {
@@ -317,7 +318,7 @@ public class MethodCallInfo {
             direct = false;
             CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
             if (BridJ.veryVerbose)
-            		System.out.println("CallIO : " + cio);
+            	BridJ.log(Level.INFO, "CallIO : " + cio);
             addCallIO(cio);
         		return ValueType.ePointerValue;
         }
@@ -329,7 +330,7 @@ public class MethodCallInfo {
         	direct = false;
             CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
             if (BridJ.veryVerbose)
-                System.out.println("CallIO : " + cio);
+                BridJ.log(Level.INFO, "CallIO : " + cio);
             addCallIO(cio);
         	
         	return ValueType.eIntFlagSet;
@@ -552,7 +553,7 @@ public class MethodCallInfo {
 		this.virtualIndex = virtualIndex;
         
         if (BridJ.veryVerbose) {
-            System.out.println("\t-> virtualIndex " + virtualIndex);
+            BridJ.log(Level.INFO, "\t-> virtualIndex " + virtualIndex);
         }
 	}
 

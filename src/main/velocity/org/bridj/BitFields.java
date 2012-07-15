@@ -341,11 +341,6 @@ class BitFields {
 		return handler;
 	}
 
-	static void print(BigInteger bi) {
-		for (int i = 0, len = bi.bitLength(); i < len; i++)
-			System.out.print(bi.testBit(i) ? '1' : '0');
-		System.out.println();
-	}
 	private static BigInteger shiftedMask(int bits, int bitOffset) {
 		BigInteger mask = BigInteger.valueOf(bits == 0 ? 0 : 1L);
 		if (bits != 0)
