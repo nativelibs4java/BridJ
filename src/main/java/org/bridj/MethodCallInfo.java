@@ -1,6 +1,5 @@
 package org.bridj;
 import java.lang.annotation.Annotation;
-import java.util.logging.Level;
 import static org.bridj.NativeConstants.*;
 import static org.bridj.dyncall.DyncallLibrary.*;
 import org.bridj.ann.Constructor;
@@ -10,7 +9,6 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.NoSuchElementException;
 import org.bridj.ann.Convention;
 import org.bridj.ann.DisableDirect;

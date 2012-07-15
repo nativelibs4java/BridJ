@@ -3,7 +3,6 @@ package org.bridj;
 import org.bridj.util.ProcessUtils;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.io.*;
 import java.net.URL;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.logging.Level;
 import org.bridj.util.StringUtils;
 
 /**

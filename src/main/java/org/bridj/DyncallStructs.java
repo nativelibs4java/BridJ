@@ -2,7 +2,6 @@ package org.bridj;
 
 
 import org.bridj.StructIO.FieldDecl;
-import java.util.logging.Level;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.bridj.StructIO.AggregatedFieldDesc;

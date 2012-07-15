@@ -9,7 +9,6 @@ import static org.bridj.Platform.*;
 import static org.bridj.objc.ObjectiveCRuntime.*;
 import java.util.*;
 import org.bridj.util.Pair;
-import java.util.logging.Level;
 import org.bridj.util.Utils;
 
 public class ObjCProxy extends ObjCObject {

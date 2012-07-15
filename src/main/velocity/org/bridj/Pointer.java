@@ -10,7 +10,6 @@ import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import static org.bridj.SizeT.safeIntCast;
-import java.util.logging.Level;
 
 /**
  * Pointer to a native memory location.<br>

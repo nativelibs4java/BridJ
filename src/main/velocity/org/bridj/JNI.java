@@ -9,8 +9,6 @@ import static org.bridj.dyncall.DyncallLibrary.*;
 import static org.bridj.Pointer.*;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.bridj.Platform.*;
 import org.bridj.objc.*;
 
