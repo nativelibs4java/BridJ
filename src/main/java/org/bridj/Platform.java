@@ -69,7 +69,7 @@ public class Platform {
     		return url != null ? url.openStream() : null;
     	} catch (IOException ex) {
     		if (BridJ.verbose)
-    			BridJ.log(Level.WARNING, "Failed to get resource '" + path + "'", ex);
+    			BridJ.warning("Failed to get resource '" + path + "'", ex);
     		return null;
     	}
     }
@@ -207,7 +207,7 @@ public class Platform {
                 try {
                     lib.release();
                 } catch (Throwable th) {
-                    BridJ.log(Level.SEVERE, "Failed to release library '" + lib.path + "' : " + th, th);
+                    BridJ.error("Failed to release library '" + lib.path + "' : " + th, th);
                 }
             }
         }
@@ -219,18 +219,18 @@ public class Platform {
             for (File tempFile : Platform.temporaryExtractedLibraryCanonicalFiles) {
                 if (tempFile.delete()) {
                     if (BridJ.verbose)
-                        BridJ.log(Level.INFO, "Deleted temporary library file '" + tempFile + "'");
+                        BridJ.info("Deleted temporary library file '" + tempFile + "'");
                 } else
                     filesToDeleteAfterExit.add(tempFile);
             }
             if (!filesToDeleteAfterExit.isEmpty()) {
                 if (BridJ.verbose)
-                    BridJ.log(Level.INFO, "Attempting to delete " + filesToDeleteAfterExit.size() + " files after JVM exit : " + StringUtils.implode(filesToDeleteAfterExit, ", "));
+                    BridJ.info("Attempting to delete " + filesToDeleteAfterExit.size() + " files after JVM exit : " + StringUtils.implode(filesToDeleteAfterExit, ", "));
                 
                 try {
                     ProcessUtils.startJavaProcess(DeleteFiles.class, filesToDeleteAfterExit);
                 } catch (Throwable ex) {
-                    BridJ.log(Level.SEVERE, "Failed to launch process to delete files after JVM exit : " + ex, ex);
+                    BridJ.error("Failed to launch process to delete files after JVM exit : " + ex, ex);
                 }
             }
         }
@@ -329,7 +329,7 @@ public class Platform {
                     System.load(lib = forceLibFile);
                     loaded = true;
                 } catch (Throwable ex) {
-                    BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
+                    BridJ.error("Failed to load forced library " + forceLibFile, ex);
                 }
             }
 
@@ -341,26 +341,26 @@ public class Platform {
                             throw new FileNotFoundException("Failed to extract embedded library '" + BridJLibraryName + "' (could be a classloader issue, or missing binary in resource path " + StringUtils.implode(embeddedLibraryResourceRoots, ", ") + ")");
                         }
 
-                        BridJ.log(Level.INFO, "Loading library " + libFile);
+                        BridJ.info("Loading library " + libFile);
                         System.load(lib = libFile.toString());
                         BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
                         loaded = true;
                     } catch (IOException ex) {
-                        BridJ.log(Level.SEVERE, "Failed to load '" + BridJLibraryName + "'", ex);
+                        BridJ.error("Failed to load '" + BridJLibraryName + "'", ex);
                     }
                 }
                 if (!loaded) {
                     System.loadLibrary("bridj");
                 }
             }
-            BridJ.log(Level.INFO, "Loaded library " + lib);
+            BridJ.info("Loaded library " + lib);
 
             init();
 
             //if (BridJ.protectedMode)
-            //		BridJ.log(Level.INFO, "Protected mode enabled");
+            //		BridJ.info("Protected mode enabled");
             if (BridJ.logCalls) {
-                BridJ.log(Level.INFO, "Calls logs enabled");
+                BridJ.info("Calls logs enabled");
             }
 
         } catch (Throwable ex) {
@@ -494,7 +494,7 @@ public class Platform {
 			throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
 		
 		if (BridJ.verbose)
-			BridJ.log(Level.INFO, "Embedded paths for library " + name + " : " + ret);
+			BridJ.info("Embedded paths for library " + name + " : " + ret);
 		return ret;
     }
     
@@ -516,13 +516,13 @@ public class Platform {
                         continue;
 
                     if (file.delete() && BridJ.verbose)
-                        BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
+                        BridJ.info("Deleted old binary file '" + file + "'");
                 }
             } catch (SecurityException ex) {
                 // no right to delete files in that directory
-                BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in directory '" + dir + "'", ex);
+                BridJ.warning("Failed to delete files matching '" + fileNamePattern + "' in directory '" + dir + "'", ex);
             } catch (Throwable ex) {
-                BridJ.log(Level.SEVERE, "Unexpected error : " + ex, ex);
+                BridJ.error("Unexpected error : " + ex, ex);
             }
         }}).start();
     }

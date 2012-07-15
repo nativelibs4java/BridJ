@@ -53,7 +53,7 @@ public class ObjCProxy extends ObjCObject {
 				if (sig != null)
 					signatures.put(sel, sig);
 			} catch (Throwable th) {
-				BridJ.log(Level.SEVERE, "Failed to compute Objective-C signature for selector " + sel + ": " + th, th);
+				BridJ.error("Failed to compute Objective-C signature for selector " + sel + ": " + th, th);
 			}
 		}
 		return sig;
@@ -67,7 +67,7 @@ public class ObjCProxy extends ObjCObject {
 			if (msel.equals(name)) {
 				String sig = rt.getMethodSignature(method);
 				if (BridJ.debug)
-					BridJ.log(Level.INFO, "Objective-C signature for method " + method + " = '" + sig + "'");
+					BridJ.info("Objective-C signature for method " + method + " = '" + sig + "'");
 				NSMethodSignature ms = NSMethodSignature.signatureWithObjCTypes(pointerToCString(sig)).get();
                 long nArgs = ms.numberOfArguments() - 2;
                 if (nArgs != method.getParameterTypes().length)
@@ -76,7 +76,7 @@ public class ObjCProxy extends ObjCObject {
 			}
 		}
 		//if (BridJ.debug)
-        BridJ.log(Level.SEVERE, "Missing method for " + sel + " in class " + classHierarchyToString(getInvocationTarget().getClass()));
+        BridJ.error("Missing method for " + sel + " in class " + classHierarchyToString(getInvocationTarget().getClass()));
 				
 		return null;
 	}

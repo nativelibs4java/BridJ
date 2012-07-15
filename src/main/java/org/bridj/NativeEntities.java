@@ -127,7 +127,7 @@ public class NativeEntities {
 			getters.put(type, new CBInfo(JNI.bindGetters(builder.getters.toArray(new MethodCallInfo[n])), n));
 		*/
         } catch (Throwable th) {
-            assert BridJ.log(Level.SEVERE, "Failed to add native definitions for class " + type.getName(), th);
+            assert BridJ.error("Failed to add native definitions for class " + type.getName(), th);
         }
 	}
 }

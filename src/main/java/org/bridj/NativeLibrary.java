@@ -88,17 +88,17 @@ public class NativeLibrary {
 					if (m.find()) {
 						String actualPath = m.group(1);
 						if (BridJ.verbose)
-                            BridJ.log(Level.INFO, "Parsed LD script '" + path + "', found absolute reference to '" + actualPath + "'");
+                            BridJ.info("Parsed LD script '" + path + "', found absolute reference to '" + actualPath + "'");
 						return actualPath;
 					} else {
-						BridJ.log(Level.SEVERE, "Failed to parse LD script '" + path + "' !");
+						BridJ.error("Failed to parse LD script '" + path + "' !");
 					}
 				}
 			} finally {
 				r.close();
 			}
 		} catch (Throwable th) {
-			BridJ.log(Level.SEVERE, "Unexpected error: " + th, th);
+			BridJ.error("Unexpected error: " + th, th);
 		}
 		return path;
 	}
@@ -132,7 +132,7 @@ public class NativeLibrary {
 			return;
 		
 		if (BridJ.verbose)
-			BridJ.log(Level.INFO, "Releasing library '" + path + "'");
+			BridJ.info("Releasing library '" + path + "'");
 		
 		nativeEntities.release();
 		
@@ -143,9 +143,9 @@ public class NativeLibrary {
         if (canonicalFile != null && Platform.temporaryExtractedLibraryCanonicalFiles.remove(canonicalFile)) {
             if (canonicalFile.delete()) {
                 if (BridJ.verbose)
-                    BridJ.log(Level.INFO, "Deleted temporary library file '" + canonicalFile + "'");
+                    BridJ.info("Deleted temporary library file '" + canonicalFile + "'");
             } else
-                BridJ.log(Level.SEVERE, "Failed to delete temporary library file '" + canonicalFile + "'");
+                BridJ.error("Failed to delete temporary library file '" + canonicalFile + "'");
         }
             
 	}
@@ -216,7 +216,7 @@ public class NativeLibrary {
         try {
             scanSymbols();
         } catch (Exception ex) {
-            assert BridJ.log(Level.SEVERE, "Failed to scan symbols of library '" + path + "'", ex);
+            assert BridJ.error("Failed to scan symbols of library '" + path + "'", ex);
         }
 		return nameToSym == null ? Collections.EMPTY_LIST : Collections.unmodifiableCollection(nameToSym.values());
 	}
@@ -325,7 +325,7 @@ public class NativeLibrary {
 			}
 			if (addr == 0) {
 				if (BridJ.verbose)
-					BridJ.log(Level.WARNING, "Symbol '" + name + "' not found.");
+					BridJ.warning("Symbol '" + name + "' not found.");
 				continue;
 			}
 			//if (is32)
@@ -340,10 +340,10 @@ public class NativeLibrary {
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
 		if (BridJ.debug) {
-			BridJ.log(Level.INFO, "Found " + nameToSym.size() + " symbols in '" + path + "' :");
+			BridJ.info("Found " + nameToSym.size() + " symbols in '" + path + "' :");
 			
 			for (Symbol sym : nameToSym.values())
-				BridJ.log(Level.INFO, "DEBUG(BridJ): library=\"" + path + "\", symbol=\"" + sym.getSymbol() + "\", address=" + Long.toHexString(sym.getAddress()) + ", demangled=\"" + sym.getParsedRef() + "\""); 
+				BridJ.info("DEBUG(BridJ): library=\"" + path + "\", symbol=\"" + sym.getSymbol() + "\", address=" + Long.toHexString(sym.getAddress()) + ", demangled=\"" + sym.getParsedRef() + "\""); 
 			
 			//for (Symbol sym : nameToSym.values())
 			//	System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());

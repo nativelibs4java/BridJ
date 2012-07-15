@@ -532,7 +532,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			//@Override
 			public void release(Pointer<?> p) {
                 if (BridJ.debugPointers)
-                	BridJ.log(Level.INFO, "Freeing callback pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
+                	BridJ.info("Freeing callback pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
 		
 				if (BridJ.debugNeverFree)
 					return;

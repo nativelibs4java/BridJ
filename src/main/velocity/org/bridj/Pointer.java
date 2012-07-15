@@ -1605,7 +1605,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			assert p.validStart == p.getPeer();
 			
 		if (BridJ.debugPointers)
-			BridJ.log(Level.INFO, "Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
+			BridJ.info("Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
 		
 			if (!BridJ.debugNeverFree)
 				JNI.free(p.getPeer());

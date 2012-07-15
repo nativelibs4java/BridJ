@@ -31,7 +31,7 @@ public class LastError extends NativeError {
     		this.code = code;
             this.description = description;
             if (BridJ.verbose)
-                BridJ.log(Level.INFO, "Last error detected : " + getMessage());
+                BridJ.info("Last error detected : " + getMessage());
     }
 
     /**

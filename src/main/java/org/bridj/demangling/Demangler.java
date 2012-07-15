@@ -329,7 +329,7 @@ public abstract class Demangler {
                     if (BridJ.debug)
 						ex.printStackTrace();
 					if (BridJ.verbose)
-                        BridJ.log(Level.WARNING, "Symbol parsing failed : " + ex.getMessage());
+                        BridJ.warning("Symbol parsing failed : " + ex.getMessage());
 				}
 				refParsed = true;
 			}

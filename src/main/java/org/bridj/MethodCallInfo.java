@@ -133,7 +133,7 @@ public class MethodCallInfo {
         	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
 		if (BridJ.veryVerbose)
-			BridJ.log(Level.INFO, "Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
+			BridJ.info("Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
         
         if (isObjCBlock)
             appendToSignature(0, ValueType.ePointerValue, Pointer.class, Pointer.class, null, dcSig, null);
@@ -145,7 +145,7 @@ public class MethodCallInfo {
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
             if (BridJ.veryVerbose)
-				BridJ.log(Level.INFO, "\tparam " + paramValueType);
+				BridJ.info("\tparam " + paramValueType);
         	paramsValueTypes[iParam] = paramValueType.ordinal();
 
             appendToSignature(iParam, paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
@@ -156,7 +156,7 @@ public class MethodCallInfo {
 
         ValueType retType = getValueType(-1, nParams, returnType, genericReturnType, annotatedElement, returnAnnotations);
         if (BridJ.veryVerbose)
-			BridJ.log(Level.INFO, "\treturns " + retType);
+			BridJ.info("\treturns " + retType);
 		appendToSignature(-1, retType, returnType, genericReturnType, javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
 
@@ -183,14 +183,14 @@ public class MethodCallInfo {
             this.direct = false;
 
         if (BridJ.veryVerbose) {
-			BridJ.log(Level.INFO, "\t-> direct " + direct);
-			BridJ.log(Level.INFO, "\t-> javaSignature " + javaSignature);
-			BridJ.log(Level.INFO, "\t-> callIOs " + callIOs);
-			BridJ.log(Level.INFO, "\t-> asmSignature " + asmSignature);
-			BridJ.log(Level.INFO, "\t-> dcSignature " + dcSignature);
+			BridJ.info("\t-> direct " + direct);
+			BridJ.info("\t-> javaSignature " + javaSignature);
+			BridJ.info("\t-> callIOs " + callIOs);
+			BridJ.info("\t-> asmSignature " + asmSignature);
+			BridJ.info("\t-> dcSignature " + dcSignature);
 		}
 		
-        assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
+        assert BridJ.info((direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
     	
 	boolean hasCC;
@@ -219,7 +219,7 @@ public class MethodCallInfo {
 			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 		}
 		if (BridJ.veryVerbose)
-			BridJ.log(Level.INFO, "Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
+			BridJ.info("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
 		
 	}
 	void addCallIO(CallIO handler) {
@@ -318,7 +318,7 @@ public class MethodCallInfo {
             direct = false;
             CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
             if (BridJ.veryVerbose)
-            	BridJ.log(Level.INFO, "CallIO : " + cio);
+            	BridJ.info("CallIO : " + cio);
             addCallIO(cio);
         		return ValueType.ePointerValue;
         }
@@ -330,7 +330,7 @@ public class MethodCallInfo {
         	direct = false;
             CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
             if (BridJ.veryVerbose)
-                BridJ.log(Level.INFO, "CallIO : " + cio);
+                BridJ.info("CallIO : " + cio);
             addCallIO(cio);
         	
         	return ValueType.eIntFlagSet;
@@ -342,7 +342,7 @@ public class MethodCallInfo {
                 try {
                     pStruct = DyncallStructs.buildDCstruct(io);
                 } catch (Throwable th) {
-                    BridJ.log(Level.SEVERE, "Unable to create low-level struct metadata for " + Utils.toString(t) + " : won't be able to use it as a by-value function argument.", th);
+                    BridJ.error("Unable to create low-level struct metadata for " + Utils.toString(t) + " : won't be able to use it as a by-value function argument.", th);
                 }
             }
         	addCallIO(new CallIO.NativeObjectHandler((Class<? extends NativeObject>)c, t, pStruct));
@@ -356,7 +356,7 @@ public class MethodCallInfo {
     		/*
         if (direct && Platform.isMacOSX()) {
             direct = false;
-            assert BridJ.log(Level.WARNING, "[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
+            assert BridJ.warning("[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
         }
         */
     }
@@ -553,7 +553,7 @@ public class MethodCallInfo {
 		this.virtualIndex = virtualIndex;
         
         if (BridJ.veryVerbose) {
-            BridJ.log(Level.INFO, "\t-> virtualIndex " + virtualIndex);
+            BridJ.info("\t-> virtualIndex " + virtualIndex);
         }
 	}
 

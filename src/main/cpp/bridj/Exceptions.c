@@ -67,7 +67,7 @@ jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode)
 	} else {
 #define MESSAGE_BUF_SIZE 2048
 		char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
-		sprintf(lpMsgBuf, "Last Error Code = %d", errorCode);
+		//sprintf(lpMsgBuf, "Last Error Code = %d", errorCode);
 		message = (*env)->NewStringUTF(env, lpMsgBuf);
 	}
 	return message;

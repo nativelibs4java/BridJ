@@ -221,7 +221,7 @@ public class BridJ {
         		TypeInfo<O> typeInfo = getTypeInfo(type);
         		O instance = typeInfo.cast(pointer);
                 if (BridJ.debug)
-                    BridJ.log(Level.INFO, "Created native object from pointer " + pointer);
+                    BridJ.info("Created native object from pointer " + pointer);
 			return instance;
 		} catch (Exception ex) {
             throw new RuntimeException("Failed to cast pointer to native object of type " + Utils.getClass(type).getName(), ex);
@@ -451,16 +451,25 @@ public class BridJ {
     			logger = Logger.getLogger(BridJ.class.getName());
     		return logger;
     }
-	public static boolean log(Level level, String message, Throwable ex) {
+    public static void info(String message) {
+    	return log(Level.INFO, message, null);
+    }
+    public static void debug(String message) {
+    	if (!debug)
+    		return;
+    	return log(Level.INFO, message, null);
+    }
+    public static void error(String message, Throwable ex) {
+    	return log(Level.SEVERE, message, ex);
+    }
+    public static void warning(String message) {
+    	return log(Level.WARNING, message, null);
+    }
+	private static boolean log(Level level, String message, Throwable ex) {
         if (!shouldLog(level))
             return true;
 		getLogger().log(level, message, ex);
         return true;
-	}
-
-	public static boolean log(Level level, String message) {
-		log(level, message, null);
-		return true;
 	}
 	
 	static void logCall(Method m) {
@@ -541,13 +550,13 @@ public class BridJ {
     private static void addPathsFromEnv(List<String> out, String name) {
         String env = getenv(name);
         if (BridJ.verbose)
-            BridJ.log(Level.INFO, "Environment var " + name + " = " + env);
+            BridJ.info("Environment var " + name + " = " + env);
         addPaths(out, env);
     }
     private static void addPathsFromProperty(List<String> out, String name) {
         String env = getProperty(name);
         if (BridJ.verbose)
-            BridJ.log(Level.INFO, "Property " + name + " = " + env);
+            BridJ.info("Property " + name + " = " + env);
         addPaths(out, env);
     }
     private static void addPaths(List<String> out, String env) {

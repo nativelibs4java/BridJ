@@ -48,7 +48,7 @@ class AndroidClassDefiner implements ClassDefiner {
             StringWriter out = BridJ.debug ? new StringWriter() : null;
             byte[] dexData = dxFile.toDex(out, false);
             if (BridJ.debug)
-                BridJ.log(Level.INFO, "Dex output for class " + className + " : " + out);
+                BridJ.info("Dex output for class " + className + " : " + out);
             return dexData;
         } catch (IOException ex) {
             throw new ClassFormatError("Unable to convert class data to Dalvik code using Dex : " + ex);
