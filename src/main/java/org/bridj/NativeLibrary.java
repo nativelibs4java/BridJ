@@ -102,7 +102,12 @@ public class NativeLibrary {
 	}
 	public static NativeLibrary load(String path) throws IOException {
 		long handle = 0;
-		if (Platform.isUnix() && new File(path).exists())
+		File file = new File(path);
+		boolean exists = file.exists();
+		if (file.isAbsolute() && !exists)
+			return null;
+		
+		if (Platform.isUnix() && exists)
 			path = followGNULDScript(path);
 		
 		handle = JNI.loadLibrary(path);
