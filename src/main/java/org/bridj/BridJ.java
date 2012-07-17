@@ -344,6 +344,9 @@ public class BridJ {
         Verbose("bridj.verbose", "BRIDJ_VERBOSE", false,
             "Verbose mode"
         ),
+        Quiet("bridj.quiet", "BRIDJ_QUIET", false,
+            "Quiet mode"
+        ),
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
             "Log each native call performed (or call from native to Java callback)"
         ),
@@ -432,6 +435,7 @@ public class BridJ {
     public static final boolean debugPointers = Switch.DebugPointers.enabled;
     public static final boolean veryVerbose = Switch.VeryVerbose.enabled;
 	public static final boolean verbose = debug || veryVerbose || Switch.Verbose.enabled;
+    public static final boolean quiet = Switch.Quiet.enabled;
     
     public static final boolean logCalls = Switch.LogCalls.enabled;
     public static final boolean protectedMode = Switch.Protected.enabled;
@@ -442,7 +446,7 @@ public class BridJ {
     		minLogLevelValue = level.intValue();
     }
 	static boolean shouldLog(Level level) {
-        return verbose || level.intValue() >= minLogLevelValue;
+        return !quiet && (verbose || level.intValue() >= minLogLevelValue);
     }
     
     static Logger logger;
