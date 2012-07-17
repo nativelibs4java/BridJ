@@ -339,7 +339,8 @@ public class Platform {
                             throw new FileNotFoundException("Failed to extract embedded library '" + BridJLibraryName + "' (could be a classloader issue, or missing binary in resource path " + StringUtils.implode(embeddedLibraryResourceRoots, ", ") + ")");
                         }
 
-                        BridJ.info("Loading library " + libFile);
+                        if (BridJ.veryVerbose)
+                        	BridJ.info("Loading library " + libFile);
                         System.load(lib = libFile.toString());
                         BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
                         loaded = true;
@@ -351,7 +352,8 @@ public class Platform {
                     System.loadLibrary("bridj");
                 }
             }
-            BridJ.info("Loaded library " + lib);
+            if (BridJ.veryVerbose)
+				BridJ.info("Loaded library " + lib);
 
             init();
 
@@ -491,7 +493,7 @@ public class Platform {
 		if (ret.isEmpty())
 			throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
 		
-		if (BridJ.verbose)
+		if (BridJ.veryVerbose)
 			BridJ.info("Embedded paths for library " + name + " : " + ret);
 		return ret;
     }

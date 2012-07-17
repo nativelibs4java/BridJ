@@ -130,7 +130,7 @@ public class MethodCallInfo {
         if (prependJNIPointers)//!isCPlusPlus)
         	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
-		if (BridJ.veryVerbose)
+		if (BridJ.debug)
 			BridJ.info("Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
         
         if (isObjCBlock)
@@ -188,7 +188,8 @@ public class MethodCallInfo {
 			BridJ.info("\t-> dcSignature " + dcSignature);
 		}
 		
-        assert BridJ.info((direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
+        if (BridJ.veryVerbose)
+        	BridJ.info((direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
     	
 	boolean hasCC;

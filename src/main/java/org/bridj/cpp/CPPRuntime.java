@@ -268,10 +268,12 @@ public class CPPRuntime extends CRuntime {
             }
             if (Modifier.isStatic(modifiers)) {
                 builder.addFunction(mci);
-                assert info("Registering " + method + " as function or static C++ method " + symbol.getName());
+                if (debug)
+                	info("Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
                 builder.addFunction(mci);
-                info("Registering " + method + " as C++ method " + symbol.getName());
+                if (debug)
+                	info("Registering " + method + " as C++ method " + symbol.getName());
             }
         } else {
             if (Modifier.isStatic(modifiers)) {
@@ -307,7 +309,8 @@ public class CPPRuntime extends CRuntime {
                 }
             }
             mci.setVirtualIndex(absoluteVirtualIndex);
-            info("Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
+            if (debug)
+				info("Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
             builder.addVirtualMethod(mci);
         }
     }
@@ -396,12 +399,14 @@ public class CPPRuntime extends CRuntime {
 			String virtualMethodName = pMethod == null ? null : library.getSymbolName(pMethod.getPeer());
 			//System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
 			if (virtualMethodName == null) {
-                info("\tVtable(" + className + ")[" + iVirtual + "] = null");
+                if (debug)
+                	info("\tVtable(" + className + ")[" + iVirtual + "] = null");
                 return -1;
             }
             try {
                 MemberRef mr = library.parseSymbol(virtualMethodName);
-                info("\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
+                if (debug)
+                	info("\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
                 if (mr != null && mr.matchesSignature(method))
                     return iVirtual;
                 else if (library.isMSVC() && !mr.matchesEnclosingType(method))
@@ -533,20 +538,24 @@ public class CPPRuntime extends CRuntime {
                 try {
                 		constr = findConstructor(typeClass, constructorId, true);
                 		
-                		BridJ.info("Found constructor for " + Utils.toString(type) + " : " + constr);
+                		if (debug)
+                			BridJ.info("Found constructor for " + Utils.toString(type) + " : " + constr);
                 } catch (NoSuchMethodException ex) {
-                		BridJ.info("No constructor for " + Utils.toString(type));
+                		if (debug)
+                			BridJ.info("No constructor for " + Utils.toString(type));
                 		return null;
                 }
                 Symbol symbol = lib == null ? null : lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
                     return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
                 }});
                 if (symbol == null) {
+                	if (debug)
                 		BridJ.info("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
-                		return null;
+					return null;
                 }
 
-                info("Registering constructor " + constr + " as " + symbol.getName());
+                if (debug)
+                	info("Registering constructor " + constr + " as " + symbol.getName());
 
                 // TODO do something with these args !
                 int templateParametersCount = getTemplateParametersCount(typeClass);
@@ -574,7 +583,7 @@ public class CPPRuntime extends CRuntime {
             Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
                 return symbol.matchesDestructor(typeClass);
             }});
-            if (symbol != null)
+            if (BridJ.debug && symbol != null)
                 info("Registering destructor of " + Utils.toString(type) + " as " + symbol.getName());
 
             if (symbol != null)
@@ -617,7 +626,8 @@ public class CPPRuntime extends CRuntime {
             final Class<T> typeClass = Utils.getClass(type);
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
 
-            info("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
+            if (BridJ.debug)
+				info("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
             Pointer.Releaser releaser = newCPPReleaser(type, typeClass, lib);
 
             long size = sizeOf(type, null);
@@ -713,7 +723,8 @@ public class CPPRuntime extends CRuntime {
 					return symbol.matchesVirtualTable(typeClass);
 				}});
 				if (symbol != null) {
-					info("Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
+					if (BridJ.debug)
+						info("Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
 //                    Pointer<Pointer> pp = pointerToAddress(symbol.getAddress(), Pointer.class);
 //                    
 //                    for (int i = 0; i < 6; i++) {

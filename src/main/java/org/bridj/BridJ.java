@@ -761,7 +761,8 @@ public class BridJ {
 
         //out.println("Possible names = " + possibleNames);
         List<String> paths = getNativeLibraryPaths();
-        info("Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
+        if (debug)
+        	info("Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
 
         for (String name : possibleNames) {
             String env = getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
@@ -858,7 +859,8 @@ public class BridJ {
             		!logCalls &&
                     !protectedMode
 			;
-            info("directModeEnabled = " + directModeEnabled + " (" + getProperty("bridj.direct") + ")");
+            if (veryVerbose)
+            	info("directModeEnabled = " + directModeEnabled);
         }
         return directModeEnabled;
     }
@@ -915,7 +917,8 @@ public class BridJ {
             else
             	throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f != null && f.exists() ? " (failed to load " + f + ")" : ""));
         }
-        info("Loaded library '" + name + "' from '" + f + "'", null);
+        if (verbose)
+        	info("Loaded library '" + name + "' from '" + f + "'", null);
         
         libHandles.put(name, ll);
         return ll;
