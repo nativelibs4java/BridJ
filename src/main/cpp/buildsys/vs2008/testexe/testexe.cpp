@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "jni.h"
 
 #include "dynload/dynload.h"
 #include "dyncall/dyncall.h"
@@ -70,6 +71,11 @@ float forwardCaller(void* cb, float value) {
 	return res;
 }
 
+int f10int_impl(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n, int o, int p) {
+	printf("a = %d, b = %d, c = %d, d = %d, e = %d, f = %d, g = %d, h = %d, i = %d, j = %d, k = %d, l = %d, m = %d, n = %d, o = %d, p = %d\n", a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
+	return a + j;
+}
+
 void f4int_impl(int a, int b, int c, int d) {
 	printf("a = %d, b = %d, c = %d, d = %d\n", a, b, c, d);
 }
@@ -77,6 +83,12 @@ void f4int_impl(int a, int b, int c, int d) {
 void f3char_impl(char a, char b, char c) {
 	printf("a = %d, b = %d, c = %d\n", (int)a, (int)b, (int)c);
 }
+
+
+jdouble test_incr_double(jdouble value);
+jlong test_incr_long(jlong value);
+jfloat test_incr_float(jfloat value);
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	/*
@@ -90,6 +102,30 @@ int _tmain(int argc, _TCHAR* argv[])
 	//float incr = forwardFloatCall((float (*)(void*, void*, void*, int, int, float, float))cb, value);
 	printf("incr = %d\n", incr);
 	*/
+	{
+		typedef int (*pf)(void*, void*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
+		pf f = (pf)dcRawCallAdapterSkipTwoArgs((void (*)())f10int_impl, DC_CALL_C_DEFAULT);
+		int ret = f((void*)16, (void*)32, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+		printf("ret %d\n", (int)ret);
+	}
+	{
+		typedef float (*pf)(void*, void*, float);
+		pf f = (pf)dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_float, DC_CALL_C_DEFAULT);
+		float ret = f((void*)16, (void*)32, 10.0f);
+		printf("ret %d\n", (int)ret);
+	}
+	{
+		typedef double (*pf)(void*, void*, double);
+		pf f = (pf)dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_double, DC_CALL_C_DEFAULT);
+		double ret = f((void*)16, (void*)32, 10.0);
+		printf("ret %d\n", (int)ret);
+	}
+	{
+		typedef jlong (*pf)(void*, void*, jlong);
+		pf f = (pf)dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_long, DC_CALL_C_DEFAULT);
+		jlong ret = f((void*)16, (void*)32, 10LL);
+		printf("ret %d\n", (int)ret);
+	}
 	typedef void (*pf4)(void*, void*, int, int, int, int);
 	pf4 f4 = (pf4)dcRawCallAdapterSkipTwoArgs((void (*)())f4int_impl, DC_CALL_C_DEFAULT);
 	f4((void*)16, (void*)32, 1, 2, 3, 4);
