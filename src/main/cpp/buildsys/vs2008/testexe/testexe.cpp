@@ -1,6 +1,3 @@
-// testexe.cpp : définit le point d'entrée pour l'application console.
-//
-
 #include "stdafx.h"
 
 #include "dynload/dynload.h"
@@ -11,6 +8,8 @@
 #include <shobjidl.h>
 #include <exdisp.h>
 #include <shobjidl.h>
+
+
 
 int f() {
 	return 10;
@@ -70,13 +69,36 @@ float forwardCaller(void* cb, float value) {
 	dcFree(vm);
 	return res;
 }
+
+void f4int_impl(int a, int b, int c, int d) {
+	printf("a = %d, b = %d, c = %d, d = %d\n", a, b, c, d);
+}
+
+void f3char_impl(char a, char b, char c) {
+	printf("a = %d, b = %d, c = %d\n", (int)a, (int)b, (int)c);
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
+	/*
+	CK_INFO info;
+	ptrdiff_t offset = ((char*)&info.flags)-(char*)&info;
+	printf("sizeof(CK_INFO) = %d\n", sizeof(CK_INFO));
+    printf("offset(CK_INFO.flags) = %d\n", offset);
 	DCCallback* cb = dcbNewCallback("pppiif)f", floatCbHandler, NULL);
 	float value = 1;
 	float incr = forwardCaller(cb, value);
 	//float incr = forwardFloatCall((float (*)(void*, void*, void*, int, int, float, float))cb, value);
 	printf("incr = %d\n", incr);
+	*/
+	typedef void (*pf4)(void*, void*, int, int, int, int);
+	pf4 f4 = (pf4)dcRawCallAdapterSkipTwoArgs((void (*)())f4int_impl, DC_CALL_C_DEFAULT);
+	f4((void*)16, (void*)32, 1, 2, 3, 4);
+
+	
+	typedef void (*pf3)(void*, void*, char, char, char);
+	pf3 f3 = (pf3)dcRawCallAdapterSkipTwoArgs((void (*)())f3char_impl, DC_CALL_C_DEFAULT);
+	f3((void*)16, (void*)32, (char)1, (char)2, (char)3);
+
 	/*
 	int (*fSkipped)(void*, void*, int);
 	DCAdapterCallback* cb = dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_int, DC_CALL_C_DEFAULT);
@@ -86,8 +108,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	int a = f();
 	if (a != 0) {
 		printf("ok");
-	}
-
+	}*/
+	/*
 	int ret = CoInitialize(NULL);
 	void* instance;
 
