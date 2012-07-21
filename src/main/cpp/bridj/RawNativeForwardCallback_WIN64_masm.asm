@@ -22,26 +22,25 @@ dcRawCallAdapterSkipTwoArgs64 PROC ; EXPORT
 	mov      rbp, rsp		; aligns stack to 16
 	push rbx
     push rsi
-	sub rsp, 4 * 8			; push spill space for register args
     
 	; Copying the 4 first arguments
+	movd rcx, xmm2
+	movd xmm0, rcx
+	movd rcx, xmm3
+  	movd xmm1, rcx
+  	movd xmm2, r8
+  	movd xmm3, r9
+  	
 	mov rcx, r8
 	mov rdx, r9
 	mov r8, [rbp + STACK_offset]
 	mov r9, [rbp + STACK_offset + 8]
   	
-  	;mov rcx, rbp
-	;add rcx, STACK_offset
-	;mov r8, [rcx]
-	;mov r9, [rcx + 4]
-	
-  	movd xmm0, rcx
-  	movd xmm1, rdx
-  	movd xmm2, r8
-  	movd xmm3, r9
-  	
+  	sub rsp, 4 * 8			; push spill space for register args
+    
 	call    qword ptr[rax+CTX_handler]
 	
+	; todo copyu original spill into spill!
 	add rsp, 4 * 8			; pop spill space
 	
 	pop rsi
