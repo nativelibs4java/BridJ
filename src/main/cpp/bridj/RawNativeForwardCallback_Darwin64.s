@@ -56,22 +56,19 @@ _dcRawCallAdapterSkipTwoArgs64:
 	movq  %rbp, %rsp
 
 	// float parameters
-	//movq %xmm0  , %xmm2  # float parameter 0
-	//movq %xmm1  , %xmm3  # float parameter 1
-	//movq %xmm2  , %xmm4  # float parameter 2
-	//movq %xmm3  , %xmm5  # float parameter 3
-	
-	//movd %xmm0  , %rdx	# float parameter 0
-	//movd %xmm1  , %rcx	# float parameter 1
-	//movd %xmm2  , %r8	# float parameter 2
-	//movd %xmm3  , %r9	# float parameter 3
-	
+	//movapd %xmm0  , %xmm2  # float parameter 0
+	//movapd %xmm1  , %xmm3  # float parameter 1
+	//movapd %xmm2  , %xmm4  # float parameter 2
+	//movapd %xmm3  , %xmm5  # float parameter 3
+	//movapd %xmm4  , %xmm6  # float parameter 4
+	//movapd %xmm5  , %xmm7  # float parameter 5
+
 	// integer parameters
 	mov	 %rdi	, %rdx	# parameter 0
 	mov	 %rsi	, %rcx	# parameter 1
 	mov	 %rdx	, %r8	# parameter 2
 	mov	 %rcx	, %r9	# parameter 3
-
+	
 	call [%rax+CTX_handler]
 
 	//movd %xmm0, %rax
