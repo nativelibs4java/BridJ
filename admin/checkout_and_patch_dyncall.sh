@@ -14,6 +14,11 @@ if [[ -z "$2" ]] ; then
 	exit 1 ;
 fi
 
+if [[ -d "$DYNCALL_HOME" ]] ; then
+	echo "Found DYNCALL_HOME = $DYNCALL_HOME"
+	exit 0
+fi
+
 DYNCALL_HOME=`pwd`/$1
 PATCH_FILE=`pwd`/$2
 
