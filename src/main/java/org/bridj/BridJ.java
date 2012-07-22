@@ -548,17 +548,6 @@ public class BridJ {
 			lib.release();
 	}
     }
-//	
-//	public static void register(Class<?> type) {
-//		try {
-//			String libraryName = getLibrary(type);
-//			NativeLibrary library = getLibHandle(libraryName);
-//			library.register(type);
-//		} catch (FileNotFoundException ex) {
-//			throw new RuntimeException("Failed to register class " + type.getName(), ex);
-//		}
-//	}
-//
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
     static volatile List<String> paths;
 
@@ -929,6 +918,14 @@ public class BridJ {
         
         libHandles.put(name, ll);
         return ll;
+    }
+
+    /**
+     * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link org.bridj.ann.Library} annotation.
+	 */
+    public static String getNativeLibraryName(AnnotatedElement m) {
+    	Library lib = getLibrary(m);
+        return lib == null ? null : lib.value();
     }
     
     /**
