@@ -4,36 +4,47 @@
 # Usage : patch_dyncall.sh directory
 #
 
+function failed() {
+	echo "$@"
+	exit 1
+}
+
+if [[ -z "$DYNCALL_HOME" ]] ; then
+	failed "DYNCALL_HOME not set"
+fi
+
+if [[ -d "$DYNCALL_HOME" ]] ; then
+	failed "DYNCALL_HOME = $DYNCALL_HOME already exists"
+fi
+
 if [[ -z "$1" ]] ; then
-	echo "No name for the dyncall checkout directory"
-	exit 1 ;
+	failed "No path to the diff"
 fi
 
-if [[ -z "$2" ]] ; then
-	echo "No path to the diff"
-	exit 1 ;
-fi
+PATCH_FILE=`pwd`/$1
 
-if [[ -d "$DYNCALL_HOME" ]] ; then
-	echo "Found DYNCALL_HOME = $DYNCALL_HOME"
-	exit 0
-fi
+#if [[ ! -d `dirname $DYNCALL_HOME` ]] ; then
+#	mkdir `dirname $DYNCALL_HOME` || failed "Failed to create parent directory for $DYNCALL_HOME"
+#fi
 
-DYNCALL_HOME=`pwd`/$1
-PATCH_FILE=`pwd`/$2
-
-if [[ -d "$DYNCALL_HOME" ]] ; then
-	echo "Directory $DYNCALL_HOME already exists."
-	echo "Please backup or remove with 'rm -fR $DYNCALL_HOME' and retry (or use a different name)"
-	exit 1 ;
-fi
-
-echo "Checking out dyncall to $DYNCALL_HOME..."
-svn co https://dyncall.org/svn/dyncall/trunk $DYNCALL_HOME
-cd $DYNCALL_HOME
+#echo "Checking out dyncall to $DYNCALL_HOME..."
+svn co https://dyncall.org/svn/dyncall/trunk `dirname $DYNCALL_HOME` || failed "Failed to checkout dyncall to $DYNCALL_HOME" 
+cd $DYNCALL_HOME || failed "Failed to go to $DYNCALL_HOME"
+cd ..
 
 echo "Applying BridJ's dyncall patches..."
-gpatch -i $PATCH_FILE -N -p0 || patch -i $PATCH_FILE -N -p0 || ( rm -fR $DYNCALL_HOME && echo "Patch failed, deleted $DYNCALL_HOME" && exit 1 )
+
+if [ ! `which gpatch` ] ; then 
+	PATCH_CMD=patch
+else
+	PATCH_CMD=gpatch
+fi
+
+$PATCH_CMD -i $PATCH_FILE -N -p0 || ( rm -fR $DYNCALL_HOME && failed "Patch failed, deleted $DYNCALL_HOME" )
 
 echo "Ensuring all diffed files are added to SVN..."
-svn add `find . -type f | grep -v .svn` 2> /dev/null || ( echo "Failed to add svn files" && exit 1 ) 
+svn add `find . -type f | grep -v .svn` 2> /dev/null 
+
+echo "Displaying svn status..."
+svn status
+

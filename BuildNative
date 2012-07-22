@@ -1,12 +1,20 @@
 #!/bin/bash
 
-if [[ ! -d dyncall ]]
+function failed() {
+	echo "$@"
+	exit 1
+}
+
+cd `dirname $0`
+export DYNCALL_HOME=`pwd`/dyncall/dyncall
+
+if [[ ! -d "$DYNCALL_HOME" ]]
 then
-	admin/checkout_and_patch_dyncall.sh dyncall src/main/cpp/bridj/dyncall.diff || ( echo "Failed to checkout and patch dyncall" && exit 1 )
+	`pwd`/admin/checkout_and_patch_dyncall.sh src/main/cpp/bridj/dyncall.diff || failed "Failed to checkout and patch dyncall"
 fi
 
 if [[ -z "$BRIDJ_TARGETS" ]] ; then
-	if [[ -d /Applications ]] ; then
+	if [[ -d /Applications && ! -z "$ANDROID_NDK_HOME" ]] ; then
 		#BRIDJ_TARGETS="default ios android" ;
 		BRIDJ_TARGETS="default android" ;
 	else
@@ -14,16 +22,16 @@ if [[ -z "$BRIDJ_TARGETS" ]] ; then
 	fi ;
 fi
 
-cd src/main/cpp/bridj
+cd `dirname $0`/src/main/cpp/bridj
 
 for TARGET in $BRIDJ_TARGETS ; do
 	if [[ "$DEBUG" == "1" ]] ; then
-		TARGET=$TARGET BUILD_CONFIG=debug ./Make.sh $@ || exit 1 ;
+		TARGET=$TARGET BUILD_CONFIG=debug ./Make.sh $@ || failed "Make failed"
 	else 
 		if [[ "$@" == "fast" ]] ; then
-			TARGET=$TARGET ./Make.sh || exit 1 ;
+			TARGET=$TARGET ./Make.sh || failed "Make failed"
 		else
-			TARGET=$TARGET ./Make.sh $@ || exit 1 ;
+			TARGET=$TARGET ./Make.sh $@ || failed "Make failed"
 		fi ;
 	fi ;
 done
