@@ -441,7 +441,7 @@ public class BridJ {
     public static final boolean protectedMode = Switch.Protected.enabled;
     public static final boolean enableDestructors = Switch.Destructors.enabled;
     
-    static volatile int minLogLevelValue = Level.WARNING.intValue();
+    static volatile int minLogLevelValue = (verbose ? Level.WARNING : Level.INFO).intValue();
     public static void setMinLogLevel(Level level) {
     		minLogLevelValue = level.intValue();
     }
