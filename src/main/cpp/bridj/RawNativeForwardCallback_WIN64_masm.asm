@@ -28,9 +28,9 @@ dcRawCallAdapterSkipTwoArgs64 PROC ; EXPORT
 	sub rsp, 14 * 8	+ 8			; allocate stack space for 14 args (& align stack)
 	mov rsi, rbp
 	add rsi, 48					; source = extra args on the stack
-	mov rcx, 14 * 8				; size of 14 arguments
+	mov rcx, 14  				; 14 arguments
 	mov rdi, rsp				; destination = stack
-	rep movsb					; copy
+	rep movsq					; copy by 8 bytes
 
 	; Allocate spill for 1st and 2nd args
 	sub rsp, 2 * 8				
