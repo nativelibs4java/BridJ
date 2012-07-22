@@ -115,6 +115,10 @@ if [[ "$NEEDS_TEST" == "1" ]] ; then
 	echo "# Making test library"
 	cd "../../../test/cpp/test"
 	$MAKE_CMD $@ || fail "Failed to make BridJ's test library" ;
+	
+	echo "# Making dependsOnTest library"
+	cd "../../../test/cpp/dependsOnTest"
+	$MAKE_CMD $@ || fail "Failed to make BridJ's dependsOnTest library" ;
 fi
 
 cd "$CURR"
@@ -141,6 +145,7 @@ if [[ -d build_out ]] ; then
 		if [[ "$NEEDS_TEST" == "1" ]] ; then
 			mkdir -p $TEST_OUT 
 			cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
+			cp ../../../../test/cpp/dependsOnTest/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
 		
 			nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
 			nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;

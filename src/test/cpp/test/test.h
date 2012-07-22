@@ -130,3 +130,9 @@ public:
 };
 
 TEST_API int testIVirtualAdd(IVirtual* pVirtual, int a, int b);
+
+
+typedef int (*fun_iii)(int, int);
+TEST_API fun_iii getAdder();
+TEST_API int forwardCall(fun_iii f, int a, int b);
+

@@ -500,11 +500,19 @@ public class BridJ {
 	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = librariesByClass.get(type);
 		if (lib == null) {
-			String name = getNativeLibraryName(type);
-			lib = getNativeLibrary(name);
-            if (lib != null) {
-				librariesByClass.put(type, lib);
-		}
+			Library libAnn = getLibrary(type);
+			if (libAnn != null) {
+				for (String dependency : libAnn.dependencies()) {
+					NativeLibrary depLib = getNativeLibrary(dependency);
+					if (depLib == null) {
+						throw new RuntimeException("Failed to load dependency '" + dependency + "' of library '" + libAnn.value() + "'");
+					}
+				}
+				lib = getNativeLibrary(libAnn.value());
+				if (lib != null) {
+					librariesByClass.put(type, lib);
+				}
+			}
         }
 		return lib;
 	}
@@ -928,24 +936,11 @@ public class BridJ {
      * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link org.bridj.ann.Library} annotation.
 	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
-        Library lib = getInheritableAnnotation(Library.class, m);
-//        if (lib == null) {
-//        		Class c = null;
-//        		if (m instanceof Class)
-//        			c = (Class)m;
-//        		else if (m instanceof Member)
-//        			c = ((Member)m).getDeclaringClass();
-//        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null) {
-//                    Package p = c.getPackage();
-//                    if (p != null && p.getName().matches("(java|org\\.bridj)(\\..*)?"))
-//                        return null;
-//                    
-//        			return c.getSimpleName();
-//                } 
-//                else
-//        			return null;
-//        }
+    	Library lib = getLibrary(m);
         return lib == null ? null : lib.value();
+    }
+    static Library getLibrary(AnnotatedElement m) {
+    	return getInheritableAnnotation(Library.class, m);
     }
 
 	public static Symbol getSymbolByAddress(long peer) {
