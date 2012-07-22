@@ -16,4 +16,6 @@ LINK_LIBS	+= stdc++
 LINK_DIRS	+= ../test/$(BUILD_DIR)
 LINK_LIBS	+= test
 
+LDFLAGS		+= -rpath 
+
 include $(DYNCALL_HOME)/dyncall/buildsys/gmake/epilog.gmake

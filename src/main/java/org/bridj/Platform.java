@@ -145,7 +145,8 @@ public class Platform {
     
     private static final String arch;
     private static boolean is64Bits;
-	
+    private static File extractedLibrariesTempDir;
+    
     static {
     	arch = System.getProperty("os.arch");
         {
@@ -170,8 +171,8 @@ public class Platform {
         }
         	
         try {
-            initLibrary();
-            
+            extractedLibrariesTempDir = createTempDir("BridJExtractedLibraries");
+    	    initLibrary();
         } catch (Throwable th) {
             th.printStackTrace();
         }
@@ -212,6 +213,8 @@ public class Platform {
     }
     private static void deleteTemporaryExtractedLibraryFiles() {
         synchronized (temporaryExtractedLibraryCanonicalFiles) {
+        	temporaryExtractedLibraryCanonicalFiles.add(extractedLibrariesTempDir);
+        	
             // Release libraries in reverse order :
             List<File> filesToDeleteAfterExit = new ArrayList<File>();
             for (File tempFile : Platform.temporaryExtractedLibraryCanonicalFiles) {
@@ -534,7 +537,6 @@ public class Platform {
 			if (firstLibraryResource == null)
 				firstLibraryResource = libraryResource;
 			int i = libraryResource.lastIndexOf('.');
-			String ext = i < 0 ? "" : libraryResource.substring(i);
 			int len;
 			byte[] b = new byte[8196];
 			InputStream in = getResourceAsStream(libraryResource);
@@ -543,29 +545,36 @@ public class Platform {
 				if (!f.exists())
 				f = new File(f.getName());
 				if (f.exists())
-				return f.getCanonicalFile();
-				//f = BridJ.getNativeLibraryFile(name);
-				//    if (f.exists())
-				//        return f.getCanonicalFile();
+					return f.getCanonicalFile();
 				continue;
 			}
             String fileName = new File(libraryResource).getName();
-			File libFile = File.createTempFile(fileName, ext);
-            if (BridJ.Switch.DeleteOldBinaries.enabled)
-                tryDeleteFilesInSameDirectory(libFile, Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
-            
+			File libFile = new File(extractedLibrariesTempDir, fileName);
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
 			while ((len = in.read(b)) > 0)
-			out.write(b, 0, len);
+				out.write(b, 0, len);
 			out.close();
 			in.close();
 			
 			addTemporaryExtractedLibraryFileToDeleteOnExit(libFile);
+			addTemporaryExtractedLibraryFileToDeleteOnExit(libFile.getParentFile());
 			
             return libFile;
 		}
         return null;
 		//throw new FileNotFoundException(firstLibraryResource);
+    }
+    
+    static final int maxTempFileAttempts = 20;
+    static File createTempDir(String prefix) throws IOException {
+    	File dir;
+    	for (int i = 0; i < maxTempFileAttempts; i++) {
+    		dir = File.createTempFile(prefix, "");
+    		if (dir.delete() && dir.mkdirs()) {
+    			return dir;
+    		}
+    	}
+    	throw new RuntimeException("Failed to create temp dir with prefix '" + prefix + "' despite " + maxTempFileAttempts + " attempts!");
     }
     
     /**

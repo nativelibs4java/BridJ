@@ -356,9 +356,6 @@ public class BridJ {
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
             "Enable destructors (in languages that support them, such as C++)"
         ),
-        DeleteOldBinaries("bridj.deleteOldBinaries", "BRIDJ_DELETE_OLD_BINARIES", false,
-            "Delete old BridJ binaries upon startup"
-        ),
         Direct("bridj.direct", "BRIDJ_DIRECT", true,
             "Direct mode (uses optimized assembler glue when possible to speed up calls)"
         ),
@@ -503,6 +500,8 @@ public class BridJ {
 			Library libAnn = getLibrary(type);
 			if (libAnn != null) {
 				for (String dependency : libAnn.dependencies()) {
+					if (verbose)
+						info("Trying to load dependency '" + dependency + "' of '" + libAnn.value() + "'");
 					NativeLibrary depLib = getNativeLibrary(dependency);
 					if (depLib == null) {
 						throw new RuntimeException("Failed to load dependency '" + dependency + "' of library '" + libAnn.value() + "'");
@@ -931,14 +930,11 @@ public class BridJ {
         libHandles.put(name, ll);
         return ll;
     }
-
+    
     /**
-     * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link org.bridj.ann.Library} annotation.
+     * Gets the {@link org.bridj.ann.Library} annotation for an annotated element.
+     * Recurses up to parents of the element (class, enclosing classes) if needed
 	 */
-    public static String getNativeLibraryName(AnnotatedElement m) {
-    	Library lib = getLibrary(m);
-        return lib == null ? null : lib.value();
-    }
     static Library getLibrary(AnnotatedElement m) {
     	return getInheritableAnnotation(Library.class, m);
     }

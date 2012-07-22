@@ -49,6 +49,12 @@ ifdef BUILD_OS_windows
 CPPFLAGS	+=	"-IC:\Program Files\Microsoft SDKs\Windows\v6.0A\Include"
 endif
 
+ifdef BUILD_OS_darwin
+LDFLAGS		+= -install_name @rpath/libtest.dylib
+else
+LDFLAGS		+= -install_name @rpath/test.so
+endif
+
 LINK_LIBS	+= stdc++
 
 include $(DYNCALL_HOME)/dyncall/buildsys/gmake/epilog.gmake
