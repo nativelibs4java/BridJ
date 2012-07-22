@@ -1,16 +1,11 @@
-#include "stdafx.h"
-#include "jni.h"
+//#include "stdafx.h"
+
+#include <stdio.h>
+#include </System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/jni.h>
 
 #include "dynload/dynload.h"
 #include "dyncall/dyncall.h"
 #include "../../../bridj/RawNativeForwardCallback.h"
-
-#include <Objbase.h>
-#include <shobjidl.h>
-#include <exdisp.h>
-#include <shobjidl.h>
-
-
 
 int f() {
 	return 10;
@@ -32,6 +27,7 @@ void fOneDouble(double a) {
 	printf("i = %f\n", a);
 }
 
+/*
 float forwardFloatCall(void* a, void* b, float (*adder)(void*, void*, void*, int, int, float, float), float value) {
 	return adder(NULL, NULL, NULL, 1, 1, -3, value);
 }
@@ -70,7 +66,7 @@ float forwardCaller(void* cb, float value) {
 	dcFree(vm);
 	return res;
 }
-
+*/
 int f10int_impl(int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, int k, int l, int m, int n, int o, int p) {
 	printf("a = %d, b = %d, c = %d, d = %d, e = %d, f = %d, g = %d, h = %d, i = %d, j = %d, k = %d, l = %d, m = %d, n = %d, o = %d, p = %d\n", a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p);
 	return a + j;
@@ -89,7 +85,7 @@ jdouble test_incr_double(jdouble value);
 jlong test_incr_long(jlong value);
 jfloat test_incr_float(jfloat value);
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
 	/*
 	CK_INFO info;
