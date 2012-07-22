@@ -75,7 +75,7 @@ cd jamvm
 #
 echo "
 export SCALA_HOME=$USER_HOME/bin/scala
-export DYNCALL_HOME=$USER_HOME/src/dyncall/dyncall
+export DYNCALL_HOME=$USER_HOME/src/dyncall
 
 export PATH=$USER_HOME/bin:\$PATH
 export PATH=\$SCALA_HOME/bin:\$PATH

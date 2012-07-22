@@ -19,8 +19,8 @@
 
 #BUILD_CONFIG=debug
 
-TOP =	$(DYNCALL_HOME)
-include $(DYNCALL_HOME)/buildsys/gmake/prolog.gmake
+TOP =	$(DYNCALL_HOME)/dyncall
+include $(DYNCALL_HOME)/dyncall/buildsys/gmake/prolog.gmake
 
 TARGET_DLL	 = test
 INSTALL_LIB	 = 1
@@ -70,4 +70,4 @@ endif
 
 LINK_LIBS	+= stdc++
 
-include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake
+include $(DYNCALL_HOME)/dyncall/buildsys/gmake/epilog.gmake

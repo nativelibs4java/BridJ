@@ -94,7 +94,7 @@ java -jar jedit${JEDIT_VERSION}install.jar
 #
 echo "
 export SCALA_HOME=$USER_HOME/bin/scala
-export DYNCALL_HOME=$USER_HOME/src/dyncall/dyncall
+export DYNCALL_HOME=$USER_HOME/src/dyncall
 export JAVA_HOME=$USER_HOME/bin/jdk1.6.0_24
 
 export PATH=$USER_HOME/bin:\$PATH

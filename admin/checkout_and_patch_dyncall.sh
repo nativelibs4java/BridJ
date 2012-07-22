@@ -28,9 +28,8 @@ PATCH_FILE=`pwd`/$1
 #fi
 
 #echo "Checking out dyncall to $DYNCALL_HOME..."
-svn co https://dyncall.org/svn/dyncall/trunk `dirname $DYNCALL_HOME` || failed "Failed to checkout dyncall to $DYNCALL_HOME" 
+svn co https://dyncall.org/svn/dyncall/trunk $DYNCALL_HOME || failed "Failed to checkout dyncall to $DYNCALL_HOME" 
 cd $DYNCALL_HOME || failed "Failed to go to $DYNCALL_HOME"
-cd ..
 
 echo "Applying BridJ's dyncall patches..."
 

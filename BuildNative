@@ -6,7 +6,7 @@ function failed() {
 }
 
 cd `dirname $0`
-export DYNCALL_HOME=`pwd`/dyncall/dyncall
+export DYNCALL_HOME=`pwd`/dyncall
 
 if [[ ! -d "$DYNCALL_HOME" ]]
 then

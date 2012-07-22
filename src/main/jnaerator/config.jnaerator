@@ -21,8 +21,8 @@
 
 -library dyncall
 -package org.bridj.dyncall
-	"-I$(DYNCALL_HOME)/dyncall"
-	"$(DYNCALL_HOME)/dyncall/dyncall.h"
-	"$(DYNCALL_HOME)/dyncall/dyncall_signature.h"
+	"-I$(DYNCALL_HOME)/dyncall/dyncall"
+	"$(DYNCALL_HOME)/dyncall/dyncall/dyncall.h"
+	"$(DYNCALL_HOME)/dyncall/dyncall/dyncall_signature.h"
 	
 	

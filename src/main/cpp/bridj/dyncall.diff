@@ -1,6 +1,38 @@
+Index: dyncall/buildsys/gmake/os/darwin.gmake
+===================================================================
+--- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1377)
++++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
+@@ -23,7 +23,8 @@
+ LIBTOOL_STATIC=libtool -static -o $@ $^
+ 
+ ifdef BUILD_ARCH_universal
+-TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++TARGET_ARCH?=-arch x86_64 -arch i386 
+ endif
+ 
+ ifdef BUILD_ARCH_ppc32
+Index: dyncall/buildsys/gmake/tool/gcc.gmake
+===================================================================
+--- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1377)
++++ dyncall/buildsys/gmake/tool/gcc.gmake	(working copy)
+@@ -86,6 +86,13 @@
+ 
+ #	$(CC) -MM -MT $@ $(CPPFLAGS) $(CFLAGS) $< > $(BUILD_DIR)/$*.d
+ 
++# --- Compile Objective-C ---------------------------------------------------------------
++
++$(BUILD_DIR)/%.o: %.m
++	$(COMPILE.c) $< $(OUTPUT_OPTION)
++
++#	$(CC) -MM -MT $@ $(CPPFLAGS) $(CFLAGS) $< > $(BUILD_DIR)/$*.d
++
+ # --- Compile C++ -------------------------------------------------------------
+ 
+ $(BUILD_DIR)/%.o: %.cpp
 Index: dyncall/dynload/dynload_windows.c
 ===================================================================
---- dyncall/dynload/dynload_windows.c	(revision 1354)
+--- dyncall/dynload/dynload_windows.c	(revision 1377)
 +++ dyncall/dynload/dynload_windows.c	(working copy)
 @@ -40,7 +40,9 @@
  DLLib* dlLoadLibrary(const char* libPath)
@@ -15,7 +47,7 @@ Index: dyncall/dynload/dynload_windows.c
      return (DLLib*) GetModuleHandle(NULL);
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_syms_mach-o.c	(revision 1354)
+--- dyncall/dynload/dynload_syms_mach-o.c	(revision 1377)
 +++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -28,6 +28,7 @@
   dynamic symbol resolver for Mach-O
@@ -317,7 +349,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  		return NULL;
 Index: dyncall/dynload/dynload_unix.c
 ===================================================================
---- dyncall/dynload/dynload_unix.c	(revision 1354)
+--- dyncall/dynload/dynload_unix.c	(revision 1377)
 +++ dyncall/dynload/dynload_unix.c	(working copy)
 @@ -40,7 +40,7 @@
  
@@ -328,35 +360,3 @@ Index: dyncall/dynload/dynload_unix.c
  }
  
  
-Index: dyncall/buildsys/gmake/os/darwin.gmake
-===================================================================
---- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1354)
-+++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
-@@ -23,7 +23,8 @@
- LIBTOOL_STATIC=libtool -static -o $@ $^
- 
- ifdef BUILD_ARCH_universal
--TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
-+#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
-+TARGET_ARCH?=-arch x86_64 -arch i386 
- endif
- 
- ifdef BUILD_ARCH_ppc32
-Index: dyncall/buildsys/gmake/tool/gcc.gmake
-===================================================================
---- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1354)
-+++ dyncall/buildsys/gmake/tool/gcc.gmake	(working copy)
-@@ -86,6 +86,13 @@
- 
- #	$(CC) -MM -MT $@ $(CPPFLAGS) $(CFLAGS) $< > $(BUILD_DIR)/$*.d
- 
-+# --- Compile Objective-C ---------------------------------------------------------------
-+
-+$(BUILD_DIR)/%.o: %.m
-+	$(COMPILE.c) $< $(OUTPUT_OPTION)
-+
-+#	$(CC) -MM -MT $@ $(CPPFLAGS) $(CFLAGS) $< > $(BUILD_DIR)/$*.d
-+
- # --- Compile C++ -------------------------------------------------------------
- 
- $(BUILD_DIR)/%.o: %.cpp

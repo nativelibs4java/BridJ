@@ -37,11 +37,11 @@ function fail() {
 #echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
 #svn diff $SRC_HOME/dyncall/dyncall > dyncall.diff
-svn diff $DYNCALL_HOME/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
+svn diff $DYNCALL_HOME/dyncall | sed "s/${DYNCALL_HOME//\//\\/}\///" > dyncall.diff
 #svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
 echo "# Configuring dyncall"
-cd "$DYNCALL_HOME" || fail "Cannot go to DYNCALL_HOME = $DYNCALL_HOME"
+cd "$DYNCALL_HOME/dyncall" || fail "Cannot go to DYNCALL_HOME = $DYNCALL_HOME"
 
 TARGET=${TARGET:-default}
 ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5c}

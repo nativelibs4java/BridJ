@@ -513,14 +513,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUILD_CONFIG = debug;
-				DYNCALL_HOME = /Users/ochafik/src/dyncall/dyncall;
+				DYNCALL_HOME = /Users/ochafik/src/dyncall;
 			};
 			name = Debug;
 		};
 		1DEB919108733D9F0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DYNCALL_HOME = /Users/ochafik/src/dyncall/dyncall;
+				DYNCALL_HOME = /Users/ochafik/src/dyncall;
 			};
 			name = Release;
 		};
