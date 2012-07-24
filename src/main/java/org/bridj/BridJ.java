@@ -755,6 +755,13 @@ public class BridJ {
             possibleNames.addAll(aliases);
         possibleNames.add(actualName == null ? libraryName : actualName);
 
+        if (Platform.isWindows()) {
+        	if (libraryName.equals("c"))
+        		possibleNames.add("msvcrt");
+        	else if (libraryName.equals("m"))
+        		possibleNames.add("msvcrt");
+        }
+        
         //out.println("Possible names = " + possibleNames);
         List<String> paths = getNativeLibraryPaths();
         if (debug)
