@@ -122,6 +122,7 @@ public class BridJ {
 		strongNativeObjects.put(peer, ob);
         return ob;
     }
+    
 
 	/**
      * Drop the hard reference created with {@link BridJ#protectFromGC(NativeObject)}.
