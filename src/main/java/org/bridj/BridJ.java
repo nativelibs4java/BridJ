@@ -119,10 +119,9 @@ public class BridJ {
     public static synchronized <T extends NativeObject> T protectFromGC(T ob) {
         long peer = Pointer.getAddress(ob, null);
         weakNativeObjects.remove(peer);
-		strongNativeObjects.put(peer, ob);
+        strongNativeObjects.put(peer, ob);
         return ob;
     }
-    
 
 	/**
      * Drop the hard reference created with {@link BridJ#protectFromGC(NativeObject)}.
