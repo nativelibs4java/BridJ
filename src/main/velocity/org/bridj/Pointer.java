@@ -28,7 +28,7 @@ import static org.bridj.SizeT.safeIntCast;
  *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} <br>
 #end
  *</li>
- *	<li>Reading / writing the nth primitive from / to the pointed memory location :<br>
+ *	<li>Reading / writing the nth contiguous primitive value from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}AtIndex(long)} / {@link Pointer#set${prim.CapName}AtIndex(long, ${prim.Name})} <br>
 #end
@@ -241,7 +241,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #end
 #macro (docGetIndex $typeName $equivalentOffsetCall)
 	/**
-     * Read the nth $typeName value from the pointed memory location.<br>
+     * Read the nth contiguous $typeName value from the pointed memory location.<br>
 	   * Equivalent to <code>${equivalentOffsetCall}</code>.
      * @param valueIndex index of the value to read
 	 */
@@ -275,7 +275,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #end
 #macro (docSetIndex $typeName $equivalentOffsetCall)
 	/**
-     * Write the nth $typeName value to the pointed memory location.<br>
+     * Write the nth contiguous $typeName value to the pointed memory location.<br>
 	   * Equivalent to <code>${equivalentOffsetCall}</code>.
      * @param valueIndex index of the value to write
      * @param value $typeName value to write
