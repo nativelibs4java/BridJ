@@ -22,12 +22,28 @@ import static org.bridj.SizeT.safeIntCast;
  *  </li>
  *	<li>Reading / writing a primitive from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}AtOffset(long)} / {@link Pointer#set${prim.CapName}AtOffset(long, ${prim.Name})}<br>
+ *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} <br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}AtOffset(long)} / {@link Pointer#set${sizePrim}AtOffset(long, long)} <br>
+ *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} <br>
 #end
- *  </li>
+ *</li>
+ *	<li>Reading / writing the nth primitive from / to the pointed memory location :<br>
+#foreach ($prim in $primitives)
+ *		{@link Pointer#get${prim.CapName}AtIndex(long)} / {@link Pointer#set${prim.CapName}AtIndex(long, ${prim.Name})} <br>
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
+ *	  {@link Pointer#get${sizePrim}AtIndex(long)} / {@link Pointer#set${sizePrim}AtIndex(long, long)} <br>
+#end
+ *</li>
+ *	<li>Reading / writing a primitive from / to the pointed memory location with a byte offset:<br>
+#foreach ($prim in $primitives)
+ *		{@link Pointer#get${prim.CapName}AtOffset(long)} / {@link Pointer#set${prim.CapName}AtOffset(long, ${prim.Name})} <br>
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
+ *		{@link Pointer#get${sizePrim}AtOffset(long)} / {@link Pointer#set${sizePrim}AtOffset(long, long)} <br>
+#end
+ *</li>
  *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}sAtOffset(long, int)} / {@link Pointer#set${prim.CapName}sAtOffset(long, ${prim.Name}[])}<br>
@@ -223,6 +239,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @deprecated Avoid using the byte offset methods variants unless you know what you're doing (may cause alignment issues). Please favour {@link $signatureWithoutOffset} over this method. 
 	 */
 #end
+#macro (docGetIndex $typeName $equivalentOffsetCall)
+	/**
+     * Read the nth $typeName value from the pointed memory location.<br>
+	   * Equivalent to <code>${equivalentOffsetCall}</code>.
+     * @param valueIndex index of the value to read
+	 */
+#end
 #macro (docGetArray $cPrimName $primWrapper)
 	/**
      * Read an array of $cPrimName values of the specified length from the pointed memory location
@@ -248,6 +271,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     /**
      * Write a $cPrimName value to the pointed memory location shifted by a byte offset
      * @deprecated Avoid using the byte offset methods variants unless you know what you're doing (may cause alignment issues). Please favour {@link $signatureWithoutOffset} over this method. 
+	 */
+#end
+#macro (docSetIndex $typeName $equivalentOffsetCall)
+	/**
+     * Write the nth $typeName value to the pointed memory location.<br>
+	   * Equivalent to <code>${equivalentOffsetCall}</code>.
+     * @param valueIndex index of the value to write
+     * @param value $typeName value to write
 	 */
 #end
 #macro (docSetArray $cPrimName $primWrapper)
@@ -1847,6 +1878,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return getPointerAtOffset(byteOffset, (PointerIO)null);
     }
     
+#docGetIndex("pointer" "getPointerAtOffset(valueIndex * Pointer.SIZE)")
+	public Pointer<?> getPointerAtIndex(long valueIndex) {
+	    return getPointerAtOffset(valueIndex * Pointer.SIZE);
+	}
+    
     /**
 	 * Read a pointer value from the pointed memory location.<br>
 	 * @param c class of the elements pointed by the resulting pointer 
@@ -1902,6 +1938,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
 	public Pointer<T> setPointerAtOffset(long byteOffset, Pointer<?> value) {
         setSizeTAtOffset(byteOffset, value == null ? 0 : value.getPeer());
+        return this;
+    }
+
+#docSetIndex("pointer" "setPointerAtOffset(valueIndex * Pointer.SIZE, value)")
+    public Pointer<T> setPointerAtIndex(long valueIndex, Pointer<?> value) {
+        setPointerAtOffset(valueIndex * Pointer.SIZE, value);
         return this;
     }
     
@@ -2129,6 +2171,10 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			getLongAtOffset(byteOffset) : 
 			getIntAtOffset(byteOffset);
 	}
+#docGetIndex($sizePrim "get${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE")
+	public long get${sizePrim}AtIndex(long valueIndex) {
+	  return get${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE);
+	}
 #docGetRemainingArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s() {
 		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
@@ -2177,6 +2223,10 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			setIntAtOffset(byteOffset, SizeT.safeIntCast(value));
 		}
 		return this;
+	}
+#docSetIndex($sizePrim "set${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE, value)")
+  public Pointer<T> set${sizePrim}AtIndex(long valueIndex, long value) {
+	  return set${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE, value);
 	}
 	
 #docSetOffset($sizePrim $sizePrim "Pointer#set${sizePrim}(${sizePrim})")
@@ -2436,15 +2486,16 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 //-- primitive: $prim.Name --
 	
-	/**
-	 * Write a ${prim.Name} value to the pointed memory location
-	 */
+#docSet(${prim.Name} ${prim.WrapperName})
 	public abstract Pointer<T> set${prim.CapName}(${prim.Name} value);
 	
-	/**
-	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
-	 */
+#docSetOffset(${prim.Name} ${prim.WrapperName} "Pointer#set${prim.CapName}(${prim.Name})")
 	public abstract Pointer<T> set${prim.CapName}AtOffset(long byteOffset, ${prim.Name} value);
+	
+#docSetIndex(${prim.Name} "set${prim.CapName}AtOffset(valueIndex * $primSize, value)")
+	public Pointer<T> set${prim.CapName}AtIndex(long valueIndex, ${prim.Name} value) {
+		return set${prim.CapName}AtOffset(valueIndex * $primSize, value);
+	}
 		
 	/**
 	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location
@@ -2485,6 +2536,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docGetOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}()")
 	public abstract ${prim.Name} get${prim.CapName}AtOffset(long byteOffset);
     
+#docGetIndex(${prim.Name} "get${prim.CapName}AtOffset(valueIndex * $primSize)")
+	public ${prim.Name} get${prim.CapName}AtIndex(long valueIndex) {
+		return get${prim.CapName}AtOffset(valueIndex * $primSize);
+	}
+	
 #docGetArray(${prim.Name} ${prim.WrapperName})
 	public ${prim.Name}[] get${prim.CapName}s(int length) {
 		return get${prim.CapName}sAtOffset(0, length);
