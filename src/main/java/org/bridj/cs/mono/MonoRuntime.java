@@ -7,6 +7,7 @@ package org.bridj.cs.mono;
 
 import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
+import static org.bridj.BridJ.*;
 import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
@@ -14,8 +15,6 @@ import org.bridj.ann.Library;
 import org.bridj.cs.CSharpRuntime;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Stub, not implemented (see <a href="http://ochafik.com/blog/?p=165">this blog entry</a> for a proof of concept).
@@ -29,7 +28,7 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
             BridJ.register();
         } catch (Exception ex) {
             // Accept failure
-            log(Level.INFO, "Failed to register " + getClass().getName(), ex);
+            info("Failed to register " + getClass().getName(), ex);
         }
     }
 
@@ -56,7 +55,7 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
                 fetchedLibrary = true;
                 monoLibrary = BridJ.getNativeLibrary("mono");
             } catch (Exception ex) {
-                log(Level.INFO, null, ex);
+                info(null, ex);
             }
         }
         return monoLibrary;

@@ -18,11 +18,11 @@ TEST_API jdouble test_callback_${prim.Name}_${prim.Name}_asDouble(j${prim.Name} 
 	return (jdouble)test_callback_${prim.Name}_${prim.Name}(cb, value);
 }
 
-#foreach ($n in [9..9])
+#foreach ($n in [2, 9, 20])
 
 TEST_API j${prim.Name} test_add${n}_${prim.Name}(#foreach ($i in [1..$n])#if($i > 1), #end j${prim.Name} arg$i#end) {
 	j${prim.Name} tot = (j${prim.Name})0;
-	j${prim.Name} fact = (j${prim.Name})1;
+	j${prim.Name} fact = (j${prim.Name})2;
 #foreach ($i in [1..$n])
 	j${prim.Name} v$i = (j${prim.Name})(fact * ($i + 1));
 	fact *= (j${prim.Name})2;

@@ -1,5 +1,6 @@
 package org.bridj;
 
+import org.bridj.util.ClassDefiner;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,8 +9,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 //import org.objectweb.asm.*;
 import static org.objectweb.asm.Opcodes.*;
@@ -19,6 +18,7 @@ import org.bridj.*;
 import org.bridj.CRuntime.MethodCallInfoBuilder;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
+import org.bridj.util.ASMUtils;
 import org.bridj.util.Pair;
 import org.bridj.util.Utils;
 import org.objectweb.asm.ClassWriter;
@@ -69,13 +69,6 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 				
 				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
 				callbackImplType = getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
-                //Method[] methods = callbackImplType.getDeclaredMethods();
-				//Method callbackMethodImpl = callbackImplType.getDeclaredMethod(methodName, parameterTypes);
-				//mci.setMethod(callbackMethodImpl);
-				//mci.setDeclaringClass(callbackImplType);
-				//NativeEntities.Builder builder = new NativeEntities.Builder();
-				//builder.addJavaToNativeCallback(mci);
-				//nativeEntities.addDefinitions(callbackType, builder);
                 implClasses.put(callbackType, callbackImplType);
 				runtime.register(callbackImplType, forcedLibrary, null);
 			} catch (Exception ex) {
@@ -103,10 +96,10 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
                 StringBuilder javaSig = new StringBuilder("("), desc = new StringBuilder();
                 for (Type paramType : paramTypes) {
                     javaSig.append(getNativeSignature(Utils.getClass(paramType)));
-                    desc.append(typeDesc(paramType));
+                    desc.append(ASMUtils.typeDesc(paramType));
                 }
                 javaSig.append(")").append(getNativeSignature(Utils.getClass(returnType)));
-                desc.append("To").append(typeDesc(returnType)).append("_").append(getNextDynamicCallbackId());
+                desc.append("To").append(ASMUtils.typeDesc(returnType)).append("_").append(getNextDynamicCallbackId());
 
                 String callbackTypeImplName = "org/bridj/dyncallbacks/" + desc;
                 String methodName = "apply";
@@ -136,26 +129,6 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
             }
         }
         return cb;
-    }
-    static String typeDesc(Type t) {
-        if (t instanceof Class) {
-            Class c = (Class)t;
-            if (c == Pointer.class)
-                return "Pointer";
-            if (c.isPrimitive()) {
-                String s = c.getSimpleName();
-                return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-            } else if (c.isArray()) {
-                return typeDesc(c.getComponentType()) + "Array";
-            }
-            return c.getName().replace('.', '_');
-        } else {
-            ParameterizedType p = (ParameterizedType)t;
-            StringBuilder b = new StringBuilder(typeDesc(p.getRawType()));
-            for (Type pp : p.getActualTypeArguments())
-                b.append("_").append(typeDesc(pp));
-            return b.toString();
-        }
     }
 	private byte[] emitBytes(String sourceFile, String callbackTypeName,
 			String callbackTypeImplName, String methodName,

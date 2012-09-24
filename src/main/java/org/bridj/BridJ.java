@@ -34,6 +34,8 @@ import java.net.URL;
 import org.bridj.util.StringUtils;
 import static org.bridj.Platform.*;
 import static java.lang.System.*;
+import org.bridj.util.ClassDefiner;
+import org.bridj.util.ASMUtils;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 /**
@@ -116,9 +118,8 @@ public class BridJ {
      */
     public static synchronized <T extends NativeObject> T protectFromGC(T ob) {
         long peer = Pointer.getAddress(ob, null);
-        if (weakNativeObjects.remove(peer) != null) {
-            strongNativeObjects.put(peer, ob);
-        }
+        weakNativeObjects.remove(peer);
+        strongNativeObjects.put(peer, ob);
         return ob;
     }
 
@@ -163,6 +164,19 @@ public class BridJ {
     		throw new RuntimeException("Failed to register class " + name, ex);
     	}
     }
+    
+    /**
+     * Create a subclass of the provided original class with synchronized overrides for all native methods.
+     * Non-default constructors are not currently handled.
+     * @param <T>
+     * @param original
+     * @throws IOException 
+     */
+    public static <T> Class<? extends T> subclassWithSynchronizedNativeMethods(Class<T> original) throws IOException {
+        ClassDefiner classDefiner = getRuntimeByRuntimeClass(CRuntime.class).getCallbackNativeImplementer();
+        return ASMUtils.createSubclassWithSynchronizedNativeMethodsAndNoStaticFields(original, classDefiner);
+    }
+    
     enum CastingType {
         None, CastingNativeObject, CastingNativeObjectReturnType
     }
@@ -206,7 +220,7 @@ public class BridJ {
         		TypeInfo<O> typeInfo = getTypeInfo(type);
         		O instance = typeInfo.cast(pointer);
                 if (BridJ.debug)
-                    BridJ.log(Level.INFO, "Created native object from pointer " + pointer);
+                    BridJ.info("Created native object from pointer " + pointer);
 			return instance;
 		} catch (Exception ex) {
             throw new RuntimeException("Failed to cast pointer to native object of type " + Utils.getClass(type).getName(), ex);
@@ -265,7 +279,7 @@ public class BridJ {
                 classRuntimes.put(type, runtime);
                 
                 if (veryVerbose)
-                    log(Level.INFO, "Runtime for " + type.getName() + " : " + runtimeClass.getName());
+                    info("Runtime for " + type.getName() + " : " + runtimeClass.getName());
             }
 			return runtime;
         }
@@ -329,6 +343,9 @@ public class BridJ {
         Verbose("bridj.verbose", "BRIDJ_VERBOSE", false,
             "Verbose mode"
         ),
+        Quiet("bridj.quiet", "BRIDJ_QUIET", false,
+            "Quiet mode"
+        ),
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
             "Log each native call performed (or call from native to Java callback)"
         ),
@@ -337,9 +354,6 @@ public class BridJ {
         ),
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
             "Enable destructors (in languages that support them, such as C++)"
-        ),
-        DeleteOldBinaries("bridj.deleteOldBinaries", "BRIDJ_DELETE_OLD_BINARIES", false,
-            "Delete old BridJ binaries upon startup"
         ),
         Direct("bridj.direct", "BRIDJ_DIRECT", true,
             "Direct mode (uses optimized assembler glue when possible to speed up calls)"
@@ -387,7 +401,7 @@ public class BridJ {
             if (n.endsWith("_LIBRARY"))
                 continue;
             
-            log(Level.SEVERE, "Unknown environment variable : " + n + "=\"" + System.getenv(n) + "\"");
+            error("Unknown environment variable : " + n + "=\"" + System.getenv(n) + "\"");
             hasUnknown = true;
         }
         
@@ -399,7 +413,7 @@ public class BridJ {
             if (n.endsWith(".library"))
                 continue;
             
-            log(Level.SEVERE, "Unknown property : " + n + "=\"" + System.getProperty(n) + "\"");
+            error("Unknown property : " + n + "=\"" + System.getProperty(n) + "\"");
             hasUnknown = true;
         }
         if (hasUnknown) {
@@ -408,7 +422,7 @@ public class BridJ {
             for (Switch s : Switch.values()) {
                 b.append(s.getFullDescription() + "\n");
             }
-            log(Level.SEVERE, b.toString());
+            error(b.toString());
         }
     }
 	
@@ -417,17 +431,18 @@ public class BridJ {
     public static final boolean debugPointers = Switch.DebugPointers.enabled;
     public static final boolean veryVerbose = Switch.VeryVerbose.enabled;
 	public static final boolean verbose = debug || veryVerbose || Switch.Verbose.enabled;
+    public static final boolean quiet = Switch.Quiet.enabled;
     
     public static final boolean logCalls = Switch.LogCalls.enabled;
     public static final boolean protectedMode = Switch.Protected.enabled;
     public static final boolean enableDestructors = Switch.Destructors.enabled;
     
-    static volatile int minLogLevelValue = Level.WARNING.intValue();
+    static volatile int minLogLevelValue = (verbose ? Level.WARNING : Level.INFO).intValue();
     public static void setMinLogLevel(Level level) {
     		minLogLevelValue = level.intValue();
     }
 	static boolean shouldLog(Level level) {
-        return verbose || level.intValue() >= minLogLevelValue;
+        return !quiet && (verbose || level.intValue() >= minLogLevelValue);
     }
     
     static Logger logger;
@@ -436,20 +451,38 @@ public class BridJ {
     			logger = Logger.getLogger(BridJ.class.getName());
     		return logger;
     }
-	public static boolean log(Level level, String message, Throwable ex) {
+    public static boolean info(String message) {
+    	return info(message, null);
+    }
+    public static boolean info(String message, Throwable ex) {
+    	return log(Level.INFO, message, ex);
+    }
+    public static boolean debug(String message) {
+    	if (!debug)
+    		return true;
+    	return info(message, null);
+    }
+    public static boolean error(String message) {
+    	return error(message, null);
+    }
+    public static boolean error(String message, Throwable ex) {
+    	return log(Level.INFO, message, ex);
+    }
+    public static boolean warning(String message) {
+    	return warning(message, null);
+    }
+    public static boolean warning(String message, Throwable ex) {
+    	return log(Level.INFO, message, ex);
+    }
+	private static boolean log(Level level, String message, Throwable ex) {
         if (!shouldLog(level))
             return true;
 		getLogger().log(level, message, ex);
         return true;
 	}
-
-	public static boolean log(Level level, String message) {
-		log(level, message, null);
-		return true;
-	}
 	
 	static void logCall(Method m) {
-		getLogger().log(Level.INFO, "Calling method " + m);
+		info("Calling method " + m);
 	}
 
 	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws IOException {
@@ -463,11 +496,21 @@ public class BridJ {
 	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = librariesByClass.get(type);
 		if (lib == null) {
-			String name = getNativeLibraryName(type);
-			lib = getNativeLibrary(name);
-            if (lib != null) {
-				librariesByClass.put(type, lib);
-		}
+			Library libAnn = getLibrary(type);
+			if (libAnn != null) {
+				for (String dependency : libAnn.dependencies()) {
+					if (verbose)
+						info("Trying to load dependency '" + dependency + "' of '" + libAnn.value() + "'");
+					NativeLibrary depLib = getNativeLibrary(dependency);
+					if (depLib == null) {
+						throw new RuntimeException("Failed to load dependency '" + dependency + "' of library '" + libAnn.value() + "'");
+					}
+				}
+				lib = getNativeLibrary(libAnn.value());
+				if (lib != null) {
+					librariesByClass.put(type, lib);
+				}
+			}
         }
 		return lib;
 	}
@@ -504,17 +547,6 @@ public class BridJ {
 			lib.release();
 	}
     }
-//	
-//	public static void register(Class<?> type) {
-//		try {
-//			String libraryName = getLibrary(type);
-//			NativeLibrary library = getLibHandle(libraryName);
-//			library.register(type);
-//		} catch (FileNotFoundException ex) {
-//			throw new RuntimeException("Failed to register class " + type.getName(), ex);
-//		}
-//	}
-//
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
     static volatile List<String> paths;
 
@@ -526,13 +558,13 @@ public class BridJ {
     private static void addPathsFromEnv(List<String> out, String name) {
         String env = getenv(name);
         if (BridJ.verbose)
-            BridJ.log(Level.INFO, "Environment var " + name + " = " + env);
+            BridJ.info("Environment var " + name + " = " + env);
         addPaths(out, env);
     }
     private static void addPathsFromProperty(List<String> out, String name) {
         String env = getProperty(name);
         if (BridJ.verbose)
-            BridJ.log(Level.INFO, "Property " + name + " = " + env);
+            BridJ.info("Property " + name + " = " + env);
         addPaths(out, env);
     }
     private static void addPaths(List<String> out, String env) {
@@ -698,7 +730,7 @@ public class BridJ {
                 return nativeLibraryFile;
             }
         } catch (Throwable th) {
-            log(Level.WARNING, "Library not found : " + libraryName);
+            warning("Library not found : " + libraryName);
             return null;
         }
     }
@@ -722,9 +754,17 @@ public class BridJ {
             possibleNames.addAll(aliases);
         possibleNames.add(actualName == null ? libraryName : actualName);
 
+        if (Platform.isWindows()) {
+        	if (libraryName.equals("c"))
+        		possibleNames.add("msvcrt");
+        	else if (libraryName.equals("m"))
+        		possibleNames.add("msvcrt");
+        }
+        
         //out.println("Possible names = " + possibleNames);
         List<String> paths = getNativeLibraryPaths();
-        log(Level.INFO, "Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
+        if (debug)
+        	info("Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
 
         for (String name : possibleNames) {
             String env = getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
@@ -736,7 +776,7 @@ public class BridJ {
                     try {
                         return f.getCanonicalFile();
                     } catch (IOException ex) {
-                        log(Level.SEVERE, null, ex);
+                        error(null, ex);
                     }
                 }
             }
@@ -758,7 +798,7 @@ public class BridJ {
                                 File ff = findFileWithGreaterVersion(pathFile, files, possibleFileName);
                                 if (ff != null && (f = ff).isFile()) {
                                     if (verbose)
-                                        log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
+                                        info("File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
                                     break;
                                 }
                             }
@@ -771,7 +811,7 @@ public class BridJ {
                 try {
                     return f.getCanonicalFile();
                 } catch (IOException ex) {
-                    log(Level.SEVERE, null, ex);
+                    error(null, ex);
                 }
             }
             if (isMacOSX()) {
@@ -821,7 +861,8 @@ public class BridJ {
             		!logCalls &&
                     !protectedMode
 			;
-            log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + getProperty("bridj.direct") + ")");
+            if (veryVerbose)
+            	info("directModeEnabled = " + directModeEnabled);
         }
         return directModeEnabled;
     }
@@ -878,7 +919,8 @@ public class BridJ {
             else
             	throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f != null && f.exists() ? " (failed to load " + f + ")" : ""));
         }
-        log(Level.INFO, "Loaded library '" + name + "' from '" + f + "'", null);
+        if (verbose)
+        	info("Loaded library '" + name + "' from '" + f + "'", null);
         
         libHandles.put(name, ll);
         return ll;
@@ -888,24 +930,16 @@ public class BridJ {
      * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link org.bridj.ann.Library} annotation.
 	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
-        Library lib = getInheritableAnnotation(Library.class, m);
-//        if (lib == null) {
-//        		Class c = null;
-//        		if (m instanceof Class)
-//        			c = (Class)m;
-//        		else if (m instanceof Member)
-//        			c = ((Member)m).getDeclaringClass();
-//        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null) {
-//                    Package p = c.getPackage();
-//                    if (p != null && p.getName().matches("(java|org\\.bridj)(\\..*)?"))
-//                        return null;
-//                    
-//        			return c.getSimpleName();
-//                } 
-//                else
-//        			return null;
-//        }
+    	Library lib = getLibrary(m);
         return lib == null ? null : lib.value();
+    }
+    
+    /**
+     * Gets the {@link org.bridj.ann.Library} annotation for an annotated element.
+     * Recurses up to parents of the element (class, enclosing classes) if needed
+	 */
+    static Library getLibrary(AnnotatedElement m) {
+    	return getInheritableAnnotation(Library.class, m);
     }
 
 	public static Symbol getSymbolByAddress(long peer) {

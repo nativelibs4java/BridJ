@@ -5,8 +5,6 @@ import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
@@ -53,7 +51,7 @@ public abstract class Demangler {
 //            MemberRef mr = new VC9Demangler(null, s).parseSymbol();
 //            System.out.println(mr);
 //        } catch (DemanglingException ex) {
-//            Logger.getLogger(Demangler.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(Demangler.class.getName()).error(null, ex);
 //        }
         for (String arg : args) {
 			try {
@@ -329,7 +327,7 @@ public abstract class Demangler {
                     if (BridJ.debug)
 						ex.printStackTrace();
 					if (BridJ.verbose)
-                        BridJ.log(Level.WARNING, "Symbol parsing failed : " + ex.getMessage());
+                        BridJ.warning("Symbol parsing failed : " + ex.getMessage());
 				}
 				refParsed = true;
 			}

@@ -88,7 +88,7 @@ public class CallTest {
 	//*/
 
 	
-#foreach ($n in [9..9])
+#foreach ($n in [2, 9, 20])
 	public static native ${prim.Name} test_add${n}_${prim.Name}(#foreach ($i in [1..$n])#if($i > 1), #end${prim.Name} arg$i#end);
 	public static native void test_add${n}_${prim.Name}_out(#foreach ($i in [1..$n])#if($i > 1), #end${prim.Name} arg$i#end, Pointer<${prim.WrapperName}> out);
 	
@@ -97,7 +97,7 @@ public class CallTest {
 		Pointer<${prim.WrapperName}> out = allocate${prim.CapName}();
 		
 		${prim.Name} expectedTot = (${prim.Name})0;
-		${prim.Name} fact = (${prim.Name})1;
+		${prim.Name} fact = (${prim.Name})2;
 #foreach ($i in [1..$n])
 		${prim.Name} arg$i = (${prim.Name})(fact * ($i + 1));
 		fact *= (${prim.Name})2;

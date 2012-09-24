@@ -486,7 +486,7 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 		return NULL;
 
 	count = dlSymsCount(pSyms);
-	printf("getLibrarySymbols has %d symbols\n", (int)count);
+	//printf("getLibrarySymbols has %d symbols\n", (int)count);
 	stringClass = (*env)->FindClass(env, "java/lang/String");
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {

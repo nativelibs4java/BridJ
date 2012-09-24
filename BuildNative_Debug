@@ -1,0 +1,3 @@
+#!/bin/bash
+
+DEBUG=1 BRIDJ_TARGETS=default `dirname $0`/BuildNative $@ || exit 1

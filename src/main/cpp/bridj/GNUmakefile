@@ -24,18 +24,18 @@ CXX=gcc
 
 COMPILE_PIC = 1
 
-TOP =	$(DYNCALL_HOME)
-include $(DYNCALL_HOME)/buildsys/gmake/prolog.gmake
+TOP =	$(DYNCALL_HOME)/dyncall
+include $(DYNCALL_HOME)/dyncall/buildsys/gmake/prolog.gmake
 
 TARGET_DLL	 = bridj
 INSTALL_LIB	 = 1
 
 # uses some dyncall headers - no other dependencies.
 
-CPPFLAGS	 += -I$(DYNCALL_HOME)
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall
-CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
-CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
+CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall/dyncall
+CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall/dyncallback
+CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall/dynload
 
 UNITS += Exceptions
 UNITS += JNI
@@ -134,9 +134,9 @@ endif
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 
-LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/$(BUILD_DIR) 
-LINK_DIRS	+= $(DYNCALL_HOME)/dynload/$(BUILD_DIR) 
-LINK_DIRS	+= $(DYNCALL_HOME)/dyncallback/$(BUILD_DIR) 
+LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/dyncall/$(BUILD_DIR) 
+LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/dynload/$(BUILD_DIR) 
+LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/dyncallback/$(BUILD_DIR) 
 LINK_LIBS   += dyncall_s dynload_s dyncallback_s
 
-include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake
+include $(DYNCALL_HOME)/dyncall/buildsys/gmake/epilog.gmake

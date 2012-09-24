@@ -17,7 +17,7 @@ import static org.bridj.dyncall.DyncallLibrary.*;
 public class StructByValueTest {
     static {
         if (!BridJ.Switch.StructsByValue.enabled)
-            BridJ.log(Level.WARNING, "Structs by value are not enabled (see " + BridJ.Switch.StructsByValue.getFullDescription() + ")");
+            BridJ.warning("Structs by value are not enabled (see " + BridJ.Switch.StructsByValue.getFullDescription() + ")");
         else
             BridJ.register();
     }

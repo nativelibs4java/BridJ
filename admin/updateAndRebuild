@@ -1,8 +1,7 @@
 #!/bin/bash
 
 BRIDJ_DIR=`pwd`
-DYNCALL_BASE=$BRIDJ_DIR/dyncall
-export DYNCALL_HOME=$DYNCALL_BASE/dyncall
+export DYNCALL_HOME=$BRIDJ_DIR/dyncall
 DYNCALL_PATCH=$BRIDJ_DIR/src/main/cpp/bridj/dyncall.diff
 
 rm $BRIDJ_DIR/*.log > /dev/null

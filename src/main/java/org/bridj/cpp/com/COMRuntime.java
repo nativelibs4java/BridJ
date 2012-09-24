@@ -2,7 +2,6 @@ package org.bridj.cpp.com;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
 
 import org.bridj.ValuedEnum;
 import org.bridj.FlagSet;
@@ -196,8 +195,8 @@ public class COMRuntime extends CPPRuntime {
     };
     
     @Override
-    protected Level getSeverityOfMissingSymbol(Method method) {
-    		return null;
+    protected boolean isSymbolOptional(Method method) {
+    		return true;
     }
     
     /**

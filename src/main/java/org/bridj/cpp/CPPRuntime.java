@@ -4,10 +4,9 @@
  * and open the template in the editor.
  */
 package org.bridj.cpp;
-
+                                            
 import org.bridj.SizeT;
 import java.util.Set;
-import java.util.logging.Logger;
 import org.bridj.ann.Template;
 import org.bridj.DynamicFunction;
 import org.bridj.demangling.Demangler.IdentLike;
@@ -26,9 +25,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 import org.bridj.BridJ;
+import static org.bridj.BridJ.*;
 import org.bridj.JNI;
 import org.bridj.MethodCallInfo;
 import org.bridj.NativeLibrary;
@@ -264,19 +263,21 @@ public class CPPRuntime extends CRuntime {
             Symbol symbol = methodLibrary.getSymbol(method);
             mci.setForwardedPointer(symbol == null ? 0 : symbol.getAddress());
             if (mci.getForwardedPointer() == 0) {
-                assert log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
+                assert error("Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
                 return;
             }
             if (Modifier.isStatic(modifiers)) {
                 builder.addFunction(mci);
-                assert log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
+                if (debug)
+                	info("Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
                 builder.addFunction(mci);
-                log(Level.INFO, "Registering " + method + " as C++ method " + symbol.getName());
+                if (debug)
+                	info("Registering " + method + " as C++ method " + symbol.getName());
             }
         } else {
             if (Modifier.isStatic(modifiers)) {
-                log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
+                warning("Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
             }
             
             int theoreticalVirtualIndex = va.value();
@@ -287,7 +288,7 @@ public class CPPRuntime extends CRuntime {
             Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? (Pointer)pointerToAddress(getVirtualTable(type, typeLibrary), Pointer.class) : null;
             if (pVirtualTable == null) {
                 if (theoreticalAbsoluteVirtualIndex < 0) {
-                    log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found and the virtual method index is not provided in its @Virtual annotation.");
+                    error("Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found and the virtual method index is not provided in its @Virtual annotation.");
                     return;
                 }
                 absoluteVirtualIndex = theoreticalAbsoluteVirtualIndex;
@@ -295,20 +296,21 @@ public class CPPRuntime extends CRuntime {
                 int guessedAbsoluteVirtualIndex = getPositionInVirtualTable(pVirtualTable, method, typeLibrary);
                 if (guessedAbsoluteVirtualIndex < 0) {
                     if (theoreticalAbsoluteVirtualIndex < 0) {
-                        log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
+                        error("Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
                         return;
                     } else {
                         absoluteVirtualIndex = theoreticalAbsoluteVirtualIndex;
                     }
                 } else {
                     if (theoreticalAbsoluteVirtualIndex >= 0 && guessedAbsoluteVirtualIndex != theoreticalAbsoluteVirtualIndex) {
-                        log(Level.WARNING, "Method " + method.toGenericString() + " has @Virtual annotation indicating virtual index " + theoreticalAbsoluteVirtualIndex + ", but analysis of the actual virtual table rather indicates it has index " + guessedAbsoluteVirtualIndex + " (using the guess)");
+                        warning("Method " + method.toGenericString() + " has @Virtual annotation indicating virtual index " + theoreticalAbsoluteVirtualIndex + ", but analysis of the actual virtual table rather indicates it has index " + guessedAbsoluteVirtualIndex + " (using the guess)");
                     }
                     absoluteVirtualIndex = guessedAbsoluteVirtualIndex;
                 }
             }
             mci.setVirtualIndex(absoluteVirtualIndex);
-            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
+            if (debug)
+				info("Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
             builder.addVirtualMethod(mci);
         }
     }
@@ -373,7 +375,7 @@ public class CPPRuntime extends CRuntime {
                 NativeLibrary libStdCpp = BridJ.getNativeLibrary("stdc++");
                 memoryOperators = new MemoryOperators(libStdCpp);
             } catch (Exception ex) {
-                Logger.getLogger(CPPRuntime.class.getName()).log(Level.SEVERE, null, ex);
+            	BridJ.error(null, ex);
             }
         }
         return memoryOperators;
@@ -397,18 +399,20 @@ public class CPPRuntime extends CRuntime {
 			String virtualMethodName = pMethod == null ? null : library.getSymbolName(pMethod.getPeer());
 			//System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
 			if (virtualMethodName == null) {
-                log(Level.INFO, "\tVtable(" + className + ")[" + iVirtual + "] = null");
+                if (debug)
+                	info("\tVtable(" + className + ")[" + iVirtual + "] = null");
                 return -1;
             }
             try {
                 MemberRef mr = library.parseSymbol(virtualMethodName);
-                log(Level.INFO, "\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
+                if (debug)
+                	info("\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
                 if (mr != null && mr.matchesSignature(method))
                     return iVirtual;
                 else if (library.isMSVC() && !mr.matchesEnclosingType(method))
                     break; // no NULL terminator in MSVC++ vtables, so we have to guess when we've reached the end
             } catch (Demangler.DemanglingException ex) {
-                BridJ.log(Level.WARNING, "Failed to demangle '" + virtualMethodName + "' during inspection of virtual table for '" + method.toGenericString() + "' : " + ex);
+                BridJ.warning("Failed to demangle '" + virtualMethodName + "' during inspection of virtual table for '" + method.toGenericString() + "' : " + ex);
             }
             
 		}
@@ -438,7 +442,7 @@ public class CPPRuntime extends CRuntime {
         long vtablePtr = getVirtualTable(type, library);
         if (vtablePtr != 0) {
             if (BridJ.debug)
-                BridJ.log(Level.INFO, "Installing regular vtable pointer " + Pointer.pointerToAddress(vtablePtr) + " to instance at " + peer + " (type = " + Utils.toString(type) + ")");
+                BridJ.info("Installing regular vtable pointer " + Pointer.pointerToAddress(vtablePtr) + " to instance at " + peer + " (type = " + Utils.toString(type) + ")");
             peer.setSizeT(vtablePtr);
             return true;
         }
@@ -463,10 +467,10 @@ public class CPPRuntime extends CRuntime {
                         if (CPPObject.class.isAssignableFrom(Utils.getClass(parentType))) {
                             parentVTablePtr = peer.getPointer(Pointer.class);
                             if (BridJ.debug) {
-                                BridJ.log(Level.INFO, "Found parent virtual table pointer = " + ptrToString(parentVTablePtr, library));
+                                BridJ.info("Found parent virtual table pointer = " + ptrToString(parentVTablePtr, library));
                                 /*Pointer<Pointer> expectedParentVTablePtr = pointerToAddress(getVirtualTable(parentType, library), Pointer.class);
                                 if (expectedParentVTablePtr != null && !Utils.eq(parentVTablePtr, expectedParentVTablePtr))
-                                    BridJ.log(Level.WARNING, "Weird parent virtual table pointer : expected " + ptrToString(expectedParentVTablePtr, library) + ", got " + ptrToString(parentVTablePtr, library));
+                                    BridJ.warning("Weird parent virtual table pointer : expected " + ptrToString(expectedParentVTablePtr, library) + ", got " + ptrToString(parentVTablePtr, library));
                                 */
 
                             }
@@ -480,7 +484,7 @@ public class CPPRuntime extends CRuntime {
             }
             if (vtable != null) {
                 if (BridJ.debug)
-                    BridJ.log(Level.INFO, "Installing synthetic vtable pointer " + vtable.ptr + " to instance at " + peer + " (type = " + Utils.toString(type) + ", " + vtable.callbacks.size() + " callbacks)");
+                    BridJ.info("Installing synthetic vtable pointer " + vtable.ptr + " to instance at " + peer + " (type = " + Utils.toString(type) + ", " + vtable.callbacks.size() + " callbacks)");
                 peer.setPointer(vtable.ptr);
                 return vtable.ptr != null;
             } else
@@ -510,7 +514,7 @@ public class CPPRuntime extends CRuntime {
                     pMethod = createCToJavaCallback(mci, c);
                     vtable.callbacks.put(vm.implementation, pMethod);
                 } catch (Throwable th) {
-                    BridJ.log(Level.SEVERE, "Failed to register overridden method " + vm.implementation + " for type " + type + " (original method = " + vm.definition + ")", th);
+                    BridJ.error("Failed to register overridden method " + vm.implementation + " for type " + type + " (original method = " + vm.definition + ")", th);
                     pMethod = null;
                 }
             }
@@ -534,20 +538,24 @@ public class CPPRuntime extends CRuntime {
                 try {
                 		constr = findConstructor(typeClass, constructorId, true);
                 		
-                		BridJ.log(Level.INFO, "Found constructor for " + Utils.toString(type) + " : " + constr);
+                		if (debug)
+                			BridJ.info("Found constructor for " + Utils.toString(type) + " : " + constr);
                 } catch (NoSuchMethodException ex) {
-                		BridJ.log(Level.INFO, "No constructor for " + Utils.toString(type));
+                		if (debug)
+                			BridJ.info("No constructor for " + Utils.toString(type));
                 		return null;
                 }
                 Symbol symbol = lib == null ? null : lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
                     return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
                 }});
                 if (symbol == null) {
-                		BridJ.log(Level.INFO, "No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
-                		return null;
+                	if (debug)
+                		BridJ.info("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
+					return null;
                 }
 
-                log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
+                if (debug)
+                	info("Registering constructor " + constr + " as " + symbol.getName());
 
                 // TODO do something with these args !
                 int templateParametersCount = getTemplateParametersCount(typeClass);
@@ -575,8 +583,8 @@ public class CPPRuntime extends CRuntime {
             Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
                 return symbol.matchesDestructor(typeClass);
             }});
-            if (symbol != null)
-                log(Level.INFO, "Registering destructor of " + Utils.toString(type) + " as " + symbol.getName());
+            if (BridJ.debug && symbol != null)
+                info("Registering destructor of " + Utils.toString(type) + " as " + symbol.getName());
 
             if (symbol != null)
                 destructors.put(type, destructor = pointerToAddress(symbol.getAddress(), CPPDestructor.class).get());
@@ -602,7 +610,7 @@ public class CPPRuntime extends CRuntime {
                 releaser = new Pointer.Releaser() { //@Override 
                 public void release(Pointer<?> p) {
                        if (BridJ.debug)
-                           BridJ.log(Level.INFO, "Destructing instance of C++ type " + Utils.toString(type) + " (address = " + p + ", destructor = " + pointerTo(destructor) + ")");
+                           BridJ.info("Destructing instance of C++ type " + Utils.toString(type) + " (address = " + p + ", destructor = " + pointerTo(destructor) + ")");
 
                     //System.out.println("Destructing instance of C++ type " + type + "...");
                     long peer = p.getPeer();
@@ -618,7 +626,8 @@ public class CPPRuntime extends CRuntime {
             final Class<T> typeClass = Utils.getClass(type);
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
 
-            log(Level.INFO, "Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
+            if (BridJ.debug)
+				info("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
             Pointer.Releaser releaser = newCPPReleaser(type, typeClass, lib);
 
             long size = sizeOf(type, null);
@@ -714,7 +723,8 @@ public class CPPRuntime extends CRuntime {
 					return symbol.matchesVirtualTable(typeClass);
 				}});
 				if (symbol != null) {
-					log(Level.INFO, "Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
+					if (BridJ.debug)
+						info("Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
 //                    Pointer<Pointer> pp = pointerToAddress(symbol.getAddress(), Pointer.class);
 //                    
 //                    for (int i = 0; i < 6; i++) {
@@ -722,13 +732,13 @@ public class CPPRuntime extends CRuntime {
 ////                        if (p == null)
 ////                            break;
 //                        String n = p == null ? null : library.getSymbolName(p.getPeer());
-//                        log(Level.INFO, "\tVtable entry " + i + " = " + p + " (" + n + ")");
+//                        info("\tVtable entry " + i + " = " + p + " (" + n + ")");
 ////                        if (n == null)
 ////                            break;
 //                    }
                 }
                 else if (getVirtualMethodsCount(typeClass) > 0)
-                    log(Level.SEVERE, "Failed to find a vtable for type " + Utils.toString(type));
+                    error("Failed to find a vtable for type " + Utils.toString(type));
                 
                 if (symbol != null) {
                     long address = symbol.getAddress();

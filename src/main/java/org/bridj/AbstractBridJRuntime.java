@@ -8,8 +8,6 @@ package org.bridj;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bridj.cpp.CPPRuntime;
 import org.bridj.util.Utils;
 
@@ -18,16 +16,6 @@ import org.bridj.util.Utils;
  * @author Olivier
  */
 public abstract class AbstractBridJRuntime implements BridJRuntime {
-    protected boolean log(Level level, String message, Throwable ex) {
-        if (!BridJ.shouldLog(level))
-            return true;
-        
-		Logger.getLogger(getClass().getName()).log(level, message, ex);
-		return true;
-	}
-	protected boolean log(Level level, String message) {
-		return log(level, message, null);
-	}
 	//@Override
 	public void unregister(Type type) {
 		// TODO !!!

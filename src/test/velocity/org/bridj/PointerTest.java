@@ -643,6 +643,9 @@ public class PointerTest {
 		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}AtOffset(0 * ${primSize})$precisionArg);
 		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtOffset(1 * ${primSize})$precisionArg);
 		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtOffset(2 * ${primSize})$precisionArg);
+		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}AtIndex(0)$precisionArg);
+		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtIndex(1)$precisionArg);
+		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtIndex(2)$precisionArg);
 		
 		$rawType[] arr = p.get${prim.CapName}s();
 		assertEquals(${prim.rawValue($v1)}, arr[0]$precisionArg);
@@ -663,7 +666,7 @@ public class PointerTest {
 	@Test 
     public void testGet${prim.CapName}s() {
 	
-    		for (int type = 0; type < 5; type++) {
+    		for (int type = 0; type <= 5; type++) {
 			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}s(n);
 			$rawType[] expected = createExpected${rawCapName}s(n);
 			$rawType[] values = null;
@@ -698,6 +701,13 @@ public class PointerTest {
 				for (int i = 0; i < n; i++) {
 					p.set${prim.CapName}AtOffset(i * ${primSize}, expected[i]);
 					values[i] = p.get${prim.CapName}AtOffset(i * ${primSize}); 
+				}
+				break;
+			case 5:
+				values = new $rawType[n];
+				for (int i = 0; i < n; i++) {
+					p.set${prim.CapName}AtIndex(i, expected[i]);
+					values[i] = p.get${prim.CapName}AtIndex(i); 
 				}
 				break;
 			}

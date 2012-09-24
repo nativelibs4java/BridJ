@@ -33,9 +33,9 @@ JNI_SIZEOF(long, long)
 
 JNIEXPORT jint JNICALL Java_org_bridj_Platform_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
 #if defined(_WIN64)
-	return 4;
+	return 16;
 #elif defined(DC__OS_Darwin) && defined(DC__Arch_AMD64)
-	return 4;
+	return 4;//16;
 #elif defined(DC__OS_Linux) && defined(DC__Arch_AMD64)
 	return 4;
 #elif defined(_WIN32)

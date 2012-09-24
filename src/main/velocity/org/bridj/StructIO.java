@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bridj.ann.Virtual;
 import org.bridj.ann.Array;
 import org.bridj.ann.Union;
@@ -283,11 +281,11 @@ public class StructIO {
 					fields = computeStructLayout();
                     if (fields.length == 0) {
                         if (BridJ.verbose)
-                            BridJ.log(Level.INFO, "No fields found in " + Utils.toString(structType) + " (maybe they weren't declared as public ?)");
+                            BridJ.info("No fields found in " + Utils.toString(structType) + " (maybe they weren't declared as public ?)");
                     }
 					customizer.afterBuild(this);
 					if (BridJ.debug)
-						BridJ.log(Level.INFO, describe());
+						BridJ.info(describe());
 				}
 			}
 		}
@@ -403,7 +401,7 @@ public class StructIO {
                 	if (acceptFieldGetter(setter, false))
                 		io.setter = setter;
                 } catch (Exception ex) {
-                		//assert BridJ.log(Level.INFO, "No setter for getter " + method);
+                		//assert BridJ.info("No setter for getter " + method);
                 }
                 if (io != null)
                     list.add(io);
@@ -421,7 +419,7 @@ public class StructIO {
             }
         }
 		if (nFieldFields > 0)
-			BridJ.log(Level.WARNING, "Struct " + structClass.getName() + " has " + nFieldFields + " struct fields implemented as Java fields, which won't give the best performance and might require counter-intuitive calls to BridJ.readFromNative / .writeToNative. Please consider using JNAerator to generate your struct instead.");
+			BridJ.warning("Struct " + structClass.getName() + " has " + nFieldFields + " struct fields implemented as Java fields, which won't give the best performance and might require counter-intuitive calls to BridJ.readFromNative / .writeToNative. Please consider using JNAerator to generate your struct instead.");
 		
 		return list;
 	}

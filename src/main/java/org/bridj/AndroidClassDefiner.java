@@ -4,6 +4,7 @@
  */
 package org.bridj;
 
+import org.bridj.util.ClassDefiner;
 import com.android.dx.dex.cf.CfOptions;
 import com.android.dx.dex.cf.CfTranslator;
 import com.android.dx.dex.file.DexFile;
@@ -13,7 +14,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -47,7 +47,7 @@ class AndroidClassDefiner implements ClassDefiner {
             StringWriter out = BridJ.debug ? new StringWriter() : null;
             byte[] dexData = dxFile.toDex(out, false);
             if (BridJ.debug)
-                BridJ.log(Level.INFO, "Dex output for class " + className + " : " + out);
+                BridJ.info("Dex output for class " + className + " : " + out);
             return dexData;
         } catch (IOException ex) {
             throw new ClassFormatError("Unable to convert class data to Dalvik code using Dex : " + ex);

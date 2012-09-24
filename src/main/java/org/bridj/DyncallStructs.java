@@ -2,7 +2,6 @@ package org.bridj;
 
 
 import org.bridj.StructIO.FieldDecl;
-import java.util.logging.Level;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.bridj.StructIO.AggregatedFieldDesc;
@@ -32,7 +31,7 @@ class DyncallStructs {
         long size = dcStructSize(struct);
         
         if (expectedSize != size) {
-            BridJ.log(Level.SEVERE, "Struct size computed for " + Utils.toString(io.structType) + " by BridJ (" + expectedSize + " bytes) and dyncall (" + size + " bytes) differ !");
+            BridJ.error("Struct size computed for " + Utils.toString(io.structType) + " by BridJ (" + expectedSize + " bytes) and dyncall (" + size + " bytes) differ !");
             return null;
         }
         return struct;

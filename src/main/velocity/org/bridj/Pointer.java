@@ -10,7 +10,6 @@ import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import static org.bridj.SizeT.safeIntCast;
-import java.util.logging.Level;
 
 /**
  * Pointer to a native memory location.<br>
@@ -23,12 +22,28 @@ import java.util.logging.Level;
  *  </li>
  *	<li>Reading / writing a primitive from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}AtOffset(long)} / {@link Pointer#set${prim.CapName}AtOffset(long, ${prim.Name})}<br>
+ *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} <br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}AtOffset(long)} / {@link Pointer#set${sizePrim}AtOffset(long, long)} <br>
+ *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} <br>
 #end
- *  </li>
+ *</li>
+ *	<li>Reading / writing the nth contiguous primitive value from / to the pointed memory location :<br>
+#foreach ($prim in $primitives)
+ *		{@link Pointer#get${prim.CapName}AtIndex(long)} / {@link Pointer#set${prim.CapName}AtIndex(long, ${prim.Name})} <br>
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
+ *	  {@link Pointer#get${sizePrim}AtIndex(long)} / {@link Pointer#set${sizePrim}AtIndex(long, long)} <br>
+#end
+ *</li>
+ *	<li>Reading / writing a primitive from / to the pointed memory location with a byte offset:<br>
+#foreach ($prim in $primitives)
+ *		{@link Pointer#get${prim.CapName}AtOffset(long)} / {@link Pointer#set${prim.CapName}AtOffset(long, ${prim.Name})} <br>
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
+ *		{@link Pointer#get${sizePrim}AtOffset(long)} / {@link Pointer#set${sizePrim}AtOffset(long, long)} <br>
+#end
+ *</li>
  *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}sAtOffset(long, int)} / {@link Pointer#set${prim.CapName}sAtOffset(long, ${prim.Name}[])}<br>
@@ -123,8 +138,21 @@ import java.util.logging.Level;
  *  </li>
  * </ul>
  */
-public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
+public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 {
+
+#macro (declareCheckedPeer $validityCheckLength)
+		long checkedPeer = peer;
+		if (validStart != UNKNOWN_VALIDITY)
+			checkPeer(checkedPeer, $validityCheckLength);
+#end
+
+#macro (declareCheckedPeerAtOffset $byteOffset $validityCheckLength)
+    	long checkedPeer = peer + $byteOffset;
+		if (validStart != UNKNOWN_VALIDITY)
+			checkPeer(checkedPeer, $validityCheckLength);
+#end
+
 	
 #macro (docAllocateCopy $cPrimName $primWrapper)
 	/**
@@ -211,6 +239,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @deprecated Avoid using the byte offset methods variants unless you know what you're doing (may cause alignment issues). Please favour {@link $signatureWithoutOffset} over this method. 
 	 */
 #end
+#macro (docGetIndex $typeName $equivalentOffsetCall)
+	/**
+     * Read the nth contiguous $typeName value from the pointed memory location.<br>
+	   * Equivalent to <code>${equivalentOffsetCall}</code>.
+     * @param valueIndex index of the value to read
+	 */
+#end
 #macro (docGetArray $cPrimName $primWrapper)
 	/**
      * Read an array of $cPrimName values of the specified length from the pointed memory location
@@ -236,6 +271,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     /**
      * Write a $cPrimName value to the pointed memory location shifted by a byte offset
      * @deprecated Avoid using the byte offset methods variants unless you know what you're doing (may cause alignment issues). Please favour {@link $signatureWithoutOffset} over this method. 
+	 */
+#end
+#macro (docSetIndex $typeName $equivalentOffsetCall)
+	/**
+     * Write the nth contiguous $typeName value to the pointed memory location.<br>
+	   * Equivalent to <code>${equivalentOffsetCall}</code>.
+     * @param valueIndex index of the value to write
+     * @param value $typeName value to write
 	 */
 #end
 #macro (docSetArray $cPrimName $primWrapper)
@@ -265,20 +308,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     
-	private static long UNKNOWN_VALIDITY = -1;
-	private static long NO_PARENT = 0/*-1*/;
+	protected static long UNKNOWN_VALIDITY = -1;
+	protected static long NO_PARENT = 0/*-1*/;
 	
 	/**
 	 * Default alignment used to allocate memory from the static factory methods in Pointer class (any value lower or equal to 1 means no alignment)
 	 */
 	public static final int defaultAlignment = Integer.parseInt(Platform.getenvOrProperty("BRIDJ_DEFAULT_ALIGNMENT", "bridj.defaultAlignment", "-1"));
 	
-	private final PointerIO<T> io;
-	private final long peer, offsetInParent;
-	private final Pointer<?> parent;
-	private volatile Object sibling;
-	private final long validStart, validEnd;
-	private final boolean ordered;
+	protected final PointerIO<T> io;
+	protected final long peer, offsetInParent;
+	protected final Pointer<?> parent;
+	protected volatile Object sibling;
+	protected final long validStart, validEnd;
 
 	/**
 	 * Object responsible for reclamation of some pointed memory when it's not used anymore.
@@ -287,13 +329,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		void release(Pointer<?> p);
 	}
 	
-	Pointer(PointerIO<T> io, long peer) {
-		this(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, null);
-	}
-	Pointer(PointerIO<T> io, long peer, boolean ordered, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling) {
+	Pointer(PointerIO<T> io, long peer, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling) {
 		this.io = io;
 		this.peer = peer;
-		this.ordered = ordered;
 		this.validStart = validStart;
 		this.validEnd = validEnd;
 		this.parent = parent;
@@ -306,6 +344,137 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	Throwable creationTrace;
 	
+#foreach ($data in [ ["Ordered", true, ""], ["Disordered", false, "_disordered"] ])
+#set ($orderingPrefix = $data.get(0))
+#set ($ordered = $data.get(1))
+#set ($nativeSuffix = $data.get(2))
+
+	static class ${orderingPrefix}Pointer<T> extends Pointer<T> {
+		${orderingPrefix}Pointer(PointerIO<T> io, long peer, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling) {
+			super(io, peer, validStart, validEnd, parent, offsetInParent, sibling);
+		}
+	
+		@Override
+		public boolean isOrdered() {
+			return $ordered;
+		}
+		
+#foreach ($prim in $primitives)
+#if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
+
+		@Override
+		public Pointer<T> set${prim.CapName}(${prim.Name} value) {
+			#if ($prim.Name == "char")
+			if (Platform.WCHAR_T_SIZE == 4)
+				return setInt((int)value);
+			#end
+			
+			#declareCheckedPeer(${primSize})
+			#if ($prim.Name != "byte" && $prim.Name != "boolean")
+			JNI.set_${prim.Name}${nativeSuffix}(checkedPeer, value);
+			#else
+			JNI.set_${prim.Name}(checkedPeer, value);
+			#end
+			return this;
+		}
+		
+		@Override
+		public Pointer<T> set${prim.CapName}AtOffset(long byteOffset, ${prim.Name} value) {
+			#if ($prim.Name == "char")
+			if (Platform.WCHAR_T_SIZE == 4)
+				return setIntAtOffset(byteOffset, (int)value);
+			#end
+			#declareCheckedPeerAtOffset("byteOffset" "${primSize}")
+			#if ($prim.Name != "byte" && $prim.Name != "boolean")
+			JNI.set_${prim.Name}${nativeSuffix}(checkedPeer, value);
+			#else
+			JNI.set_${prim.Name}(checkedPeer, value);
+			#end
+			return this;
+		}
+	
+		@Override
+		public ${prim.Name} get${prim.CapName}() {
+			#if ($prim.Name == "char")
+			if (Platform.WCHAR_T_SIZE == 4)
+				return (char)getInt();
+			#end
+			#declareCheckedPeer(${primSize})
+			#if ($prim.Name != "byte" && $prim.Name != "boolean")
+			return JNI.get_${prim.Name}${nativeSuffix}(checkedPeer);
+			#else
+			return JNI.get_${prim.Name}(checkedPeer);
+			#end
+		}
+    
+		@Override
+		public ${prim.Name} get${prim.CapName}AtOffset(long byteOffset) {
+			#if ($prim.Name == "char")
+			if (Platform.WCHAR_T_SIZE == 4)
+				return (char)getIntAtOffset(byteOffset);
+			#end
+			#declareCheckedPeerAtOffset("byteOffset" "${primSize}")
+			#if ($prim.Name != "byte" && $prim.Name != "boolean")
+			return JNI.get_${prim.Name}${nativeSuffix}(checkedPeer);
+			#else
+			return JNI.get_${prim.Name}(checkedPeer);
+			#end
+		}
+#end
+
+
+#foreach ($sizePrim in ["SizeT", "CLong"])
+
+#macro (setPrimitiveValue $primName $peer $value)
+	#if ($primName != "byte" && $primName != "boolean")
+	JNI.set_${primName}${nativeSuffix}($peer, $value);
+	#else
+	JNI.set_${primName}($peer, value);
+	#end
+#end
+
+	@Override
+    public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length) {
+		if (values == null)
+			throw new IllegalArgumentException("Null values");
+		if (${sizePrim}.SIZE == 8) {
+			setLongsAtOffset(byteOffset, values, valuesOffset, length);
+		} else {
+			int n = length;
+			#declareCheckedPeerAtOffset("byteOffset" "n * 4")
+            
+			long peer = checkedPeer;
+			int valuesIndex = valuesOffset;
+			for (int i = 0; i < n; i++) {
+				int value = (int)values[valuesIndex];
+				#setPrimitiveValue("int" "peer" "value")
+				peer += 4;
+				valuesIndex++;
+			}
+		}
+		return this;
+	}
+#docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(int[])")
+	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, int[] values) {
+		if (${sizePrim}.SIZE == 4) {
+			setIntsAtOffset(byteOffset, values);
+		} else {
+			int n = values.length;
+			#declareCheckedPeerAtOffset("byteOffset" "n * 8")
+            
+			long peer = checkedPeer;
+			for (int i = 0; i < n; i++) {
+				int value = values[i];
+				#setPrimitiveValue("long" "peer" "value")
+				peer += 8;
+			}
+		}
+		return this;
+	}
+#end
+	}
+#end
+
 	/**
 	 * Create a {@code Pointer<T>} type. <br>
 	 * For Instance, {@code Pointer.pointerType(Integer.class) } returns a type that represents {@code Pointer<Integer> }  
@@ -363,7 +532,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
 	 */
 	public int compareBytesAtOffset(long byteOffset, Pointer<?> other, long otherByteOffset, long byteCount) {
-		return JNI.memcmp(getCheckedPeer(byteOffset, byteCount), other.getCheckedPeer(otherByteOffset, byteCount), byteCount);	
+		#declareCheckedPeerAtOffset("byteOffset" "byteCount")
+		return JNI.memcmp(checkedPeer, other.getCheckedPeer(otherByteOffset, byteCount), byteCount);	
 	}
 	
     /**
@@ -377,20 +547,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     @Override 
     public String toString() {
-    		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
+		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
     }
     
-    private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
-		long offsetPeer = getPeer() + byteOffset;
-		///*
-		if (validStart != UNKNOWN_VALIDITY) {
-			if (offsetPeer < validStart || (offsetPeer + validityCheckLength) > validEnd)
-				throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (offsetPeer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
+    protected final void checkPeer(long peer, long validityCheckLength) {
+		if (peer < validStart || (peer + validityCheckLength) > validEnd) {
+			throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (peer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
 		}
-		//*/
-		return offsetPeer;
+	}
+	
+    private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
+		#declareCheckedPeerAtOffset("byteOffset" "validityCheckLength")
+		return checkedPeer;
     }
-
+    
     /**
 	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.<br>
 	 * The returned pointer will prevent the memory associated to this pointer from being automatically reclaimed as long as it lives, unless Pointer.release() is called on the originally-allocated pointer.
@@ -408,11 +578,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		
 		Object newSibling = getSibling() != null ? getSibling() : this;
 		if (validStart == UNKNOWN_VALIDITY)
-			return newPointer(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, newSibling);	
+			return newPointer(pio, newPeer, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, newSibling);	
 		if (newPeer > validEnd || newPeer < validStart)
 			throw new IndexOutOfBoundsException("Invalid pointer offset : " + byteOffset + " (validBytes = " + getValidBytes() + ") !");
 		
-		return newPointer(pio, newPeer, ordered, validStart, validEnd, null, NO_PARENT, null, newSibling);	
+		return newPointer(pio, newPeer, isOrdered(), validStart, validEnd, null, NO_PARENT, null, newSibling);	
 	}
 	
 	/**
@@ -429,7 +599,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			throw new IndexOutOfBoundsException("Cannot extend validity of pointed memory from " + validEnd + " to " + newValidEnd);
 		
 		Object newSibling = getSibling() != null ? getSibling() : this;
-		return newPointer(getIO(), peer, ordered, validStart, newValidEnd, parent, offsetInParent, null, newSibling);    	
+		return newPointer(getIO(), peer, isOrdered(), validStart, newValidEnd, parent, offsetInParent, null, newSibling);    	
 	}
 	
 	/**
@@ -444,7 +614,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return this;
 		
 		Object newSibling = getSibling() != null ? getSibling() : this;
-		return newPointer(getIO(), peer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, parent, offsetInParent, null, newSibling);    	
+		return newPointer(getIO(), peer, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, parent, offsetInParent, null, newSibling);    	
 	}
 	
 	/**
@@ -463,7 +633,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 	/**
 	 * Creates a pointer that has the given number of valid elements ahead.<br>
-	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getValidElements() value.
+	 * If the pointer was already bound, elementCount must be lower or equal to the current getValidElements() value.
 	 */
 	public Pointer<T> validElements(long elementCount) {
 		return validBytes(elementCount * getIO("Cannot define elements validity").getTargetSize());
@@ -605,9 +775,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Whether this pointer reads data in the system's native byte order or not.
      * See {@link Pointer#order()}, {@link Pointer#order(ByteOrder)}
      */
-    final boolean isOrdered() {
-    	return ordered;
-    }
+    public abstract boolean isOrdered();
     
     final long getOffsetInParent() {
 		return offsetInParent;
@@ -1130,7 +1298,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @param peer native memory address that is to be converted to a pointer
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
      */
-    static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
+    public static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
     	return newPointer(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
 	}
 	/**
@@ -1225,11 +1393,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 				return null;
 		}
 		
-		if (releaser == null)
-			return new Pointer<U>(io, peer, ordered, validStart, validEnd, parent, offsetInParent, sibling);
-		else {
+		if (releaser == null) {
+			if (ordered) {
+				return new OrderedPointer<U>(io, peer, validStart, validEnd, parent, offsetInParent, sibling);
+			} else {
+				return new DisorderedPointer<U>(io, peer, validStart, validEnd, parent, offsetInParent, sibling);
+			}
+		} else {
 			assert sibling == null;
-			return new Pointer<U>(io, peer, ordered, validStart, validEnd, parent, offsetInParent, sibling) {
+#macro (bodyOfPointerWithReleaser)
 				private volatile Releaser rel = releaser;
 				//@Override
 				public synchronized void release() {
@@ -1256,7 +1428,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 						}
 					}, null);
 				}
-			};
+#end
+			if (ordered) {
+				return new OrderedPointer<U>(io, peer, validStart, validEnd, parent, offsetInParent, sibling) {
+					#bodyOfPointerWithReleaser()
+				};
+			} else {
+				return new DisorderedPointer<U>(io, peer, validStart, validEnd, parent, offsetInParent, sibling) {
+					#bodyOfPointerWithReleaser()
+				};
+			}
 		}
     }
 	
@@ -1454,7 +1635,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			assert p.validStart == p.getPeer();
 			
 		if (BridJ.debugPointers)
-			BridJ.log(Level.INFO, "Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
+			BridJ.info("Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
 		
 			if (!BridJ.debugNeverFree)
 				JNI.free(p.getPeer());
@@ -1559,11 +1740,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 
 //-- primitive: $prim.Name --
-
+	
     #docAllocateCopy($prim.Name $prim.WrapperName)
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}(${prim.Name} value) {
         Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance());
-        mem.set${prim.CapName}AtOffset(0, value);
+        mem.set${prim.CapName}(value);
         return mem;
     }
 	
@@ -1697,6 +1878,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return getPointerAtOffset(byteOffset, (PointerIO)null);
     }
     
+#docGetIndex("pointer" "getPointerAtOffset(valueIndex * Pointer.SIZE)")
+	public Pointer<?> getPointerAtIndex(long valueIndex) {
+	    return getPointerAtOffset(valueIndex * Pointer.SIZE);
+	}
+    
     /**
 	 * Read a pointer value from the pointed memory location.<br>
 	 * @param c class of the elements pointed by the resulting pointer 
@@ -1752,6 +1938,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
 	public Pointer<T> setPointerAtOffset(long byteOffset, Pointer<?> value) {
         setSizeTAtOffset(byteOffset, value == null ? 0 : value.getPeer());
+        return this;
+    }
+
+#docSetIndex("pointer" "setPointerAtOffset(valueIndex * Pointer.SIZE, value)")
+    public Pointer<T> setPointerAtIndex(long valueIndex, Pointer<?> value) {
+        setPointerAtOffset(valueIndex * Pointer.SIZE, value);
         return this;
     }
     
@@ -1929,13 +2121,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docAllocateCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}(long value) {
 		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
-		p.set${sizePrim}AtOffset(0, value);
+		p.set${sizePrim}(value);
 		return p;
 	}
 #docAllocateCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}(${sizePrim} value) {
 		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
-		p.set${sizePrim}AtOffset(0, value);
+		p.set${sizePrim}(value);
 		return p;
 	}
 #docAllocateArrayCopy($sizePrim $sizePrim)
@@ -1969,22 +2161,31 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 #docGet($sizePrim $sizePrim)
     public long get${sizePrim}() {
-		return get${sizePrim}AtOffset(0);
+		return ${sizePrim}.SIZE == 8 ? 
+			getLong() : 
+			getInt();
 	}
 #docGetOffset($sizePrim $sizePrim "Pointer#get${sizePrim}()")
     public long get${sizePrim}AtOffset(long byteOffset) {
 		return ${sizePrim}.SIZE == 8 ? 
 			getLongAtOffset(byteOffset) : 
-			//0xffffffffL & 
 			getIntAtOffset(byteOffset);
+	}
+#docGetIndex($sizePrim "get${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE")
+	public long get${sizePrim}AtIndex(long valueIndex) {
+	  return get${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE);
 	}
 #docGetRemainingArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s() {
-    		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
+		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
+		if (${sizePrim}.SIZE == 8)
+    		return getLongs((int)rem);
 		return get${sizePrim}s((int)rem);
 	}
 #docGetArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s(int arrayLength) {
+    	if (${sizePrim}.SIZE == 8)
+    		return getLongs(arrayLength);
 		return get${sizePrim}sAtOffset(0, arrayLength);
 	}
 #docGetArrayOffset($sizePrim $sizePrim "Pointer#get${sizePrim}s(int)")
@@ -2003,11 +2204,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 #docSet($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(long value) {
-		return set${sizePrim}AtOffset(0, value);
+    	if (${sizePrim}.SIZE == 8)
+			setLong(value);
+		else {
+			setInt(SizeT.safeIntCast(value));
+		}
+		return this;
 	}
 #docSet($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(${sizePrim} value) {
-		return set${sizePrim}AtOffset(0, value);
+		return set${sizePrim}(value.longValue());
 	}
 #docSetOffset($sizePrim $sizePrim "Pointer#set${sizePrim}(long)")
 	public Pointer<T> set${sizePrim}AtOffset(long byteOffset, long value) {
@@ -2018,6 +2224,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		}
 		return this;
 	}
+#docSetIndex($sizePrim "set${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE, value)")
+  public Pointer<T> set${sizePrim}AtIndex(long valueIndex, long value) {
+	  return set${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE, value);
+	}
 	
 #docSetOffset($sizePrim $sizePrim "Pointer#set${sizePrim}(${sizePrim})")
 	public Pointer<T> set${sizePrim}AtOffset(long byteOffset, ${sizePrim} value) {
@@ -2025,10 +2235,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 #docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long[] values) {
+		if (${sizePrim}.SIZE == 8)
+    		return setLongs(values);
 		return set${sizePrim}sAtOffset(0, values);
 	}
 #docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(int[] values) {
+    	if (${sizePrim}.SIZE == 4)
+    		return setInts(values);
 		return set${sizePrim}sAtOffset(0, values);
 	}
 #docSetArray($sizePrim $sizePrim)
@@ -2040,18 +2254,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		return set${sizePrim}sAtOffset(byteOffset, values, 0, values.length);
 	}
 #docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(long[])")
-    public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length) {
-		if (values == null)
-			throw new IllegalArgumentException("Null values");
-		if (${sizePrim}.SIZE == 8) {
-			setLongsAtOffset(byteOffset, values, valuesOffset, length);
-		} else {
-			int n = length, s = 4;
-			for (int i = 0; i < n; i++)
-				setIntAtOffset(byteOffset + i * s, (int)values[valuesOffset + i]);
-		}
-		return this;
-	}
+    public abstract Pointer<T> set${sizePrim}sAtOffset(long byteOffset, long[] values, int valuesOffset, int length);
 #docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(${sizePrim}...)")
 	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, ${sizePrim}... values) {
 		if (values == null)
@@ -2062,16 +2265,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return this;
 	}
 #docSetArrayOffset($sizePrim $sizePrim "Pointer#set${sizePrim}s(int[])")
-	public Pointer<T> set${sizePrim}sAtOffset(long byteOffset, int[] values) {
-		if (${sizePrim}.SIZE == 4) {
-			setIntsAtOffset(byteOffset, values);
-		} else {
-			int n = values.length, s = 8;
-			for (int i = 0; i < n; i++)
-				setLongAtOffset(i * s, values[i]);
-		}
-		return this;
-	}
+	public abstract Pointer<T> set${sizePrim}sAtOffset(long byteOffset, int[] values);
 	
 	#end
 	
@@ -2164,7 +2358,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Copy values from an NIO buffer to the pointed memory location
      */
     public Pointer<T> setValues(Buffer values) {
-    		#foreach ($prim in $primitivesNoBool)
+    	#foreach ($prim in $primitivesNoBool)
         if (values instanceof ${prim.BufferName}) {
             set${prim.CapName}s((${prim.BufferName})values);
             return this;
@@ -2179,8 +2373,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
     @Deprecated
 	public Pointer<T> copyBytesAtOffsetTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
-    		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
-    		return this;
+		#declareCheckedPeerAtOffset("byteOffset" "byteCount")
+		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), checkedPeer, byteCount);
+		return this;
     }
     
     /**
@@ -2199,7 +2394,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
     @Deprecated
 	public Pointer<T> moveBytesAtOffsetTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
-    		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
+		#declareCheckedPeerAtOffset("byteOffset" "byteCount")
+		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), checkedPeer, byteCount);
     		return this;
     }
     
@@ -2289,34 +2485,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #foreach ($prim in $primitives)
 #if ($prim.Name == "char") #set ($primSize = "Platform.WCHAR_T_SIZE") #else #set ($primSize = $prim.Size) #end
 //-- primitive: $prim.Name --
-
-	/**
-	 * Write a ${prim.Name} value to the pointed memory location
-	 */
-    public Pointer<T> set${prim.CapName}(${prim.Name} value) {
-		return set${prim.CapName}AtOffset(0, value);
+	
+#docSet(${prim.Name} ${prim.WrapperName})
+	public abstract Pointer<T> set${prim.CapName}(${prim.Name} value);
+	
+#docSetOffset(${prim.Name} ${prim.WrapperName} "Pointer#set${prim.CapName}(${prim.Name})")
+	public abstract Pointer<T> set${prim.CapName}AtOffset(long byteOffset, ${prim.Name} value);
+	
+#docSetIndex(${prim.Name} "set${prim.CapName}AtOffset(valueIndex * $primSize, value)")
+	public Pointer<T> set${prim.CapName}AtIndex(long valueIndex, ${prim.Name} value) {
+		return set${prim.CapName}AtOffset(valueIndex * $primSize, value);
 	}
-	
-	/**
-	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
-	 */
-	public Pointer<T> set${prim.CapName}AtOffset(long byteOffset, ${prim.Name} value) {
-    	#if ($prim.Name == "char")
-		if (Platform.WCHAR_T_SIZE == 4)
-			return setIntAtOffset(byteOffset, (int)value);
-		#end
-    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize});
-		#if ($prim.Name != "byte" && $prim.Name != "boolean")
-    	if (!isOrdered()) {
-			JNI.set_${prim.Name}_disordered(checkedPeer, value);
-			return this;
-		}
-		#end
-		JNI.set_${prim.Name}(checkedPeer, value);
-		return this;
-    }
-
-	
+		
 	/**
 	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location
 	 */
@@ -2339,7 +2519,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (Platform.WCHAR_T_SIZE == 4)
 			return setIntsAtOffset(byteOffset, wcharsToInts(values, valuesOffset, length));
 		#end
-    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize} * length);
+    	#declareCheckedPeerAtOffset("byteOffset" "${primSize} * length")
         #if ($prim.Name != "byte" && $prim.Name != "boolean")
     	if (!isOrdered()) {
         	JNI.set_${prim.Name}_array_disordered(checkedPeer, values, valuesOffset, length);
@@ -2351,24 +2531,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 #docGet(${prim.Name} ${prim.WrapperName})
-    public ${prim.Name} get${prim.CapName}() {
-		return get${prim.CapName}AtOffset(0);
-    }
+    public abstract ${prim.Name} get${prim.CapName}();
     
 #docGetOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}()")
-	public ${prim.Name} get${prim.CapName}AtOffset(long byteOffset) {
-        #if ($prim.Name == "char")
-		if (Platform.WCHAR_T_SIZE == 4)
-			return (char)getIntAtOffset(byteOffset);
-		#end
-    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize});
-        #if ($prim.Name != "byte" && $prim.Name != "boolean")
-    	if (!isOrdered())
-        	return JNI.get_${prim.Name}_disordered(checkedPeer);
-        #end
-        return JNI.get_${prim.Name}(checkedPeer);
-    }
+	public abstract ${prim.Name} get${prim.CapName}AtOffset(long byteOffset);
     
+#docGetIndex(${prim.Name} "get${prim.CapName}AtOffset(valueIndex * $primSize)")
+	public ${prim.Name} get${prim.CapName}AtIndex(long valueIndex) {
+		return get${prim.CapName}AtOffset(valueIndex * $primSize);
+	}
+	
 #docGetArray(${prim.Name} ${prim.WrapperName})
 	public ${prim.Name}[] get${prim.CapName}s(int length) {
 		return get${prim.CapName}sAtOffset(0, length);
@@ -2387,7 +2559,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (Platform.WCHAR_T_SIZE == 4)
 			return intsToWChars(getIntsAtOffset(byteOffset, length));
 		#end
-    	long checkedPeer = getCheckedPeer(byteOffset, ${primSize} * length);
+    	#declareCheckedPeerAtOffset("byteOffset" "${primSize} * length")
         #if ($prim.Name != "byte" && $prim.Name != "boolean")
     	if (!isOrdered())
         	return JNI.get_${prim.Name}_array_disordered(checkedPeer, length);
@@ -2459,7 +2631,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
             if (cap < off + len)
                 throw new IndexOutOfBoundsException("The provided buffer has a capacity (" + cap + " bytes) smaller than the requested write operation (" + len + " bytes starting at byte offset " + off + ")");
             
-			JNI.memcpy(getCheckedPeer(byteOffset, ${primSize} * length), JNI.getDirectBufferAddress(values) + off, len);
+            
+            #declareCheckedPeerAtOffset("byteOffset" "${primSize} * length")
+			JNI.memcpy(checkedPeer, JNI.getDirectBufferAddress(values) + off, len);
         }
         #if ($prim.Name != "char")
         else if (values.isReadOnly()) {
@@ -2474,14 +2648,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     #if ($prim.Name != "char")
     /**
-	 * Get a direct buffer of ${prim.Name} values of the specified length that points to this pointer's target memory location shifted by a byte offset
+	 * Get a direct buffer of ${prim.Name} values of the specified length that points to this pointer's target memory location
 	 */
 	public ${prim.BufferName} get${prim.BufferName}(long length) {
 		return get${prim.BufferName}AtOffset(0, length);
 	}
 	
 	/**
-	 * Get a direct buffer of ${prim.Name} values that points to this pointer's target memory location shifted by a byte offset
+	 * Get a direct buffer of ${prim.Name} values that points to this pointer's target memory locations
 	 */
 	public ${prim.BufferName} get${prim.BufferName}() {
 		long validBytes = getValidBytes("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
@@ -2493,7 +2667,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 */
 	public ${prim.BufferName} get${prim.BufferName}AtOffset(long byteOffset, long length) {
         long blen = ${primSize} * length;
-        ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, blen), blen);
+        #declareCheckedPeerAtOffset("byteOffset" "blen")
+        ByteBuffer buffer = JNI.newDirectByteBuffer(checkedPeer, blen);
         buffer.order(order()); // mutates buffer order
         #if ($prim.Name == "byte")
         return buffer;
@@ -2582,7 +2757,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		throw new RuntimeException("There is no " + type + " String here ! (" + reason + ")");
     }
     
-    private void checkIntRefCount(StringType type, long byteOffset) {
+    protected void checkIntRefCount(StringType type, long byteOffset) {
     		int refCount = getIntAtOffset(byteOffset);
 		if (refCount <= 0)
 			notAString(type, "invalid refcount: " + refCount);
@@ -2946,14 +3121,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Get the length of the C string at the pointed memory location shifted by a byte offset (see {@link StringType#C}).
 	 */
 	protected long strlen(long byteOffset) {
-		return JNI.strlen(getCheckedPeer(byteOffset, 1));
+		#declareCheckedPeerAtOffset("byteOffset" "1")
+		return JNI.strlen(checkedPeer);
 	}
 	
 	/**
 	 * Get the length of the wide C string at the pointed memory location shifted by a byte offset (see {@link StringType#WideC}).
 	 */
 	protected long wcslen(long byteOffset) {
-		return JNI.wcslen(getCheckedPeer(byteOffset, Platform.WCHAR_T_SIZE));
+		#declareCheckedPeerAtOffset("byteOffset" "Platform.WCHAR_T_SIZE")
+		return JNI.wcslen(checkedPeer);
 	}
 	
 	/**
@@ -2976,16 +3153,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Write a byte {@code value} to each of the {@code length} bytes at the address pointed to by this pointer shifted by a {@code byteOffset}
 	 */
 	public void clearBytesAtOffset(long byteOffset, long length, byte value) {
-		JNI.memset(getCheckedPeer(byteOffset, length), value, length);
+		#declareCheckedPeerAtOffset("byteOffset" "length")
+		JNI.memset(checkedPeer, value, length);
 	}
 	
 	/**
 	 * Find the first occurrence of a value in the memory block of length searchLength bytes pointed by this pointer shifted by a byteOffset 
 	 */
 	public Pointer<T> findByte(long byteOffset, byte value, long searchLength) {
-		long ptr = getCheckedPeer(byteOffset, searchLength);
-		long found = JNI.memchr(ptr, value, searchLength);	
-		return found == 0 ? null : offset(found - ptr);
+		#declareCheckedPeerAtOffset("byteOffset" "searchLength")
+		long found = JNI.memchr(checkedPeer, value, searchLength);	
+		return found == 0 ? null : offset(found - checkedPeer);
 	}
 	
 	/**

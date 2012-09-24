@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.ann.JNIBound;
 import org.bridj.util.ConcurrentCache;
+import static org.bridj.BridJ.*;
 import static org.bridj.util.AnnotationUtils.*;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -270,6 +270,11 @@ public class CRuntime extends AbstractBridJRuntime {
 			return new MethodCallInfo(method);
 		}
     }
+	@Override
+	public void unregister(Type type) {
+		Class typeClass = Utils.getClass(type);
+        registeredTypes.remove(typeClass);
+	}
 	synchronized void register(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
         Class typeClass = Utils.getClass(type);
         if (!BridJ.getRuntimeClass(typeClass).isInstance(this)) {
@@ -284,7 +289,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		if (methodCallInfoBuilder == null)
 			methodCallInfoBuilder = new MethodCallInfoBuilder();
         	
-        assert log(Level.INFO, "Registering type " + Utils.toString(type));
+        assert info("Registering type " + Utils.toString(type));
         
 		int typeModifiers = typeClass.getModifiers();
 		
@@ -356,7 +361,7 @@ public class CRuntime extends AbstractBridJRuntime {
 						
                         registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
 					} catch (Exception ex) {
-						assert log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
+						assert error("Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
 					}
 				}
 			} catch (Exception ex) {
@@ -384,8 +389,8 @@ public class CRuntime extends AbstractBridJRuntime {
 	protected NativeLibrary getNativeLibrary(Class<?> type) throws IOException {
 		return BridJ.getNativeLibrary(type);
 	}
-	protected Level getSeverityOfMissingSymbol(Method method) {
-		return getInheritableAnnotation(Optional.class, method) != null ? Level.INFO : Level.SEVERE;
+	protected boolean isSymbolOptional(Method method) {
+		return getInheritableAnnotation(Optional.class, method) != null;
 	}
 	protected void registerNativeMethod(
 			Class<?> type, 
@@ -403,12 +408,13 @@ public class CRuntime extends AbstractBridJRuntime {
 				return;
 			//System.out.println("method.dcCallingConvention = " + mci.dcCallingConvention + " (for method " + type.getName() + ", method " + method + ", type = " + type.getName() + ", enclosingClass = " + method.getDeclaringClass().getName() + ")");
 		} catch (Throwable th) {
-			log(Level.SEVERE, "Unable to register " + method + " : " + th);
+			error("Unable to register " + method + " : " + th);
             th.printStackTrace();
 			return;
 		}
 		if (CallbackInterface.class.isAssignableFrom(type)) {
-            log(Level.INFO, "Registering java -> native callback : " + method);
+            if (debug)
+				info("Registering java -> native callback : " + method);
             builder.addJavaToNativeCallback(mci);
         } else {
             Symbol symbol = methodLibrary == null ? null : methodLibrary.getSymbol(method);
@@ -421,9 +427,8 @@ public class CRuntime extends AbstractBridJRuntime {
 //                    }
 //                }
 //                if (address == null) {
-                Level severity = getSeverityOfMissingSymbol(method);
-                if (severity != null)
-                    log(severity, "Failed to get address of method " + method);
+                if (!isSymbolOptional(method))
+                    error("Failed to get address of method " + method);
                     return;
 //                }
             }
@@ -434,7 +439,8 @@ public class CRuntime extends AbstractBridJRuntime {
 					mci.setCallingConvention(cc);
 			}			
 			builder.addFunction(mci);
-            log(Level.INFO, "Registering " + method + " as C function " + symbol.getName());
+            if (debug)
+				info("Registering " + method + " as C function " + symbol.getName());
         }
 	}
 	
@@ -456,7 +462,7 @@ public class CRuntime extends AbstractBridJRuntime {
     		try {
     			return Integer.parseInt(s);
 	    	} catch (Throwable th) {
-	    		log(Level.SEVERE, "Invalid value for property " + PROPERTY_bridj_c_defaultObjectSize + " : '" + s + "'");
+	    		error("Invalid value for property " + PROPERTY_bridj_c_defaultObjectSize + " : '" + s + "'");
 	    	}
     	return defaultObjectSize;
 	}
@@ -527,7 +533,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			//@Override
 			public void release(Pointer<?> p) {
                 if (BridJ.debugPointers)
-                	BridJ.log(Level.INFO, "Freeing callback pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
+                	BridJ.info("Freeing callback pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
 		
 				if (BridJ.debugNeverFree)
 					return;
