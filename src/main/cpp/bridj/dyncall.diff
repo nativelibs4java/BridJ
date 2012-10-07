@@ -1,20 +1,6 @@
-Index: dyncall/buildsys/gmake/os/darwin.gmake
-===================================================================
---- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1377)
-+++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
-@@ -23,7 +23,8 @@
- LIBTOOL_STATIC=libtool -static -o $@ $^
- 
- ifdef BUILD_ARCH_universal
--TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
-+#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
-+TARGET_ARCH?=-arch x86_64 -arch i386 
- endif
- 
- ifdef BUILD_ARCH_ppc32
 Index: dyncall/buildsys/gmake/tool/gcc.gmake
 ===================================================================
---- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1377)
+--- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1385)
 +++ dyncall/buildsys/gmake/tool/gcc.gmake	(working copy)
 @@ -86,6 +86,13 @@
  
@@ -30,24 +16,23 @@ Index: dyncall/buildsys/gmake/tool/gcc.gmake
  # --- Compile C++ -------------------------------------------------------------
  
  $(BUILD_DIR)/%.o: %.cpp
-Index: dyncall/dynload/dynload_windows.c
+Index: dyncall/buildsys/gmake/os/darwin.gmake
 ===================================================================
---- dyncall/dynload/dynload_windows.c	(revision 1377)
-+++ dyncall/dynload/dynload_windows.c	(working copy)
-@@ -40,7 +40,9 @@
- DLLib* dlLoadLibrary(const char* libPath)
- {
-   if (libPath != NULL) {
--    return (DLLib*) LoadLibraryA(libPath);
-+    return (DLLib*) LoadLibraryW((wchar_t*)(void*)libPath);
-+  	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
-+    // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
-     /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
-   } else {
-     return (DLLib*) GetModuleHandle(NULL);
+--- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1385)
++++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
+@@ -23,7 +23,8 @@
+ LIBTOOL_STATIC=libtool -static -o $@ $^
+ 
+ ifdef BUILD_ARCH_universal
+-TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++TARGET_ARCH?=-arch x86_64 -arch i386 
+ endif
+ 
+ ifdef BUILD_ARCH_ppc32
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_syms_mach-o.c	(revision 1377)
+--- dyncall/dynload/dynload_syms_mach-o.c	(revision 1385)
 +++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -28,6 +28,7 @@
   dynamic symbol resolver for Mach-O
@@ -349,7 +334,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  		return NULL;
 Index: dyncall/dynload/dynload_unix.c
 ===================================================================
---- dyncall/dynload/dynload_unix.c	(revision 1377)
+--- dyncall/dynload/dynload_unix.c	(revision 1385)
 +++ dyncall/dynload/dynload_unix.c	(working copy)
 @@ -40,7 +40,7 @@
  
@@ -360,3 +345,18 @@ Index: dyncall/dynload/dynload_unix.c
  }
  
  
+Index: dyncall/dynload/dynload_windows.c
+===================================================================
+--- dyncall/dynload/dynload_windows.c	(revision 1385)
++++ dyncall/dynload/dynload_windows.c	(working copy)
+@@ -40,7 +40,9 @@
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
+   if (libPath != NULL) {
+-    return (DLLib*) LoadLibraryA(libPath);
++    return (DLLib*) LoadLibraryW((wchar_t*)(void*)libPath);
++  	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
++    // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
+     /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
+   } else {
+     return (DLLib*) GetModuleHandle(NULL);
