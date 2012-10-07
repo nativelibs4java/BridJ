@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.lang.annotation.Annotation;
+import org.bridj.CPPTest3.Constructed;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -198,6 +199,16 @@ public class DemanglingTest {
             SpecialName.Constructor,
 			null
 		);
+        demangle(
+            null,
+            "__ZN11ConstructedC2EPKcS1_PS1_",
+            Constructed.class,
+            SpecialName.SpecialConstructor,
+            null,
+            paramType(Pointer.class, Byte.class), 
+            paramType(Pointer.class, Byte.class), 
+            paramType(Pointer.class, paramType(Pointer.class, Byte.class))
+        );
 	}
 	@Test
     public void methods() {
@@ -346,7 +357,7 @@ public class DemanglingTest {
 	    assertTrue("Bad return type : expected " + returnType + ", got " + symbol.getValueType() + " (got class " + symbol.getValueType().getClass().getName() + ")", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
 
         int nArgs = symbol.paramTypes.length;
-        assertEquals("Bad number of parameters", paramTypes.length, nArgs);
+        assertEquals("Bad number of parameters (symbol = " + symbol + ")", paramTypes.length, nArgs);
 
         for (int iArg = 0; iArg < nArgs; iArg++) {
             if (paramTypes[iArg] instanceof Type) {

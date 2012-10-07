@@ -108,12 +108,12 @@ public abstract class Demangler {
 		};
 	}
 	
-	public static class DemanglingException extends Exception {
+	public class DemanglingException extends Exception {
 		public DemanglingException(String mess) {
 			this(mess, null);
 		}
         public DemanglingException(String mess, Throwable cause) {
-			super(mess, cause);
+			super(mess + " (in symbol '" + str + "')", cause);
 		}
 	}
 	public abstract MemberRef parseSymbol() throws DemanglingException;
@@ -428,7 +428,7 @@ public abstract class Demangler {
 
 	public static class NamespaceRef extends TypeRef {
 		Object[] namespace;
-        public NamespaceRef(Object[] namespace) {
+        public NamespaceRef(Object... namespace) {
             this.namespace = namespace;
         }
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {

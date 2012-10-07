@@ -13,10 +13,12 @@ import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.demangling.Demangler.NamespaceRef;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.Demangler.SpecialName;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.bridj.demangling.Demangler.IdentLike;
 
 public class GCC4Demangler extends Demangler {
 
@@ -44,13 +46,13 @@ public class GCC4Demangler extends Demangler {
         }
 
         private ClassRef enclosed(String ns, ClassRef classRef) {
-            classRef.setEnclosingType(new NamespaceRef(new Object[]{ns}));
+            classRef.setEnclosingType(new NamespaceRef(new Ident(ns)));
             return classRef;
         }
     };
     private Set<String> shouldContinueAfterPrefix = new HashSet<String>(Arrays.asList("t"));
     private Map<String, TypeRef> typeShortcuts = new HashMap<String, TypeRef>();
-
+    
     private <T> T ensureOfType(Object o, Class<T> type) throws DemanglingException {
         if (type.isInstance(o)) {
             return type.cast(o);
@@ -139,7 +141,7 @@ public class GCC4Demangler extends Demangler {
                 String newShortcutId = parseSimpleOrComplexIdentInto(ns, false);
                 ClassRef res = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
                 if (!ns.isEmpty()) {
-                    res.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
+                    res.setEnclosingType(new NamespaceRef(ns.toArray()));
                 }
                 if (newShortcutId != null) {
                     typeShortcuts.put(newShortcutId, res);
@@ -266,7 +268,7 @@ public class GCC4Demangler extends Demangler {
                 List<IdentLike> ns = new ArrayList<IdentLike>(res);
                 ClassRef clss = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
                 if (!ns.isEmpty()) {
-                    clss.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
+                    clss.setEnclosingType(new NamespaceRef(ns.toArray()));
                 }
                 typeShortcuts.put(id, clss);
             }
@@ -390,8 +392,10 @@ public class GCC4Demangler extends Demangler {
             mr.setMemberName(ns.remove(ns.size() - 1));
             if (!ns.isEmpty()) {
                 ClassRef parent = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
+                if (mr.getMemberName() == SpecialName.Constructor || mr.getMemberName() == SpecialName.SpecialConstructor)
+                    typeShortcuts.put(nextShortcutId(), parent);
                 if (!ns.isEmpty()) {
-                    parent.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
+                    parent.setEnclosingType(new NamespaceRef(ns.toArray()));
                 }
                 mr.setEnclosingType(parent);
             }

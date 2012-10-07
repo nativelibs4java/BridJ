@@ -136,3 +136,14 @@ typedef int (*fun_iii)(int, int);
 TEST_API fun_iii getAdder();
 TEST_API int forwardCall(fun_iii f, int a, int b);
 
+class TEST_API Constructed
+{
+	int m_i;
+	float m_b;
+	char m_c;
+	const char *m_x, *m_y;
+public :
+	Constructed(int i, float b, char c, const char** result);
+	Constructed(const char *x, const char *y, const char** result);
+	static size_t sizeOf();
+};

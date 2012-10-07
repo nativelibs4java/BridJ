@@ -410,7 +410,7 @@ public class VC9Demangler extends Demangler {
         if (names == null || names.isEmpty())
             return null;
         Collections.reverse(names);
-        return new NamespaceRef(names.toArray(new Object[names.size()]));
+        return new NamespaceRef(names.toArray());
     }
     List<TypeRef> allQualifiedNames = new ArrayList<TypeRef>();
     interface DemanglingOp<T> {

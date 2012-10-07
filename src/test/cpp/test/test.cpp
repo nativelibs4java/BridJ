@@ -525,3 +525,16 @@ TEST_API size_t sizeOf_container() {
 	return sizeof(container);
 }
 
+
+Constructed::Constructed(int i, float b, char c, const char** result) : m_i(i), m_b(b), m_c(c), m_x(NULL), m_y(NULL) {
+	*result = "constructor1";
+}
+
+Constructed::Constructed(const char *x, const char *y, const char** result) : m_i(0), m_b(0), m_c(0), m_x(x), m_y(y) {
+	*result = "constructor2";
+}
+
+size_t Constructed::sizeOf() {
+	return sizeof(Constructed);
+}
+
