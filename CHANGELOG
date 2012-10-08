@@ -1,14 +1,28 @@
 Current development version (0.6.2-SNAPSHOT)
 
 - Fixed serious crashes on Win64 in assembler optimizations
+- Fixed BridJ.protectFromGC !
+- Fixed raw assembler optimization for floats & doubles, finally! (+ updated Win binaries)
 - Fixed handling of classloaders in some use-cases (issue #283)
 - Fixed Platform.open(File) (issue #306)
 - Fixed Pointer.copyTo(dest, elementCount) (issue #317)
 - Fixed alignment of struct array fields (issue #319)
+- Fixed dlopen log for non existing absolute library paths
+- Added @Library.dependencies + test library
+- Added BridJ.getNativeLibraryName back
+- Added ComplexDouble struct for C99's `_Complex double` type.
+- Added GCC shortcut case for constructors
+- Added Pointer.getIntAtIndex(long) / .setIntAtIndex(long, int) (and with all primitive variants)
+- Added quiet mode (BRIDJ_QUIET=1 / bridj.quiet=true) (issue #328)
+- Added assembler optimizations for functions with up to 16 arguments on Win64 !
 - Added parsing of Mach-O compressed symbols tries (LC_DYLD_INFO command) to dyncall (issue #311)
 - Added Pointer.withoutValidityInformation() (yields faster, unsafe pointer)
 - Added BridJ.subclassWithSynchronizedNativeMethods(Class) to create a subclass where all native methods are overridden
 - Added Pointer.getIntAtIndex(long) / .setIntAtIndex(long, int) (and with all primitive variants)
+- Rationalized Java logs (issue #328)
+- Changed library extraction mechanism to allow extraction of dependencies (see @Library.dependencies); removed DeleteOldBinaries option
+- Special aliases for "c" and "m" libraries on windows (-> mscvrt)
+- Speedup assembler optimization on win64 (movsb -> movsq)
 - Removed ios-package (binaries for iOS/arm) 
 
 BridJ 0.6.1 (20120415, commit 6bc061dfce06b941086a29f696195e82fbaffbdc) 
