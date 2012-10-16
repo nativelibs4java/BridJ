@@ -836,5 +836,28 @@ public class StructTest {
         cec_device_type_list deviceTypeList = pDeviceTypeList.get();
         Pointer<IntValuedEnum<cec_device_type>> pDeviceTypes = deviceTypeList.types();
     }
+    
+    public static class SBytes100 extends StructObject {
+       @Field(0) @Array({100})
+       public byte field() {
+		   return this.io.getByteField(this, 0);
+       }
+    }
+    public static class SBytes100x4 extends StructObject {
+       @Field(0)
+       public int first() {
+       	   return this.io.getIntField(this, 0);
+       }
+       @Field(1) @Array({4})
+       public Pointer<SBytes100> second() {
+		   return this.io.getPointerField(this, 0);
+       }
+    }
+    
+    @Test
+    public void testLargeAlignments() {
+    	assertEquals(100, BridJ.sizeOf(SBytes100.class));
+    	assertEquals(100 * 4 + 4, BridJ.sizeOf(SBytes100x4.class));
+    }
 }
 
