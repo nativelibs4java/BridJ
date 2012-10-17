@@ -20,7 +20,12 @@ LINK_LIBS	+= test
 ifdef BUILD_OS_darwin
 LDFLAGS		+= -rpath 
 else
+ifndef BUILD_OS_sunos
 LDFLAGS		+= -Wl,-rpath,.
 endif
+endif
 
+ifdef BUILD_OS_sunos
+LDFLAGS		+= -mimpure-text
+endif
 include $(DYNCALL_HOME)/dyncall/buildsys/gmake/epilog.gmake
