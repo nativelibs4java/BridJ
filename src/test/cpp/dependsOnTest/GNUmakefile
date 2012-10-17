@@ -1,5 +1,6 @@
 #BUILD_CONFIG=debug
 
+DLL_PREFIX=lib
 TOP =	$(DYNCALL_HOME)/dyncall
 include $(DYNCALL_HOME)/dyncall/buildsys/gmake/prolog.gmake
 
@@ -16,6 +17,10 @@ LINK_LIBS	+= stdc++
 LINK_DIRS	+= ../test/$(BUILD_DIR)
 LINK_LIBS	+= test
 
+ifdef BUILD_OS_darwin
 LDFLAGS		+= -rpath 
+else
+LDFLAGS		+= -Wl,-rpath,.
+endif
 
 include $(DYNCALL_HOME)/dyncall/buildsys/gmake/epilog.gmake

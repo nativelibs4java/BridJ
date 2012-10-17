@@ -19,6 +19,7 @@
 
 #BUILD_CONFIG=debug
 
+DLL_PREFIX=lib
 LD=gcc
 CXX=gcc
 
