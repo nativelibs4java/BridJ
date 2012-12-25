@@ -94,9 +94,9 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${pom.name}</Bundle-Name>
-						<Bundle-Version>${pom.version}</Bundle-Version>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Version>${project.version}</Bundle-Version>
 						<Bundle-Activator>
 							org.bridj.OSGiBundleActivator
 						</Bundle-Activator>
