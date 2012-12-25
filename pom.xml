@@ -6,7 +6,7 @@
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>http://code.google.com/p/bridj/</url>
 	<version>0.6.2</version>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 	
 	<properties>
 		<versionSpecificSubPackage>v0_6_2</versionSpecificSubPackage>
@@ -25,6 +25,14 @@
 			<artifactId>asm</artifactId>
 			<version>4.0</version>
 		</dependency>
+		
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
@@ -78,6 +86,49 @@
 			  </javahClassNames>
 			</configuration>
 		</plugin-->
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}</Bundle-SymbolicName>
+						<Bundle-Name>${pom.name}</Bundle-Name>
+						<Bundle-Version>${pom.version}</Bundle-Version>
+						<Bundle-Activator>
+							org.bridj.OSGiBundleActivator
+						</Bundle-Activator>
+						<Private-Package>
+							org.bridj.relocated.*
+						</Private-Package>
+						<Import-Package>
+							android.app,
+							android.content.pm,
+							android.os,
+							com.android.dx.dex,
+							com.android.dx.dex.cf,
+							com.android.dx.dex.file,
+							dalvik.system, 
+							org.objectweb.asm,
+							org.osgi.framework
+						</Import-Package>
+						<Export-Package>
+							org.bridj,
+							org.bridj.ann,
+							org.bridj.cpp,
+							org.bridj.cpp.com,
+							org.bridj.cpp.com.shell,
+							org.bridj.demangling,
+							org.bridj.dyncall,
+							org.bridj.jawt,
+							org.bridj.objc,
+							org.bridj.util
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
 			
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
