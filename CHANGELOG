@@ -1,4 +1,8 @@
-Current development version (0.6.2-SNAPSHOT)
+Current development version (0.6.3-SNAPSHOT)
+
+...
+
+BridJ 0.6.2 (20130107)
 
 - Fixed serious crashes on Win64 in assembler optimizations
 - Fixed BridJ.protectFromGC !
@@ -7,6 +11,7 @@ Current development version (0.6.2-SNAPSHOT)
 - Fixed Platform.open(File) (issue #306)
 - Fixed Pointer.copyTo(dest, elementCount) (issue #317)
 - Fixed alignment of struct array fields (issue #319)
+- Fixed alignment of double fields on Linux 32 bits (issue #320)
 - Fixed dlopen log for non existing absolute library paths
 - Added @Library.dependencies + test library
 - Added BridJ.getNativeLibraryName back
@@ -19,6 +24,7 @@ Current development version (0.6.2-SNAPSHOT)
 - Added Pointer.withoutValidityInformation() (yields faster, unsafe pointer)
 - Added BridJ.subclassWithSynchronizedNativeMethods(Class) to create a subclass where all native methods are overridden
 - Added Pointer.getIntAtIndex(long) / .setIntAtIndex(long, int) (and with all primitive variants)
+- Added naive OSGi support to the main JAR.
 - Rationalized Java logs (issue #328)
 - Changed library extraction mechanism to allow extraction of dependencies (see @Library.dependencies); removed DeleteOldBinaries option
 - Special aliases for "c" and "m" libraries on windows (-> mscvrt)
