@@ -424,6 +424,20 @@ public class StructIO {
 		return list;
 	}
 	
+	protected static long primTypeAlignment(Class<?> primType, long length) {
+		if (isDouble(primType) && 
+			!BridJ.alignDoubles && 
+			Platform.isLinux() &&
+			!Platform.is64Bits()) 
+		{
+			return 4;
+		}
+		return length;
+	}
+	
+	private static boolean isDouble(Class<?> primType) {
+		return primType == Double.class || primType == double.class;
+	}
 	protected static int primTypeLength(Class<?> primType) {
         if (primType == Integer.class || primType == int.class)
             return 4;
@@ -445,7 +459,7 @@ public class StructIO {
 			return 1;
         } else if(primType == Float.class || primType == float.class)
             return 4;
-        else if(primType == Double.class || primType == double.class)
+        else if(isDouble(primType))
             return 8;
         else if(Pointer.class.isAssignableFrom(primType))
             return Pointer.SIZE;
@@ -535,8 +549,10 @@ public class StructIO {
 					field.desc.byteLength = CLong.SIZE;
 				else if (field.desc.isSizeT)
 					field.desc.byteLength = SizeT.SIZE;
-				else
+				else {
 					field.desc.byteLength = primTypeLength(field.valueClass);
+					field.desc.alignment = primTypeAlignment(field.valueClass, field.desc.byteLength);
+				}
 			} else if (field.valueClass == CLong.class) {
 				field.desc.byteLength = CLong.SIZE;
 			} else if (field.valueClass == SizeT.class) {
@@ -588,6 +604,7 @@ public class StructIO {
 					throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
 			} else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
 				field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
+				field.desc.alignment = primTypeAlignment(field.valueClass, field.desc.byteLength);
 			} else {
 				//throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
 				StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);

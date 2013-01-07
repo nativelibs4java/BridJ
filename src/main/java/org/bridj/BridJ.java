@@ -346,6 +346,9 @@ public class BridJ {
         Quiet("bridj.quiet", "BRIDJ_QUIET", false,
             "Quiet mode"
         ),
+        AlignDouble("bridj.alignDouble", "BRIDJ_ALIGN_DOUBLE", false,
+            "Align doubles on 8 bytes boundaries even on Linux 32 bits (see -malign-double GCC option)."
+        ),
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
             "Log each native call performed (or call from native to Java callback)"
         ),
@@ -436,6 +439,7 @@ public class BridJ {
     public static final boolean logCalls = Switch.LogCalls.enabled;
     public static final boolean protectedMode = Switch.Protected.enabled;
     public static final boolean enableDestructors = Switch.Destructors.enabled;
+    public static final boolean alignDoubles = Switch.AlignDouble.enabled;
     
     static volatile int minLogLevelValue = (verbose ? Level.WARNING : Level.INFO).intValue();
     public static void setMinLogLevel(Level level) {
