@@ -13,10 +13,11 @@ BridJ 0.6.2 (20130107)
 - Fixed alignment of struct array fields (issue #319)
 - Fixed alignment of double fields on Linux 32 bits (issue #320)
 - Fixed dlopen log for non existing absolute library paths
+- Added experimental Linux/arm support (issue #327)
 - Added @Library.dependencies + test library
 - Added BridJ.getNativeLibraryName back
 - Added ComplexDouble struct for C99's `_Complex double` type.
-- Added GCC shortcut case for constructors
+- Added GCC shortcut case for demangling of C++ constructors 
 - Added Pointer.getIntAtIndex(long) / .setIntAtIndex(long, int) (and with all primitive variants)
 - Added quiet mode (BRIDJ_QUIET=1 / bridj.quiet=true) (issue #328)
 - Added assembler optimizations for functions with up to 16 arguments on Win64 !
