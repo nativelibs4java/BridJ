@@ -356,12 +356,14 @@ public class NativeLibrary {
 	public MemberRef parseSymbol(String symbol) throws DemanglingException {
         if ("__cxa_pure_virtual".equals(symbol))
             return null;
-        
-		Demangler demangler;
-		if (Platform.isWindows())
-			demangler = new VC9Demangler(this, symbol);
-		else
-			demangler = new GCC4Demangler(this, symbol);
-		return demangler.parseSymbol();
+    
+    if (Platform.isWindows()) {
+      try {
+        MemberRef result = new VC9Demangler(this, symbol).parseSymbol();
+        if (result != null)
+          return result;
+      } catch (Throwable th) {}
+    }
+		return new GCC4Demangler(this, symbol).parseSymbol();
 	}
 }
