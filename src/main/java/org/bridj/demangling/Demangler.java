@@ -1019,12 +1019,14 @@ public abstract class Demangler {
             }
             
             if (totalArgs != parameterTypes.length) {
-            		System.err.println("Not enough args for " + this);
+            	if (!BridJ.quiet) {
+                    System.err.println("Not enough args for " + this);
+            	}
                 return false;
             }
 
             return true;
-		}
+        }
 
         @Override
         public String toString() {
