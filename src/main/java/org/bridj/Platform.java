@@ -258,7 +258,7 @@ public class Platform {
                 while (!delete(files)) {
                     long elapsed = System.currentTimeMillis() - start;
                     if (elapsed > FAIL_AFTER_MILLIS) {
-                        System.err.println("Failed to delete the following files : " + StringUtils.implode(files));
+                        BridJ.error("Failed to delete the following files : " + StringUtils.implode(files));
                         System.exit(1);
                     }
 

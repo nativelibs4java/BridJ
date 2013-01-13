@@ -323,7 +323,7 @@ public class CRuntime extends AbstractBridJRuntime {
                                 handledMethods.add(fio.setter);
                             }
                         } catch (Exception ex) {
-                            System.err.println("Failed to register field " + fio.name + " in struct " + type);
+                            BridJ.error("Failed to register field " + fio.name + " in struct " + type);
                             ex.printStackTrace();
                         }
                     }

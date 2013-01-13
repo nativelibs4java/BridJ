@@ -306,7 +306,7 @@ public abstract class Demangler {
                 if (ref != null) {
                 	boolean res = ref.matches(method);
                 	if (!res && BridJ.debug) {
-                		System.err.println("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method);
+                		BridJ.debug("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method);
                 	}
                     return res;
                 }
@@ -1019,9 +1019,7 @@ public abstract class Demangler {
             }
             
             if (totalArgs != parameterTypes.length) {
-            	if (!BridJ.quiet) {
-                    System.err.println("Not enough args for " + this);
-            	}
+                BridJ.error("Not enough args for " + this);
                 return false;
             }
 
