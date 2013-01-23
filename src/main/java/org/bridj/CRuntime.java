@@ -70,14 +70,24 @@ public class CRuntime extends AbstractBridJRuntime {
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
 		return Utils.getClass(officialType);
 	}
+	
+	protected boolean shouldWarnIfNoFieldsInStruct() {
+		return true;
+	}
 
     public class CTypeInfo<T extends NativeObject> implements TypeInfo<T> {
         public CTypeInfo(Type type) {
             this.type = type;
             this.typeClass = Utils.getClass(type);
             this.structIO = StructIO.getInstance(typeClass, typeClass);
-            if (structIO != null)
+            if (structIO != null) {
             		structIO.build();
+            		if (BridJ.verbose && 
+            			structIO.getAggregatedFields().isEmpty() &&
+            			shouldWarnIfNoFieldsInStruct()) {
+					BridJ.info("No fields found in " + Utils.toString(type) + " (maybe they weren't declared as public ?)");
+                 }
+            }
             this.pointerIO = (PointerIO<T>)PointerIO.getInstance(structIO);
             //this.castClass = getTypeForCast(typeClass);
             register(typeClass);

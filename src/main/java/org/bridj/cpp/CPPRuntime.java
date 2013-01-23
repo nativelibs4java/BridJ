@@ -752,6 +752,11 @@ public class CPPRuntime extends CRuntime {
         return vtable;
     }
     
+    @Override
+	protected boolean shouldWarnIfNoFieldsInStruct() {
+		return false;
+	}
+	
     public class CPPTypeInfo<T extends CPPObject> extends CTypeInfo<T> {
         public CPPTypeInfo(Type type) {
             super(type);

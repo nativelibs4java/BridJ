@@ -279,11 +279,7 @@ public class StructIO {
 			synchronized (this) {
 				if (fields == null) {
 					fields = computeStructLayout();
-                    if (fields.length == 0) {
-                        if (BridJ.verbose)
-                            BridJ.info("No fields found in " + Utils.toString(structType) + " (maybe they weren't declared as public ?)");
-                    }
-					customizer.afterBuild(this);
+                    	customizer.afterBuild(this);
 					if (BridJ.debug)
 						BridJ.info(describe());
 				}
