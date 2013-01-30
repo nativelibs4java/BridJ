@@ -521,7 +521,6 @@ public class BridJ {
 
 	/**
 	 * Reclaims all the memory allocated by BridJ in the JVM and on the native side.
-	 * This is automatically called at shutdown time.
 	 */
 	public synchronized static void releaseAll() {
 		strongNativeObjects.clear();
