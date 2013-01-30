@@ -35,6 +35,8 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
 #LDFLAGS		+= -ljni
 endif
 
