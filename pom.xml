@@ -9,7 +9,7 @@
 	<packaging>bundle</packaging>
 	
 	<properties>
-		<versionSpecificSubPackage>v0_6_2</versionSpecificSubPackage>
+		<versionSpecificSubPackage>v0_6_3</versionSpecificSubPackage>
 	</properties>
 	
 	<parent>
