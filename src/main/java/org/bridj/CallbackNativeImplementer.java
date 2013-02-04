@@ -29,7 +29,7 @@ import org.objectweb.asm.signature.SignatureWriter;
 //import org.objectweb.asm.attrs.*;
 class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 
-	Map<Class<? extends CallbackInterface>, Class<?>> implClasses = new HashMap<Class<? extends CallbackInterface>, Class<?>>();
+	Map<Class<? extends CallbackInterface>, Class<?>> implClasses = new ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";
 	final NativeEntities nativeEntities;
     final CRuntime runtime;
@@ -52,7 +52,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 	 * The class created here is to be used to cast a pointer to a callback
 	 * @param callbackType
 	 */
-	public synchronized <T extends CallbackInterface> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
+	public <T extends CallbackInterface> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
 		Class<?> callbackImplType = implClasses.get(callbackType);
 		if (callbackImplType == null) {
 			try {
@@ -69,7 +69,11 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 				
 				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
 				callbackImplType = getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
-                implClasses.put(callbackType, callbackImplType);
+				
+				Class<?> existingCallbackImplType = implClasses.putIfAbsent(callbackType, callbackImplType);
+				if (existingCallbackImplType != null)
+				  return (Class)existingCallbackImplType;
+				
 				runtime.register(callbackImplType, forcedLibrary, null);
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName() + " : " + ex, ex);

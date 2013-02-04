@@ -75,8 +75,8 @@ public class StructIO {
     };
     
 	static Customizer dummyCustomizer = new DefaultCustomizer();
-    static Map<Class, Customizer> customizers = new HashMap<Class, Customizer>();
-    static synchronized Customizer getCustomizer(Class<?> structClass) {
+    static Map<Class, Customizer> customizers = new ConcurrentHashMap<Class, Customizer>();
+    static Customizer getCustomizer(Class<?> structClass) {
 		Customizer c = customizers.get(structClass);
 		if (c == null) {
 			Struct s = structClass.getAnnotation(Struct.class);
@@ -92,7 +92,10 @@ public class StructIO {
 			}
 			if (c == null)
 				c = dummyCustomizer;
-			customizers.put(structClass, c);
+			Customizer existingConcurrentCustomizer =
+			  customizers.putIfAbsent(structClass, c);
+			if (existingConcurrentCustomizer != null)
+			  return existingConcurrentCustomizer;
 		}
 		return c;
     }
