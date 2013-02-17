@@ -9,6 +9,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.io.FileNotFoundException;
+import java.util.concurrent.*;
 
 //import org.objectweb.asm.*;
 import static org.objectweb.asm.Opcodes.*;
@@ -29,7 +30,7 @@ import org.objectweb.asm.signature.SignatureWriter;
 //import org.objectweb.asm.attrs.*;
 class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 
-	Map<Class<? extends CallbackInterface>, Class<?>> implClasses = new ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>>();
+	ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>> implClasses = new ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";
 	final NativeEntities nativeEntities;
     final CRuntime runtime;

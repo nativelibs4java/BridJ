@@ -478,9 +478,13 @@ public class Platform {
                     assert root.equals("lib/");
                     path = root + "armeabi/"; // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
                 } 
-                else if (isLinux())
-                    path = root + (isArm() ? "linux_arm32_arm/" : is64Bits() ? "linux_x64/" : "linux_x86/");
-                else if (isSolaris()) {
+                else if (isLinux()) {
+		    if (isArm())
+			path = root + (new File("/lib/arm-linux-gnueabihf").isDirectory() ? "linux_armhf/" : "linux_arm/");
+		    else
+                    	path = root + (is64Bits() ? "linux_x64/" : "linux_x86/");
+		}
+		else if (isSolaris()) {
                     if (isSparc()) {	
                         path = root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/");
                     } else {

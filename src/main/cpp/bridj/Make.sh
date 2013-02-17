@@ -130,7 +130,11 @@ if [[ -d build_out ]] ; then
 		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"| sed "s/_androidndk_$OUT_PATTERN//"`"
 		if [[ "$ARCH_NAME" == "android_arm32_arm" ]] ; then
 			RES_SUB="lib/armeabi" ;
-		else
+		elif [[ "$ARCH_NAME" == "linux_arm32_arm" && -d /lib/arm-linux-gnueabihf ]] ; then
+                        RES_SUB="org/bridj/lib/linux_armhf" ;
+                elif [[ "$ARCH_NAME" == "linux_arm32_arm" && -d /lib/arm-linux-gnueabi ]] ; then
+                        RES_SUB="org/bridj/lib/linux_arm" ;
+                else
 			RES_SUB="org/bridj/lib/$ARCH_NAME" ;
 		fi
 		MAIN_OUT="../../../resources/$RES_SUB"

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Set;
+import java.util.concurrent.*;
 import org.bridj.ann.Virtual;
 import org.bridj.ann.Array;
 import org.bridj.ann.Union;
@@ -75,7 +76,7 @@ public class StructIO {
     };
     
 	static Customizer dummyCustomizer = new DefaultCustomizer();
-    static Map<Class, Customizer> customizers = new ConcurrentHashMap<Class, Customizer>();
+    static ConcurrentHashMap<Class, Customizer> customizers = new ConcurrentHashMap<Class, Customizer>();
     static Customizer getCustomizer(Class<?> structClass) {
 		Customizer c = customizers.get(structClass);
 		if (c == null) {
