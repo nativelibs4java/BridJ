@@ -133,7 +133,7 @@ if [[ -d build_out ]] ; then
 		elif [[ "$ARCH_NAME" == "linux_arm32_arm" && -d /lib/arm-linux-gnueabihf ]] ; then
                         RES_SUB="org/bridj/lib/linux_armhf" ;
                 elif [[ "$ARCH_NAME" == "linux_arm32_arm" && -d /lib/arm-linux-gnueabi ]] ; then
-                        RES_SUB="org/bridj/lib/linux_arm" ;
+                        RES_SUB="org/bridj/lib/linux_armel" ;
                 else
 			RES_SUB="org/bridj/lib/$ARCH_NAME" ;
 		fi

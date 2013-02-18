@@ -480,7 +480,7 @@ public class Platform {
                 } 
                 else if (isLinux()) {
 		    if (isArm())
-			path = root + (new File("/lib/arm-linux-gnueabihf").isDirectory() ? "linux_armhf/" : "linux_arm/");
+			path = root + (new File("/lib/arm-linux-gnueabihf").isDirectory() ? "linux_armhf/" : "linux_armel/");
 		    else
                     	path = root + (is64Bits() ? "linux_x64/" : "linux_x86/");
 		}

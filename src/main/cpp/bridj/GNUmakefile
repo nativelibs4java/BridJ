@@ -108,6 +108,8 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
 CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include
 CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include/linux
 endif
 
 ifdef BUILD_OS_sunos
