@@ -216,7 +216,7 @@
 										<exclude>org/bridj/cs/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/win*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
@@ -259,7 +259,7 @@
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 										<exclude>org/bridj/lib/darwin_*/**</exclude>
@@ -431,7 +431,7 @@
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
+										<exclude>libs/armeabi/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
@@ -507,7 +507,7 @@
 									<excludes>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
+										<exclude>libs/armeabi/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
