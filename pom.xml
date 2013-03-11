@@ -419,6 +419,7 @@
 						</goals>
 						<configuration>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<!--shadedClassifierName>shaded</shadedClassifierName-->
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
