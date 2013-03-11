@@ -31,7 +31,8 @@ public class PlatformTest {
 		Process p = Runtime.getRuntime().exec(new String[] { "uname", "-m" });
 		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		
-		String m = r.readLine().trim();
+		String uname = r.readLine().trim();
+		String m = uname;
 		assertTrue(m.length() > 0);
 		
 		if (m.matches("i\\d86"))
@@ -39,6 +40,9 @@ public class PlatformTest {
 		else if (m.matches("i86pc"))
 			m = "x86";
 		
-		assertEquals(m, Platform.getMachine());
+		if (m.equals("i386") && Platform.is64Bits())
+			m = "x86_64";
+		
+		assertEquals("uname = " + uname + ", Platform.getMachine = " + Platform.getMachine(), m, Platform.getMachine());
 	}
 }

@@ -62,13 +62,14 @@ UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
 #endif
 
-ifndef BUILD_OS_darwin
+ifdef BUILD_OS_darwin
+CPPFLAGS += -no-integrated-as
+else
 CPPFLAGS += -Werror
 CPPFLAGS += -D_DARWIN_C_SOURCE
 endif
 
 CPPFLAGS += -std=c99
-#CFLAGS += -msse2 -msseregparm
 #CFLAGS += -g
 
 # Lower requirement for GLIBC version number (2.2.5) :
