@@ -170,6 +170,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
@@ -210,13 +211,13 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/win*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
@@ -255,11 +256,10 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 										<exclude>org/bridj/lib/darwin_*/**</exclude>
@@ -299,6 +299,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -341,6 +342,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -416,8 +418,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>desktop-only</shadedClassifierName>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
@@ -428,10 +429,10 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/armeabi/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>libs/armeabi/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
@@ -439,34 +440,6 @@
 									<excludes>
 										<exclude>junit/**</exclude>
 										<exclude>com/android/**</exclude>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-										<exclude>META-INF/maven/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-					<execution>
-						<id>full-package</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<!--shadedClassifierName>full</shadedClassifierName-->
-							<artifactSet>
-								<excludes>
-									<exclude>junit:junit</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>junit/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>

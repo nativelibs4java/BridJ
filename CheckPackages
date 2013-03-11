@@ -14,10 +14,17 @@ for F in target/bridj*.jar ; do
         echo $F
         CONTENTS=`unzip -l $F`
         echo "$CONTENTS" | grep BridJ.class > /dev/null || fail "Does not have BridJ"
-        if [[ $F =~ .*android.* || $F =~ .*SNAPSHOT.jar ]]; then
-            echo "$CONTENTS" | grep DexFormat.class > /dev/null || fail "Does not have Dex"
+        ANDROID_CLASSES="DexFormat AndroidClassDefiner AndroidSupport"
+        if [[ $F =~ .*android.* ]]; then
+            for CLS in $ANDROID_CLASSES; do
+                echo "$CONTENTS" | grep $CLS.class > /dev/null || fail "Does not have class $CLS"
+                echo "   Has class $CLS"
+            done
         else
-            echo "$CONTENTS" | grep DexFormat.class > /dev/null && fail "Has Dex"
+            for CLS in $ANDROID_CLASSES; do
+                echo "$CONTENTS" | grep $CLS.class > /dev/null && fail "Has class $CLS"
+            done
+            echo "$CONTENTS" | grep -i Android && fail "Has some android references"
         fi 
         echo "$CONTENTS" | egrep "\.so|\.dll|\.dylib" || exit 1
         echo "$CONTENTS" | grep junit && fail "Has JUnit"
