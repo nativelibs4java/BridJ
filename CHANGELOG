@@ -1,5 +1,11 @@
 Current development version (0.6.3-SNAPSHOT)
 
+- Added support for Raspberry Pi (Linux/armel (soft-float) and Linux/armhf (hard-float)).
+- Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
+- Added fallback to GCC demangler on Windows (issue #356).
+- Better logs, less logs (issue #328).  
+- Don't warn about structs/classes with no fields in C++ runtime (issue #346).
+- Improved concurrency of callbacks and structs creation.
 ...
 
 BridJ 0.6.2 (20130107)
