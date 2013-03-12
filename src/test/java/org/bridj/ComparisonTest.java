@@ -352,7 +352,7 @@ public class ComparisonTest {
 		
 		long n = 100000;
 		long warmup = 2000;
-		Pointer pBridJ = allocateBytes(100);
+		Pointer pBridJ = allocateBytes(100);//.withoutValidityInformation();
 		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
         ByteBuffer pNIO = ByteBuffer.allocateDirect(100);
 		
@@ -637,7 +637,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 1.5); // */
+        assertBridJFaster(bridJFaster, 1.2);
 	}
 	static void assertBridJFaster(double factor, double minExpectedFactor) {
 		if (factor < 0)

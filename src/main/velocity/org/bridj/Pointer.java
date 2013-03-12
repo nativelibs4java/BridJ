@@ -141,18 +141,19 @@ import static org.bridj.SizeT.safeIntCast;
 public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 {
 
-#macro (declareCheckedPeer $validityCheckLength)
-		long checkedPeer = peer;
-		if (validStart != UNKNOWN_VALIDITY)
-			checkPeer(checkedPeer, $validityCheckLength);
-#end
-
 #macro (declareCheckedPeerAtOffset $byteOffset $validityCheckLength)
-    	long checkedPeer = peer + $byteOffset;
-		if (validStart != UNKNOWN_VALIDITY)
-			checkPeer(checkedPeer, $validityCheckLength);
+	long checkedPeer = peer + $byteOffset;
+	if (validStart != UNKNOWN_VALIDITY && (
+			checkedPeer < validStart || 
+			(checkedPeer + $validityCheckLength) > validEnd
+	   )) {
+		invalidPeer(checkedPeer, $validityCheckLength);
+	}
 #end
 
+#macro (declareCheckedPeer $validityCheckLength)
+	#declareCheckedPeerAtOffset("0", $validityCheckLength)
+#end
 	
 #macro (docAllocateCopy $cPrimName $primWrapper)
 	/**
@@ -550,10 +551,8 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
     }
     
-    protected final void checkPeer(long peer, long validityCheckLength) {
-		if (peer < validStart || (peer + validityCheckLength) > validEnd) {
-			throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (peer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
-		}
+    protected final void invalidPeer(long peer, long validityCheckLength) {
+		throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (peer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
 	}
 	
     private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
