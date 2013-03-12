@@ -4,6 +4,7 @@ import com.sun.jna.Memory;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -409,6 +410,11 @@ public class StructTest {
 		}
 		public int a;
 		public double b;
+		
+		@Override
+		protected List<String> getFieldOrder() {
+			return Arrays.asList("a", "b");
+		}
 	}
     public static class MyNIOStruct {
         final ByteBuffer p;
