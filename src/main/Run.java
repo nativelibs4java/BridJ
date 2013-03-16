@@ -5,11 +5,6 @@ import static org.bridj.Pointer.*;
 import org.bridj.objc.NSObject;
 import org.bridj.objc.ObjCBlock;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author ochafik

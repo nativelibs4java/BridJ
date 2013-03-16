@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.bridj;
 import org.bridj.FunctionTest.ETest;
 import static org.bridj.util.DefaultParameterizedType.*;

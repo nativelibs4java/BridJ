@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.bridj.cpp.mfc;
 
 /// c:\program files\microsoft visual studio 8\vc\atlmfc\include\afxres.h

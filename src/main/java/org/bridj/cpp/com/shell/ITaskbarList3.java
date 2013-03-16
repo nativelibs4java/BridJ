@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.bridj.cpp.com.shell;
 import java.util.Collections;
 import java.util.Iterator;
