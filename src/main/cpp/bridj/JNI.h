@@ -5,6 +5,7 @@
 
 #define GLOBAL_REF(v) (*env)->NewGlobalRef(env, v)
 #define DEL_GLOBAL_REF(v) (*env)->DeleteGlobalRef(env, v)
+#define DEL_LOCAL_REF(v) (*env)->DeleteLocalRef(env, v)
 #define WEAK_GLOBAL_REF(v) (*env)->NewWeakGlobalRef(env, v)
 #define DEL_WEAK_GLOBAL_REF(v) (*env)->DeleteWeakGlobalRef(env, v)
 #define FIND_GLOBAL_CLASS(name) GLOBAL_REF((*env)->FindClass(env, name))

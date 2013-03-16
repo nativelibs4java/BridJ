@@ -94,6 +94,7 @@ jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int n
 			
 		}
 		(*env)->SetObjectArrayElement(env, arr, iParam, arg);
+		DEL_LOCAL_REF(arg);
 	}
 	dcArgPointer(call->vm, arr);
 	

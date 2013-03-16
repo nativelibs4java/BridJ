@@ -495,7 +495,7 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 			continue;
 		jstring nameString = (*env)->NewStringUTF(env, name);
 		(*env)->SetObjectArrayElement(env, ret, i, nameString);
-		(*env)->DeleteLocalRef(env, nameString);
+		DEL_LOCAL_REF(nameString);
     }
 	//END_TRY_CALL(env);
     return ret;
@@ -652,9 +652,9 @@ void initCommonCallInfo(
 			info->fCallIOs = (jobject*)malloc((n + 1) * sizeof(jobject));
 			for (i = 0; i < n; i++) {
 				jobject obj = (*env)->GetObjectArrayElement(env, callIOs, i);
-				if (obj)
-					obj = GLOBAL_REF(obj);
-				info->fCallIOs[i] = obj;
+				jobject gobj = obj ? GLOBAL_REF(obj) : NULL;
+				info->fCallIOs[i] = gobj;
+				DEL_LOCAL_REF(obj);
 			}
 			info->fCallIOs[n] = NULL;
 		}
@@ -809,7 +809,9 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 		type* info = &infos[i];																						 	 \
 		jobject methodCallInfo = (*env)->GetObjectArrayElement(env, methodCallInfos, i);
 		
-#define END_INFOS_LOOP() }
+#define END_INFOS_LOOP() \
+        DEL_LOCAL_REF(methodCallInfo); \
+    }
 
 JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 	JNIEnv *env, 
