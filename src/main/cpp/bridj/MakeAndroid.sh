@@ -9,18 +9,20 @@ function fail {
 
 cd $(dirname $0)
 
-BRIDJ_HOME=$PWD/../../../..
-RESOURCES=$BRIDJ_HOME/src/main/resources
-DYNCALL_HOME=$BRIDJ_HOME/dyncall
-NDK_PROJECT_PATH=$PWD
+BRIDJ_HOME="$PWD/../../../.."
+RESOURCES="$BRIDJ_HOME/src/main/resources"
+DYNCALL_HOME="$BRIDJ_HOME/dyncall"
+NDK_PROJECT_PATH="$PWD"
 
 if [[ ! -e jni/dyncall ]]; then
-    ln -s $(DYNCALL_HOME)/dyncall/ jni/dyncall
-elif [[Ê! -h jni/dyncall ]]; then
-    fail "File jni/dyncall is meant to be a symbolic link to $(DYNCALL_HOME)/dyncall"
+    ln -s "$DYNCALL_HOME/dyncall/" jni/dyncall
 fi
 
 for ABI in x86 armeabi; do
     ~/bin/android-ndk-r8d/ndk-build "APP_ABI=$ABI" $@ || fail "Failed to build for ABI $ABI"
-    [[ "$@" != "clean" ]] && cp libs/$ABI/*.so $RESOURCES/libs/$ABI
+    if [[ "$@" != "clean" ]]; then
+        LIB_DIR="$RESOURCES/libs/$ABI"
+        [ -d "$LIB_DIR" ] || mkdir -p "$LIB_DIR" || fail "Failed to create output dir $LIB_DIR"
+        cp libs/$ABI/*.so "$LIB_DIR"
+    fi
 done

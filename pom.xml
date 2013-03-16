@@ -170,7 +170,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
@@ -211,7 +211,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -256,7 +256,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
@@ -299,7 +299,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -342,7 +342,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -430,7 +430,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
@@ -481,7 +481,7 @@
 									<excludes>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>libs/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
