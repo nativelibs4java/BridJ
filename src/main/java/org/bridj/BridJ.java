@@ -595,6 +595,7 @@ public class BridJ {
 			addPathsFromEnv(paths, "DYLD_LIBRARY_PATH");
 			addPathsFromEnv(paths, "PATH");
 			addPathsFromProperty(paths, "java.library.path");
+			addPathsFromProperty(paths, "sun.boot.library.path");
 			addPathsFromProperty(paths, "gnu.classpath.boot.library.path");
             
             File javaHome = new File(getProperty("java.home"));
