@@ -28,3 +28,5 @@ for ABI in x86 armeabi; do
         cp libs/$ABI/*.so "$LIB_DIR"
     fi
 done
+
+rm jni/dyncall || fail "Failed to remove jni/dyncall symlink"
