@@ -493,7 +493,9 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 		const char* name = dlSymsName(pSyms, i);
 		if (!name)
 			continue;
-		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
+		jstring nameString = (*env)->NewStringUTF(env, name);
+		(*env)->SetObjectArrayElement(env, ret, i, nameString);
+		(*env)->DeleteLocalRef(env, nameString);
     }
 	//END_TRY_CALL(env);
     return ret;
