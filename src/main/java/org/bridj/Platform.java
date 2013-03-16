@@ -163,8 +163,9 @@ public class Platform {
         }
         systemClassLoader = createClassLoader();
         
-        addEmbeddedLibraryResourceRoot("lib/");
+        addEmbeddedLibraryResourceRoot("libs/");
         if (!isAndroid()) {
+        	addEmbeddedLibraryResourceRoot("lib/");
         	addEmbeddedLibraryResourceRoot("org/bridj/lib/");
         	if (!Version.VERSION_SPECIFIC_SUB_PACKAGE.equals(""))
         		addEmbeddedLibraryResourceRoot("org/bridj/" + Version.VERSION_SPECIFIC_SUB_PACKAGE + "/lib/");
@@ -367,7 +368,7 @@ public class Platform {
             }
 
         } catch (Throwable ex) {
-            throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
+            throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName() + " (" + ex + ")", ex);
         }
     }
     private static native void init();
@@ -475,7 +476,7 @@ public class Platform {
 			else {
                 String path = null;
                 if (isAndroid()) {
-                    assert root.equals("lib/");
+                    assert root.equals("libs/");
                     path = root + "armeabi/"; // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
                 } 
                 else if (isLinux()) {
