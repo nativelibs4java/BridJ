@@ -36,6 +36,8 @@ echo ""
 echo "Analyzing android zip"
 CONTENTS=`unzip -l target/bridj-*-android.zip`
 echo "$CONTENTS" | grep libs/ | grep '\.'
+echo "$CONTENTS" | grep 'LICENSE.BridJ.txt' > /dev/null || fail "Does not have LICENSE"
+echo "$CONTENTS" | grep 'README.BridJ.txt' > /dev/null || fail "Does not have README"
 echo "$CONTENTS" | grep 'libs/bridj-.*-android.jar' > /dev/null || fail "Does not have BridJ JAR"
 echo "$CONTENTS" | grep 'libs/bridj-.*-android.jar.properties' > /dev/null || fail "Does not have BridJ JAR properties"
 echo "$CONTENTS" | grep 'libs/docs/bridj-.*-sources.jar' > /dev/null || fail "Does not have BridJ sources JAR"

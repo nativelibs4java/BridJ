@@ -576,8 +576,15 @@
                           <entry  key="src" value="docs/${project.build.finalName}-sources.jar"/>
                           <entry  key="doc" value="docs/${project.build.finalName}-javadoc.jar"/>
                         </propertyfile>
-                            
+                        <echo file="${project.build.directory}/README.Android.txt">To use BridJ in your Android project, simply copy to contents of the libs/ folder to your project's libs/ folder.
+
+If your project is already opened in the ADT / Eclipse, close it and reopen it to make sure it picks up the correct BridJ sources and javadoc locations.
+
+BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under which conditions you may use it.
+                        </echo>
                         <zip destfile="${project.build.directory}/${project.build.finalName}-android.zip">
+                            <zipfileset dir="${project.build.directory}" includes="README.Android.txt" fullpath="README.BridJ.txt"/>
+                            <zipfileset dir="." includes="LICENSE" fullpath="LICENSE.BridJ.txt"/>
                             <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar"/>
                             <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar.properties"/>
                             <zipfileset prefix="libs" dir="src/main/resources/libs" includes="*/*"/>
