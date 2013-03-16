@@ -43,58 +43,14 @@ svn diff $DYNCALL_HOME/dyncall | sed "s/${DYNCALL_HOME//\//\\/}\///" > dyncall.d
 echo "# Configuring dyncall"
 cd "$DYNCALL_HOME/dyncall" || fail "Cannot go to DYNCALL_HOME = $DYNCALL_HOME"
 
-TARGET=${TARGET:-default}
-ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5c}
-
-case $TARGET in
-	android)
-		NEEDS_TEST=0
-		SHAREDLIB_SUFFIX=so
-		
-		if [[ ! -d "$ANDROID_NDK_HOME" ]] 
-		then
-			fail "ANDROID_NDK_HOME not set and $ANDROID_NDK_HOME does not exist"
-		fi
-		
-		ANDROID_PREBUILT_DIR=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt
-		
-		if [[ ! -d "$ANDROID_PREBUILT_DIR" ]] 
-		then
-			fail "Cannot find $ANDROID_PREBUILT_DIR"
-		fi
-		
-		sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm || fail "Failed to configure Android/arm build"
-		;;
-	android-emulator)
-		NEEDS_TEST=0
-		sh ./configure --tool-androidndk --target-x86 || fail "Failed to configure Android/x86 build"
-		;;
-	ios)
-		#export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
-		#export C_INCLUDE_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/usr/include
-		#export LIBRARY_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/usr/lib
-		#export CC="gcc -arch arm"
-		#export CPPFLAGS
-		NEEDS_TEST=1
-		export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
-		sh ./configure --target-iphoneos --with-iphonesdk=4.3 || fail "Failed to configure iOS build"
-		;;
-	default)
-		NEEDS_TEST=1
-		export PATH=/Developer-old/usr/bin:$PATH
-		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then
-			# Avoid LC_DYLD_INFO (https://discussions.apple.com/thread/3197542?start=0&tstart=0)
-			export MACOSX_DEPLOYMENT_TARGET=10.4
-			sh ./configure --target-universal || fail "Failed to configure MacOS X Universal build"
-		else 
-			sh ./configure || fail "Failed to configure default build"
-		fi
-		;;
-	*)
-		fail "Unknown TARGET : $TARGET
-		Valid targets are android, android-emulator and default"
-	;;	
-esac
+export PATH=/Developer-old/usr/bin:$PATH
+if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then
+    # Avoid LC_DYLD_INFO (https://discussions.apple.com/thread/3197542?start=0&tstart=0)
+    export MACOSX_DEPLOYMENT_TARGET=10.4
+    sh ./configure --target-universal || fail "Failed to configure MacOS X Universal build"
+else 
+    sh ./configure || fail "Failed to configure default build"
+fi
 
 if [[ -z "$SHAREDLIB_SUFFIX" ]] ; then
 	if [[ -d /System/Library/Frameworks/ ]] ; then
@@ -111,15 +67,13 @@ echo "# Making BridJ"
 cd "$CURR"
 $MAKE_CMD $@ || fail "Failed to make BridJ"
 
-if [[ "$NEEDS_TEST" == "1" ]] ; then
-	echo "# Making test library"
-	cd "../../../test/cpp/test"
-	$MAKE_CMD $@ || fail "Failed to make BridJ's test library" ;
-	
-	echo "# Making dependsOnTest library"
-	cd "../../../test/cpp/dependsOnTest"
-	$MAKE_CMD $@ || fail "Failed to make BridJ's dependsOnTest library" ;
-fi
+echo "# Making test library"
+cd "../../../test/cpp/test"
+$MAKE_CMD $@ || fail "Failed to make BridJ's test library" ;
+
+echo "# Making dependsOnTest library"
+cd "../../../test/cpp/dependsOnTest"
+$MAKE_CMD $@ || fail "Failed to make BridJ's dependsOnTest library" ;
 
 cd "$CURR"
 
