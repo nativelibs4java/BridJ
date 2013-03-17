@@ -6,6 +6,10 @@ LANG=C
 SRC_HOME=${SRC_HOME:-~/src}
 BIN_HOME=${BIN_HOME:-~/bin}
 
+cd $(dirname $0)
+BRIDJ_CPP_DIR=$PWD
+SCRIPTS_DIR=$PWD/../../../../../scripts
+
 #BUILD_CONFIG=debug sh MakeAll.sh clean 
 export MAKE_CMD=make
 if [[ "`which gmake`" != "" ]] ; then
@@ -36,8 +40,13 @@ function fail() {
 
 #echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
+
 #svn diff $SRC_HOME/dyncall/dyncall > dyncall.diff
-svn diff $DYNCALL_HOME/dyncall | sed "s/${DYNCALL_HOME//\//\\/}\///" > dyncall.diff
+
+cd $DYNCALL_HOME
+[[ -f $SCRIPTS_DIR/svnDiffSorted ]] || fail "no svn diff script"
+$SCRIPTS_DIR/svnDiffSorted dyncall | sed "s/${DYNCALL_HOME//\//\\/}\///" > $BRIDJ_CPP_DIR/dyncall.diff
+#svn diff $DYNCALL_HOME/dyncall | sed "s/${DYNCALL_HOME//\//\\/}\///" > dyncall.diff
 #svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
 echo "# Configuring dyncall"

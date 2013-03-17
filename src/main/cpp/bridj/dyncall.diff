@@ -1,6 +1,20 @@
+Index: dyncall/buildsys/gmake/os/darwin.gmake
+===================================================================
+--- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1389)
++++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
+@@ -23,7 +23,8 @@
+ LIBTOOL_STATIC=libtool -static -o $@ $^
+ 
+ ifdef BUILD_ARCH_universal
+-TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++TARGET_ARCH?=-arch x86_64 -arch i386 
+ endif
+ 
+ ifdef BUILD_ARCH_ppc32
 Index: dyncall/buildsys/gmake/tool/gcc.gmake
 ===================================================================
---- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1385)
+--- dyncall/buildsys/gmake/tool/gcc.gmake	(revision 1389)
 +++ dyncall/buildsys/gmake/tool/gcc.gmake	(working copy)
 @@ -86,6 +86,13 @@
  
@@ -16,23 +30,23 @@ Index: dyncall/buildsys/gmake/tool/gcc.gmake
  # --- Compile C++ -------------------------------------------------------------
  
  $(BUILD_DIR)/%.o: %.cpp
-Index: dyncall/buildsys/gmake/os/darwin.gmake
+Index: dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1385)
-+++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
-@@ -23,7 +23,8 @@
- LIBTOOL_STATIC=libtool -static -o $@ $^
+--- dyncall/dynload/dynload_syms_elf.c	(revision 1389)
++++ dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -54,7 +54,8 @@
  
- ifdef BUILD_ARCH_universal
--TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
-+#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
-+TARGET_ARCH?=-arch x86_64 -arch i386 
- endif
- 
- ifdef BUILD_ARCH_ppc32
+ #include <assert.h>
+ #include <fcntl.h>
+-#include <dlfcn.h>
++#include "/Users/ochafik/bin/android-ndk-r8d/platforms/android-14/arch-x86/usr/include/dlfcn.h"
++//#include <dlfcn.h>
+ #include <stdio.h>
+ #include <string.h>
+ #include <sys/stat.h>
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_syms_mach-o.c	(revision 1385)
+--- dyncall/dynload/dynload_syms_mach-o.c	(revision 1389)
 +++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -28,6 +28,7 @@
   dynamic symbol resolver for Mach-O
@@ -334,7 +348,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  		return NULL;
 Index: dyncall/dynload/dynload_unix.c
 ===================================================================
---- dyncall/dynload/dynload_unix.c	(revision 1385)
+--- dyncall/dynload/dynload_unix.c	(revision 1389)
 +++ dyncall/dynload/dynload_unix.c	(working copy)
 @@ -40,7 +40,7 @@
  
@@ -347,7 +361,7 @@ Index: dyncall/dynload/dynload_unix.c
  
 Index: dyncall/dynload/dynload_windows.c
 ===================================================================
---- dyncall/dynload/dynload_windows.c	(revision 1385)
+--- dyncall/dynload/dynload_windows.c	(revision 1389)
 +++ dyncall/dynload/dynload_windows.c	(working copy)
 @@ -40,7 +40,9 @@
  DLLib* dlLoadLibrary(const char* libPath)
