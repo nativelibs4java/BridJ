@@ -10,6 +10,7 @@
 	
 	<properties>
 		<versionSpecificSubPackage>v0_6_3</versionSpecificSubPackage>
+		<maven.compiler.optimize>true</maven.compiler.optimize>
 	</properties>
 	
 	<parent>

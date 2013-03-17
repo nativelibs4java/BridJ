@@ -57,10 +57,8 @@ public class ComparisonTest {
     	public TestLib() {
 			BridJ.register(getClass());
 		}
-        //@Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
         public native double sinInt(int d);
 
-        //@Mangling({"?voidTest@@YAXXZ", "_Z8voidTestv"})
         public native void voidTest();
         
         static class Struct1 {
@@ -288,8 +286,6 @@ public class ComparisonTest {
         }
     }
     
-    
-    
     @Test
 	public void compareStructCreations() throws InterruptedException {
 		//if (true) return;
@@ -454,6 +450,7 @@ public class ComparisonTest {
 			b.get();
 		return b.slice();
 	}
+	
 	@Test
 	public void compareStructArrayCasts() throws InterruptedException {
 		//if (true) return;
@@ -556,7 +553,13 @@ public class ComparisonTest {
         assertBridJFaster(bridJFaster, 30); // */
 	}
 	
+	/*
 	@Test
+	public void compareFieldsAccesses() throws InterruptedException {
+		for (int i = 0; i < 10; i++)
+			compareFieldsAccess();
+	}
+	//*/@Test
 	public void compareFieldsAccess() throws InterruptedException {
 		//if (true) return;
 		
