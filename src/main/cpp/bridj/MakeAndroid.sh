@@ -20,7 +20,14 @@ if [[ ! -e jni/dyncall ]]; then
     ln -s "$DYNCALL_HOME/dyncall/" jni/dyncall
 fi
 
-for ABI in x86 armeabi; do
+#ABIS="x86 armeabi mips"
+ABIS="x86 armeabi"
+
+$ANDROID_NDK_HOME/ndk-build $@ || fail "Failed to build Android lib for ABI $ABI"
+
+exit 0
+
+for ABI in $ABIS; do
     $ANDROID_NDK_HOME/ndk-build "APP_ABI=$ABI" $@ || fail "Failed to build Android lib for ABI $ABI"
     if [[ "$@" != "clean" ]]; then
         LIB_DIR="$RESOURCES/libs/$ABI"

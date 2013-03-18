@@ -3,9 +3,10 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := bridj
-APP_ABI := $(if $(APP_ABI),$(APP_ABI),armeabi)
-APP_OPTIM := release
-LOCAL_LDFLAGS += -ldl -Wl,--export-dynamic
+NDK_DEBUG := 1
+
+LOCAL_LDLIBS += -ldl
+LOCAL_LDFLAGS += -Wl,--export-dynamic -Wl,--allow-multiple-definition
 LOCAL_CFLAGS += -U_FORTIFY_SOURCE
 
 # For thumb, call with LOCAL_ARM_MODE=thumb
@@ -29,19 +30,10 @@ LOCAL_SRC_FILES += $(DYNLOAD_FILES:$(LOCAL_PATH)/%=%)
 
 DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_vector.c
 DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_api.c
+DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_call.S
 DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_callvm.c
 DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_callvm_base.c
 DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_struct.c
-
-ifeq ($(TARGET_ARCH_ABI),armeabi) 
-ifeq ($(LOCAL_ARM_MODE),arm)
-DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_call_arm32_arm.S
-else
-DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_call_arm32_thumb_gas.s
-endif
-else
-DYNCALL_FILES += $(DYNCALL_DIR)/dyncall_call_x86.S
-endif
 LOCAL_SRC_FILES += $(DYNCALL_FILES:$(LOCAL_PATH)/%=%) 
 
 DYNCALLBACK_FILES += $(DYNCALLBACK_DIR)/dyncall_thunk.c

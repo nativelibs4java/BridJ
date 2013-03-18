@@ -132,6 +132,15 @@
 			</plugin>
 			
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                </configuration>
+			</plugin>
+			
+			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-velocity-plugin</artifactId>
 			</plugin>
@@ -577,20 +586,32 @@
                           <entry  key="src" value="docs/${project.build.finalName}-sources.jar"/>
                           <entry  key="doc" value="docs/${project.build.finalName}-javadoc.jar"/>
                         </propertyfile>
-                        <echo file="${project.build.directory}/README.Android.txt">To use BridJ in your Android project, simply copy to contents of the libs/ folder to your project's libs/ folder.
+                        <echo file="${project.build.directory}/README.Android.txt">To use BridJ in your Android project:
+- Copy libs/ to your project's root directory.
+- If you're building a native library with the NDK:
+    - Copy bridj-native-libs/ to your project's root directory.
+    - Add the following to your jni/Android.mk file:
+    
+        include $(CLEAR_VARS)
+        LOCAL_MODULE := bridj
+        LOCAL_SRC_FILES := ../bridj-native-libs/$(TARGET_ARCH_ABI)/libbridj.so
+        include $(PREBUILT_SHARED_LIBRARY)
+        
+- If you're not building any native library with the NDK and just want to use BridJ to bind system libraries:
+    - Copy the contents of bridj-native-libs/ to libs/.
 
-If your project is already opened in the ADT / Eclipse, close it and reopen it to make sure it picks up the correct BridJ sources and javadoc locations.
+In any case, if your project is already opened in the ADT / Eclipse, close it and reopen it to make sure it picks up the correct BridJ sources and javadoc locations.
 
 BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under which conditions you may use it.
                         </echo>
                         <zip destfile="${project.build.directory}/${project.build.finalName}-android.zip">
                             <zipfileset dir="${project.build.directory}" includes="README.Android.txt" fullpath="README.BridJ.txt"/>
                             <zipfileset dir="." includes="LICENSE" fullpath="LICENSE.BridJ.txt"/>
-                            <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar"/>
+                            <zipfileset prefix="bridj-libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar"/>
                             <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar.properties"/>
-                            <zipfileset prefix="libs" dir="src/main/resources/libs" includes="*/*"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-sources.jar"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-javadoc.jar"/>
+                            <zipfileset prefix="bridj-native-libs" dir="src/main/resources/libs" includes="*/*"/>
                         </zip>
                       </tasks>
                     </configuration>
