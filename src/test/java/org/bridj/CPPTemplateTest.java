@@ -30,18 +30,13 @@
  */
 package org.bridj;
 
-import java.io.IOException;
-import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Template;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.*;
-import org.bridj.cpp.std.*;
-import static org.bridj.Pointer.*;
 
 import java.lang.reflect.Type;
 
@@ -84,64 +79,5 @@ public class CPPTemplateTest {
 		System.out.println("Template created value : " + v);
 		ii.deleteSome(p);
 	}
-
-	//public static native
-    ///*
-    <T> DynamicFunction<T> getTestFunction(String name, Type ret, Type... args) throws IOException {
-    		NativeLibrary lib = BridJ.getNativeLibrary("test");
-    		Pointer<?> sym = lib.getSymbolPointer(name);
-    		if (sym == null)
-			sym = lib.getSymbolPointer("_" + name);
-		assertNotNull("Symbol " + name + " not found", sym);
-		Pointer<?> ptr = sym.getPointer();
-		return ptr.asDynamicFunction(null, ret, args);
-    }
-    
-	@Test
-	public void testSTLVector() throws Exception {
-		DynamicFunction<Pointer<?>> new_int_vector = getTestFunction("new_int_vector", Pointer.class, int.class);
-		DynamicFunction<Integer> int_vector_get = getTestFunction("int_vector_get", int.class, Pointer.class, int.class);
-        DynamicFunction<Void> int_vector_push_back = getTestFunction("int_vector_push_back", void.class, Pointer.class, int.class);
-		DynamicFunction<Void> int_vector_set = getTestFunction("int_vector_set", void.class, Pointer.class, int.class, int.class);
-		DynamicFunction<Void> int_vector_resize = getTestFunction("int_vector_get", void.class, Pointer.class, int.class);
-		DynamicFunction<SizeT> sizeof_int_vector = getTestFunction("sizeof_int_vector", SizeT.class);
-
-        Type intVectorType = CPPType.getCPPType(vector.class, int.class);
-		assertEquals("bad vector<int> size !",
-					 sizeof_int_vector.apply().longValue(), 
-					 BridJ.sizeOf(intVectorType));
-        CPPTypeInfo<vector<Integer>> typeInfo = (CPPTypeInfo)CPPRuntime.getInstance().getCPPTypeInfo(intVectorType);
-        System.out.println("Type info for " + intVectorType + ": " + typeInfo);
-        
-        int n = 10;
-        Pointer<?> nativeVector = new_int_vector.apply(n);
-        vector<Integer> bridjVector = new vector<Integer>((Pointer)nativeVector, Integer.class);
-        assertEquals("bridj vector failed to compute size", n, bridjVector.size());
-        for (int i = 0; i < 10; i++) {
-            int v = int_vector_get.apply(nativeVector, i);
-            assertEquals("native vector not built as expected", i, v);
-            assertEquals("bridj vector failed to get element at index " + i, i, (int)bridjVector.get(i));
-        }
-        int_vector_push_back.apply(nativeVector, -1);
-        assertEquals("bad size after push_back", n + 1, bridjVector.size());
-        assertEquals("bad back", -1, (int)bridjVector.back());
-    }
-    
-    @Test
-	public void testSTLList() throws Exception {
-        DynamicFunction<Pointer<?>> new_int_list = getTestFunction("new_int_list", Pointer.class);
-		DynamicFunction<Void> int_list_push_back = getTestFunction("int_list_push_back", void.class, Pointer.class, int.class);
-		
-        int n = 10;
-        Pointer<?> nativeList = new_int_list.apply();
-        long[] ptrs = nativeList.getSizeTs(10);
-        long peer = nativeList.getPeer();
-        list<Integer> bridjList = new list<Integer>((Pointer)nativeList, Integer.class);
-        assertTrue("bad empty()", bridjList.empty());
-        for (int i = 0; i < n; i++) {
-            int_list_push_back.apply(nativeList, i);
-            assertEquals("bad back() at index " + i, i, (int)bridjList.back());
-        }
-    }
 }
 
