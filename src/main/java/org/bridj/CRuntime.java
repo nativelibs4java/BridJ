@@ -262,6 +262,10 @@ public class CRuntime extends AbstractBridJRuntime {
                 structIO.readFieldsFromNative((StructObject)instance);
             }
         }
+        
+        protected <V> Pointer<V> allocateStructMemory(PointerIO<V> pointerIO) {
+            return Pointer.allocate(pointerIO);
+        }
 
         //@Override
         public void initialize(T instance, int constructorId, Object... args) {
@@ -269,7 +273,7 @@ public class CRuntime extends AbstractBridJRuntime {
             if (constructorId < 0) {
                 s.io = structIO;
                 if (instance.peer == null)
-                    instance.peer = Pointer.allocate(pointerIO);
+                    instance.peer = allocateStructMemory(pointerIO);
             } else
                 throw new UnsupportedOperationException("TODO implement structs constructors !");
         }
@@ -281,7 +285,7 @@ public class CRuntime extends AbstractBridJRuntime {
 
             try {
                 T clone = (T)typeClass.newInstance();
-                Pointer<T> p = Pointer.allocate(pointerIO);
+                Pointer<T> p = allocateStructMemory(pointerIO);
                 Pointer.pointerTo(instance).copyTo(p);
                 initialize(clone, p);
                 return clone;

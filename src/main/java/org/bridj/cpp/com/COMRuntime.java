@@ -38,6 +38,7 @@ import org.bridj.FlagSet;
 import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.CRuntime;
+import org.bridj.NativeObject;
 import org.bridj.Platform;
 import org.bridj.Pointer.StringType;
 import org.bridj.ann.Convention;
@@ -51,6 +52,9 @@ import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union;
 import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
+import org.bridj.PointerIO;
+import org.bridj.StructObject;
+import static org.bridj.cpp.com.OLELibrary.*;
 import static org.bridj.cpp.com.OLEAutomationLibrary.*;
 
 /*
@@ -172,18 +176,24 @@ public class COMRuntime extends CPPRuntime {
 
     static void error(int err) {
         switch (err) {
-            case E_INVALIDARG:
-            case E_OUTOFMEMORY:
-            case E_UNEXPECTED:
-                throw new RuntimeException("Error " + Integer.toHexString(err));
             case S_OK:
                 return;
+            case E_UNEXPECTED:
+                throw new RuntimeException("Unexpected error");
+            case E_OUTOFMEMORY:
+                throw new RuntimeException("Memory could not be allocated.");
             case CO_E_NOTINITIALIZED:
                 throw new RuntimeException("CoInitialized wasn't called !!");
             case E_NOINTERFACE:
                 throw new RuntimeException("Interface does not inherit from class");
             case E_POINTER:
                 throw new RuntimeException("Allocated pointer pointer is null !!");
+            case DISP_E_ARRAYISLOCKED:
+                throw new RuntimeException("The variant contains an array that is locked.");
+            case DISP_E_BADVARTYPE:
+                throw new RuntimeException("The variant type is not valid.");
+            case E_INVALIDARG:
+                throw new RuntimeException("One of the arguments is invalid.");
             default:
                 throw new RuntimeException("Unexpected COM error code : " + err);
         }
@@ -260,6 +270,47 @@ public class COMRuntime extends CPPRuntime {
         } finally {
             Pointer.release(p, clsid, uuid);
         }
+	}
+	
+	public class VARIANTTypeInfo extends CTypeInfo<VARIANT> {
+        public VARIANTTypeInfo() {
+            super(VARIANT.class);
+        }
+        
+        Pointer.Releaser VARIANTReleaser = new Pointer.Releaser() {
+			@Override
+			public void release(Pointer<?> p) {
+				error(VariantClear((Pointer<VARIANT>)p));
+			}
+		};
+		
+		@Override
+		public void initialize(VARIANT instance, int constructorId, Object... args) {
+			assert constructorId < 0 && args.length == 0;
+            Pointer<VARIANT> peer = allocateCOMMemory(pointerIO).withReleaser(VARIANTReleaser);
+            setNativeObjectPeer(instance, peer);
+			VariantInit(peer);
+		}
+
+        @Override
+        public VARIANT clone(VARIANT instance) throws CloneNotSupportedException {
+            return COMRuntime.clone(instance);
+        }
+    }
+    
+    @Override
+	public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
+		if (type == VARIANT.class)
+			return (TypeInfo<T>)new VARIANTTypeInfo();
+        else if (type instanceof Class && StructObject.class.isAssignableFrom((Class)type))
+            return new CTypeInfo<T>(type) {
+                @Override
+                protected <V> Pointer<V> allocateStructMemory(PointerIO<V> pointerIO) {
+                    return allocateCOMMemory(pointerIO);
+                }
+            };
+        else
+			return super.getTypeInfo(type);
 	}
 
     private static final String model = "00000000-0000-0000-0000-000000000000";
@@ -475,23 +526,27 @@ public class COMRuntime extends CPPRuntime {
 
         return b.toString();
     }
-    public static VARIANT clone(VARIANT v) {
-		VARIANT c = new VARIANT();
-		int res = VariantCopy(pointerTo(v), pointerTo(c));
-		switch (res) {
-		case S_OK:
-			break;
-		case DISP_E_ARRAYISLOCKED:
-			throw new RuntimeException("The variant contains an array that is locked.");
-		case DISP_E_BADVARTYPE:
-			throw new RuntimeException("The source and destination have an invalid variant type (usually uninitialized).");
-		case E_OUTOFMEMORY:
-			throw new RuntimeException("Memory could not be allocated for the copy.");
-		case E_INVALIDARG:
-			throw new RuntimeException("One of the arguments is invalid.");
-		default:
-			throw new RuntimeException("Grave error : unexpected error code for VariantCopy : " + res);
-		}
-		return c;
+    public static VARIANT clone(VARIANT instance) {
+		if (instance == null)
+			return null;
+		VARIANT clone = new VARIANT();
+		error(VariantCopy(pointerTo(clone), pointerTo(instance)));
+		return clone;
 	}
+    
+    protected <V> Pointer<V> allocateCOMMemory(PointerIO<V> pointerIO) {
+        return allocateCOMMemory(pointerIO.getTargetSize()).as(pointerIO);
+    }
+    public static Pointer<?> allocateCOMMemory(long byteCount) {
+        long peer = CoTaskMemAlloc$raw(byteCount);
+        if (peer == 0)
+            throw new OutOfMemoryError("Failed to allocate " + byteCount + " bytes with CoTaskMemAlloc");
+        Pointer p = Pointer.pointerToAddress(peer, byteCount, new Pointer.Releaser() {
+            public void release(Pointer<?> p) {
+                CoTaskMemFree(p);
+            }
+        });
+        p.clearValidBytes();
+        return p;
+    }
 }

@@ -42,11 +42,11 @@ import org.bridj.ann.Runtime;
 /**
  * Represents an object that can be interpreted as more than one type.
  */
-@Runtime(CRuntime.class) 
+@Runtime(COMRuntime.class) 
 public class VARIANT extends StructObject {
 	public VARIANT(Object value) {
 		super();
-        COMRuntime.setValue(this, value);
+        setValue(value);
 	}
 	public VARIANT() {
 		super();
@@ -1153,6 +1153,4 @@ public class VARIANT extends StructObject {
     public String toString() {
         return COMRuntime.toString(this);
     }
-
-
 }

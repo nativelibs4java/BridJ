@@ -50,7 +50,7 @@ import org.bridj.cpp.CPPRuntime;
  * a tool written by <a href="http://ochafik.com/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> or <a href="http://bridj.googlecode.com/">BridJ</a> .
  */
-@Library("oleaut32") 
+@Library("oleaut32")
 @Runtime(CPPRuntime.class) 
 public class OLEAutomationLibrary {
 	static {
