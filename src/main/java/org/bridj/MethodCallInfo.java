@@ -369,7 +369,7 @@ public class MethodCallInfo {
             if (StructObject.class.isAssignableFrom(c)) {
                 StructIO io = StructIO.getInstance(c, t);
                 try {
-                    pStruct = DyncallStructs.buildDCstruct(io);
+                    pStruct = DyncallStructs.buildDCstruct(io.desc);
                 } catch (Throwable th) {
                     BridJ.error("Unable to create low-level struct metadata for " + Utils.toString(t) + " : won't be able to use it as a by-value function argument.", th);
                 }

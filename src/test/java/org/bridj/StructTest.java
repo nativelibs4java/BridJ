@@ -474,9 +474,9 @@ public class StructTest {
         private static final long aOffset, bOffset;
         static {
             StructIO io = StructIO.getInstance(MyOptimalStruct.class, MyOptimalStruct.class);
-            io.build();
-            aOffset = io.fields[0].byteOffset;
-            bOffset = io.fields[1].byteOffset;
+            io.desc.build();
+            aOffset = io.desc.fields[0].byteOffset;
+            bOffset = io.desc.fields[1].byteOffset;
         }
 		public MyOptimalStruct(ByteBuffer p) {//com.sun.jna.Pointer p) {
             this.pointer = p;
@@ -749,10 +749,10 @@ public class StructTest {
 		public byte b;
 	}
 
-	public static class TinyStructCustomizer extends StructIO.DefaultCustomizer {
+	public static class TinyStructCustomizer extends StructCustomizer {
 		@Override
-		public void beforeLayout(StructIO io, List<StructIO.AggregatedFieldDesc> aggregatedFields) {
-			for (StructIO.AggregatedFieldDesc field : aggregatedFields) {
+		public void beforeLayout(StructDescription desc, List<StructFieldDescription> aggregatedFields) {
+			for (StructFieldDescription field : aggregatedFields) {
 				field.byteLength = 1;
 				field.alignment = 1;
 			}

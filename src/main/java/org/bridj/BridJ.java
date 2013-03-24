@@ -96,7 +96,7 @@ public class BridJ {
     public static long sizeOf(Type type) {
         Class c = Utils.getClass(type);
         if (c.isPrimitive())
-            return StructIO.primTypeLength(c);
+            return StructUtils.primTypeLength(c);
         else if (Pointer.class.isAssignableFrom(c))
             return Pointer.SIZE;
         else if (c == CLong.class)

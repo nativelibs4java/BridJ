@@ -61,6 +61,7 @@ public class list<T> extends CPPObject {
     @Library("c") protected static native @Ptr long malloc(@Ptr long size);
     @Library("c") protected static native void free(@Ptr long address);
     
+    @Template({ Type.class })
 	public static class list_node<T> extends CPPObject {
 		@Deprecated
 		@Field(0)

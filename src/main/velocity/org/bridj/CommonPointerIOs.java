@@ -81,19 +81,17 @@ class CommonPointerIOs {
 	static class StructPointerIO<S extends StructObject> extends NativeObjectPointerIO<S> {
 		final StructIO structIO;
 		public StructPointerIO(StructIO structIO) {
-			super(structIO.getStructType());
+			super(structIO.desc.getStructType());
 			this.structIO = structIO;
 		}
 		
 		@Override
         protected long computeTargetSize() {
-			structIO.build();
-            return structIO.getStructSize();
+            return structIO.desc.getStructSize();
 		}
 		@Override
         protected long computeTargetAlignment() {
-			structIO.build();
-            return structIO.getStructAlignment();
+            return structIO.desc.getStructAlignment();
 		}
 	}
 	

@@ -126,7 +126,7 @@ public class StructByValueTest {
             return;
         
         StructIO io = StructIO.getInstance(SimpleStruct.class);
-        Pointer<DCstruct> struct = DyncallStructs.buildDCstruct(io);
+        Pointer<DCstruct> struct = DyncallStructs.buildDCstruct(io.desc);
         assertNotNull(struct);
     }
     

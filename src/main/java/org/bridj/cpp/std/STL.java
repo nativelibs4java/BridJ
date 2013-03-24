@@ -38,17 +38,17 @@ import org.bridj.*;
  * Util methods for STL bindings in BridJ, <i>intended for internal use only</i>.
  * @author ochafik
  */
-public final class STL extends StructIO.DefaultCustomizer {
+public final class STL extends StructCustomizer {
     /**
      * Perform platform-dependent structure bindings adjustments
      */
     @Override
-	public void afterBuild(StructIO io) {
-        Class c = io.getStructClass();
+	public void afterBuild(StructDescription desc) {
+        Class c = desc.getStructClass();
         if (c == vector.class) {
             if (Platform.isWindows()) {
                 // On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
-                io.prependBytes(3 * Pointer.SIZE);
+                desc.prependBytes(3 * Pointer.SIZE);
             }
         }
 	}

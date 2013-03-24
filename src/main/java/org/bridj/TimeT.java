@@ -100,10 +100,10 @@ public final class TimeT extends AbstractIntegral {
 		}
 	}
 
-	public static class timeval_customizer extends StructIO.DefaultCustomizer {
+	public static class timeval_customizer extends StructCustomizer {
 		@Override
-		public void beforeLayout(StructIO io, List<StructIO.AggregatedFieldDesc> aggregatedFields) {
-			StructIO.AggregatedFieldDesc secondsField = aggregatedFields.get(0);
+		public void beforeLayout(StructDescription desc, List<StructFieldDescription> aggregatedFields) {
+			StructFieldDescription secondsField = aggregatedFields.get(0);
 			if (Platform.isWindows() || !Platform.is64Bits())
 				secondsField.byteLength = 4;
 			else

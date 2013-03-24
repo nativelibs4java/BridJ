@@ -109,11 +109,11 @@ public class CRuntime extends AbstractBridJRuntime {
         public CTypeInfo(Type type) {
             this.type = type;
             this.typeClass = Utils.getClass(type);
-            this.structIO = StructIO.getInstance(typeClass, typeClass);
+            this.structIO = StructIO.getInstance(typeClass, type);
             if (structIO != null) {
-            		structIO.build();
+            		structIO.desc.build();
             		if (BridJ.verbose && 
-            			structIO.getAggregatedFields().isEmpty() &&
+            			structIO.desc.getAggregatedFields().isEmpty() &&
             			shouldWarnIfNoFieldsInStruct()) {
 					BridJ.info("No fields found in " + Utils.toString(type) + " (maybe they weren't declared as public ?)");
                  }
@@ -130,7 +130,7 @@ public class CRuntime extends AbstractBridJRuntime {
 
         //@Override
         public long sizeOf() {
-            return structIO.getStructSize();
+            return structIO.desc.getStructSize();
         }
 		//@Override
         public boolean equal(T instance, T other) {
@@ -221,7 +221,7 @@ public class CRuntime extends AbstractBridJRuntime {
         public void copyNativeObjectToAddress(T instance, Pointer<T> ptr) {
 			if (instance instanceof StructObject) {
 				// TODO override in C++ to call operator=
-				((StructObject)instance).peer.copyBytesTo(ptr, structIO.getStructSize());
+				((StructObject)instance).peer.copyBytesTo(ptr, structIO.desc.getStructSize());
 			}
         }
         //@Override
@@ -234,7 +234,7 @@ public class CRuntime extends AbstractBridJRuntime {
         //@Override
         public String describe() {
         		if (structIO != null)
-        			return structIO.describe();
+        			return structIO.desc.describe();
         		else
         			return Utils.toString(typeClass);
         }
@@ -510,7 +510,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		if (io == null)
 			io = StructIO.getInstance(Utils.getClass(structType), structType);
 		long size;
-		if (io == null || (size = io.getStructSize()) <= 0)
+		if (io == null || (size = io.desc.getStructSize()) <= 0)
 			return getDefaultStructSize();
 		return size;	
     }

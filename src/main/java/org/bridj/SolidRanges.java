@@ -28,26 +28,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.bridj.ann;
+package org.bridj;
 
-import org.bridj.StructCustomizer;
+import java.util.*;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-/**
- * Struct details such as explicit fields packing and padding.
- */
-@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-public @interface Struct {
-	int pack() default -1;
-	//int padding() default -1;
-	int fieldCount() default -1;
-	int size() default -1;
-	Class<? extends StructCustomizer> customizer() default StructCustomizer.class;
+final class SolidRanges {
+	public final long[] offsets, lengths;
+    public SolidRanges(long[] offsets, long[] lengths) {
+        this.offsets = offsets;
+        this.lengths = lengths;
+    }
+    
+	static class Builder {
+		List<Long> offsets = new ArrayList<Long>(), lengths = new ArrayList<Long>();
+		long lastOffset = -1, nextOffset = 0;
+		int count;
+		void add(StructFieldDescription f) {
+			long offset = f.byteOffset;
+			long length = f.byteLength;
+			
+			if (offset == lastOffset) {
+				lengths.set(count - 1, Math.max(lengths.get(count - 1), length));	
+			} else if (offset == nextOffset && count != 0) {
+				lengths.set(count - 1, lengths.get(count - 1) + length);
+			} else {
+				offsets.add(offset);
+				lengths.add(length);
+				count++;
+			}
+			lastOffset = offset;
+			nextOffset = offset + length;
+		}
+		SolidRanges toSolidRanges() {
+            long[] offsets = new long[count];
+			long[] lengths = new long[count];
+			for (int i = 0; i < count; i++) {
+				offsets[i] = this.offsets.get(i);
+				lengths[i] = this.lengths.get(i);
+			}
+			return new SolidRanges(offsets, lengths);
+		}
+	}	
 }
