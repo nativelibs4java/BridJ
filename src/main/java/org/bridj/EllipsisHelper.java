@@ -46,7 +46,7 @@ class EllipsisHelper {
 		int n = args.length;
 		IntBuffer buf = holder[0];
 		if (buf == null || buf.capacity() < n) {
-			buf = ByteBuffer.allocateDirect(n * 4).asIntBuffer();
+			buf = holder[0] = ByteBuffer.allocateDirect(n * 4).asIntBuffer();
 		}
 		for (int i = 0; i < n; i++) {
 			Object arg = args[i];
