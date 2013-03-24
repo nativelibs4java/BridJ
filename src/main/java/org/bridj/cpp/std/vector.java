@@ -41,6 +41,7 @@ import org.bridj.ann.Struct;
 import org.bridj.cpp.CPPRuntime;
 
 import java.lang.reflect.Type;
+import java.util.NoSuchElementException;
 import org.bridj.BridJRuntime;
 
 import static org.bridj.Pointer.*;
@@ -72,8 +73,8 @@ public class vector<T> extends CPPObject {
 	public vector(Type t) {
 		super((Void)null, CPPRuntime.SKIP_CONSTRUCTOR, t);
 	}
-	public vector(Pointer<? extends vector<T>> peer) {
-		super(peer);
+	public vector(Pointer<? extends vector<T>> peer, Type t) {
+		super(peer, t);
         if (!isValid())
             throw new RuntimeException("Invalid vector internal data ! Are you trying to use an unsupported version of the STL ?");
 	}
@@ -86,15 +87,33 @@ public class vector<T> extends CPPObject {
             return false;
         return start <= finish && finish <= eos;
     }
+    private void checkNotEmpty() {
+        checkIndex(0);
+    }
+	private void checkIndex(long i) {
+        long size = size();
+		if (i < 0 || i >= size) 
+			throw new NoSuchElementException("index " + i + " (size = " + size + ")");
+	}
+	public boolean empty() {
+		return size() == 0;
+	}
 
 	public T get(long index) {
 		// TODO make this unnecessary
+        checkIndex(index);
 		Pointer<T> p = _M_start().as(T());
 		return p.get(index);
 	}
 	public T get(int index) {
 		return get((long)index);
 	}
+    public T front() {
+        return get(0);
+    }
+    public T back() {
+        return get(size() - 1);
+    }
 	public void push_back(T value) {
 		throw new UnsupportedOperationException();
 	}

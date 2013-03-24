@@ -30,6 +30,7 @@
  */
 package org.bridj.cpp;
 
+import java.util.Collections;
 import java.util.Stack;
 
 import org.bridj.NativeObject;
@@ -50,8 +51,9 @@ public abstract class CPPObject extends StructObject {
 	Map<Class<?>, Object[]> templateParameters;
 	
 	protected CPPObject() {}
-    protected CPPObject(Pointer<? extends CPPObject> peer) {
+    protected CPPObject(Pointer<? extends CPPObject> peer, Object... targs) {
         super(peer);
+        templateParameters = (Map)Collections.singletonMap(getClass(), targs);
     }
     protected CPPObject(Void voidArg, int constructorId, Object... args) {
         super(voidArg, constructorId, args);

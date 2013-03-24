@@ -109,14 +109,12 @@ if [[ -d build_out ]] ; then
 		mkdir -p $MAIN_OUT
 		cp $D/*.$SHAREDLIB_SUFFIX $MAIN_OUT
 		
-		if [[ "$NEEDS_TEST" == "1" ]] ; then
-			mkdir -p $TEST_OUT 
-			cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
-			cp ../../../../test/cpp/dependsOnTest/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
-		
-			nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
-			nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;
-		fi
+        mkdir -p $TEST_OUT 
+        cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
+        cp ../../../../test/cpp/dependsOnTest/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
+    
+        nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
+        nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;
 		
 		echo "Done for $D" ;
 	#	svn add $MAIN_OUT
