@@ -5,11 +5,11 @@
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>http://code.google.com/p/bridj/</url>
-	<version>0.6.3-SNAPSHOT</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	
 	<properties>
-		<versionSpecificSubPackage>v0_6_3</versionSpecificSubPackage>
+		<versionSpecificSubPackage>v0_7_0</versionSpecificSubPackage>
 		<maven.compiler.optimize>true</maven.compiler.optimize>
 	</properties>
 	
