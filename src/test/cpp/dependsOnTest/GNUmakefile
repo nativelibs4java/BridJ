@@ -18,6 +18,8 @@ LINK_DIRS	+= ../test/$(BUILD_DIR)
 LINK_LIBS	+= test
 
 ifdef BUILD_OS_darwin
+CPPFLAGS += -mmacosx-version-min=10.5
+LDFLAGS += -mmacosx-version-min=10.5
 LDFLAGS		+= -rpath 
 else
 ifndef BUILD_OS_sunos

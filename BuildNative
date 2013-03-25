@@ -15,7 +15,6 @@ fi
 
 if [[ -z "$BRIDJ_TARGETS" ]] ; then
 	if [[ -d /Applications && ! -z "$ANDROID_NDK_HOME" ]] ; then
-		#BRIDJ_TARGETS="default ios android" ;
 		BRIDJ_TARGETS="default android" ;
 	else
 		BRIDJ_TARGETS="default" ;
@@ -25,14 +24,18 @@ fi
 cd `dirname $0`/src/main/cpp/bridj
 
 for TARGET in $BRIDJ_TARGETS ; do
-	if [[ "$DEBUG" == "1" ]] ; then
-		TARGET=$TARGET BUILD_CONFIG=debug ./Make.sh $@ || failed "Make failed"
-	else 
-		if [[ "$@" == "fast" ]] ; then
-			TARGET=$TARGET ./Make.sh || failed "Make failed"
-		else
-			TARGET=$TARGET ./Make.sh $@ || failed "Make failed"
-		fi ;
-	fi ;
+    if [[ "$TARGET" == "android" ]]; then
+        ./MakeAndroid.sh $@ || fail "Make failed"
+    else
+        if [[ "$DEBUG" == "1" ]] ; then
+            TARGET=$TARGET BUILD_CONFIG=debug ./Make.sh $@ || failed "Make failed"
+        else 
+            if [[ "$@" == "fast" ]] ; then
+                TARGET=$TARGET ./Make.sh || failed "Make failed"
+            else
+                TARGET=$TARGET ./Make.sh $@ || failed "Make failed"
+            fi
+        fi
+    fi
 done
 

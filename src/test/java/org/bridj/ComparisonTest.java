@@ -1,8 +1,33 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * BridJ - Dynamic and blazing-fast native interop for Java.
+ * http://bridj.googlecode.com/
+ *
+ * Copyright (c) 2010-2013, Olivier Chafik (http://ochafik.com/)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Olivier Chafik nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.bridj;
 import static org.bridj.Pointer.*;
 
@@ -32,10 +57,8 @@ public class ComparisonTest {
     	public TestLib() {
 			BridJ.register(getClass());
 		}
-        //@Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
         public native double sinInt(int d);
 
-        //@Mangling({"?voidTest@@YAXXZ", "_Z8voidTestv"})
         public native void voidTest();
         
         static class Struct1 {
@@ -263,8 +286,6 @@ public class ComparisonTest {
         }
     }
     
-    
-    
     @Test
 	public void compareStructCreations() throws InterruptedException {
 		//if (true) return;
@@ -352,7 +373,7 @@ public class ComparisonTest {
 		
 		long n = 100000;
 		long warmup = 2000;
-		Pointer pBridJ = allocateBytes(100);
+		Pointer pBridJ = allocateBytes(100);//.withoutValidityInformation();
 		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
         ByteBuffer pNIO = ByteBuffer.allocateDirect(100);
 		
@@ -429,6 +450,7 @@ public class ComparisonTest {
 			b.get();
 		return b.slice();
 	}
+	
 	@Test
 	public void compareStructArrayCasts() throws InterruptedException {
 		//if (true) return;
@@ -531,7 +553,13 @@ public class ComparisonTest {
         assertBridJFaster(bridJFaster, 30); // */
 	}
 	
+	/*
 	@Test
+	public void compareFieldsAccesses() throws InterruptedException {
+		for (int i = 0; i < 10; i++)
+			compareFieldsAccess();
+	}
+	//*/@Test
 	public void compareFieldsAccess() throws InterruptedException {
 		//if (true) return;
 		
@@ -637,7 +665,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 1.5); // */
+        assertBridJFaster(bridJFaster, 1.2);
 	}
 	static void assertBridJFaster(double factor, double minExpectedFactor) {
 		if (factor < 0)

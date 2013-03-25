@@ -1,3 +1,33 @@
+/*
+ * BridJ - Dynamic and blazing-fast native interop for Java.
+ * http://bridj.googlecode.com/
+ *
+ * Copyright (c) 2010-2013, Olivier Chafik (http://ochafik.com/)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Olivier Chafik nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.bridj;
 
 import org.bridj.ann.Forwardable;
@@ -66,7 +96,7 @@ public class BridJ {
     public static long sizeOf(Type type) {
         Class c = Utils.getClass(type);
         if (c.isPrimitive())
-            return StructIO.primTypeLength(c);
+            return StructUtils.primTypeLength(c);
         else if (Pointer.class.isAssignableFrom(c))
             return Pointer.SIZE;
         else if (c == CLong.class)
@@ -346,6 +376,9 @@ public class BridJ {
         Quiet("bridj.quiet", "BRIDJ_QUIET", false,
             "Quiet mode"
         ),
+        AlignDouble("bridj.alignDouble", "BRIDJ_ALIGN_DOUBLE", false,
+            "Align doubles on 8 bytes boundaries even on Linux 32 bits (see -malign-double GCC option)."
+        ),
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
             "Log each native call performed (or call from native to Java callback)"
         ),
@@ -436,6 +469,7 @@ public class BridJ {
     public static final boolean logCalls = Switch.LogCalls.enabled;
     public static final boolean protectedMode = Switch.Protected.enabled;
     public static final boolean enableDestructors = Switch.Destructors.enabled;
+    public static final boolean alignDoubles = Switch.AlignDouble.enabled;
     
     static volatile int minLogLevelValue = (verbose ? Level.WARNING : Level.INFO).intValue();
     public static void setMinLogLevel(Level level) {
@@ -517,7 +551,6 @@ public class BridJ {
 
 	/**
 	 * Reclaims all the memory allocated by BridJ in the JVM and on the native side.
-	 * This is automatically called at shutdown time.
 	 */
 	public synchronized static void releaseAll() {
 		strongNativeObjects.clear();
@@ -592,6 +625,7 @@ public class BridJ {
 			addPathsFromEnv(paths, "DYLD_LIBRARY_PATH");
 			addPathsFromEnv(paths, "PATH");
 			addPathsFromProperty(paths, "java.library.path");
+			addPathsFromProperty(paths, "sun.boot.library.path");
 			addPathsFromProperty(paths, "gnu.classpath.boot.library.path");
             
             File javaHome = new File(getProperty("java.home"));

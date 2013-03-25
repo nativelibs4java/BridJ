@@ -62,13 +62,14 @@ UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
 #endif
 
-ifndef BUILD_OS_darwin
+ifdef BUILD_OS_darwin
+CPPFLAGS += -no-integrated-as
+else
 CPPFLAGS += -Werror
 CPPFLAGS += -D_DARWIN_C_SOURCE
 endif
 
 CPPFLAGS += -std=c99
-#CFLAGS += -msse2 -msseregparm
 #CFLAGS += -g
 
 # Lower requirement for GLIBC version number (2.2.5) :
@@ -106,6 +107,10 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include
+CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include/linux
 endif
 
 ifdef BUILD_OS_sunos

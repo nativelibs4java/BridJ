@@ -5,17 +5,18 @@
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>http://code.google.com/p/bridj/</url>
-	<version>0.6.2-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<version>0.7-SNAPSHOT</version>
+	<packaging>bundle</packaging>
 	
 	<properties>
-		<versionSpecificSubPackage>v0_6_2</versionSpecificSubPackage>
+		<versionSpecificSubPackage>v0_7_0</versionSpecificSubPackage>
+		<maven.compiler.optimize>true</maven.compiler.optimize>
 	</properties>
 	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.8-SNAPSHOT</version>
+		<version>1.9-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
@@ -25,10 +26,18 @@
 			<artifactId>asm</artifactId>
 			<version>4.0</version>
 		</dependency>
+		
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>3.4.0</version>
+			<version>3.5.1</version>
 			<scope>test</scope>
 		</dependency>
 		
@@ -80,6 +89,58 @@
 		</plugin-->
 			
 			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>2.3.7</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Version>${project.version}</Bundle-Version>
+						<Bundle-Activator>
+							org.bridj.OSGiBundleActivator
+						</Bundle-Activator>
+						<Private-Package>
+							org.bridj.relocated.*
+						</Private-Package>
+						<Import-Package>
+							android.app,
+							android.content.pm,
+							android.os,
+							com.android.dx.dex,
+							com.android.dx.dex.cf,
+							com.android.dx.dex.file,
+							dalvik.system, 
+							org.objectweb.asm,
+							org.osgi.framework
+						</Import-Package>
+						<Export-Package>
+							org.bridj,
+							org.bridj.ann,
+							org.bridj.cpp,
+							org.bridj.cpp.com,
+							org.bridj.cpp.com.shell,
+							org.bridj.demangling,
+							org.bridj.dyncall,
+							org.bridj.jawt,
+							org.bridj.objc,
+							org.bridj.util
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
+                </configuration>
+			</plugin>
+			
+			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-velocity-plugin</artifactId>
 			</plugin>
@@ -112,23 +173,25 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -151,19 +214,20 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/win*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
@@ -172,6 +236,8 @@
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -181,50 +247,6 @@
 							</filters>
 						</configuration>
 					</execution>
-					<!--
-					<execution>
-						<id>ios-package</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>ios-only</shadedClassifierName>
-							<artifactSet>
-								<excludes>
-									<exclude>com.google.android.tools:dx</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>com.nativelibs4java:bridj</artifact>
-									<excludes>
-										<exclude>org/bridj/Android**</exclude>
-										<exclude>org/bridj/cpp/com/**</exclude>
-										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
-										<exclude>org/bridj/lib/linux_*/**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
-										<exclude>org/bridj/lib/sunos_*/**</exclude>
-										<exclude>org/bridj/lib/win*/**</exclude>
-										<exclude>org/bridj/lib/darwin_universal/**</exclude>
-									</excludes>
-								</filter>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-										<exclude>META-INF/maven/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-					-->
 					<execution>
 						<id>win-package</id>
 						<phase>package</phase>
@@ -237,17 +259,17 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 										<exclude>org/bridj/lib/darwin_*/**</exclude>
@@ -256,6 +278,8 @@
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -278,12 +302,14 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -295,6 +321,8 @@
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -317,12 +345,14 @@
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -333,12 +363,13 @@
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 										<exclude>org/bridj/lib/darwin_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -359,9 +390,6 @@
 							<shadedArtifactAttached>true</shadedArtifactAttached>
 							<shadedClassifierName>android</shadedClassifierName>
 							<artifactSet>
-								<includes>
-									<include>com.google.android.tools:dx</include>
-								</includes>
 								<excludes>
 									<exclude>junit:junit</exclude>
 								</excludes>
@@ -370,6 +398,7 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/cs/**</exclude>
@@ -383,6 +412,7 @@
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -393,32 +423,35 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>full-package</id>
+						<id>desktop</id>
 						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
 						<configuration>
 							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<!--shadedClassifierName>desktop-only</shadedClassifierName-->
+							<!--shadedClassifierName>shaded</shadedClassifierName-->
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
 							<filters>
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
+										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -459,12 +492,13 @@
 									<excludes>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>lib/armeabi/**</exclude>
+										<exclude>libs/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
+										<exclude>junit/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -509,6 +543,103 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!--
+			<plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>android-assembly</id>
+                    <phase>verify</phase>
+                    <goals>
+                      <goal>single</goal>
+                    </goals>
+                    <configuration>
+                      <descriptors>
+                        <descriptor>src/main/assembly/android.xml</descriptor>
+                      </descriptors>
+                    </configuration>
+                  </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                  <execution>
+                    <id>default-cli</id>
+                    <phase>verify</phase>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                    <configuration>
+                      <tasks>
+                        <mkdir dir="${project.build.outputDirectory}"/>
+                        <!-- TODO -->
+                        <property name="compile_classpath" refid="maven.compile.classpath" />
+                        <echo message="compile classpath: ${compile_classpath}" />
+                        
+                        <!-- http://stackoverflow.com/questions/9873152/how-to-attach-javadoc-or-sources-to-jars-in-libs-folder -->
+                        <propertyfile 
+                            file="${project.build.directory}/${project.build.finalName}-android.jar.properties">
+                          <entry  key="src" value="docs/${project.build.finalName}-sources.jar"/>
+                          <entry  key="doc" value="docs/${project.build.finalName}-javadoc.jar"/>
+                        </propertyfile>
+                        <echo file="${project.build.directory}/README.Android.txt">To use BridJ in your Android project:
+- Copy libs/ to your project's root directory.
+- If you're building a native library with the NDK:
+    - Copy bridj-native-libs/ to your project's root directory.
+    - Add the following to your jni/Android.mk file:
+    
+        include $(CLEAR_VARS)
+        LOCAL_MODULE := bridj
+        LOCAL_SRC_FILES := ../bridj-native-libs/$(TARGET_ARCH_ABI)/libbridj.so
+        include $(PREBUILT_SHARED_LIBRARY)
+        
+- If you're not building any native library with the NDK and just want to use BridJ to bind system libraries:
+    - Copy the contents of bridj-native-libs/ to libs/.
+
+In any case, if your project is already opened in the ADT / Eclipse, close it and reopen it to make sure it picks up the correct BridJ sources and javadoc locations.
+
+BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under which conditions you may use it.
+                        </echo>
+                        <zip destfile="${project.build.directory}/${project.build.finalName}-android.zip">
+                            <zipfileset dir="${project.build.directory}" includes="README.Android.txt" fullpath="README.BridJ.txt"/>
+                            <zipfileset dir="." includes="LICENSE" fullpath="LICENSE.BridJ.txt"/>
+                            <zipfileset prefix="bridj-libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar"/>
+                            <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar.properties"/>
+                            <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-sources.jar"/>
+                            <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-javadoc.jar"/>
+                            <zipfileset prefix="bridj-native-libs" dir="src/main/resources/libs" includes="*/*"/>
+                        </zip>
+                      </tasks>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
+              <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                  <execution>
+                    <phase>verify</phase>
+                    <goals>
+                      <goal>attach-artifact</goal>
+                    </goals>
+                    <configuration>
+                      <artifacts>
+                        <artifact>
+                          <file>${project.build.directory}/${project.build.finalName}-android.zip</file>
+                          <classifier>android</classifier>
+                          <type>zip</type>
+                        </artifact>
+                      </artifacts>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
 		</plugins>
 	</build>
 	

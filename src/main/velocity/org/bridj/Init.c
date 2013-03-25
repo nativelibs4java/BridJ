@@ -72,7 +72,7 @@ JNIEXPORT void JNICALL Java_org_bridj_${replacedSubPackage}_Platform_init(JNIEnv
 			continue;
 		
 		if (strstr(symbolName, packagePattern)) {
-			if (meth.fnPtr = getSelfSymbol(pLib, symbolName)) {
+			if ((meth.fnPtr = getSelfSymbol(pLib, symbolName))) {
 				jstring declaringClassName = (*env)->CallStaticObjectMethod(env, signatureHelperClass, decodeVersionSpecificMethodNameClassAndSignatureMethod, (*env)->NewStringUTF(env, symbolName), nameAndSigArray);
 				
 				if ((*env)->ExceptionCheck(env)) {

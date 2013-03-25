@@ -1,0 +1,51 @@
+#!/bin/bash
+
+function failIfHas {
+    grep "$1" > /dev/null && ( echo "$2" ; exit 1 )
+}
+function fail {
+    echo "$@"
+    exit 1
+}
+
+for F in target/bridj*.jar ; do
+    if [[ ! $F =~ .*(javadoc|sources).* ]]; then
+        echo ""
+        echo $F
+        CONTENTS=`unzip -l $F`
+        echo "$CONTENTS" | grep BridJ.class > /dev/null || fail "Does not have BridJ"
+        ANDROID_CLASSES="DexFormat AndroidClassDefiner AndroidSupport"
+        if [[ $F =~ .*android.* ]]; then
+            for CLS in $ANDROID_CLASSES; do
+                echo "$CONTENTS" | grep $CLS.class > /dev/null || fail "Does not have class $CLS"
+                echo "   Has class $CLS"
+            done
+            echo "$CONTENTS" | egrep "\.so|\.dll|\.dylib" && fail "Android jar should not have binaries"
+        else
+            for CLS in $ANDROID_CLASSES; do
+                echo "$CONTENTS" | grep $CLS.class > /dev/null && fail "Has class $CLS"
+            done
+            echo "$CONTENTS" | grep -i Android && fail "Has some android references"
+            echo "$CONTENTS" | egrep "\.so|\.dll|\.dylib" || exit 1
+        fi 
+        echo "$CONTENTS" | grep junit && fail "Has JUnit"
+    fi
+done
+
+echo ""
+echo "Analyzing android zip"
+CONTENTS=`unzip -l target/bridj-*-android.zip`
+echo "$CONTENTS" | grep libs/ | grep '\.'
+echo "$CONTENTS" | grep 'LICENSE.BridJ.txt' > /dev/null || fail "Does not have LICENSE"
+echo "$CONTENTS" | grep 'README.BridJ.txt' > /dev/null || fail "Does not have README"
+echo "$CONTENTS" | grep 'libs/bridj-.*-android.jar' > /dev/null || fail "Does not have BridJ JAR"
+echo "$CONTENTS" | grep 'libs/bridj-.*-android.jar.properties' > /dev/null || fail "Does not have BridJ JAR properties"
+echo "$CONTENTS" | grep 'libs/docs/bridj-.*-sources.jar' > /dev/null || fail "Does not have BridJ sources JAR"
+echo "$CONTENTS" | grep 'libs/docs/bridj-.*-javadoc.jar' > /dev/null || fail "Does not have BridJ javadoc JAR"
+for ABI in x86 armeabi; do
+    echo "$CONTENTS" | grep "libs/$ABI/libbridj.so" > /dev/null || fail "Does not have $ABI binary"
+done
+
+echo "
+SUCCESS
+"

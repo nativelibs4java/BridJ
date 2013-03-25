@@ -1,10 +1,40 @@
+/*
+ * BridJ - Dynamic and blazing-fast native interop for Java.
+ * http://bridj.googlecode.com/
+ *
+ * Copyright (c) 2010-2013, Olivier Chafik (http://ochafik.com/)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Olivier Chafik nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.bridj;
 
 
-import org.bridj.StructIO.FieldDecl;
+import org.bridj.StructFieldDeclaration;
 import java.lang.reflect.Type;
 import java.util.List;
-import org.bridj.StructIO.AggregatedFieldDesc;
+import org.bridj.StructFieldDescription;
 import org.bridj.util.Utils;
 import static org.bridj.dyncall.DyncallLibrary.*;
 
@@ -14,31 +44,31 @@ class DyncallStructs {
     static int toDCAlignment(long structIOAlignment) {
         return structIOAlignment <= 0 ? DEFAULT_ALIGNMENT : (int)structIOAlignment;
     }
-    public static Pointer<DCstruct> buildDCstruct(StructIO io) {
+    public static Pointer<DCstruct> buildDCstruct(StructDescription desc) {
         if (!BridJ.Switch.StructsByValue.enabled)
             return null;
         
-        List<AggregatedFieldDesc> aggregatedFields = io.getAggregatedFields();
-        Pointer<DCstruct> struct = dcNewStruct(aggregatedFields.size(), toDCAlignment(io.getStructAlignment())).withReleaser(new Pointer.Releaser() {
+        List<StructFieldDescription> aggregatedFields = desc.getAggregatedFields();
+        Pointer<DCstruct> struct = dcNewStruct(aggregatedFields.size(), toDCAlignment(desc.getStructAlignment())).withReleaser(new Pointer.Releaser() {
             public void release(Pointer<?> p) {
                 dcFreeStruct(p.as(DCstruct.class));
             }
         });
-        fillDCstruct(io.structType, struct, aggregatedFields);
+        fillDCstruct(desc.structType, struct, aggregatedFields);
         dcCloseStruct(struct);
         
-        long expectedSize = io.getStructSize();
+        long expectedSize = desc.getStructSize();
         long size = dcStructSize(struct);
         
         if (expectedSize != size) {
-            BridJ.error("Struct size computed for " + Utils.toString(io.structType) + " by BridJ (" + expectedSize + " bytes) and dyncall (" + size + " bytes) differ !");
+            BridJ.error("Struct size computed for " + Utils.toString(desc.structType) + " by BridJ (" + expectedSize + " bytes) and dyncall (" + size + " bytes) differ !");
             return null;
         }
         return struct;
     }
-    protected static void fillDCstruct(Type structType, Pointer<DCstruct> struct, List<AggregatedFieldDesc> aggregatedFields) {
-        for (AggregatedFieldDesc aggregatedField : aggregatedFields) {
-            FieldDecl field = aggregatedField.fields.get(0);
+    protected static void fillDCstruct(Type structType, Pointer<DCstruct> struct, List<StructFieldDescription> aggregatedFields) {
+        for (StructFieldDescription aggregatedField : aggregatedFields) {
+            StructFieldDeclaration field = aggregatedField.aggregatedFields.get(0);
             Type fieldType = field.desc.nativeTypeOrPointerTargetType;
             if (fieldType == null)
                 fieldType = field.desc.valueType;
@@ -49,11 +79,11 @@ class DyncallStructs {
             
             if (StructObject.class.isAssignableFrom(fieldClass)) {
                 StructIO subIO = StructIO.getInstance(fieldClass, fieldType);
-                List<AggregatedFieldDesc> subAggregatedFields = subIO.getAggregatedFields();
+                List<StructFieldDescription> subAggregatedFields = subIO.desc.getAggregatedFields();
         
                 dcSubStruct(struct, subAggregatedFields.size(), alignment, arrayLength);
                 try {
-                    fillDCstruct(subIO.structType, struct, subAggregatedFields);
+                    fillDCstruct(subIO.desc.structType, struct, subAggregatedFields);
                 } finally {
                     dcCloseStruct(struct);
                 }

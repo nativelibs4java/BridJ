@@ -1,4 +1,15 @@
-Current development version (0.6.2-SNAPSHOT)
+Current development version (0.6.3-SNAPSHOT)
+
+- Added support for Raspberry Pi (Linux/armel (soft-float) and Linux/armhf (hard-float)).
+- Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
+- Improved performance of all operations of Pointers with bounds (~ 25% faster).
+- Added fallback to GCC demangler on Windows (issue #356).
+- Better logs, less logs (issue #328).  
+- Don't warn about structs/classes with no fields in C++ runtime (issue #346).
+- Improved concurrency of callbacks and structs creation.
+...
+
+BridJ 0.6.2 (20130107)
 
 - Fixed serious crashes on Win64 in assembler optimizations
 - Fixed BridJ.protectFromGC !
@@ -7,11 +18,13 @@ Current development version (0.6.2-SNAPSHOT)
 - Fixed Platform.open(File) (issue #306)
 - Fixed Pointer.copyTo(dest, elementCount) (issue #317)
 - Fixed alignment of struct array fields (issue #319)
+- Fixed alignment of double fields on Linux 32 bits (issue #320)
 - Fixed dlopen log for non existing absolute library paths
+- Added experimental Linux/arm support (issue #327)
 - Added @Library.dependencies + test library
 - Added BridJ.getNativeLibraryName back
 - Added ComplexDouble struct for C99's `_Complex double` type.
-- Added GCC shortcut case for constructors
+- Added GCC shortcut case for demangling of C++ constructors 
 - Added Pointer.getIntAtIndex(long) / .setIntAtIndex(long, int) (and with all primitive variants)
 - Added quiet mode (BRIDJ_QUIET=1 / bridj.quiet=true) (issue #328)
 - Added assembler optimizations for functions with up to 16 arguments on Win64 !
@@ -19,6 +32,7 @@ Current development version (0.6.2-SNAPSHOT)
 - Added Pointer.withoutValidityInformation() (yields faster, unsafe pointer)
 - Added BridJ.subclassWithSynchronizedNativeMethods(Class) to create a subclass where all native methods are overridden
 - Added Pointer.getIntAtIndex(long) / .setIntAtIndex(long, int) (and with all primitive variants)
+- Added naive OSGi support to the main JAR.
 - Rationalized Java logs (issue #328)
 - Changed library extraction mechanism to allow extraction of dependencies (see @Library.dependencies); removed DeleteOldBinaries option
 - Special aliases for "c" and "m" libraries on windows (-> mscvrt)
