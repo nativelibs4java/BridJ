@@ -9,7 +9,7 @@ INSTALL_LIB	 = 1
 
 # uses some dyncall headers - no other dependencies.
 
-UNITS += test
+UNITS += dependsOnTest
 
 CPPFLAGS	+=	-I../test
 

@@ -1,7 +1,6 @@
-//#include "stdafx.h"
+#include "stdafx.h"
 
 #include <stdio.h>
-#include </System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/jni.h>
 
 #include "dynload/dynload.h"
 #include "dyncall/dyncall.h"
@@ -81,10 +80,6 @@ void f3char_impl(char a, char b, char c) {
 }
 
 
-jdouble test_incr_double(jdouble value);
-jlong test_incr_long(jlong value);
-jfloat test_incr_float(jfloat value);
-
 int main(int argc, char* argv[])
 {
 	/*
@@ -98,6 +93,7 @@ int main(int argc, char* argv[])
 	//float incr = forwardFloatCall((float (*)(void*, void*, void*, int, int, float, float))cb, value);
 	printf("incr = %d\n", incr);
 	*/
+	/*
 	{
 		typedef int (*pf)(void*, void*, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int);
 		pf f = (pf)dcRawCallAdapterSkipTwoArgs((void (*)())f10int_impl, DC_CALL_C_DEFAULT);
@@ -130,7 +126,7 @@ int main(int argc, char* argv[])
 	typedef void (*pf3)(void*, void*, char, char, char);
 	pf3 f3 = (pf3)dcRawCallAdapterSkipTwoArgs((void (*)())f3char_impl, DC_CALL_C_DEFAULT);
 	f3((void*)16, (void*)32, (char)1, (char)2, (char)3);
-
+	*/
 	/*
 	int (*fSkipped)(void*, void*, int);
 	DCAdapterCallback* cb = dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_int, DC_CALL_C_DEFAULT);

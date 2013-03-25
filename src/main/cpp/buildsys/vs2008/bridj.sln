@@ -25,6 +25,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testexe", "testexe\testexe.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OtherLib", "OtherLib\OtherLib.vcproj", "{4714A835-E46A-4CFC-BBFE-A00768792E21}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dependsOnTest", "dependsOnTest\dependsOnTest.vcproj", "{F01D7809-664F-4203-8DC2-47B0E4FC42FF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{47AFB4D0-B124-40BC-A379-BA5AD59D5405} = {47AFB4D0-B124-40BC-A379-BA5AD59D5405}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -100,6 +105,12 @@ Global
 		{4714A835-E46A-4CFC-BBFE-A00768792E21}.Release|Win32.Build.0 = Release|Win32
 		{4714A835-E46A-4CFC-BBFE-A00768792E21}.Release|x64.ActiveCfg = Release|x64
 		{4714A835-E46A-4CFC-BBFE-A00768792E21}.Release|x64.Build.0 = Release|x64
+		{F01D7809-664F-4203-8DC2-47B0E4FC42FF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F01D7809-664F-4203-8DC2-47B0E4FC42FF}.Debug|Win32.Build.0 = Debug|Win32
+		{F01D7809-664F-4203-8DC2-47B0E4FC42FF}.Debug|x64.ActiveCfg = Debug|Win32
+		{F01D7809-664F-4203-8DC2-47B0E4FC42FF}.Release|Win32.ActiveCfg = Release|Win32
+		{F01D7809-664F-4203-8DC2-47B0E4FC42FF}.Release|Win32.Build.0 = Release|Win32
+		{F01D7809-664F-4203-8DC2-47B0E4FC42FF}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
