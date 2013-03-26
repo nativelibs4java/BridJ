@@ -368,7 +368,7 @@ Index: dyncall/dynload/dynload_windows.c
  {
    if (libPath != NULL) {
 -    return (DLLib*) LoadLibraryA(libPath);
-+    return (DLLib*) LoadLibraryW((wchar_t*)(void*)libPath);
++    return (DLLib*) LoadLibraryExW((wchar_t*)(void*)libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 +  	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
 +    // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
      /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
