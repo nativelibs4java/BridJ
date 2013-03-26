@@ -39,9 +39,11 @@ rem set CONFIG=Release
 
 copy %CONFIG%\bridj.dll ..\..\..\resources\org\bridj\lib\win32
 copy %CONFIG%\test.dll ..\..\..\..\test\resources\org\bridj\lib\win32
+copy %CONFIG%\dependsOnTest.dll ..\..\..\..\test\resources\org\bridj\lib\win32
 
 copy x64\%CONFIG%\bridj.dll ..\..\..\resources\org\bridj\lib\win64
 copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\org\bridj\lib\win64
+copy x64\%CONFIG%\dependsOnTest.dll ..\..\..\..\test\resources\org\bridj\lib\win64
 
 rem if "%CONFIG%" == "Debug" (
 
