@@ -277,10 +277,7 @@ class StructUtils {
             }
         }
         desc.solidRanges = rangesBuilder.toSolidRanges();
-        customizer.afterBuild(desc);
         desc.fields = fieldDescs.toArray(new StructFieldDescription[fieldDescs.size()]);
-
-        customizer.afterBuild(desc);
     }
 
     static void performLayout(StructDescription desc, Iterable<StructFieldDescription> aggregatedFields) {

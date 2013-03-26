@@ -149,6 +149,7 @@ public class StructDescription {
             synchronized (this) {
                 if (fields == null) {
                     computeStructLayout(this, customizer);
+                    customizer.afterBuild(this);
                     if (BridJ.debug) {
                         BridJ.info(describe());
                     }
