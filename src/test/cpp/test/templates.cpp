@@ -96,16 +96,16 @@ size_t sizeofVector() {
 }
 
 #define VECTOR_OPS(t) \
-template vector<t>* TEST_API new_vector<t>(int); \
-template int TEST_API vector_get<t>(vector<t>*, int); \
-template void TEST_API vector_set<t>(vector<t>*, int, t); \
-template void TEST_API vector_push_back<t>(vector<t>*, t); \
-template void TEST_API delete_vector<t>(vector<t>*);
+template vector<t>* new_vector<t>(int); \
+template int vector_get<t>(vector<t>*, int); \
+template void vector_set<t>(vector<t>*, int, t); \
+template void vector_push_back<t>(vector<t>*, t); \
+template void delete_vector<t>(vector<t>*);
 
 #define LIST_OPS(t) \
-template list<t>* TEST_API new_list<t>(); \
-template void TEST_API list_push_back<t>(list<t>*, t); \
-template void TEST_API delete_list<t>(list<t>*);
+template list<t>* new_list<t>(); \
+template void list_push_back<t>(list<t>*, t); \
+template void delete_list<t>(list<t>*);
 
 VECTOR_OPS(int);
 //VECTOR_OPS(long long);

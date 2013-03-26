@@ -521,11 +521,11 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
 		const char* name = dlSymsName(pSyms, i);
-		if (!name)
-			continue;
-		jstring nameString = (*env)->NewStringUTF(env, name);
-		(*env)->SetObjectArrayElement(env, ret, i, nameString);
-		DEL_LOCAL_REF(nameString);
+		if (name) {
+			jstring nameString = (*env)->NewStringUTF(env, name);
+			(*env)->SetObjectArrayElement(env, ret, i, nameString);
+			DEL_LOCAL_REF(nameString);
+		}
     }
 	//END_TRY_CALL(env);
     return ret;

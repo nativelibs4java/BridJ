@@ -193,7 +193,7 @@ public class StructDescription {
         b.append("size = ").append(structSize).append(", ");
         b.append("alignment = ").append(structAlignment);
         b.append("\nstruct ");
-        b.append(describe(structType)).append(" { ");
+        b.append(StructUtils.describe(structType)).append(" { ");
         for (int iField = 0, nFields = fields.length; iField < nFields; iField++) {
             StructFieldDescription fd = fields[iField];
             b.append("\n\t");
@@ -203,7 +203,7 @@ public class StructDescription {
             } else if (fd.isSizeT) {
                 b.append("@Ptr ");
             }
-            b.append(describe(fd.valueType)).append(" ").append(fd.name).append("; ");
+            b.append(StructUtils.describe(fd.valueType)).append(" ").append(fd.name).append("; ");
 
             b.append("// ");
             b.append("offset = ").append(fd.byteOffset).append(", ");

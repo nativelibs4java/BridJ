@@ -41,11 +41,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DEPENDSONTEST_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -114,10 +115,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DEPENDSONTEST_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -174,14 +176,6 @@
 				RelativePath="..\..\..\..\..\test\cpp\dependsOnTest\dependsOnTest.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\..\..\test\cpp\dependsOnTest\dllmain.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\test\cpp\dependsOnTest\stdafx.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Fichiers d&apos;en-tête"
@@ -190,14 +184,6 @@
 			>
 			<File
 				RelativePath="..\..\..\..\..\test\cpp\dependsOnTest\dependsOnTest.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\test\cpp\dependsOnTest\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\..\test\cpp\dependsOnTest\targetver.h"
 				>
 			</File>
 		</Filter>
