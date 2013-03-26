@@ -1362,6 +1362,18 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     public static Pointer<?> pointerToAddress(long peer, long size, Releaser releaser) {
         return newPointer(null, peer, true, peer, peer + size, null, NO_PARENT, releaser, null);
     }
+    
+	/**
+     * Create a pointer out of a native memory address
+     * @param io PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param size number of bytes known to be readable at the pointed address 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    public static <P> Pointer<P> pointerToAddress(long peer, long size, PointerIO<P> io, Releaser releaser) {
+        return newPointer(io, peer, true, peer, peer + size, null, NO_PARENT, releaser, null);
+    }
 	
 	/**
      * Create a pointer out of a native memory address

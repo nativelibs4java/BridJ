@@ -535,18 +535,21 @@ public class COMRuntime extends CPPRuntime {
 	}
     
     protected <V> Pointer<V> allocateCOMMemory(PointerIO<V> pointerIO) {
-        return allocateCOMMemory(pointerIO.getTargetSize()).as(pointerIO);
+        return allocateCOMMemory(pointerIO.getTargetSize(), pointerIO);
     }
-    public static Pointer<?> allocateCOMMemory(long byteCount) {
+	public static <V> Pointer<V> allocateCOMMemory(long byteCount, PointerIO<V> pointerIO) {
+    	if (byteCount <= 0)
+    		return null;
         long peer = CoTaskMemAlloc$raw(byteCount);
         if (peer == 0)
             throw new OutOfMemoryError("Failed to allocate " + byteCount + " bytes with CoTaskMemAlloc");
-        Pointer p = Pointer.pointerToAddress(peer, byteCount, new Pointer.Releaser() {
+        Pointer p = Pointer.pointerToAddress(peer, byteCount, pointerIO, new Pointer.Releaser() {
             public void release(Pointer<?> p) {
                 CoTaskMemFree(p);
             }
         });
-        p.clearValidBytes();
+        if (p != null)
+        	p.clearValidBytes();
         return p;
     }
 }
