@@ -247,7 +247,7 @@ class StructUtils {
 
         List<StructFieldDescription> aggregatedFields = new ArrayList<StructFieldDescription>();
         for (List<StructFieldDeclaration> fieldGroup : fieldsMap.values()) {
-            StructFieldDescription aggregatedField = StructFieldDescription.aggregateDeclarations(fieldGroup);
+            StructFieldDescription aggregatedField = StructFieldDescription.aggregateDeclarations(desc.structType, fieldGroup);
             if (aggregatedField != null) {
                 aggregatedFields.add(aggregatedField);
             }

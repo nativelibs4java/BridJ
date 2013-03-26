@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +92,7 @@ public class CPPRuntime extends CRuntime {
     public static CPPRuntime getInstance() {
         return BridJ.getRuntimeByRuntimeClass(CPPRuntime.class);
     }
-    public Object[] getTemplateParameters(CPPObject object, Class<?> typeClass) {
+    public static Object[] getTemplateParameters(CPPObject object, Class<?> typeClass) {
     	synchronized(object) {
     		Object[] params = null;
     		if (object.templateParameters != null) {
@@ -99,6 +100,31 @@ public class CPPRuntime extends CRuntime {
     		}
     		return params;// == null ? new Object[0] : params;
         }
+    }
+    public static Type[] getTemplateTypeParameters(CPPObject object, Type type) {
+        if (!(type instanceof ParameterizedType))
+            return new Type[0];
+        Class<?> typeClass = Utils.getClass(type);
+        ParameterizedType pt = (ParameterizedType)type;
+        Object[] params = getTemplateParameters(object, typeClass);
+        Template t = typeClass.getAnnotation(Template.class);
+        if (t == null)
+            throw new RuntimeException("No " + Template.class.getName() + " annotation on class " + typeClass.getName());
+        if (t.paramNames().length != params.length)
+            throw new RuntimeException(Template.class.getName() + " annotation's paramNames on class " + typeClass.getName() + " (" + Arrays.asList(t.paramNames()) + " does not match count of actual template params " + Arrays.asList(params));
+        if (t.paramNames().length != t.value().length)
+            throw new RuntimeException(Template.class.getName() + " annotation's paramNames and value lengths on class " + typeClass.getName() + " don't match");
+        int typeParamCount = pt.getActualTypeArguments().length;
+        Type[] ret = new Type[typeParamCount];
+        int typeParamIndex = 0;
+        for (int i = 0, n = params.length; i < typeParamCount; i++) {
+            Object value = t.value()[i];
+            if (Type.class.isInstance(value)) {
+                ret[typeParamIndex++] = (Type)value;
+            }
+        }
+        assert typeParamIndex == typeParamCount;
+        return ret; // TODO cache some of this method
     }
     public void setTemplateParameters(CPPObject object, Class<?> typeClass, Object[] params) {
         synchronized(object) {

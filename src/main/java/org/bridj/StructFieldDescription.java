@@ -34,6 +34,8 @@ import java.lang.reflect.*;
 import java.nio.*;
 import java.util.*;
 import static org.bridj.StructUtils.*;
+import org.bridj.cpp.CPPRuntime;
+import org.bridj.util.Utils;
 
 /**
  * Internal metadata on a struct field
@@ -61,7 +63,7 @@ public class StructFieldDescription {
 		return "Field(byteOffset = " + byteOffset + ", byteLength = " + byteLength + ", bitOffset = " + bitOffset + ", bitLength = " + bitLength + (nativeTypeOrPointerTargetType == null ? "" : ", ttype = " + nativeTypeOrPointerTargetType) + ")";
 	}
     
-    static StructFieldDescription aggregateDeclarations(List<StructFieldDeclaration> fieldGroup) {
+    static StructFieldDescription aggregateDeclarations(Type structType, List<StructFieldDeclaration> fieldGroup) {
 		StructFieldDescription aggregatedField = new StructFieldDescription();
     		boolean isMultiFields = fieldGroup.size() > 1;
     		aggregatedField.aggregatedFields.addAll(fieldGroup);
@@ -103,8 +105,23 @@ public class StructFieldDescription {
 				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 			} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
 				Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
-				if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
+                if (tpe instanceof TypeVariable) {
+                    TypeVariable tv = (TypeVariable)tpe;
+                    Class<?> structClass = Utils.getClass(structType);
+                    TypeVariable[] typeParameters = structClass.getTypeParameters();
+                    int i = Arrays.asList(typeParameters).indexOf(tv);
+                    // TODO recurse on pt.getOwnerType() if i < 0.
+                    if (i >= 0) {
+                        if (structType instanceof ParameterizedType) {
+                            ParameterizedType pt = (ParameterizedType)structType;
+                            //Type[] typeParams = CPPRuntime.getTemplateTypeParameters(null, tpe)
+                            Type actual = pt.getActualTypeArguments()[i];
+                            field.desc.nativeTypeOrPointerTargetType = actual;
+                        }
+                    }
+                } else if (!(tpe instanceof WildcardType)) {
 					field.desc.nativeTypeOrPointerTargetType = tpe;
+                }
 				if (field.desc.isArray) {
 					field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
 					field.desc.alignment = alignmentOf(field.desc.nativeTypeOrPointerTargetType);
