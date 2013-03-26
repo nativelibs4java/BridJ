@@ -784,16 +784,14 @@ public class BridJ {
         String actualName = libraryActualNames.get(libraryName);
         List<String> aliases = libraryAliases.get(libraryName);
         List<String> possibleNames = new ArrayList<String>();
-        if (aliases != null)
-            possibleNames.addAll(aliases);
-        possibleNames.add(actualName == null ? libraryName : actualName);
-
         if (Platform.isWindows()) {
-        	if (libraryName.equals("c"))
-        		possibleNames.add("msvcrt");
-        	else if (libraryName.equals("m"))
+        	if (libraryName.equals("c") || libraryName.equals("m"))
         		possibleNames.add("msvcrt");
         }
+        if (aliases != null)
+            possibleNames.addAll(aliases);
+
+        possibleNames.add(actualName == null ? libraryName : actualName);
         
         //out.println("Possible names = " + possibleNames);
         List<String> paths = getNativeLibraryPaths();
@@ -939,8 +937,9 @@ public class BridJ {
 		if (ll == null) {
             ll = PlatformSupport.getInstance().loadNativeLibrary(name);
             if (ll == null) {
-                if ("c".equals(name)) {
-                    ll = new NativeLibrary(null, 0, 0);
+            	boolean isWindows = Platform.isWindows();
+                if ("c".equals(name) || "m".equals(name) && isWindows) {
+                    ll = new NativeLibrary(isWindows ? "mscvrt" : null, 0, 0);
                 }
             }
 		}

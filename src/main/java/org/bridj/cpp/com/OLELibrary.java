@@ -39,6 +39,7 @@ import org.bridj.StructObject;
 import org.bridj.TypedPointer;
 import org.bridj.ValuedEnum;
 import org.bridj.ann.CLong;
+import org.bridj.ann.Name;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
@@ -59,6 +60,7 @@ public class OLELibrary {
 	}
     
     public static native Pointer<?> CoTaskMemAlloc(@Ptr long cb);
+    @Name("CoTaskMemAlloc")
     public static native @Ptr long CoTaskMemAlloc$raw(@Ptr long cb);
     public static void CoTaskMemFree(Pointer<?> ptr) {
         CoTaskMemFree(Pointer.getPeer(ptr));
