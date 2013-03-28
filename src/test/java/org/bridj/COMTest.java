@@ -37,6 +37,7 @@ import org.bridj.ann.*;
 import static org.junit.Assert.*;
 import org.bridj.cpp.com.COMRuntime;
 import org.bridj.cpp.com.IUnknown;
+import org.bridj.cpp.com.VARIANT;
 import org.bridj.cpp.com.CLSID;
 import org.bridj.cpp.com.IID;
 import org.bridj.cpp.com.shell.IShellWindows;
@@ -99,5 +100,14 @@ public class COMTest {
     	
     	//Not needed, as it's called by COMRuntime.newInstance : COMRuntime.initialize(); 
     	ICreateDevEnum devEnumCreator = COMRuntime.newInstance(ICreateDevEnum.class);
+    }
+    
+    @Test
+    public void testVARIANTSize() {
+    	if (!hasCOM)
+    		return;
+    	long size = BridJ.sizeOf(VARIANT.class);
+    	long expectedSize = Platform.is64Bits() ? 24 : 16;
+    	assertEquals("Invalid size for VARIANT", expectedSize, size);
     }
 }

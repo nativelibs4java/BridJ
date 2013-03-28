@@ -305,6 +305,11 @@ public class CRuntime extends AbstractBridJRuntime {
 	public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CTypeInfo(type);
 	}
+
+    public Type getType(Class<?> cls, Object[] targs, int[] typeParamCount) {
+        return cls;
+    }
+    
 	//@Override
 	public void register(Type type) {
         register(type, null, null);

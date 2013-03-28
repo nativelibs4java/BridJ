@@ -97,19 +97,25 @@ public class StructDescription {
     public void setFieldOffset(String fieldName, long fieldOffset, boolean propagateChanges) {
         build();
 
-        long propagatedOffset = 0;
+        long propagatedOffsetDelta = 0;
+        long originalOffset = 0;
         for (StructFieldDescription field : fields) {
             if (field.name.equals(fieldName)) {
-                propagatedOffset = fieldOffset - field.byteOffset;
-                field.offset(propagatedOffset);
+                originalOffset = field.byteOffset;
+                propagatedOffsetDelta = fieldOffset - field.byteOffset;
+                field.offset(propagatedOffsetDelta);
                 if (!propagateChanges) {
+                    long minSize = fieldOffset + field.byteLength;
+                    structSize = structSize < minSize ? minSize : structSize;
                     return;
                 }
-                structSize += propagatedOffset;
-            } else if (propagateChanges) {
-                field.offset(propagatedOffset);
             }
-            return;
+        }
+        structSize += propagatedOffsetDelta;
+        for (StructFieldDescription field : fields) {
+            if (!field.name.equals(fieldName) && field.byteOffset > originalOffset) {
+                field.offset(propagatedOffsetDelta);
+            }
         }
     }
     StructCustomizer customizer;
@@ -118,6 +124,8 @@ public class StructDescription {
         this.structClass = structClass;
         this.structType = structType;
         this.customizer = customizer;
+        if (Utils.containsTypeVariables(structType))
+            throw new RuntimeException("Type " + structType + " contains unresolved type variables!");
         // Don't call build here, for recursive initialization cases.
     }
 

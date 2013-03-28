@@ -97,6 +97,18 @@ public class Utils {
             return false;
         return !(a != null && !a.equals(b));
     }
+    
+    public static boolean containsTypeVariables(Type type) {
+        if (type instanceof TypeVariable)
+            return true;
+        if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType)type;
+            for (Type t : pt.getActualTypeArguments())
+                if (containsTypeVariables(t))
+                    return true;
+        }
+        return false;
+    }
     public static <T> Class<T> getClass(Type type) {
         if (type == null)
             return null;
@@ -133,5 +145,17 @@ public class Utils {
 	
     public static Type getUniqueParameterizedTypeParameter(Type type) {
     		return (type instanceof ParameterizedType) ? ((ParameterizedType)type).getActualTypeArguments()[0] : null;
+    }
+
+    public static boolean parametersComplyToSignature(Object[] values, Class[] parameterTypes) {
+        if (values.length != parameterTypes.length)
+            return false;
+        for (int i = 0, n = values.length; i < n; i++) {
+            Object value = values[i];
+            Class parameterType = parameterTypes[i];
+            if (!parameterType.isInstance(value))
+                return false;
+        }
+        return true;
     }
 }

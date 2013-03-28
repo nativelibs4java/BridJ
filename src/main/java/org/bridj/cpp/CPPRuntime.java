@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
@@ -73,11 +74,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeMap;
 import org.bridj.ann.Convention.Style;
 import org.bridj.demangling.Demangler.SpecialName;
 import static org.bridj.Pointer.*;
+import org.bridj.StructObject;
 import org.bridj.demangling.Demangler;
 
 /**
@@ -92,6 +95,16 @@ public class CPPRuntime extends CRuntime {
     public static CPPRuntime getInstance() {
         return BridJ.getRuntimeByRuntimeClass(CPPRuntime.class);
     }
+
+    @Override
+    public Type getType(NativeObject instance) {
+        if (!(instance instanceof CPPObject))
+            return super.getType(instance);
+        
+        Class<?> cls = instance.getClass();
+        return new CPPType(cls, getTemplateParameters((CPPObject)instance, cls));
+    }
+    
     public static Object[] getTemplateParameters(CPPObject object, Class<?> typeClass) {
     	synchronized(object) {
     		Object[] params = null;
@@ -129,8 +142,16 @@ public class CPPRuntime extends CRuntime {
     public void setTemplateParameters(CPPObject object, Class<?> typeClass, Object[] params) {
         synchronized(object) {
     		if (object.templateParameters == null)
-                object.templateParameters = new HashMap<Class<?>, Object[]>();
-            object.templateParameters.put(typeClass, params);
+                object.templateParameters = (Map)Collections.singletonMap(typeClass, params);
+            else {
+                try {
+                    // Singleton map might not be mutable.
+                    object.templateParameters.put(typeClass, params);
+                } catch (Throwable th) {
+                    object.templateParameters = new HashMap<Class<?>, Object[]>(object.templateParameters);
+                    object.templateParameters.put(typeClass, params);
+                }
+            }
         }
     }
     protected interface ClassTypeVariableExtractor {
@@ -695,8 +716,7 @@ public class CPPRuntime extends CRuntime {
             // Setting the C++ template parameters in the instance :
             int templateParametersCount = getTemplateParametersCount(typeClass);
             if (templateParametersCount > 0) {
-                Object[] templateArgs = new Object[templateParametersCount];
-                System.arraycopy(args, 0, templateArgs, 0, templateParametersCount);
+                Object[] templateArgs = takeLeft(args, templateParametersCount);
                 setTemplateParameters(instance, typeClass, templateArgs);
             }
             
@@ -809,12 +829,37 @@ public class CPPRuntime extends CRuntime {
 	}
 	
     public class CPPTypeInfo<T extends CPPObject> extends CTypeInfo<T> {
+        protected final int typeParamCount;
+        protected Object[] templateParameters;
+            
         public CPPTypeInfo(Type type) {
             super(type);
+            Class<?> typeClass = Utils.getClass(type);
+            typeParamCount = typeClass.getTypeParameters().length;
+            if (typeParamCount > 0 && !(type instanceof ParameterizedType))
+                throw new RuntimeException("Class " + typeClass.getName() + " takes type parameters");
+            templateParameters = getTemplateParameters(type);
         }
         Map<TypeVariable<Class<?>>, ClassTypeVariableExtractor> classTypeVariableExtractors;
         Map<TypeVariable<?>, MethodTypeVariableExtractor> methodTypeVariableExtractors;
 
+        @Override
+        protected T newCastInstance() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            if (templateParameters.length == 0)
+                return super.newCastInstance();
+            
+            Class<?> cc = getCastClass();
+            for (Constructor c : cc.getConstructors()) {
+                if (Utils.parametersComplyToSignature(templateParameters, c.getParameterTypes())) {
+                    c.setAccessible(true);
+                    T instance = (T)c.newInstance(templateParameters);
+//                    setTemplateParameters(instance, typeClass, templateParameters);
+                    return instance;
+                }
+            }
+            throw new RuntimeException("Failed to find template constructor in class " + cc.getName());
+        }
+        
         public Type resolveClassType(CPPObject instance, TypeVariable<?> var) {
             return getClassTypeVariableExtractor((TypeVariable)var).extract(instance);
         }
@@ -847,8 +892,7 @@ public class CPPRuntime extends CRuntime {
         @Override
         public T createReturnInstance() {
             try {
-                Object[] templateParameters = getTemplateParameters(type);
-                T instance = (T) getCastClass().newInstance();
+                T instance = newCastInstance();
                 initialize(instance, SKIP_CONSTRUCTOR, templateParameters);
                 //setTemplateParameters(instance, typeClass, getTemplateParameters(type));
                 return instance;
@@ -863,28 +907,38 @@ public class CPPRuntime extends CRuntime {
                 peer = peer.withReleaser(newCPPReleaser(type));
             }
             T instance = super.cast(peer);
-            Object[] templateParameters = getTemplateParameters(type);
             setTemplateParameters(instance, (Class)typeClass, templateParameters);
             return instance;
+        }
+        @Override
+        public void initialize(T instance, Pointer peer) {
+            setTemplateParameters(instance, typeClass, templateParameters);
+            super.initialize(instance, peer);
         }
         
         @SuppressWarnings("unchecked")
         @Override
-        public void initialize(T instance, int constructorId, Object... args) {
+        public void initialize(T instance, int constructorId, Object... targsAndArgs) {
             if (instance instanceof CPPObject) {
+                CPPObject cppInstance = (CPPObject)instance;
                 //instance.peer = allocate(instance.getClass(), constructorId, args);
                 int[] position = new int[] { 0 };
 
-                Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, args), position);
+                //TODO
+                //Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, targsAndArgs), position);
+//                assert Arrays.asList(templateParameters).equals(Arrays.asList(takeLeft(targsAndArgs, typeParamCount)));
+//                Object[] args = takeRight(targsAndArgs, targsAndArgs.length - typeParamCount);
+                Type cppType = type;
+                setTemplateParameters(instance, (Class)typeClass, templateParameters);
                 //int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
                 //System.out.println("actualArgsOffset = " + actualArgsOffset);
                 //Object[] actualArgs = new Object[nActualArgs];
                 //System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
-
-                setNativeObjectPeer(instance, newCPPInstance((CPPObject)instance, cppType, constructorId, args));
+                
+                setNativeObjectPeer(instance, newCPPInstance((CPPObject)instance, cppType, constructorId, targsAndArgs));
                 super.initialize(instance, DEFAULT_CONSTRUCTOR);
             } else {
-                super.initialize(instance, constructorId, args);
+                super.initialize(instance, constructorId, targsAndArgs);
             }
         }
 
@@ -903,7 +957,7 @@ public class CPPRuntime extends CRuntime {
 
         private Object[] getTemplateParameters(Type type) {
             if (!(type instanceof CPPType))
-                return null;
+                return new Object[0];
             return ((CPPType)type).getTemplateParameters();
         }
 	}
@@ -911,6 +965,34 @@ public class CPPRuntime extends CRuntime {
     @Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CPPTypeInfo(type);
+    }
+    
+    private static Object[] takeRight(Object[] array, int n) {
+        if (n == array.length)
+            return array;
+        else {
+            Object[] res = new Object[n];
+            System.arraycopy(array, array.length - n, res, 0, n);
+            return res;
+        }
+    }
+    private static Object[] takeLeft(Object[] array, int n) {
+        if (n == array.length)
+            return array;
+        else {
+            Object[] res = new Object[n];
+            System.arraycopy(array, 0, res, 0, n);
+            return res;
+        }
+    }
+    @Override
+    public Type getType(Class<?> cls, Object[] targsAndArgs, int[] typeParamCount) {
+        int targsCount = cls.getTypeParameters().length;
+        if (typeParamCount != null) {
+            assert typeParamCount.length == 1;
+            typeParamCount[0] = targsCount;
+        }
+        return new CPPType(cls, takeLeft(targsAndArgs, targsCount));
     }
 
     public <T extends CPPObject> CPPTypeInfo<T> getCPPTypeInfo(final Type type) {

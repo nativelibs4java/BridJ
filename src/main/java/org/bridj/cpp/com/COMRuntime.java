@@ -54,6 +54,7 @@ import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
 import org.bridj.PointerIO;
 import org.bridj.StructObject;
+import org.bridj.cpp.CPPObject;
 import static org.bridj.cpp.com.OLELibrary.*;
 import static org.bridj.cpp.com.OLEAutomationLibrary.*;
 
@@ -302,15 +303,23 @@ public class COMRuntime extends CPPRuntime {
 	public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
 		if (type == VARIANT.class)
 			return (TypeInfo<T>)new VARIANTTypeInfo();
-        else if (type instanceof Class && StructObject.class.isAssignableFrom((Class)type))
-            return new CTypeInfo<T>(type) {
-                @Override
-                protected <V> Pointer<V> allocateStructMemory(PointerIO<V> pointerIO) {
-                    return allocateCOMMemory(pointerIO);
-                }
-            };
-        else
-			return super.getTypeInfo(type);
+        else if (type instanceof Class) {
+            if (CPPObject.class.isAssignableFrom((Class)type))
+                return (TypeInfo<T>)new CPPTypeInfo<CPPObject>(type) {
+                    @Override
+                    protected <V> Pointer<V> allocateStructMemory(PointerIO<V> pointerIO) {
+                        return allocateCOMMemory(pointerIO);
+                    }
+                };
+            if (StructObject.class.isAssignableFrom((Class)type))
+                return new CTypeInfo<T>(type) {
+                    @Override
+                    protected <V> Pointer<V> allocateStructMemory(PointerIO<V> pointerIO) {
+                        return allocateCOMMemory(pointerIO);
+                    }
+                };
+        }
+        return super.getTypeInfo(type);
 	}
 
     private static final String model = "00000000-0000-0000-0000-000000000000";

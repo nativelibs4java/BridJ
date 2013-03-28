@@ -52,8 +52,8 @@ public abstract class StructObject extends NativeObject {
     protected StructObject(Void voidArg, int constructorId, Object... args) {
     	super(constructorId, args);
     }
-    protected StructObject(Pointer<? extends StructObject> peer) {
-    	super(peer);
+    protected StructObject(Pointer<? extends StructObject> peer, Object... targs) {
+    	super(peer, targs);
     }
     
     /**

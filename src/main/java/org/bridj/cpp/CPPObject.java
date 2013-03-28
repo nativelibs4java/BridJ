@@ -52,8 +52,8 @@ public abstract class CPPObject extends StructObject {
 	
 	protected CPPObject() {}
     protected CPPObject(Pointer<? extends CPPObject> peer, Object... targs) {
-        super(peer);
-        templateParameters = (Map)Collections.singletonMap(getClass(), targs);
+        super(peer, targs);
+        //templateParameters = (Map)Collections.singletonMap(getClass(), targs);
     }
     protected CPPObject(Void voidArg, int constructorId, Object... args) {
         super(voidArg, constructorId, args);

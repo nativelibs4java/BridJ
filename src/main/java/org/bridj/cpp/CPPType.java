@@ -58,17 +58,19 @@ public class CPPType implements ParameterizedType {
 	
     public CPPType(Type ownerType, Type rawType, Object... templateParameters) {
 		this.ownerType = ownerType;
-		this.actualTypeArguments = getTypes(templateParameters);
+		this.templateParameters = templateParameters == null ? new Object[0] : templateParameters;
+		this.actualTypeArguments = getTypes(this.templateParameters);
 		this.rawType = rawType;
-		this.templateParameters = templateParameters;
     }
     public CPPType(Type rawType, Object... templateParameters) {
         this(null, rawType, templateParameters);
     }
     
 	private static Type[] getTypes(Object[] objects) {
-		List<Type> ret = new ArrayList<Type>(objects.length);
-		for (int i = 0, n = objects.length; i < n; i++) {
+//        assert objects != null;
+        int n = objects == null ? 0 : objects.length;
+		List<Type> ret = new ArrayList<Type>(n);
+		for (int i = 0; i < n; i++) {
 			Object o = objects[i];
 			if (o instanceof Type)
 				ret.add((Type)o);

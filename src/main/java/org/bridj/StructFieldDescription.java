@@ -34,7 +34,10 @@ import java.lang.reflect.*;
 import java.nio.*;
 import java.util.*;
 import static org.bridj.StructUtils.*;
+import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPRuntime;
+import org.bridj.cpp.CPPType;
+import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
 /**
@@ -63,6 +66,48 @@ public class StructFieldDescription {
 		return "Field(byteOffset = " + byteOffset + ", byteLength = " + byteLength + ", bitOffset = " + bitOffset + ", bitLength = " + bitLength + (nativeTypeOrPointerTargetType == null ? "" : ", ttype = " + nativeTypeOrPointerTargetType) + ")";
 	}
     
+    static Type resolveType(Type tpe, Type structType) {
+        if (tpe == null || (tpe instanceof WildcardType))
+            return null;
+        
+        Type ret;
+        if (tpe instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) tpe;
+            Type[] actualTypeArguments = pt.getActualTypeArguments();
+            Type[] resolvedActualTypeArguments = new Type[actualTypeArguments.length];
+            for (int i = 0; i < actualTypeArguments.length; i++)
+                resolvedActualTypeArguments[i] = resolveType(actualTypeArguments[i], structType);
+            Type resolvedOwnerType = resolveType(pt.getOwnerType(), structType);
+            Type rawType = pt.getRawType();
+            if ((tpe instanceof CPPType) || CPPObject.class.isAssignableFrom(Utils.getClass(rawType)))
+                // TODO args
+                ret = new CPPType(resolvedOwnerType, rawType, resolvedActualTypeArguments);
+            else
+                ret = new DefaultParameterizedType(resolvedOwnerType, rawType, resolvedActualTypeArguments);
+        } else if (tpe instanceof TypeVariable) {
+            TypeVariable tv = (TypeVariable)tpe;
+            Class<?> structClass = Utils.getClass(structType);
+            TypeVariable[] typeParameters = structClass.getTypeParameters();
+            int i = Arrays.asList(typeParameters).indexOf(tv);
+            // TODO recurse on pt.getOwnerType() if i < 0.
+            if (i >= 0) {
+                if (structType instanceof ParameterizedType) {
+                    ParameterizedType pt = (ParameterizedType)structType;
+                    //Type[] typeParams = CPPRuntime.getTemplateTypeParameters(null, tpe)
+                    ret = pt.getActualTypeArguments()[i];
+                } else
+                    throw new RuntimeException("Type " + structType + " does not have params, cannot resolve " + tpe);
+            } else
+                throw new RuntimeException("Type param " + tpe + " not found in params of " + structType + " (" + Arrays.asList(typeParameters) + ")");
+        } else
+            ret = tpe;
+        
+        assert !Utils.containsTypeVariables(ret);
+//            throw new RuntimeException("Type " + ret + " cannot be resolved");
+        
+        return ret;
+    }
+    
     static StructFieldDescription aggregateDeclarations(Type structType, List<StructFieldDeclaration> fieldGroup) {
 		StructFieldDescription aggregatedField = new StructFieldDescription();
     		boolean isMultiFields = fieldGroup.size() > 1;
@@ -84,13 +129,13 @@ public class StructFieldDescription {
 			} else if (field.valueClass == SizeT.class) {
 				field.desc.byteLength = SizeT.SIZE;
 			} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
-				field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
+				field.desc.nativeTypeOrPointerTargetType = resolveType(field.desc.valueType, structType);
 				StructDescription desc = StructIO.getInstance(field.valueClass, field.desc.valueType).desc;		
 				field.desc.byteLength = desc.getStructSize();				
 				field.desc.alignment = desc.getStructAlignment();
 				field.desc.isNativeObject = true;
 			} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
-				field.desc.nativeTypeOrPointerTargetType = (field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0]) : null;
+				field.desc.nativeTypeOrPointerTargetType = resolveType((field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0]) : null, structType);
 				Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
 				if (IntValuedEnum.class.isAssignableFrom(c))
 					field.desc.byteLength = 4;
@@ -98,30 +143,14 @@ public class StructFieldDescription {
 					throw new RuntimeException("Enum type unknown : " + c);
 				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 			} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
-				field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
+				field.desc.nativeTypeOrPointerTargetType = resolveType(field.desc.valueType, structType);
 				if (field.desc.isArray)
 					throw new RuntimeException("Typed pointer field cannot be an array : " + field.desc.name);
 				field.desc.byteLength = Pointer.SIZE;
 				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 			} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
 				Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
-                if (tpe instanceof TypeVariable) {
-                    TypeVariable tv = (TypeVariable)tpe;
-                    Class<?> structClass = Utils.getClass(structType);
-                    TypeVariable[] typeParameters = structClass.getTypeParameters();
-                    int i = Arrays.asList(typeParameters).indexOf(tv);
-                    // TODO recurse on pt.getOwnerType() if i < 0.
-                    if (i >= 0) {
-                        if (structType instanceof ParameterizedType) {
-                            ParameterizedType pt = (ParameterizedType)structType;
-                            //Type[] typeParams = CPPRuntime.getTemplateTypeParameters(null, tpe)
-                            Type actual = pt.getActualTypeArguments()[i];
-                            field.desc.nativeTypeOrPointerTargetType = actual;
-                        }
-                    }
-                } else if (!(tpe instanceof WildcardType)) {
-					field.desc.nativeTypeOrPointerTargetType = tpe;
-                }
+                field.desc.nativeTypeOrPointerTargetType = resolveType(tpe, structType);
 				if (field.desc.isArray) {
 					field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
 					field.desc.alignment = alignmentOf(field.desc.nativeTypeOrPointerTargetType);

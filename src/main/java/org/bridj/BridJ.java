@@ -247,7 +247,8 @@ public class BridJ {
 		Stack<CastingType> s = currentlyCastingNativeObject.get();
 		s.push(castingType);
 		try {
-        		TypeInfo<O> typeInfo = getTypeInfo(type);
+                BridJRuntime runtime = getRuntime(Utils.getClass(type));
+        		TypeInfo<O> typeInfo = getTypeInfo(runtime, type);
         		O instance = typeInfo.cast(pointer);
                 if (BridJ.debug)
                     BridJ.info("Created native object from pointer " + pointer);
@@ -259,7 +260,8 @@ public class BridJ {
 		}
 	}
 	public static <O extends NativeObject> void copyNativeObjectToAddress(O value, Type type, Pointer<O> ptr) {
-        	getTypeInfo(type).copyNativeObjectToAddress(value, (Pointer)ptr);
+        BridJRuntime runtime = getRuntime(Utils.getClass(type));
+        getTypeInfo(runtime, type).copyNativeObjectToAddress(value, (Pointer)ptr);
 	}
     
     public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
@@ -346,11 +348,12 @@ public class BridJ {
 	}
     static Map<Type, TypeInfo<?>> typeInfos = new HashMap<Type, TypeInfo<?>>();
 
-	static <T extends NativeObject> TypeInfo<T> getTypeInfo(Type t) {
+	static <T extends NativeObject> TypeInfo<T> getTypeInfo(BridJRuntime runtime, Type t) {
 		synchronized (typeInfos) { 
 			TypeInfo info = typeInfos.get(t);
             if (info == null) {
-				info = getRuntime(Utils.getClass(t)).getTypeInfo(t);
+                // getRuntime(Utils.getClass(t))
+				info = runtime.getTypeInfo(t);
                 typeInfos.put(t, info);
             }
 			return info;
@@ -994,20 +997,38 @@ public class BridJ {
 	}
 
     static void initialize(NativeObject instance) {
-        TypeInfo typeInfo = getTypeInfo(instance.getClass());
+        Class<?> instanceClass = instance.getClass();
+        BridJRuntime runtime = getRuntime(instanceClass);
+        Type type = runtime.getType(instance);
+        TypeInfo typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
         typeInfo.initialize(instance);
     }
 
-    static void initialize(NativeObject instance, Pointer peer) {
-        TypeInfo typeInfo = getTypeInfo(instance.getClass());
+    static void initialize(NativeObject instance, Pointer peer, Object... targs) {
+        Class<?> instanceClass = instance.getClass();
+        BridJRuntime runtime = getRuntime(instanceClass);
+        Type type = runtime.getType(instanceClass, targs, null);
+        TypeInfo typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
         typeInfo.initialize(instance, peer);
     }
 
-    static void initialize(NativeObject instance, int constructorId, Object[] args) {
+    static void initialize(NativeObject instance, int constructorId, Object[] targsAndArgs) {
+        Class<?> instanceClass = instance.getClass();
+        BridJRuntime runtime = getRuntime(instanceClass);
+        int typeParamCount[] = new int[1];
+        Type type = runtime.getType(instanceClass, targsAndArgs, typeParamCount);
+        Object[] args;
+        int targsCount = typeParamCount[0];
+        if (targsCount == 0)
+            args = targsAndArgs;
+        else {
+            args = new Object[targsCount];
+            System.arraycopy(targsAndArgs, 0, args, 0, targsAndArgs.length - targsCount);
+        }
         // TODO handle template arguments here (or above), with class => ((class, args) => Type) caching
-        TypeInfo typeInfo = getTypeInfo(instance.getClass());
+        TypeInfo typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
         typeInfo.initialize(instance, constructorId, args);
     }
@@ -1044,7 +1065,8 @@ public class BridJ {
 	 * This is primarily useful for debugging purposes.
 	 */
 	public static String describe(Type nativeObjectType) {
-		TypeInfo typeInfo = getTypeInfo(nativeObjectType);
+        BridJRuntime runtime = getRuntime(Utils.getClass(nativeObjectType));
+		TypeInfo typeInfo = getTypeInfo(runtime, nativeObjectType);
 		return typeInfo == null ? Utils.toString(nativeObjectType) : typeInfo.describe();
 	}
 	

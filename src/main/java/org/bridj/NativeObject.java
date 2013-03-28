@@ -41,8 +41,8 @@ public abstract class NativeObject implements NativeObjectInterface {
     protected Pointer<? extends NativeObject> peer;
     protected BridJRuntime.TypeInfo typeInfo;
 
-    protected NativeObject(Pointer<? extends NativeObject> peer) {
-        BridJ.initialize(this, peer);
+    protected NativeObject(Pointer<? extends NativeObject> peer, Object... targs) {
+        BridJ.initialize(this, peer, targs);
     }
 
     protected NativeObject() {
