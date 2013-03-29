@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.HashSet;
 import org.bridj.util.Utils;
 import static org.bridj.util.AnnotationUtils.*;
+import static org.bridj.util.Utils.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -1019,14 +1020,8 @@ public class BridJ {
         BridJRuntime runtime = getRuntime(instanceClass);
         int typeParamCount[] = new int[1];
         Type type = runtime.getType(instanceClass, targsAndArgs, typeParamCount);
-        Object[] args;
         int targsCount = typeParamCount[0];
-        if (targsCount == 0)
-            args = targsAndArgs;
-        else {
-            args = new Object[targsCount];
-            System.arraycopy(targsAndArgs, 0, args, 0, targsAndArgs.length - targsCount);
-        }
+        Object[] args = takeRight(targsAndArgs, targsAndArgs.length - targsCount);
         // TODO handle template arguments here (or above), with class => ((class, args) => Type) caching
         TypeInfo typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
