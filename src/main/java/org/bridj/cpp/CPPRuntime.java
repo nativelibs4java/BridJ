@@ -42,6 +42,7 @@ import org.bridj.DynamicFunctionFactory;
 import org.bridj.ann.Convention;
 import org.bridj.Callback;
 import org.bridj.Platform;
+import static org.bridj.util.Utils.*;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -722,9 +723,9 @@ public class CPPRuntime extends CRuntime {
             
             // Calling the constructor with the non-template parameters :
             if (constructor != null) {
-				Object[] consThisArgs = new Object[args.length - templateParametersCount + 1];
+				Object[] consThisArgs = new Object[args.length + 1];
 				consThisArgs[0] = peer;
-				System.arraycopy(args, templateParametersCount, consThisArgs, 1, args.length - templateParametersCount);
+				System.arraycopy(args, 0, consThisArgs, 1, args.length);
 
 				constructor.apply(consThisArgs);
 			}
@@ -965,25 +966,6 @@ public class CPPRuntime extends CRuntime {
     @Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CPPTypeInfo(type);
-    }
-    
-    private static Object[] takeRight(Object[] array, int n) {
-        if (n == array.length)
-            return array;
-        else {
-            Object[] res = new Object[n];
-            System.arraycopy(array, array.length - n, res, 0, n);
-            return res;
-        }
-    }
-    private static Object[] takeLeft(Object[] array, int n) {
-        if (n == array.length)
-            return array;
-        else {
-            Object[] res = new Object[n];
-            System.arraycopy(array, 0, res, 0, n);
-            return res;
-        }
     }
     @Override
     public Type getType(Class<?> cls, Object[] targsAndArgs, int[] typeParamCount) {

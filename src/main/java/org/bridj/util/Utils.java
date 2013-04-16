@@ -63,11 +63,30 @@ public class Utils {
     		return ((DoubleBuffer)b).isDirect();
     	if (b instanceof FloatBuffer)
     		return ((FloatBuffer)b).isDirect();
-	if (b instanceof ShortBuffer)
+        if (b instanceof ShortBuffer)
     		return ((ShortBuffer)b).isDirect();
     	if (b instanceof CharBuffer)
     		return ((CharBuffer)b).isDirect();
     	return false;
+    }
+    
+    public static Object[] takeRight(Object[] array, int n) {
+        if (n == array.length)
+            return array;
+        else {
+            Object[] res = new Object[n];
+            System.arraycopy(array, array.length - n, res, 0, n);
+            return res;
+        }
+    }
+    public static Object[] takeLeft(Object[] array, int n) {
+        if (n == array.length)
+            return array;
+        else {
+            Object[] res = new Object[n];
+            System.arraycopy(array, 0, res, 0, n);
+            return res;
+        }
     }
 
     public static boolean isSignedIntegral(Type tpe) {

@@ -44,13 +44,19 @@ public final class STL extends StructCustomizer {
      */
     @Override
 	public void afterBuild(StructDescription desc) {
+        if (!Platform.isWindows())
+            return;
+        
         Class c = desc.getStructClass();
         if (c == vector.class) {
-            if (Platform.isWindows()) {
-                // On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
-                desc.prependBytes(3 * Pointer.SIZE);
+            // On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
+            desc.prependBytes(3 * Pointer.SIZE);
+        } else if (c == list.class || c == list.list_node.class) {
+            desc.setFieldOffset("prev", 5 * Pointer.SIZE, false);
+            if (c == list.list_node.class) {
+                desc.setFieldOffset("data", 6 * Pointer.SIZE, false);
             }
-        }
+        } 
 	}
 }
 

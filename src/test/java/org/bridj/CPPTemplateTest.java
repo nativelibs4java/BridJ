@@ -48,9 +48,15 @@ public class CPPTemplateTest {
 		BridJ.register();
 	}
 
-	@Template({ Integer.class, Class.class })
+	@Template({ Integer.class, Type.class })
 	public static class InvisibleSourcesTemplate<T> extends CPPObject {
 		public final int n;
+        
+		public InvisibleSourcesTemplate(int n, Type t) {
+            super((Void)null, -1, n, t);
+            this.n = n;
+        }
+		        
 		@Constructor(0)
 		public InvisibleSourcesTemplate(int n, Type t, int arg) {
 			super((Void)null, 0, n, t, arg);
