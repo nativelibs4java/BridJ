@@ -387,7 +387,7 @@ public class BridJ {
             "Log each native call performed (or call from native to Java callback)"
         ),
         Protected("bridj.protected", "BRIDJ_PROTECTED", false,
-            "Protect all native calls (including memory accesses) against native crashes."
+            "Protect all native calls (including memory accesses) against native crashes (disables assembly optimizations and adds quite some overhead)."
         ),
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
             "Enable destructors (in languages that support them, such as C++)"
