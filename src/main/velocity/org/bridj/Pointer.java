@@ -3089,7 +3089,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 	/**
-	 * The update will take place inside the release() call
+	 * Allocate an array of pointers to strings.
 	 */
     public static Pointer<Pointer<$eltWrapper>> pointerTo${string}Strings(final String... strings) {
     	if (strings == null)
@@ -3101,15 +3101,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         	public void release(Pointer<?> p) {
         		Pointer<Pointer<$eltWrapper>> mem = (Pointer<Pointer<$eltWrapper>>)p;
         		for (int i = 0; i < len; i++) {
-        			Pointer<$eltWrapper> pp = mem.get(i);
-        			if (pp != null)
-        				strings[i] = pp.get${string}String();
-        			pp = pointers[i];
+        			Pointer<$eltWrapper> pp = pointers[i];
         			if (pp != null)
         				pp.release();
-                }
-        	}
-        });
+        		}
+        }});
         for (int i = 0; i < len; i++)
             mem.set(i, pointers[i] = pointerTo${string}String(strings[i]));
 
