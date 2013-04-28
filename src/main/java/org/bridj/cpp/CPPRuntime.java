@@ -714,21 +714,14 @@ public class CPPRuntime extends CRuntime {
                 // TODO ObjCObject : call alloc on class type !!
             }
             
-            // Setting the C++ template parameters in the instance :
-            int templateParametersCount = getTemplateParametersCount(typeClass);
-            if (templateParametersCount > 0) {
-                Object[] templateArgs = takeLeft(args, templateParametersCount);
-                setTemplateParameters(instance, typeClass, templateArgs);
-            }
-            
             // Calling the constructor with the non-template parameters :
             if (constructor != null) {
-				Object[] consThisArgs = new Object[args.length + 1];
-				consThisArgs[0] = peer;
-				System.arraycopy(args, 0, consThisArgs, 1, args.length);
+                Object[] consThisArgs = new Object[1 + args.length];
+                consThisArgs[0] = peer;
+                System.arraycopy(args, 0, consThisArgs, 1, args.length);
 
-				constructor.apply(consThisArgs);
-			}
+                constructor.apply(consThisArgs);
+            }
 			
 			// Install synthetic virtual table and associate the Java instance to the corresponding native pointer : 
             if (CPPObject.class.isAssignableFrom(typeClass)) {
@@ -969,7 +962,8 @@ public class CPPRuntime extends CRuntime {
     }
     @Override
     public Type getType(Class<?> cls, Object[] targsAndArgs, int[] typeParamCount) {
-        int targsCount = cls.getTypeParameters().length;
+        Template tpl = cls.getAnnotation(Template.class);
+        int targsCount = tpl != null ? tpl.value().length : cls.getTypeParameters().length;
         if (typeParamCount != null) {
             assert typeParamCount.length == 1;
             typeParamCount[0] = targsCount;

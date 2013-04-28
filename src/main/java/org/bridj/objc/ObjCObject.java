@@ -44,7 +44,7 @@ public class ObjCObject extends NativeObject {
     ObjCObject type;
 
     //public native <T extends ObjCObject> Pointer<T> create();
-    public native <T extends ObjCObject> Pointer<T> init();
+    public native Pointer<ObjCObject> init();
     public native Pointer<NSString> stringValue(); 
     public native Pointer<NSString> description(); 
     

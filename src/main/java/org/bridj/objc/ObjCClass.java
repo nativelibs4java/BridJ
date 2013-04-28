@@ -36,9 +36,9 @@ public class ObjCClass extends ObjCObject {
 	static {
 		BridJ.register();
 	}
-	public native <T extends ObjCObject> Pointer<T> alloc();
+	public native Pointer<ObjCObject> alloc();
 	@Selector("new")
-	public native <T extends ObjCObject> Pointer<T> new$();
+	public native Pointer<ObjCObject> new$();
 	
 	public native boolean instancesRespondTo(SEL sel);
 	//public native boolean respondsTo(SEL sel);
