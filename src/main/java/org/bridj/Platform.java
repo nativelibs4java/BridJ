@@ -597,7 +597,6 @@ public class Platform {
             return libFile;
 		}
         return null;
-		//throw new FileNotFoundException(firstLibraryResource);
     }
     
     static final int maxTempFileAttempts = 20;

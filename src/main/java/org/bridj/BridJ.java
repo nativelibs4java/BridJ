@@ -783,7 +783,7 @@ public class BridJ {
             nativeLibraryFiles.put(libraryName, nativeLibraryFile);
         }
     }
-    static File findNativeLibraryFile(String libraryName) {
+    static File findNativeLibraryFile(String libraryName) throws IOException {
         //out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
         List<String> aliases = libraryAliases.get(libraryName);
@@ -866,22 +866,16 @@ public class BridJ {
                 }
             }
             }
-            try {
-                File f;
-                if (isAndroid())
-                    f = new File("lib" + name + ".so");
-                else
-                    f = extractEmbeddedLibraryResource(name);
+            File f;
+            if (isAndroid())
+                f = new File("lib" + name + ".so");
+            else
+                f = extractEmbeddedLibraryResource(name);
 
-                if (f == null || !f.isFile())
-                    throw new FileNotFoundException(StringUtils.implode(possibleNames, ", "));
-                
+            if (f != null && f.isFile())
                 return f;
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
         }
-		return null;
+        throw new FileNotFoundException(StringUtils.implode(possibleNames, ", "));
     }
     static Boolean directModeEnabled;
 
