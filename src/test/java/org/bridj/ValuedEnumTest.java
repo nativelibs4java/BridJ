@@ -33,6 +33,7 @@ package org.bridj;
 import java.util.Collections;
 import java.util.Iterator;
 import org.bridj.ann.*;
+import static org.bridj.Pointer.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -61,6 +62,8 @@ public class ValuedEnumTest {
 	};
 	public static native ValuedEnum<MyEnum > intToMyEnum(int value);
 	public static native int MyEnumToInt(ValuedEnum<MyEnum > value);
+	public static native int PMyEnumToInt(Pointer<IntValuedEnum<MyEnum>> value);
+	public static native Pointer<IntValuedEnum<MyEnum>> intToPMyEnum(int value);
     
     private static final int nTests = 100000;
     
@@ -85,6 +88,16 @@ public class ValuedEnumTest {
         }
     }
     
+    @Test
+    public void testIntToPEnum() {
+        MyEnum expected = MyEnum.Two;
+        int expectedInt = (int)expected.value();
+        for (int i = 0; i < nTests; i++) {
+            Pointer<IntValuedEnum<MyEnum>> ret = intToPMyEnum(expectedInt);
+            if (expectedInt != ret.get().value())
+                assertEquals(expectedInt, ret.get().value());
+        }
+    }
     
     @Test
     public void testEnumToInt() {
@@ -95,5 +108,52 @@ public class ValuedEnumTest {
             if (expectedInt != ret)
                 assertEquals(expectedInt, ret);
         }
+    }
+    
+    @Test
+    public void testPEnumToInt() {
+        MyEnum expected = MyEnum.Two;
+        int expectedInt = (int)expected.value();
+        for (int i = 0; i < nTests; i++) {
+            int ret = PMyEnumToInt(pointerTo(expected));
+            if (expectedInt != ret)
+                assertEquals(expectedInt, ret);
+        }
+    }
+    
+    
+    /// enum values
+    public enum Fruit implements IntValuedEnum<Fruit > {
+//        None(0),
+        Apple(1),
+        Pear(2),
+        Orange(4),
+        Banana(8);
+        Fruit(long value) {
+                this.value = value;
+        }
+        public final long value;
+        public long value() {
+                return this.value;
+        }
+        public Iterator<Fruit > iterator() {
+                return Collections.singleton(this).iterator();
+        }
+        public static IntValuedEnum<Fruit > fromValue(int value) {
+                return FlagSet.fromValue(value, values());
+        }
+    };
+
+    @Test
+    public final void testFruitToStringAndIterator() {
+        IntValuedEnum<Fruit> fruit = Fruit.fromValue(8);
+        assertEquals("Banana", fruit.toString());
+        assertEquals(8, fruit.value());
+        
+        Iterator<Fruit> it = fruit.iterator();
+        assertTrue(it.hasNext());
+        Fruit gotFruit = it.next();
+        assertFalse(it.hasNext());
+        assertEquals(Fruit.Banana, gotFruit);
     }
 }

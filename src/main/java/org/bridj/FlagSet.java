@@ -30,8 +30,10 @@
  */
 package org.bridj;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -129,29 +131,60 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return b.toString();
     }
 
-    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, Class<EE> enumClass) {
+    
+    public static <EE extends Enum<EE>> FlagSet<EE> createFlagSet(long value, Class<EE> enumClass) {
         return new FlagSet<EE>(value, enumClass, null);
     }
     public static class IntFlagSet<E extends Enum<E>> extends FlagSet<E> implements IntValuedEnum<E> {
     	protected IntFlagSet(long value, Class<E> enumClass, E[] enumClassValues) {
-    		super(value, enumClass, enumClassValues);
+            super(value, enumClass, enumClassValues);
     	}
     }
-    public static <EE extends Enum<EE>> IntFlagSet<EE> fromValue(int value, Class<EE> enumClass) {
+
+    public static <EE extends Enum<EE>> IntFlagSet<EE> createFlagSet(int value, Class<EE> enumClass) {
         return new IntFlagSet<EE>(value, enumClass, null);
     }
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(ValuedEnum<EE> value) {
         if (value instanceof Enum)
-            return FlagSet.fromValue(value.value(), (EE)value);
+            return FlagSet.createFlagSet(value.value(), (EE)value);
         else 
             return (FlagSet<EE>)value;
     }
-    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, EE... enumValue) {
-        return new FlagSet<EE>(value, null, enumValue);
+    public static <EE extends Enum<EE>> FlagSet<EE> createFlagSet(long value, EE... enumValue) {
+        if (enumValue == null)
+            throw new IllegalArgumentException("Expected at least one enum value");
+        Class<EE> enumClass = (Class)enumValue[0].getClass();
+        if (IntValuedEnum.class.isAssignableFrom(enumClass))
+            return new IntFlagSet<EE>(value, enumClass, enumValue);
+        else
+            return new FlagSet<EE>(value, enumClass, enumValue);
     }
-    public static <EE extends Enum<EE>> IntFlagSet<EE> fromValue(int value, EE... enumValue) {
-        return new IntFlagSet<EE>(value, null, enumValue);
+//    public static <EE extends Enum<EE>> IntFlagSet<EE> createFlagSet(int value, EE... enumValue) {
+//        return (IntFlagSet<EE>)createFlagSet((long)value, enumValue);
+//    }
+   
+    public static <EE extends Enum<EE>> IntValuedEnum<EE> fromValue(int value, Class<EE> enumClass) {
+        return (IntValuedEnum<EE>)fromValue((long)value, enumClass, enumClass.getEnumConstants());
     }
+    public static <EE extends Enum<EE>> IntValuedEnum<EE> fromValue(int value, EE... enumValues) {
+        return (IntValuedEnum<EE>)fromValue((long)value, enumValues);
+    }
+    public static <EE extends Enum<EE>> ValuedEnum<EE> fromValue(long value, EE... enumValues) {
+        if (enumValues == null || enumValues.length == 0)
+            throw new IllegalArgumentException("Expected at least one enum value");
+        Class<EE> enumClass = (Class)enumValues[0].getClass();
+        return fromValue(value, enumClass, enumValues);
+    }
+    protected static <EE extends Enum<EE>> ValuedEnum<EE> fromValue(long value, Class<EE> enumClass, EE... enumValue) {
+        List<EE> enums = getMatchingEnums(value, enumClass.getEnumConstants());
+        if (enums.size() == 1)
+            return (ValuedEnum<EE>)enums.get(0);
+        if (IntValuedEnum.class.isAssignableFrom(enumClass))
+            return new IntFlagSet<EE>(value, enumClass, enums.toArray((EE[])Array.newInstance(enumClass, enums.size())));
+        else
+            return new FlagSet<EE>(value, enumClass, enums.toArray((EE[])Array.newInstance(enumClass, enums.size())));
+    }
+    
     /**
      * Isolate bits that are set in the value.<br>
      * For instance, {@code getBits(0xf)} yields {@literal 0x1, 0x2, 0x4, 0x8}
@@ -237,15 +270,16 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     }
 
     protected List<E> getMatchingEnums() {
-        List<E> ret = new ArrayList<E>();
-        if (enumClass != null) {
-            for (E e : getEnumClassValues()) {
-                long eMask = ((ValuedEnum<?>)e).value();
-                if ((value & eMask) == eMask)
-                    ret.add((E)e);
-            }
+        return enumClass == null ? Collections.EMPTY_LIST : getMatchingEnums(value, getEnumClassValues());
+    }
+    
+    protected static <EE extends Enum<EE>> List<EE> getMatchingEnums(long value, EE[] enums) {
+        List<EE> ret = new ArrayList<EE>();
+        for (EE e : enums) {
+            long eMask = ((ValuedEnum<?>)e).value();
+            if ((value & eMask) == eMask)
+                ret.add((EE)e);
         }
-
         return ret;
     }
 
