@@ -23,7 +23,7 @@ LDFLAGS += -mmacosx-version-min=10.5
 LDFLAGS		+= -rpath 
 else
 ifndef BUILD_OS_sunos
-LDFLAGS		+= -Wl,-rpath,.
+LDFLAGS		+= -Wl,-rpath '-Wl,$$ORIGIN' -Wl,--enable-new-dtags
 endif
 endif
 
