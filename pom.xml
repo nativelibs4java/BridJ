@@ -162,6 +162,44 @@
 				<executions>
 					
 					<execution>
+						<id>desktop</id>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<!--shadedClassifierName>shaded</shadedClassifierName-->
+							<artifactSet>
+								<excludes>
+									<exclude>com.google.android.tools:dx</exclude>
+									<exclude>junit:junit</exclude>
+								</excludes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>com.nativelibs4java:bridj</artifact>
+									<excludes>
+										<exclude>libs/**</exclude>
+										<exclude>org/bridj/Android**</exclude>
+										<exclude>org/bridj/lib/android_*/**</exclude>
+									</excludes>
+								</filter>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>junit/**</exclude>
+										<exclude>com/android/**</exclude>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+										<exclude>META-INF/maven/**</exclude>
+									</excludes>
+								</filter>
+							</filters>
+						</configuration>
+					</execution>
+					<execution>
 						<id>c-package</id>
 						<phase>package</phase>
 						<goals>
@@ -413,45 +451,6 @@
 									<artifact>*:*</artifact>
 									<excludes>
 										<exclude>junit/**</exclude>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-										<exclude>META-INF/maven/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-					<execution>
-						<id>desktop</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<!--shadedClassifierName>shaded</shadedClassifierName-->
-							<artifactSet>
-								<excludes>
-									<exclude>com.google.android.tools:dx</exclude>
-									<exclude>junit:junit</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>com.nativelibs4java:bridj</artifact>
-									<excludes>
-										<exclude>libs/**</exclude>
-										<exclude>org/bridj/Android**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-									</excludes>
-								</filter>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>junit/**</exclude>
-										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>

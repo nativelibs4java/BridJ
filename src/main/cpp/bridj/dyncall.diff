@@ -296,7 +296,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
 +    if (pSyms->decompressedSymbols) {
 +        size_t i, n = pSyms->symbolCount;
 +        for (i = 0; i < n; i++) {
-+            char* str = pSyms->decompressedSymbols[i];
++            const char* str = pSyms->decompressedSymbols[i];
 +            if (str) {
 +            	dlFreeMem(str);
 +            	pSyms->decompressedSymbols[i] = NULL;
