@@ -523,6 +523,11 @@ public class COMRuntime extends CPPRuntime {
         //setType(v, vt);
         return v;
     }
+    
+    @Override
+    protected boolean warnAboutMissingVTables() {
+    	return false;
+    }
 
     public static String toString(VARIANT v) {
         StringBuilder b = new StringBuilder("Variant(value = ");

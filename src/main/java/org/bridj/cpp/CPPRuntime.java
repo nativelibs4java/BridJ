@@ -802,7 +802,7 @@ public class CPPRuntime extends CRuntime {
 ////                            break;
 //                    }
                 }
-                else if (getVirtualMethodsCount(typeClass) > 0)
+                else if (getVirtualMethodsCount(typeClass) > 0 && warnAboutMissingVTables())
                     error("Failed to find a vtable for type " + Utils.toString(type));
                 
                 if (symbol != null) {
@@ -815,6 +815,10 @@ public class CPPRuntime extends CRuntime {
 			}
         }
         return vtable;
+    }
+    
+    protected boolean warnAboutMissingVTables() {
+    	return true;
     }
     
     @Override
