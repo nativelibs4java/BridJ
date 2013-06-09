@@ -990,6 +990,17 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     
     /**
+     * Get a pointer to an enum. 
+     */
+    public static <E extends Enum<E>> Pointer<IntValuedEnum<E>> pointerTo(IntValuedEnum<E> instance) {
+    	PointerIO<IntValuedEnum<E>> io = (PointerIO)PointerIO.getPointerInstance(instance.getClass());
+    	Pointer<IntValuedEnum<E>> p = allocate(io);
+    	p.setInt((int)instance.value());
+    	return p;
+    }
+    
+    
+    /**
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
     public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
