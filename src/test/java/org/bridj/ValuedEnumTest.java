@@ -155,5 +155,10 @@ public class ValuedEnumTest {
         Fruit gotFruit = it.next();
         assertFalse(it.hasNext());
         assertEquals(Fruit.Banana, gotFruit);
+        
+        Pointer<IntValuedEnum<Fruit>> pFruit = pointerTo(fruit);
+        assertEquals(Fruit.Banana, pFruit.get());
+        pFruit.set(Fruit.Orange);
+        assertEquals(Fruit.Orange, pFruit.get());
     }
 }
