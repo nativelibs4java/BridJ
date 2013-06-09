@@ -93,8 +93,12 @@ public class DefaultParameterizedType implements ParameterizedType {
 		int h = getRawType().hashCode();
 		if (getOwnerType() != null)
 			h ^= getOwnerType().hashCode();
-		for (int i = 0, n = actualTypeArguments.length; i < n; i++)
-			h ^= actualTypeArguments[i].hashCode();
+		for (int i = 0, n = actualTypeArguments.length; i < n; i++) {
+		  Type arg = actualTypeArguments[i];
+		  if (arg != null) {
+		    h ^= arg.hashCode();
+		  }
+		}
 		return h;
 	}
 	
