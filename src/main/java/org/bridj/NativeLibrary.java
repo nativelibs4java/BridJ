@@ -53,6 +53,7 @@ import org.bridj.demangling.Demangler.DemanglingException;
 import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.ann.Virtual;
+import org.bridj.ann.Name;
 import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
 import java.lang.reflect.Type;
@@ -202,14 +203,18 @@ public class NativeLibrary {
     public synchronized Symbol getSymbol(AnnotatedElement member) throws FileNotFoundException {
     	org.bridj.ann.Symbol mg = getAnnotation(org.bridj.ann.Symbol.class, member);
     	String name = null;
-    	if (member instanceof Member)
+
+    	Name nameAnn = member.getAnnotation(Name.class);
+        if (nameAnn != null)
+            name = nameAnn.value();
+        else if (member instanceof Member)
             name = ((Member)member).getName();
         
         List<String> names = new ArrayList<String>();
         if (mg != null)
-        		names.addAll(Arrays.asList(mg.value()));
-        	if (name != null)
-        		names.add(name);
+			names.addAll(Arrays.asList(mg.value()));
+		if (name != null)
+			names.add(name);
         	
 		for (String n : names)
 		{
