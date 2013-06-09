@@ -993,7 +993,15 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Get a pointer to an enum. 
      */
     public static <E extends Enum<E>> Pointer<IntValuedEnum<E>> pointerTo(IntValuedEnum<E> instance) {
-    	PointerIO<IntValuedEnum<E>> io = (PointerIO)PointerIO.getInstance(instance.getClass());
+    	Class<E> enumClass;
+    	if (instance instanceof FlagSet) {
+    		enumClass = ((FlagSet)instance).getEnumClass();
+        } else if (instance instanceof Enum) {
+        	enumClass = (Class)instance.getClass();
+        } else 
+        	throw new RuntimeException("Expected a FlagSet or an Enum, got " + instance);
+
+    	PointerIO<IntValuedEnum<E>> io = (PointerIO)PointerIO.getInstance(DefaultParameterizedType.paramType(IntValuedEnum.class, enumClass));
     	Pointer<IntValuedEnum<E>> p = allocate(io);
     	p.setInt((int)instance.value());
     	return p;
