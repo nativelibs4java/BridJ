@@ -438,6 +438,9 @@ public class BridJ {
             if (n.endsWith("_LIBRARY"))
                 continue;
             
+            if (n.endsWith("_DEPENDENCIES"))
+                continue;
+            
             error("Unknown environment variable : " + n + "=\"" + System.getenv(n) + "\"");
             hasUnknown = true;
         }
@@ -448,6 +451,9 @@ public class BridJ {
                 continue;
             
             if (n.endsWith(".library"))
+                continue;
+            
+            if (n.endsWith(".dependencies"))
                 continue;
             
             error("Unknown property : " + n + "=\"" + System.getProperty(n) + "\"");
@@ -536,7 +542,9 @@ public class BridJ {
 		if (lib == null) {
 			Library libAnn = getLibrary(type);
 			if (libAnn != null) {
-				for (String dependency : libAnn.dependencies()) {
+				String dependenciesEnv = getDependenciesEnv(libAnn.value());
+				String[] dependencies = dependenciesEnv == null ? libAnn.dependencies() : dependenciesEnv.split(",");
+				for (String dependency : dependencies) {
 					if (verbose)
 						info("Trying to load dependency '" + dependency + "' of '" + libAnn.value() + "'");
 					NativeLibrary depLib = getNativeLibrary(dependency);
@@ -783,6 +791,21 @@ public class BridJ {
             nativeLibraryFiles.put(libraryName, nativeLibraryFile);
         }
     }
+    
+    private static String getLibraryEnv(String libraryName) {
+    	String env = getenv("BRIDJ_" + libraryName.toUpperCase() + "_LIBRARY");
+		if (env == null)
+			env = getProperty("bridj." + libraryName + ".library");
+		return env;
+    }
+    
+    private static String getDependenciesEnv(String libraryName) {
+    	String env = getenv("BRIDJ_" + libraryName.toUpperCase() + "_DEPENDENCIES");
+		if (env == null)
+			env = getProperty("bridj." + libraryName + ".dependencies");
+		return env;
+    }
+    
     static File findNativeLibraryFile(String libraryName) throws IOException {
         //out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
@@ -803,9 +826,7 @@ public class BridJ {
         	info("Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
 
         for (String name : possibleNames) {
-            String env = getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
-            if (env == null)
-                env = getProperty("bridj." + name + ".library");
+            String env = getLibraryEnv(name);
             if (env != null) {
                 File f = new File(env);
                 if (f.exists()) {
