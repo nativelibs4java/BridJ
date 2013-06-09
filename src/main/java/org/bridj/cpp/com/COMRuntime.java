@@ -360,13 +360,13 @@ public class COMRuntime extends CPPRuntime {
     }
 
     /**
-	 * Convert the VARIANT value to an equivalent Java value.
-	 * @throws UnsupportedOperationException if the VARIANT type is not handled yet
-	 * @throws RuntimeException if the VARIANT is invalid
-	 */
-	public static Object getValue(VARIANT v) {
+     * Convert the VARIANT value to an equivalent Java value.
+     * @throws UnsupportedOperationException if the VARIANT type is not handled yet
+     * @throws RuntimeException if the VARIANT is invalid
+     */
+    public static Object getValue(VARIANT v) {
 
-		FlagSet<VARENUM> vt = FlagSet.fromValue(getType(v));
+        FlagSet<VARENUM> vt = FlagSet.fromValue(getType(v));
         __VARIANT_NAME_3_union values = getValues(v);
 		if (vt.has(VT_BYREF)) {
 			switch (vt.without(VT_BYREF).toEnum()) {
