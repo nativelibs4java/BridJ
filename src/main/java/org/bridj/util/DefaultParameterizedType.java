@@ -68,6 +68,11 @@ public class DefaultParameterizedType implements ParameterizedType {
     		}	
     		return b.toString();
     }
+    
+    /**
+     * Builds a parameterized type with the provided raw type and type arguments.<br>
+     * For instance, <code>paramType(Pointer.class, Integer.class)</code> gives you the type of <code>Pointer&lt;Integer&gt;</code>.
+     */
     public static Type paramType(Type rawType, Type... actualTypeArguments) {
     	return new DefaultParameterizedType(rawType, actualTypeArguments);
     }
