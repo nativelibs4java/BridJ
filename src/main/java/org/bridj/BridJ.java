@@ -593,12 +593,12 @@ public class BridJ {
 	}
     }
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
-    static volatile List<String> paths;
+    static volatile List<String> nativeLibraryPaths;
 
     static List<String> additionalPaths = new ArrayList<String>();
     public static synchronized void addLibraryPath(String path) {
     		additionalPaths.add(path);
-    		paths = null; // invalidate cached paths
+    		nativeLibraryPaths = null; // invalidate cached paths
     }
     private static void addPathsFromEnv(List<String> out, String name) {
         String env = getenv(name);
@@ -627,23 +627,23 @@ public class BridJ {
     }
     		
     static synchronized List<String> getNativeLibraryPaths() {
-        if (paths == null) {
-            paths = new ArrayList<String>();
-            paths.addAll(additionalPaths);
-            paths.add(null);
-            paths.add(".");
+        if (nativeLibraryPaths == null) {
+            nativeLibraryPaths = new ArrayList<String>();
+            nativeLibraryPaths.addAll(additionalPaths);
+            nativeLibraryPaths.add(null);
+            nativeLibraryPaths.add(".");
 			
-			addPathsFromEnv(paths, "LD_LIBRARY_PATH");
-			addPathsFromEnv(paths, "DYLD_LIBRARY_PATH");
-			addPathsFromEnv(paths, "PATH");
-			addPathsFromProperty(paths, "java.library.path");
-			addPathsFromProperty(paths, "sun.boot.library.path");
-			addPathsFromProperty(paths, "gnu.classpath.boot.library.path");
+			addPathsFromEnv(nativeLibraryPaths, "LD_LIBRARY_PATH");
+			addPathsFromEnv(nativeLibraryPaths, "DYLD_LIBRARY_PATH");
+			addPathsFromEnv(nativeLibraryPaths, "PATH");
+			addPathsFromProperty(nativeLibraryPaths, "java.library.path");
+			addPathsFromProperty(nativeLibraryPaths, "sun.boot.library.path");
+			addPathsFromProperty(nativeLibraryPaths, "gnu.classpath.boot.library.path");
             
             File javaHome = new File(getProperty("java.home"));
-            paths.add(new File(javaHome, "bin").toString());
+            nativeLibraryPaths.add(new File(javaHome, "bin").toString());
             if (isMacOSX()) {
-                paths.add(new File(javaHome, "../Libraries").toString());
+                nativeLibraryPaths.add(new File(javaHome, "../Libraries").toString());
             }
             
             
@@ -653,24 +653,24 @@ public class BridJ {
                     // First try Ubuntu's multi-arch paths (cf. https://wiki.ubuntu.com/MultiarchSpec)
 					String abi = isArm() ? "gnueabi" : "gnu";
 					String multiArch = getMachine() + "-linux-" + abi;
-					paths.add("/lib/" + multiArch);
-					paths.add("/usr/lib/" + multiArch);
+					nativeLibraryPaths.add("/lib/" + multiArch);
+					nativeLibraryPaths.add("/usr/lib/" + multiArch);
 				
 					// Add /usr/lib32 and /lib32
-                    paths.add("/usr/lib" + bits);
-					paths.add("/lib" + bits);
+                    nativeLibraryPaths.add("/usr/lib" + bits);
+					nativeLibraryPaths.add("/lib" + bits);
 				} else if (isSolaris()) {
 					// Add /usr/lib/32 and /lib/32
-                    paths.add("/usr/lib/" + bits);
-					paths.add("/lib/" + bits);
+                    nativeLibraryPaths.add("/usr/lib/" + bits);
+					nativeLibraryPaths.add("/lib/" + bits);
 				}
 				
-				paths.add("/usr/lib");
-				paths.add("/lib");
-				paths.add("/usr/local/lib");
+				nativeLibraryPaths.add("/usr/lib");
+				nativeLibraryPaths.add("/lib");
+				nativeLibraryPaths.add("/usr/local/lib");
 			}
         }
-        return paths;
+        return nativeLibraryPaths;
     }
 
     static Map<String, String> libraryActualNames = new HashMap<String, String>();
@@ -700,29 +700,6 @@ public class BridJ {
 			libraryAliases.put(name, list = new ArrayList<String>());
 		if (!list.contains(alias))
 			list.add(alias);
-    }
-    
-    static String[] getPossibleFileNames(String name) {
-    		if (isWindows()) {
-    			return new String[] {
-				name + ".dll",
-				name + ".drv"
-			};
-		} else {
-			String jniName = "lib" + name + ".jnilib";
-			if (isMacOSX()) {
-				return new String[] { 
-					"lib" + name + ".dylib", 
-					jniName 
-				};
-			} else {
-				return new String[] {
-					"lib" + name + ".so",
-					name + ".so",
-					jniName
-				};
-			}
-		}
     }
     
     private static final Pattern numPat = Pattern.compile("\\b(\\d+)\\b");
@@ -837,11 +814,11 @@ public class BridJ {
                     }
                 }
             }
+            List<String> possibleFileNames = getPossibleFileNames(name);
             for (String path : paths) {
                 File pathFile = path == null ? null : new File(path);
                 File f = new File(name);
                 if (!f.isFile() && pathFile != null) {
-                    String[] possibleFileNames = getPossibleFileNames(name);
                     for (String possibleFileName : possibleFileNames) { 
                         f = new File(pathFile, possibleFileName);
                         if (f.isFile())

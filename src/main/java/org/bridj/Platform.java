@@ -539,60 +539,86 @@ public class Platform {
         return arch.equals("x86_64");
     }
 
-    static synchronized Collection<String> getEmbeddedLibraryResource(String name) {
-        Collection<String> ret = new ArrayList<String>();
+    static List<String> getPossibleFileNames(String name) {
+        List<String> fileNames = new ArrayList<String>(1);
+        if (isWindows()) {
+            fileNames.add(name + ".dll");
+            fileNames.add(name + ".drv");
+        } else {
+            String jniName = "lib" + name + ".jnilib";
+            if (isMacOSX()) {
+                fileNames.add("lib" + name + ".dylib");
+                fileNames.add(jniName);
+            } else {
+                fileNames.add("lib" + name + ".so");
+                fileNames.add(name + ".so");
+                fileNames.add(jniName);
+            }
+        }
 
+        assert !fileNames.isEmpty();
+        if (name.contains(".")) {
+            fileNames.add(name);
+        }
+        return fileNames;
+    }
+
+    static synchronized List<String> getEmbeddedLibraryPaths(String name) {
+        List<String> paths = new ArrayList<String>(embeddedLibraryResourceRoots.size());
         for (String root : embeddedLibraryResourceRoots) {
             if (root == null) {
                 continue;
             }
 
             if (isWindows()) {
-                ret.add(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
+                paths.add(root + (is64Bits() ? "win64/" : "win32/"));
             } else if (isMacOSX()) {
-                String suff = "/lib" + name + ".dylib";
                 if (isArm()) {
-                    ret.add(root + "iphoneos_arm32_arm" + suff);
+                    paths.add(root + "iphoneos_arm32_arm/");
                 } else {
-                    String pref = root + "darwin_";
-                    String univ = pref + "universal" + suff;
+                    paths.add(root + "darwin_universal/");
                     if (isAmd64Arch()) {
-                        ret.add(univ);
-                        ret.add(pref + "x64" + suff);
-                    } else {
-                        ret.add(univ);
+                        paths.add(root + "darwin_x64/");
                     }
                 }
             } else {
-                String path = null;
                 if (isAndroid()) {
                     assert root.equals("libs/");
-                    path = root + "armeabi/"; // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
+                    paths.add(root + "armeabi/"); // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
                 } else if (isLinux()) {
                     if (isArm()) {
-                        path = root + (new File("/lib/arm-linux-gnueabihf").isDirectory() ? "linux_armhf/" : "linux_armel/");
+                        paths.add(root + (new File("/lib/arm-linux-gnueabihf").isDirectory() ? "linux_armhf/" : "linux_armel/"));
                     } else {
-                        path = root + (is64Bits() ? "linux_x64/" : "linux_x86/");
+                        paths.add(root + (is64Bits() ? "linux_x64/" : "linux_x86/"));
                     }
                 } else if (isSolaris()) {
                     if (isSparc()) {
-                        path = root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/");
+                        paths.add(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/"));
                     } else {
-                        path = root + (is64Bits() ? "sunos_x64/" : "sunos_x86/");
+                        paths.add(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/"));
                     }
-                }
-                if (path != null) {
-                    ret.add(path + "lib" + name + ".so");
-                    ret.add(path + name + ".so");
                 }
             }
         }
-        if (ret.isEmpty()) {
+
+        if (paths.isEmpty()) {
             throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
+        }
+        return paths;
+    }
+
+    static synchronized List<String> getEmbeddedLibraryResource(String name) {
+        List<String> paths = getEmbeddedLibraryPaths(name);
+        List<String> fileNames = getPossibleFileNames(name);
+        List<String> ret = new ArrayList<String>(paths.size() * fileNames.size());
+        for (String path : paths) {
+            for (String fileName : fileNames) {
+                ret.add(path + fileName);
+            }
         }
 
         if (BridJ.veryVerbose) {
-            BridJ.info("Embedded paths for library " + name + " : " + ret);
+            BridJ.info("Embedded resource paths for library '" + name + "': " + ret);
         }
         return ret;
     }
@@ -635,6 +661,7 @@ public class Platform {
 
     static File extractEmbeddedLibraryResource(String name) throws IOException {
         String firstLibraryResource = null;
+
         for (String libraryResource : getEmbeddedLibraryResource(name)) {
             if (firstLibraryResource == null) {
                 firstLibraryResource = libraryResource;
