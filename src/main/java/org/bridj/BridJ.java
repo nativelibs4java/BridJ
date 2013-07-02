@@ -540,19 +540,28 @@ public class BridJ {
 	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws IOException {
 		NativeLibrary lib = librariesByClass.get(type);
 		if (lib == null) {
-			Library libAnn = getLibrary(type);
-			if (libAnn != null) {
-				String dependenciesEnv = getDependenciesEnv(libAnn.value());
-				String[] dependencies = dependenciesEnv == null ? libAnn.dependencies() : dependenciesEnv.split(",");
+			Library libraryAnnotation = getLibrary(type);
+			if (libraryAnnotation != null) {
+				String libraryName = libraryAnnotation.value();
+				String dependenciesEnv = getDependenciesEnv(libraryName);
+				List<String> dependencies = libraryDependencies.get(libraryName);
+				List<String> staticDependencies = Arrays.asList(
+					dependenciesEnv == null ? libraryAnnotation.dependencies() : dependenciesEnv.split(",")
+				);
+				if (dependencies == null)
+					dependencies = staticDependencies;
+				else
+					dependencies.addAll(staticDependencies);
+				
 				for (String dependency : dependencies) {
 					if (verbose)
-						info("Trying to load dependency '" + dependency + "' of '" + libAnn.value() + "'");
+						info("Trying to load dependency '" + dependency + "' of '" + libraryName + "'");
 					NativeLibrary depLib = getNativeLibrary(dependency);
 					if (depLib == null) {
-						throw new RuntimeException("Failed to load dependency '" + dependency + "' of library '" + libAnn.value() + "'");
+						throw new RuntimeException("Failed to load dependency '" + dependency + "' of library '" + libraryName + "'");
 					}
 				}
-				lib = getNativeLibrary(libAnn.value());
+				lib = getNativeLibrary(libraryName);
 				if (lib != null) {
 					librariesByClass.put(type, lib);
 				}
@@ -700,6 +709,23 @@ public class BridJ {
 			libraryAliases.put(name, list = new ArrayList<String>());
 		if (!list.contains(alias))
 			list.add(alias);
+    }
+    
+    static Map<String, List<String>> libraryDependencies = new HashMap<String, List<String>>();
+    /**
+     * Add names of library dependencies for a library.<br>
+	 * Works only before the library is loaded.<br>
+     * @param name
+     * @param dependencyNames
+     */
+    public static synchronized void addNativeLibraryDependencies(String name, String... dependencyNames) {
+        List<String> list = libraryDependencies.get(name);
+		if (list == null)
+			libraryDependencies.put(name, list = new ArrayList<String>());
+		for (String dependencyName : dependencyNames) {
+			if (!list.contains(dependencyName))
+				list.add(dependencyName);
+		}
     }
     
     private static final Pattern numPat = Pattern.compile("\\b(\\d+)\\b");
