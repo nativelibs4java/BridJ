@@ -12,7 +12,7 @@ Current development version (0.7-SNAPSHOT)
 - Improved concurrency of callbacks and structs creation.
 - Improved logs (issue #328, issue #346).  
 - Improved C++ templates (still WIP, std::list protoype and fixed std::vector)
-- Refactored of StructIO (split out description of struct and its fields as top-level entities, StructIO now just does IO). This is what justifies version bump.
+- Refactored StructIO (split out description of struct and its fields as top-level entities, StructIO now just does IO). This is what justifies version bump.
 - Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
 - Fixed usage of local refs in getLibrarySymbols to avoid reaching Dalvik's limit (issue #376)
 - Fixed openjdk library path (take it from sun.boot.library.path)
@@ -27,7 +27,6 @@ Current development version (0.7-SNAPSHOT)
 - Fixed FlagSet.toString() and had FlagSet.fromValue(int, E[]) to return raw enum when possible instead of always a FlagSet (issue #414)
 - Fixed alignment on 32-bit linux (issue #320)
 - Fixed warnings about missing vtables for COM objects (issue #355)
-- Fixed major bug in CLProgram (issue #397)
 - Documented effects of protected mode (issue #394)
 - Documented DefaultParameterizedType.paramType (see issue #418)
 ...
