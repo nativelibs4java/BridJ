@@ -37,6 +37,7 @@ import org.bridj.ann.Library;
 
 @Library("Foundation")
 public class NSCalendar extends ObjCObject {
+
     static {
         BridJ.register();
     }
@@ -44,11 +45,11 @@ public class NSCalendar extends ObjCObject {
 //    public NSCalendar(Pointer<? extends NSCalendar> peer) {
 //        super(peer);
 //    }
-
     public NSCalendar() {
         super();
     }
 
     public static native Pointer<NSCalendar> currentCalendar();
+
     public native Pointer<NSString> calendarIdentifier();
 }

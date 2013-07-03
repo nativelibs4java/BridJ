@@ -37,8 +37,10 @@ import static org.bridj.Pointer.*;
 
 /**
  * Generic Java callback to be called from C.
+ *
  * @author ochafik
  */
 public interface GenericCallback {
+
     public abstract Object apply(Object... args);
 }

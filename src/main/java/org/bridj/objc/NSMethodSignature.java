@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj.objc;
+
 import org.bridj.ann.Ptr;
 import org.bridj.*;
 import org.bridj.Pointer.StringType;
@@ -38,13 +39,22 @@ import static org.bridj.objc.FoundationLibrary.*;
 
 @Library("Foundation")
 public class NSMethodSignature extends NSObject {
-	static { BridJ.register(); }
 
-	public static native Pointer<NSMethodSignature> signatureWithObjCTypes(Pointer<Byte> types);	
-    
+    static {
+        BridJ.register();
+    }
+
+    public static native Pointer<NSMethodSignature> signatureWithObjCTypes(Pointer<Byte> types);
+
     public native Pointer<Byte> methodReturnType();
-    public native @Ptr long numberOfArguments();
+
+    public native @Ptr
+    long numberOfArguments();
+
     public native boolean isOneway();
+
     public native Pointer<Byte> getArgumentTypeAtIndex(@Ptr long index);
-    public native @Ptr long frameLength();
+
+    public native @Ptr
+    long frameLength();
 }

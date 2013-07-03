@@ -29,8 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-BridJ mappings for some common Windows COM Shell interfaces.
-<p>
-See {@link org.bridj.demos.TaskbarListDemo} for an example of use.
-*/
+ * BridJ mappings for some common Windows COM Shell interfaces.
+ * <p>
+ * See {@link org.bridj.demos.TaskbarListDemo} for an example of use.
+ */
 package org.bridj.cpp.com.shell;

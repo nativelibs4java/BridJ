@@ -32,13 +32,16 @@ package org.bridj;
 
 /**
  * Internal constants used in BridJ's native library.
+ *
  * @author Olivier
  */
 class NativeConstants {
+
     /**
      * BridJ constants
      */
     enum ValueType {
+
         eVoidValue,
         eWCharValue,
         eCLongValue,
@@ -58,14 +61,15 @@ class NativeConstants {
         eNativeObjectValue,
         eTimeTObjectValue
     }
-    
+
     /**
      * BridJ constants
      */
     enum CallbackType {
-    	eJavaCallbackToNativeFunction,
-    	eNativeToJavaCallback,
-    	eJavaToNativeFunction,
-    	eJavaToVirtualMethod
+
+        eJavaCallbackToNativeFunction,
+        eNativeToJavaCallback,
+        eJavaToNativeFunction,
+        eJavaToVirtualMethod
     }
 }

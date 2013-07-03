@@ -29,24 +29,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj.cpp.mfc;
+
 import static org.bridj.cpp.mfc.AFXSignature.*;
+
 /**
- * http://msdn.microsoft.com/en-us/library/0812b0wa(VS.80).aspx
- * C:\Program Files\Microsoft Visual Studio 8\VC\ATLMFC\INCLUDE\afxwin.h
+ * http://msdn.microsoft.com/en-us/library/0812b0wa(VS.80).aspx C:\Program
+ * Files\Microsoft Visual Studio 8\VC\ATLMFC\INCLUDE\afxwin.h
  */
 public @interface OnMessage {
 
-	/// C:\Program Files\Microsoft Visual Studio 8\VC\ATLMFC\INCLUDE\afxmsg_.h
-	public enum Type {
-		WM_KEYDOWN("OnKeyDown", AfxSig_vwww),
-		WM_LBUTTONDOWN("OnLButtonDown", AfxSig_vwp);
+    /// C:\Program Files\Microsoft Visual Studio 8\VC\ATLMFC\INCLUDE\afxmsg_.h
+    public enum Type {
 
-		Type(String defaultName, AFXSignature afxSig) {
-			this.afxSig = afxSig;
+        WM_KEYDOWN("OnKeyDown", AfxSig_vwww),
+        WM_LBUTTONDOWN("OnLButtonDown", AfxSig_vwp);
+
+        Type(String defaultName, AFXSignature afxSig) {
+            this.afxSig = afxSig;
             this.defaultName = defaultName;
-		}
+        }
         final String defaultName;
-		final AFXSignature afxSig;
-	}
-	Type value();
+        final AFXSignature afxSig;
+    }
+
+    Type value();
 }

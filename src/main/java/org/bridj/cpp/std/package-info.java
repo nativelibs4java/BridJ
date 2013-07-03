@@ -29,6 +29,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-Bindings for some C++ STL class templates.
-*/
+ * Bindings for some C++ STL class templates.
+ */
 package org.bridj.cpp.std;

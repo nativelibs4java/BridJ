@@ -33,14 +33,18 @@ package org.bridj.objc;
 import org.bridj.*;
 
 public class ObjCClass extends ObjCObject {
-	static {
-		BridJ.register();
-	}
-	public native Pointer<ObjCObject> alloc();
-	@Selector("new")
-	public native Pointer<ObjCObject> new$();
-	
-	public native boolean instancesRespondTo(SEL sel);
-	//public native boolean respondsTo(SEL sel);
-	public native IMP instanceMethodFor(SEL aSelector);
+
+    static {
+        BridJ.register();
+    }
+
+    public native Pointer<ObjCObject> alloc();
+
+    @Selector("new")
+    public native Pointer<ObjCObject> new$();
+
+    public native boolean instancesRespondTo(SEL sel);
+    //public native boolean respondsTo(SEL sel);
+
+    public native IMP instanceMethodFor(SEL aSelector);
 }

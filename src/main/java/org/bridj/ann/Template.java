@@ -37,11 +37,14 @@ import java.lang.annotation.Target;
 
 /**
  * C++ template parameters metadata
+ *
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface Template {
+
     Class<?>[] value();
+
     String[] paramNames() default {};
 }

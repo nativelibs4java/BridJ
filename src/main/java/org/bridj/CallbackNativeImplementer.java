@@ -60,16 +60,17 @@ import org.objectweb.asm.signature.SignatureWriter;
 //import org.objectweb.asm.attrs.*;
 class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 
-	ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>> implClasses = new ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>>();
-	String implNameSuffix = "_NativeImpl";
-	final NativeEntities nativeEntities;
+    ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>> implClasses = new ConcurrentHashMap<Class<? extends CallbackInterface>, Class<?>>();
+    String implNameSuffix = "_NativeImpl";
+    final NativeEntities nativeEntities;
     final CRuntime runtime;
     volatile ClassDefiner classDefiner;
-	public CallbackNativeImplementer(NativeEntities nativeEntities, CRuntime runtime) {
-		super(Platform.getClassLoader());
-		this.nativeEntities = nativeEntities;
+
+    public CallbackNativeImplementer(NativeEntities nativeEntities, CRuntime runtime) {
+        super(Platform.getClassLoader());
+        this.nativeEntities = nativeEntities;
         this.runtime = runtime;
-	}
+    }
 
     public synchronized ClassDefiner getClassDefiner() {
         if (classDefiner == null) {
@@ -77,44 +78,45 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
         }
         return classDefiner;
     }
-    
-    
-	/**
-	 * The class created here is to be used to cast a pointer to a callback
-	 * @param callbackType
-	 */
-	public <T extends CallbackInterface> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
-		Class<?> callbackImplType = implClasses.get(callbackType);
-		if (callbackImplType == null) {
-			try {
-				String callbackTypeName = callbackType.getName().replace('.', '/');
-				String callbackTypeImplName = callbackTypeName.replace('$', '_') + implNameSuffix;
-				String sourceFile = callbackType.getSimpleName() + implNameSuffix + ".java";
-				
-				Method callbackMethod = runtime.getUniqueAbstractCallbackMethod(callbackType);
-				
-				Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
-				MethodCallInfo mci = new MethodCallInfo(callbackMethod);
-				String methodName = callbackMethod.getName();
-				String methodSignature = mci.getJavaSignature();//mci.getASMSignature();
-				
-				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
-				callbackImplType = getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
-				
-				Class<?> existingCallbackImplType = implClasses.putIfAbsent(callbackType, callbackImplType);
-				if (existingCallbackImplType != null)
-				  return (Class)existingCallbackImplType;
-				
-				runtime.register(callbackImplType, forcedLibrary, null);
-			} catch (Exception ex) {
-				throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName() + " : " + ex, ex);
-			}
-		}
-		return (Class)callbackImplType;
-	}
-    protected Map<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory>();
 
+    /**
+     * The class created here is to be used to cast a pointer to a callback
+     *
+     * @param callbackType
+     */
+    public <T extends CallbackInterface> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
+        Class<?> callbackImplType = implClasses.get(callbackType);
+        if (callbackImplType == null) {
+            try {
+                String callbackTypeName = callbackType.getName().replace('.', '/');
+                String callbackTypeImplName = callbackTypeName.replace('$', '_') + implNameSuffix;
+                String sourceFile = callbackType.getSimpleName() + implNameSuffix + ".java";
+
+                Method callbackMethod = runtime.getUniqueAbstractCallbackMethod(callbackType);
+
+                Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
+                MethodCallInfo mci = new MethodCallInfo(callbackMethod);
+                String methodName = callbackMethod.getName();
+                String methodSignature = mci.getJavaSignature();//mci.getASMSignature();
+
+                byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
+                callbackImplType = getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
+
+                Class<?> existingCallbackImplType = implClasses.putIfAbsent(callbackType, callbackImplType);
+                if (existingCallbackImplType != null) {
+                    return (Class) existingCallbackImplType;
+                }
+
+                runtime.register(callbackImplType, forcedLibrary, null);
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName() + " : " + ex, ex);
+            }
+        }
+        return (Class) callbackImplType;
+    }
+    protected Map<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory>();
     private static volatile long nextDynamicCallbackId = 0;
+
     private static synchronized long getNextDynamicCallbackId() {
         return nextDynamicCallbackId++;
     }
@@ -140,18 +142,19 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
                 String methodName = "apply";
 
                 byte[] byteArray = emitBytes("<anonymous>", DynamicFunction.class.getName().replace(".", "/"), callbackTypeImplName, methodName, javaSig.toString());
-                Class<? extends DynamicFunction> callbackImplType = (Class)getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
-                
+                Class<? extends DynamicFunction> callbackImplType = (Class) getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
+
                 Class<?>[] paramClasses = new Class[paramTypes.length];
-                for (int i = 0, n = paramTypes.length; i < n; i++)
+                for (int i = 0, n = paramTypes.length; i < n; i++) {
                     paramClasses[i] = Utils.getClass(paramTypes[i]);
-                
+                }
+
                 MethodCallInfoBuilder methodCallInfoBuilder = new MethodCallInfoBuilder() {
-					public MethodCallInfo apply(Method method) throws FileNotFoundException {
-						MethodCallInfo mci = super.apply(method);
-						mci.setCallingConvention(callingConvention);
-						return mci;
-					}
+                    public MethodCallInfo apply(Method method) throws FileNotFoundException {
+                        MethodCallInfo mci = super.apply(method);
+                        mci.setCallingConvention(callingConvention);
+                        return mci;
+                    }
                 };
                 cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramClasses), methodCallInfoBuilder);
                 dynamicCallbacks.put(key, cb);
@@ -165,46 +168,47 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
         }
         return cb;
     }
-	private byte[] emitBytes(String sourceFile, String callbackTypeName,
-			String callbackTypeImplName, String methodName,
-			String methodSignature) {
-		ClassWriter cw = new ClassWriter(0);
-		cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER,
-				callbackTypeImplName, null,
-				callbackTypeName, null);
 
-		cw.visitSource(sourceFile, null);
+    private byte[] emitBytes(String sourceFile, String callbackTypeName,
+            String callbackTypeImplName, String methodName,
+            String methodSignature) {
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER,
+                callbackTypeImplName, null,
+                callbackTypeName, null);
+
+        cw.visitSource(sourceFile, null);
 
 //		{
 //	        AnnotationVisitor av = cw.visitAnnotation(classSig(org.bridj.ann.Runtime.class), true);
 //	        av.visit("value", Type.getType(classSig(CRuntime.class)));
 //	        av.visitEnd();
 //		}
-		{
-			MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-			mv.visitCode();
-			Label l0 = new Label();
-			mv.visitLabel(l0);
-			mv.visitLineNumber(5, l0);
-			mv.visitVarInsn(ALOAD, 0);
-			mv.visitMethodInsn(INVOKESPECIAL, callbackTypeName,
-					"<init>", "()V");
-			mv.visitInsn(RETURN);
-			Label l1 = new Label();
-			mv.visitLabel(l1);
-			mv.visitLocalVariable("this",
-					"L" + callbackTypeImplName + ";", null, l0, l1, 0);
-			mv.visitMaxs(1, 1);
-			mv.visitEnd();
-		}
-		{
-			MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_NATIVE, methodName, methodSignature, null, null);
-			mv.visitEnd();
-		}
-		cw.visitEnd();
-		
-		return cw.toByteArray();
-	}
+        {
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+            mv.visitCode();
+            Label l0 = new Label();
+            mv.visitLabel(l0);
+            mv.visitLineNumber(5, l0);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESPECIAL, callbackTypeName,
+                    "<init>", "()V");
+            mv.visitInsn(RETURN);
+            Label l1 = new Label();
+            mv.visitLabel(l1);
+            mv.visitLocalVariable("this",
+                    "L" + callbackTypeImplName + ";", null, l0, l1, 0);
+            mv.visitMaxs(1, 1);
+            mv.visitEnd();
+        }
+        {
+            MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_NATIVE, methodName, methodSignature, null, null);
+            mv.visitEnd();
+        }
+        cw.visitEnd();
+
+        return cw.toByteArray();
+    }
 
     public Class<?> defineClass(String className, byte[] data) throws ClassFormatError {
         return defineClass(className, data, 0, data.length);

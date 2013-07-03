@@ -45,9 +45,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Struct {
-	int pack() default -1;
-	//int padding() default -1;
-	int fieldCount() default -1;
-	int size() default -1;
-	Class<? extends StructCustomizer> customizer() default StructCustomizer.class;
+
+    int pack() default -1;
+    //int padding() default -1;
+
+    int fieldCount() default -1;
+
+    int size() default -1;
+
+    Class<? extends StructCustomizer> customizer() default StructCustomizer.class;
 }

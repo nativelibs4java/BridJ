@@ -124,8 +124,9 @@ public class StructDescription {
         this.structClass = structClass;
         this.structType = structType;
         this.customizer = customizer;
-        if (Utils.containsTypeVariables(structType))
+        if (Utils.containsTypeVariables(structType)) {
             throw new RuntimeException("Type " + structType + " contains unresolved type variables!");
+        }
         // Don't call build here, for recursive initialization cases.
     }
 

@@ -40,5 +40,6 @@ import java.lang.annotation.Target;
 @Inherited
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface IID {
-	String value();
+
+    String value();
 }

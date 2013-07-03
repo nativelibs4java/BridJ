@@ -36,7 +36,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Tells BridJ not to bind native methods marked with this annotation (assumes there's a legit plain-JNI binding for them)
+ * Tells BridJ not to bind native methods marked with this annotation (assumes
+ * there's a legit plain-JNI binding for them)
+ *
  * @author Olivier Chafik
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
