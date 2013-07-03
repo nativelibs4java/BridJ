@@ -779,7 +779,7 @@ public class BridJ {
                 return nativeLibraryFile;
             }
         } catch (Throwable th) {
-            warning("Library not found : " + libraryName);
+			warning("Library not found : " + libraryName, debug ? th : null);
             return null;
         }
     }
@@ -1055,7 +1055,7 @@ public class BridJ {
 	 * An example is JNA-style structures.
 	 */
 	public static <T extends NativeObject> T readFromNative(T instance) {
-		((TypeInfo<T>)instance.typeInfo).readFromNative(instance);
+		((TypeInfo<T>) instance.typeInfo).readFromNative(instance);
 		return instance;
 	}
 	/**
