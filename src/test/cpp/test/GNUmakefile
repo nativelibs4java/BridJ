@@ -31,14 +31,22 @@ LDFLAGS		+= -lobjc
 endif
 
 ifdef BUILD_OS_linux
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-sun/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-sun/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-amd64/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-amd64/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armhf/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armel/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armel/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armhf/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armhf/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armel/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armel/include/linux
 #LDFLAGS		+= -ljni
 endif
 
