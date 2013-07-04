@@ -102,15 +102,21 @@ endif
 endif
 
 ifdef BUILD_OS_linux
-CPPFLAGS	+=	-D_GNU_SOURCE
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
-CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include
-CPPFLAGS        +=      -I/usr/lib/jvm/java-6-openjdk-armel/include/linux
+CPPFLAGS  +=  -D_GNU_SOURCE
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-sun/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-sun/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk/include/
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armhf/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armhf/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armel/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-6-openjdk-armel/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armhf/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armhf/include/linux
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armel/include
+CPPFLAGS  +=  -I/usr/lib/jvm/java-7-openjdk-armel/include/linux
 endif
 
 ifdef BUILD_OS_sunos
