@@ -163,6 +163,17 @@ public class DemanglingTest {
         );
     }
     
+    @Test
+    public void testSimple2() {
+        demangle(
+            null,
+            "_Z11DeleteClassPv",
+            null,
+            ident("DeleteClass"),
+            void.class, Pointer.class
+        );
+    }
+    
     
     @Test
     public void testPtrsBackRef() {
