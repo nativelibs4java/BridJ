@@ -1174,7 +1174,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-	 Assign a value to the pointed memory location, and return it (different behaviour from {@link List\#set(int, Object)} which returns the old value of that element !!!).<br>
+	 Assign a value to the pointed memory location, and return it (different behaviour from {@link List#set(int, Object)} which returns the old value of that element !!!).<br>
      Take the following C++ code fragment :
      <pre>{@code
 	int* array = new int[10];
@@ -1195,7 +1195,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
      }</pre>
      @throws RuntimeException if called on a raw and untyped {@code Pointer} instance (see {@link Pointer#asUntyped()} and {@link  Pointer#getTargetType()}) 
-	 @return The value that was given (not the old value as in {@link List\#set(int, Object)} !!!)
+	 @return The value that was given (not the old value as in {@link List#set(int, Object)} !!!)
 	 */
     public T set(T value) {
         return set(0, value);
@@ -1215,7 +1215,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	throw new RuntimeException("Unexpected error", ex);
     }
 	/**
-     Sets the n-th element from this pointer, and return it (different behaviour from {@link List\#set(int, Object)} which returns the old value of that element !!!).<br>
+     Sets the n-th element from this pointer, and return it (different behaviour from {@link List#set(int, Object)} which returns the old value of that element !!!).<br>
      This is equivalent to the C/C++ square bracket assignment syntax.<br>
      Take the following C++ code fragment :
      <pre>{@code
@@ -1236,7 +1236,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      @param index offset in pointed elements at which the value should be copied. Can be negative if the pointer was offset and the memory before it is valid.
      @param value value to set at pointed memory location
      @throws RuntimeException if called on a raw and untyped {@code Pointer} instance (see {@link Pointer#asUntyped()} and {@link  Pointer#getTargetType()})
-     @return The value that was given (not the old value as in {@link List\#set(int, Object)} !!!)
+     @return The value that was given (not the old value as in {@link List#set(int, Object)} !!!)
 	 */
 	public T set(long index, T value) {
         getIO("Cannot set pointed value").set(this, index, value);
@@ -3230,7 +3230,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
     /**
-	 * Alias for {@link Pointer\#set(long, Object)} defined for more natural use from the Scala language.
+	 * Alias for {@link Pointer#set(long, Object)} defined for more natural use from the Scala language.
 	 */
 	public final void update(long index, T element) {
 		set(index, element);

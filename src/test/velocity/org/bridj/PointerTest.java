@@ -676,7 +676,7 @@ public class PointerTest {
 		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtIndex(1)$precisionArg);
 		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtIndex(2)$precisionArg);
 		
-		$rawType[] arr = p.get${prim.CapName}s();
+		${rawType}[] arr = p.get${prim.CapName}s();
 		assertEquals(${prim.rawValue($v1)}, arr[0]$precisionArg);
 		assertEquals(${prim.rawValue($v2)}, arr[1]$precisionArg);
 		assertEquals(${prim.rawValue($v3)}, arr[2]$precisionArg);
@@ -697,8 +697,8 @@ public class PointerTest {
 	
     		for (int type = 0; type <= 5; type++) {
 			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}s(n);
-			$rawType[] expected = createExpected${rawCapName}s(n);
-			$rawType[] values = null;
+			${rawType}[] expected = createExpected${rawCapName}s(n);
+			${rawType}[] values = null;
 			
 			switch (type) {
 			case 0:
@@ -714,7 +714,7 @@ public class PointerTest {
 				values = p.get${prim.CapName}sAtOffset(0, expected.length);
 				break;
 			case 3:
-				values = new $rawType[n];
+				values = new ${rawType}[n];
 				for (int i = 0; i < n; i++) {
 #if ($prim.Name == "SizeT" || $prim.Name == "CLong")
 					p.set(i, new ${prim.Name}(expected[i]));
@@ -726,14 +726,14 @@ public class PointerTest {
 				}
 				break;
 			case 4:
-				values = new $rawType[n];
+				values = new ${rawType}[n];
 				for (int i = 0; i < n; i++) {
 					p.set${prim.CapName}AtOffset(i * ${primSize}, expected[i]);
 					values[i] = p.get${prim.CapName}AtOffset(i * ${primSize}); 
 				}
 				break;
 			case 5:
-				values = new $rawType[n];
+				values = new ${rawType}[n];
 				for (int i = 0; i < n; i++) {
 					p.set${prim.CapName}AtIndex(i, expected[i]);
 					values[i] = p.get${prim.CapName}AtIndex(i); 
@@ -765,7 +765,7 @@ public class PointerTest {
 			p.set${prim.CapName}sAtOffset(${primSize}, new ${prim.Name}[] { ${prim.value("5")}, ${prim.value("6")} });
 			assertEquals(${prim.value("5")}, (${prim.Name})p.get(1)$precisionArg);
 			assertEquals(${prim.value("6")}, (${prim.Name})p.get(2)$precisionArg);
-			$rawType[] a = p.get${prim.CapName}sAtOffset(${primSize}, 2);
+			${rawType}[] a = p.get${prim.CapName}sAtOffset(${primSize}, 2);
 			assertEquals(2, a.length);
 			assertEquals(${prim.rawValue("5")}, a[0]$precisionArg);
 			assertEquals(${prim.rawValue("6")}, a[1]$precisionArg);
