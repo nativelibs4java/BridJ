@@ -105,14 +105,13 @@
 							org.bridj.relocated.*
 						</Private-Package>
 						<Import-Package>
-							android.app,
-							android.content.pm,
-							android.os,
-							com.android.dx.dex,
-							com.android.dx.dex.cf,
-							com.android.dx.dex.file,
-							dalvik.system, 
-							org.objectweb.asm,
+							android.app;resolution:=optional,
+							android.content.pm;resolution:=optional,
+							android.os;resolution:=optional,
+							com.android.dx.dex;resolution:=optional,
+							com.android.dx.dex.cf;resolution:=optional,
+							com.android.dx.dex.file;resolution:=optional,
+							dalvik.system;resolution:=optional,
 							org.osgi.framework
 						</Import-Package>
 						<Export-Package>
