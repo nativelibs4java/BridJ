@@ -105,6 +105,7 @@
 							org.bridj.relocated.*
 						</Private-Package>
 						<Import-Package>
+							org.objectweb.asm;resolution:=optional,
 							android.app;resolution:=optional,
 							android.content.pm;resolution:=optional,
 							android.os;resolution:=optional,
