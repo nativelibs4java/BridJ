@@ -373,7 +373,9 @@ public class CRuntime extends AbstractBridJRuntime {
             methodCallInfoBuilder = new MethodCallInfoBuilder();
         }
 
-        assert info("Registering type " + Utils.toString(type));
+        if (verbose) {
+            info("Registering type " + Utils.toString(type));
+        }
 
         int typeModifiers = typeClass.getModifiers();
 
@@ -450,7 +452,9 @@ public class CRuntime extends AbstractBridJRuntime {
 
                             registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
                         } catch (Exception ex) {
-                            assert error("Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
+                            if (verbose) {
+                                error("Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
+                            }
                         }
                     }
                 } catch (Exception ex) {
