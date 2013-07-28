@@ -90,11 +90,12 @@ public class Platform {
     }
 
     public static ClassLoader getClassLoader(Class<?> cl) {
-        ClassLoader loader = cl == null ? null : cl.getClassLoader();
-        if (loader == null) {
-            loader = Thread.currentThread().getContextClassLoader();
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        if (contextClassLoader != null) {
+            return contextClassLoader;
         }
-        return loader == null ? systemClassLoader : loader;
+        ClassLoader classLoader = cl == null ? null : cl.getClassLoader();
+        return classLoader == null ? systemClassLoader : classLoader;
     }
 
     public static InputStream getResourceAsStream(String path) {

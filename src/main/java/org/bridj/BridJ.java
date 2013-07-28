@@ -199,7 +199,7 @@ public class BridJ {
         }
         String name = stackTrace[1].getClassName();
         try {
-            Class<?> type = Class.forName(name);
+            Class<?> type = Class.forName(name, false, Platform.getClassLoader());
             register(type);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to register class " + name, ex);
