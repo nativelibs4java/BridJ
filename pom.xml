@@ -120,6 +120,8 @@
 							org.bridj.ann,
 							org.bridj.cpp,
 							org.bridj.cpp.com,
+							org.bridj.cpp.com.mfc,
+							org.bridj.cpp.com.std,
 							org.bridj.cpp.com.shell,
 							org.bridj.demangling,
 							org.bridj.dyncall,
@@ -162,17 +164,16 @@
 				<executions>
 					
 					<execution>
-						<id>desktop</id>
+						<id>android-package</id>
 						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<!--shadedClassifierName>shaded</shadedClassifierName-->
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>android</shadedClassifierName>
 							<artifactSet>
 								<excludes>
-									<exclude>com.google.android.tools:dx</exclude>
 									<exclude>junit:junit</exclude>
 								</excludes>
 							</artifactSet>
@@ -181,15 +182,20 @@
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
 										<exclude>libs/**</exclude>
-										<exclude>org/bridj/Android**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
+										<exclude>org/bridj/cpp/com/**</exclude>
+										<exclude>org/bridj/cpp/mfc/**</exclude>
+										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/lib/linux_*/**</exclude>
+										<exclude>org/bridj/lib/sunos_*/**</exclude>
+										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+										<exclude>org/bridj/lib/darwin_*/**</exclude>
+										<exclude>org/bridj/lib/win*/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
 									<artifact>*:*</artifact>
 									<excludes>
 										<exclude>junit/**</exclude>
-										<exclude>com/android/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>
@@ -240,51 +246,6 @@
 						</configuration>
 					</execution>
 					
-					<execution>
-						<id>mac-package</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>macosx-only</shadedClassifierName>
-							<artifactSet>
-								<excludes>
-									<exclude>com.google.android.tools:dx</exclude>
-									<exclude>junit:junit</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>com.nativelibs4java:bridj</artifact>
-									<excludes>
-										<exclude>libs/**</exclude>
-										<exclude>org/bridj/Android**</exclude>
-										<exclude>org/bridj/cpp/com/**</exclude>
-										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
-										<exclude>org/bridj/lib/linux_*/**</exclude>
-										<exclude>org/bridj/lib/android_*/**</exclude>
-										<exclude>org/bridj/lib/sunos_*/**</exclude>
-										<exclude>org/bridj/lib/win*/**</exclude>
-										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-									</excludes>
-								</filter>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>junit/**</exclude>
-										<exclude>com/android/**</exclude>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-										<exclude>META-INF/maven/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
 					<execution>
 						<id>win-package</id>
 						<phase>package</phase>
@@ -372,14 +333,14 @@
 					</execution>
 					
 					<execution>
-						<id>linux-package</id>
+						<id>desktop</id>
 						<phase>package</phase>
 						<goals>
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>linux-only</shadedClassifierName>
+							<shadedArtifactAttached>false</shadedArtifactAttached>
+							<!--shadedClassifierName>shaded</shadedClassifierName-->
 							<artifactSet>
 								<excludes>
 									<exclude>com.google.android.tools:dx</exclude>
@@ -392,14 +353,6 @@
 									<excludes>
 										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
-										<exclude>org/bridj/cpp/com/**</exclude>
-										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/objc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
-										<exclude>org/bridj/lib/win*/**</exclude>
-										<exclude>org/bridj/lib/sunos_*/**</exclude>
-										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>org/bridj/lib/darwin_*/**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 									</excludes>
 								</filter>
@@ -408,49 +361,6 @@
 									<excludes>
 										<exclude>junit/**</exclude>
 										<exclude>com/android/**</exclude>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-										<exclude>META-INF/maven/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-					
-					<execution>
-						<id>android-package</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>android</shadedClassifierName>
-							<artifactSet>
-								<excludes>
-									<exclude>junit:junit</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>com.nativelibs4java:bridj</artifact>
-									<excludes>
-										<exclude>libs/**</exclude>
-										<exclude>org/bridj/cpp/com/**</exclude>
-										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
-										<exclude>org/bridj/lib/linux_*/**</exclude>
-										<exclude>org/bridj/lib/sunos_*/**</exclude>
-										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>org/bridj/lib/darwin_*/**</exclude>
-										<exclude>org/bridj/lib/win*/**</exclude>
-									</excludes>
-								</filter>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>junit/**</exclude>
 										<exclude>META-INF/*.SF</exclude>
 										<exclude>META-INF/*.DSA</exclude>
 										<exclude>META-INF/*.RSA</exclude>

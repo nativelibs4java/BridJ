@@ -13,7 +13,7 @@ for F in target/bridj*.jar ; do
         echo ""
         echo $F
         CONTENTS=`unzip -l $F`
-        echo "$CONTENTS" | grep BridJ.class > /dev/null || fail "Does not have BridJ"
+        echo "$CONTENTS" | grep org/bridj/BridJ.class > /dev/null || fail "Does not have BridJ"
         ANDROID_CLASSES="DexFormat AndroidClassDefiner AndroidSupport"
         if [[ $F =~ .*android.* ]]; then
             for CLS in $ANDROID_CLASSES; do
