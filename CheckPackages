@@ -30,8 +30,13 @@ for F in target/bridj*.jar ; do
         fi 
         if [[ $F =~ .*unix-only.* ]]; then
             echo "$CONTENTS" | egrep "/(mfc|com)/" && fail "   Has windows-only classes"
+            for FLAVOUR in linux_ sunos_ darwin_ ; do
+                echo "$CONTENTS" | grep $FLAVOUR || fail "   Has no resource matching $FLAVOUR"
+            done
         fi 
         if [[ $F =~ .*windows-only.* ]]; then
+            echo "$CONTENTS" | egrep "/mfc/" || fail "   Has no MFC classes"
+            echo "$CONTENTS" | egrep "/com/" || fail "   Has no COM classes"
             echo "$CONTENTS" | egrep "linux_|sunos_|darwin_|ndroid" && fail "   Has unix resources"
         fi 
         if [[ $F =~ .*c-only.* ]]; then
