@@ -125,6 +125,7 @@
 							org.bridj.cpp.com.shell,
 							org.bridj.demangling,
 							org.bridj.dyncall,
+							org.bridj.func,
 							org.bridj.jawt,
 							org.bridj.objc,
 							org.bridj.util
@@ -184,7 +185,7 @@
 										<exclude>libs/**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/func/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
 										<exclude>org/bridj/lib/sunos_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
@@ -227,8 +228,8 @@
 										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/**</exclude>
+										<exclude>org/bridj/func/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
@@ -312,7 +313,7 @@
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/cs/**</exclude>
+										<exclude>org/bridj/func/**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/win*/**</exclude>
 									</excludes>
