@@ -540,7 +540,7 @@ public class CRuntime extends AbstractBridJRuntime {
             }
             builder.addFunction(mci);
             if (debug) {
-                info("Registering " + method + " as C function " + symbol.getName());
+                info("Registering " + method + " as C function " + symbol.getName() + " (address = 0x" + Long.toHexString(symbol.getAddress()) + ")");
             }
         }
     }
