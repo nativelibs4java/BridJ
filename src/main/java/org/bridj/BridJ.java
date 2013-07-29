@@ -397,6 +397,8 @@ public class BridJ {
         "Never free allocated pointers (deprecated)"),
         DebugPointers("bridj.debug.pointers", "BRIDJ_DEBUG_POINTERS", false,
         "Trace pointer allocations & deallocations (to debug memory issues)"),
+        DebugPointerReleases("bridj.debug.pointer.releases", "BRIDJ_DEBUG_POINTER_RELEASES", false,
+        "Prevent double releases of pointers and keep the trace of their first release (to debug memory issues)"),
         VeryVerbose("bridj.veryVerbose", "BRIDJ_VERY_VERBOSE", false,
         "Highly verbose mode"),
         Verbose("bridj.verbose", "BRIDJ_VERBOSE", false,
@@ -497,6 +499,7 @@ public class BridJ {
     public static final boolean debug = Switch.Debug.enabled;
     public static final boolean debugNeverFree = Switch.DebugNeverFree.enabled;
     public static final boolean debugPointers = Switch.DebugPointers.enabled;
+    public static final boolean debugPointerReleases = Switch.DebugPointerReleases.enabled || debugPointers;
     public static final boolean veryVerbose = Switch.VeryVerbose.enabled;
     public static final boolean verbose = debug || veryVerbose || Switch.Verbose.enabled;
     public static final boolean quiet = Switch.Quiet.enabled;

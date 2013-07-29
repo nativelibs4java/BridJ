@@ -172,7 +172,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 {
 
 #macro (declareCheckedPeerAtOffset $byteOffset $validityCheckLength)
-	long checkedPeer = peer + $byteOffset;
+	long checkedPeer = getPeer() + $byteOffset;
 	if (validStart != UNKNOWN_VALIDITY && (
 			checkedPeer < validStart || 
 			(checkedPeer + $validityCheckLength) > validEnd
@@ -348,10 +348,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public static final int defaultAlignment = Integer.parseInt(Platform.getenvOrProperty("BRIDJ_DEFAULT_ALIGNMENT", "bridj.defaultAlignment", "-1"));
 	
 	protected final PointerIO<T> io;
-	protected final long peer, offsetInParent;
+	private final long peer_;
+     protected final long offsetInParent;
 	protected final Pointer<?> parent;
 	protected volatile Object sibling;
-	protected final long validStart, validEnd;
+	protected final long validStart;
+     protected final long validEnd;
 
 	/**
 	 * Object responsible for reclamation of some pointed memory when it's not used anymore.
@@ -362,7 +364,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 	Pointer(PointerIO<T> io, long peer, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling) {
 		this.io = io;
-		this.peer = peer;
+		this.peer_ = peer;
 		this.validStart = validStart;
 		this.validEnd = validEnd;
 		this.parent = parent;
@@ -370,11 +372,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		this.sibling = sibling;
 		if (peer == 0)
 			throw new IllegalArgumentException("Pointer instance cannot have NULL peer ! (use null Pointer instead)");
-		if (BridJ.debugPointers)
+		if (BridJ.debugPointers) {
 			creationTrace = new RuntimeException().fillInStackTrace();
+          }
 	}
 	Throwable creationTrace;
-	
+     Throwable deletionTrace;
+     Throwable releaseTrace;
+     
 #foreach ($data in [ ["Ordered", true, ""], ["Disordered", false, "_disordered"] ])
 #set ($orderingPrefix = $data.get(0))
 #set ($ordered = $data.get(1))
@@ -531,8 +536,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public synchronized void release() {
 		Object sibling = this.sibling;
 		this.sibling = null;
-		if (sibling instanceof Pointer)
+		if (sibling instanceof Pointer) {
 			((Pointer)sibling).release();
+          }
+          //this.peer_ = 0;
+          if (BridJ.debugPointerReleases) {
+               releaseTrace = new RuntimeException().fillInStackTrace();
+          }
 	}
 
 	/**
@@ -700,7 +710,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @return Address of the memory pointed to by this pointer
 	 */
 	public final long getPeer() {
-		return peer;
+          if (BridJ.debugPointerReleases) {
+               if (releaseTrace != null) {
+                    throw new RuntimeException("Pointer was released here:\n\t" + Utils.toString(releaseTrace).replaceAll("\n", "\n\t"));
+               }
+          }
+		return peer_;
 	}
     
 	/**
@@ -1470,6 +1485,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 						this.rel = null;
 						rel.release(this);
 					}
+                         //this.peer_ = 0;
+                         if (BridJ.debugPointerReleases)
+                              releaseTrace = new RuntimeException().fillInStackTrace();
 				}
 				protected void finalize() {
 					release();
@@ -1694,12 +1712,19 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			assert p.getSibling() == null;
 			assert p.validStart == p.getPeer();
 			
-		if (BridJ.debugPointers)
-			BridJ.info("Freeing pointer " + p + " (peer = " + p.peer + ", validStart = " + p.validStart + ", validEnd = " + p.validEnd + ", validBytes = " + p.getValidBytes() + ")\n(Creation trace:\n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException("Deletion trace:").fillInStackTrace());
-		
-			if (!BridJ.debugNeverFree)
-				JNI.free(p.getPeer());
-    	}
+               if (BridJ.debugPointers) {
+                    p.deletionTrace = new RuntimeException().fillInStackTrace();
+               	BridJ.info("Freeing pointer " + p +
+                         " (peer = " + p.getPeer() +
+                         ", validStart = " + p.validStart +
+                         ", validEnd = " + p.validEnd + 
+                         ", validBytes = " + p.getValidBytes() + 
+                         ").\nCreation trace:\n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") +
+                         "\nDeletion trace:\n\t" + Utils.toString(p.deletionTrace).replaceAll("\n", "\n\t"));
+               }
+          	if (!BridJ.debugNeverFree)
+          		JNI.free(p.getPeer());
+          }
     }
     
     /**

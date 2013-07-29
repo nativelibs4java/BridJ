@@ -118,6 +118,8 @@ public class Utils {
     }
 
     public static String toString(Throwable th) {
+        if (th == null)
+            return "<no trace>";
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         th.printStackTrace(pw);
