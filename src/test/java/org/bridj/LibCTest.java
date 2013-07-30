@@ -67,7 +67,7 @@ public class LibCTest {
 	@Test(expected=LastError.class)
 	public void testLastWindowsError() {
         if (!Platform.isWindows())
-            throw new LastError(0, "");
+            throw new LastError(0, 0);
         
         setLastWindowsError();
 	}

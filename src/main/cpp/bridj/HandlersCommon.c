@@ -31,7 +31,23 @@
 #include "HandlersCommon.h"
 #include "JNI.h"
 
-jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava, jboolean isVarArgs) 
+jboolean callFunction(CallTempStruct* call, CommonCallbackInfo* info, DCArgs* args, DCValue* result, void* callback, CallFlags flags)
+{
+  return 
+    followArgs(call, args, info->nParams, info->fParamTypes, flags) 
+    &&
+    followCall(call, info->fReturnType, result, callback, flags);
+}
+
+jboolean callGenericFunction(CallTempStruct* call, CommonCallbackInfo* info, DCArgs* args, DCValue* result, void* callback)
+{
+  return 
+    followArgsGenericJavaCallback(call, args, info->nParams, info->fParamTypes) 
+    &&
+    followCallGenericJavaCallback(call, info->fReturnType, result, callback);
+}
+
+jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, CallFlags flags) 
 {	
 	JNIEnv* env = call->env;
 	int iParam;
@@ -42,13 +58,13 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			case eIntFlagSet:
 				{
 					jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
-					if (toJava) {
+					if (flags & CALLING_JAVA) {
 						int flags = dcbArgInt(args);
 						jobject obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
 						dcArgPointer(call->vm, obj);
 					} else {
 						int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
-						if (isVarArgs)
+						if (flags & IS_VAR_ARGS)
 							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 						else
 							dcArgInt(call->vm, arg);
@@ -58,7 +74,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			case eIntValue:
 				{
 					int arg = dcbArgInt(args);
-					if (isVarArgs)
+					if (flags & IS_VAR_ARGS)
 						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgInt(call->vm, arg);
@@ -66,13 +82,13 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				break;
 			#define ARG_BOXED_INTEGRAL(type, capitalized) \
 				{ \
-					if (toJava) { \
+					if (flags & CALLING_JAVA) { \
 						type arg = (sizeof(type) == 4) ? (type)dcbArgInt(args) : (type)dcbArgLongLong(args); \
 						dcArgPointer(call->vm, Box ## capitalized(env, arg)); \
 					} else { \
 						jobject parg = dcbArgPointer(args); \
 						jlong arg = Unbox ## capitalized(env, parg); \
-						if (isVarArgs) \
+						if (flags & IS_VAR_ARGS) \
 							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg); \
 						else if (sizeof(type) == 4) \
 							dcArgInt(call->vm, (jint)arg); \
@@ -82,12 +98,12 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				}
 			#define ARG_UNBOXED_INTEGRAL(type, capitalized) \
 				{ \
-					if (toJava) { \
+					if (flags & CALLING_JAVA) { \
 						type arg = (sizeof(type) == 4) ? (type)dcbArgInt(args) : (type)dcbArgLongLong(args); \
 						dcArgLongLong(call->vm, (jlong)arg); \
 					} else { \
 						jlong arg = dcbArgLongLong(args); \
-						if (isVarArgs) \
+						if (flags & IS_VAR_ARGS) \
 							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg); \
 						else if (sizeof(type) == 4) \
 							dcArgInt(call->vm, (jint)arg); \
@@ -116,7 +132,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			case eShortValue:
 				{
 					short arg = dcbArgShort(args);
-					if (isVarArgs)
+					if (flags & IS_VAR_ARGS)
 						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgShort(call->vm, arg);
@@ -126,7 +142,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			case eByteValue: 
 				{
 					char arg = dcbArgChar(args);
-					if (isVarArgs)
+					if (flags & IS_VAR_ARGS)
 						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgChar(call->vm, arg);
@@ -135,7 +151,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			case eFloatValue: 
 				{
 					float arg = dcbArgFloat(args);
-					if (isVarArgs)
+					if (flags & IS_VAR_ARGS)
 						dcArgDouble(call->vm, arg);
 					else
 						dcArgFloat(call->vm, arg);
@@ -148,7 +164,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{
 					void* ptr = dcbArgPointer(args);
 					jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
-					if (toJava)
+					if (flags & CALLING_JAVA)
 					{
 						ptr = createPointerFromIO(env, ptr, callIO);
 					} else {
@@ -190,7 +206,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				break;
 			}	
 			case eEllipsis: {
-				if (toJava) {
+				if (flags & CALLING_JAVA) {
 					throwException(env, "Calling Java ellipsis is not supported yet !");
 					return JNI_FALSE;
 				} else {
@@ -245,7 +261,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 	return JNI_TRUE;
 }
 
-jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava, jboolean forceVoidReturn) 
+jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, CallFlags flags) 
 {
 	JNIEnv* env = call->env;
 	switch (returnType) {
@@ -268,7 +284,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		    break;
 		    
 		#define CALL_BOXED_INTEGRAL(type, capitalized) \
-			if (bCallingJava) { \
+			if (flags & CALLING_JAVA) { \
 				time_t tt = Unbox ## capitalized(env, dcCallPointer(call->vm, callback)); \
 				if (sizeof(type) == 4) \
 					result->i = (jint)tt; \
@@ -303,7 +319,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case ePointerValue:
 			{
 				void* ptr = dcCallPointer(call->vm, callback);
-				if (bCallingJava)
+				if (flags & CALLING_JAVA)
 					result->p = ptr ? getPointerPeer(env, ptr) : NULL;
 					//result->p = ptr;
 				else
@@ -331,7 +347,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			}
 			break;
 		default:
-			if (forceVoidReturn) 
+			if (flags & FORCE_VOID_RETURN) 
 			{
 				dcCallVoid(call->vm, callback);
 				break;
@@ -339,8 +355,11 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
+	if (flags & SETS_LASTERROR) {
+	  call->lastError = getLastError();
+	}
 	HACK_REFETCH_ENV(); 
-	if (bCallingJava && (*env)->ExceptionCheck(env))
+	if ((flags & CALLING_JAVA) && (*env)->ExceptionCheck(env))
 		return JNI_FALSE;
 	return JNI_TRUE;
 }

@@ -28,46 +28,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "HandlersCommon.h"
-#include "string.h"
+package org.bridj.ann;
 
-void __cdecl JavaToFunctionCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info, DCArgs* args, DCValue* result, jboolean setsLastError)
-{
-	dcMode(call->vm, info->fInfo.fDCMode);
-	//dcReset(call->vm);
-	
-	callFunction(call, &info->fInfo, args, result, info->fForwardedSymbol, setsLastError ? SETS_LASTERROR : 0);
-}
-char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
-{
-	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
-	CallTempStruct* call;
-	JNIEnv* env;
-	LastError lastError;
-	jboolean setsLastError = info->fInfo.fSetsLastError;
-	initCallHandler(args, &call, NULL, &info->fInfo);
-	env = call->env;
-	
-	call->pCallIOs = info->fInfo.fCallIOs;
-	
-	BEGIN_TRY(env, call);
-	
-	if (setsLastError) {
-		clearLastError(info->fInfo.fEnv);
-	}
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	JavaToFunctionCallHandler_Sub(call, info, args, result, setsLastError);
-
-	if (setsLastError) {
-	  memcpy(&lastError, &call->lastError, sizeof(LastError));
-	}
-	
-	END_TRY(info->fInfo.fEnv, call);
-
-	cleanupCallHandler(call);
-
-  if (setsLastError) {
-    setLastError(info->fInfo.fEnv, lastError, info->fInfo.fThrowsLastError);
-  }
-	return info->fInfo.fDCReturnType;
+/**
+ * Applies to bindings of functions that may set errno / last error.
+ *
+ * @author ochafik
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface SetsLastError {
 }

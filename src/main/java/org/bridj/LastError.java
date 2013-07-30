@@ -66,16 +66,17 @@ import static org.bridj.Pointer.*;
  */
 public class LastError extends NativeError {
 
-    final int code;
-    final String description;
+    final int code, kind;
+    String description;
 
-    LastError(int code, String description) {
-        super((description == null ? "?" : description.trim()) + " (error code = " + code + ")");//toString(code));
+    LastError(int code, int kind) {
+        super(null);
         this.code = code;
-        this.description = description;
+        this.kind = kind;
+        /*
         if (BridJ.verbose) {
             BridJ.info("Last error detected : " + getMessage());
-        }
+        }*/
     }
 
     /**
@@ -94,14 +95,35 @@ public class LastError extends NativeError {
      * href="http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx">FormatMessage</a>).
      */
     public String getDescription() {
-        return description;
+    	if (description == null) {
+    		description = getDescription(code, kind);
+    	}
+    	return description;
     }
+    
+    @Override
+    public String getMessage() {
+    	String description = getDescription();
+    	return (description == null ? "?" : description.trim()) + " (error code = " + code + ")";
+    }
+    
+    private static native String getDescription(int value, int kind);
 
-    static void throwNewInstance(int code, String description) {
+    private static final ThreadLocal<LastError> lastError = new ThreadLocal<LastError>();
+
+    public static LastError getLastError() {
+        return lastError.get();
+    }
+    
+    private static void setLastError(int code, int kind, boolean throwLastError) {
         if (code == 0) {
             return;
         }
-
-        throw new LastError(code, description);
+        LastError err = new LastError(code, kind);
+        err.fillInStackTrace();
+        lastError.set(err);
+        if (throwLastError) {
+            throw err;
+        }
     }
 }

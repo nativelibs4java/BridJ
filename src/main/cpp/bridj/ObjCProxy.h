@@ -44,7 +44,7 @@
 
 	- (id) initWithEnv: (JNIEnv*)env javaInstance: (jobject)theJavaInstance;
 	
-	- dealloc;
+	- (void)dealloc;
 	
 	- (void)forwardInvocation:(NSInvocation *) anInvocation;
 	

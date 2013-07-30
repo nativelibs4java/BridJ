@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.bridj.ann.Convention;
+import org.bridj.ann.SetsLastError;
 import org.bridj.ann.DisableDirect;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Virtual;
@@ -82,7 +83,8 @@ public class MethodCallInfo {
     boolean direct;
     boolean startsWithThis;
     boolean bNeedsThisPointer;
-    boolean bThrowLastError;
+    boolean throwsLastError;
+    boolean setsLastError;
 
     public MethodCallInfo(Method method) {
         this(method, method);
@@ -140,8 +142,13 @@ public class MethodCallInfo {
         if (!exceptionTypes.isEmpty()) {
             this.direct = false; // there is no crash / exception protection for direct raw calls
             if (exceptionTypes.contains(LastError.class)) {
-                this.bThrowLastError = true;
+                this.throwsLastError = true;
+                this.setsLastError = true;
             }
+        }
+        if (getInheritableAnnotation(SetsLastError.class, definition) != null) {
+            this.direct = false; // there is no crash / exception protection for direct raw calls
+            this.setsLastError = true;
         }
 
     }

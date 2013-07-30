@@ -14,8 +14,8 @@
 0000000000003270 s GCC_except_table124
 000000000000329c s GCC_except_table126
 0000000000003250 s GCC_except_table25
-0000000000001360 T _Java_org_bridj_PerfLib_testASinB
-0000000000001330 T _Java_org_bridj_PerfLib_testAddJNI
+0000000000001340 T _Java_org_bridj_PerfLib_testASinB
+0000000000001310 T _Java_org_bridj_PerfLib_testAddJNI
 00000000000066b8 S _OBJC_CLASS_$_DelgHolder
 0000000000006708 S _OBJC_CLASS_$_DelgImpl
                  U _OBJC_CLASS_$_NSObject
@@ -25,22 +25,22 @@
                  U _OBJC_METACLASS_$_NSObject
 0000000000002f10 t __GLOBAL__I_a
 0000000000002840 t __GLOBAL__I_a
-0000000000002900 t __GLOBAL__I_a
+00000000000028f0 t __GLOBAL__I_a
                  U __Unwind_Resume
 0000000000001650 T __Z10createTestv
 00000000000019b0 T __Z10newWStringv
-0000000000002950 T __Z10new_vectorIiEPSt6vectorIT_SaIS1_EEi
+0000000000002940 T __Z10new_vectorIiEPSt6vectorIT_SaIS1_EEi
 00000000000019a0 T __Z10stringCStrPSs
 0000000000001760 T __Z10test_pvoidv
-0000000000002a00 T __Z10vector_getIiET_PSt6vectorIS0_SaIS0_EEi
-0000000000002a10 T __Z10vector_setIiEvPSt6vectorIT_SaIS1_EEiS1_
+00000000000029e0 T __Z10vector_getIiET_PSt6vectorIS0_SaIS0_EEi
+00000000000029f0 T __Z10vector_setIiEvPSt6vectorIT_SaIS1_EEiS1_
 0000000000001c10 T __Z11MyEnumToInt6MyEnum
-0000000000002ae0 T __Z11delete_listIiEvPSt4listIT_SaIS1_EE
+0000000000002ac0 T __Z11delete_listIiEvPSt4listIT_SaIS1_EE
 0000000000001890 T __Z11forwardCallPFiiiEii
 00000000000018b0 T __Z11getPtrAdderv
 0000000000001c00 T __Z11intToMyEnumi
-0000000000001150 T __Z11passVarArgsPcbz
-0000000000001570 T __Z11sizeOfCtestv
+0000000000001130 T __Z11passVarArgsPcbz
+0000000000001550 T __Z11sizeOfCtestv
 0000000000001630 T __Z11testIntEnumi5ETest
 0000000000001a70 T __Z11wstringCStrPSbIwSt11char_traitsIwESaIwEE
 0000000000001c20 T __Z12PMyEnumToIntP6MyEnum
@@ -48,30 +48,30 @@
 0000000000001880 T __Z12getAdder_rawv
 0000000000001c40 T __Z12intToPMyEnumi
 0000000000001940 T __Z12resizeStringPSsm
-0000000000001580 T __Z12sizeOfCtest2v
+0000000000001560 T __Z12sizeOfCtest2v
 0000000000002260 T __Z12sizeOf_stuffv
-0000000000002b30 T __Z12sizeofVectorIiEmv
+0000000000002b10 T __Z12sizeofVectorIiEmv
 0000000000001610 T __Z12testEnumArgs5ETestS_
 0000000000001620 T __Z12testVoidEnumv
 0000000000001800 T __Z12test_fun_intv
 0000000000001a20 T __Z13deleteWStringPSbIwSt11char_traitsIwESaIwEE
-0000000000002a60 T __Z13delete_vectorIiEvPSt6vectorIT_SaIS1_EE
+0000000000002a40 T __Z13delete_vectorIiEvPSt6vectorIT_SaIS1_EE
 0000000000001860 T __Z13getAdder_longv
 0000000000001930 T __Z13reserveStringPSsm
 0000000000001a10 T __Z13resizeWStringPSbIwSt11char_traitsIwESaIwEEm
 0000000000001bf0 T __Z13sizeOfTimevalv
-0000000000001310 T __Z13testAddCLongsll
-0000000000001300 T __Z13testAddJLongsxx
+00000000000012f0 T __Z13testAddCLongsll
+00000000000012e0 T __Z13testAddJLongsxx
 0000000000001d50 T __Z13test_add2_intii
 0000000000001d70 T __Z13test_add9_intiiiiiiiii
 00000000000017d0 T __Z13test_fun_voidv
 0000000000001d00 T __Z13test_incr_inti
-0000000000002b40 T __Z13vector_resizeIiEvPSt6vectorIT_SaIS1_EEi
+0000000000002b20 T __Z13vector_resizeIiEvPSt6vectorIT_SaIS1_EEi
 0000000000001900 T __Z14appendToStringPSsPKc
 00000000000018d0 T __Z14forwardPtrCallPFPvS_S_ES_S_
 0000000000001850 T __Z14getAdder_pvoidv
 0000000000001cf0 T __Z14getSomeWStringv
-0000000000002ab0 T __Z14list_push_backIiEvPSt4listIT_SaIS1_EES1_
+0000000000002a90 T __Z14list_push_backIiEvPSt4listIT_SaIS1_EES1_
 0000000000001a00 T __Z14reserveWStringPSbIwSt11char_traitsIwESaIwEEm
 0000000000002250 T __Z14sizeOf_messagev
 0000000000001d90 T __Z14test_add20_intiiiiiiiiiiiiiiiiiiii
@@ -109,7 +109,7 @@
 00000000000021f0 T __Z16test_add9_doubleddddddddd
 0000000000002170 T __Z16test_incr_doubled
 0000000000001790 T __Z16test_void_doublev
-0000000000002a20 T __Z16vector_push_backIiEvPSt6vectorIT_SaIS1_EES1_
+0000000000002a00 T __Z16vector_push_backIiEvPSt6vectorIT_SaIS1_EES1_
 0000000000001600 T __Z17testEnumArgSecond5ETest
 00000000000015f0 T __Z17testEnumRetSecondv
 0000000000002220 T __Z17test_add20_doubledddddddddddddddddddd
@@ -147,7 +147,7 @@
 0000000000002230 T __Z21test_add20_double_outddddddddddddddddddddPd
 0000000000001d20 T __Z21test_callback_int_intPFiiEi
 00000000000017e0 T __Z21test_fun_void__doubled
-00000000000015a0 T __Z22testIndirectVirtualAddP5Ctestii
+0000000000001580 T __Z22testIndirectVirtualAddP5Ctestii
 0000000000001f70 T __Z23test_callback_byte_bytePFaaEa
 0000000000002020 T __Z23test_callback_char_charPFttEt
 0000000000001de0 T __Z23test_callback_long_longPFxxEx
@@ -165,13 +165,13 @@
 00000000000021b0 T __Z36test_callback_double_double_asDoublePFddEd
 0000000000001840 T __Z3addii
 0000000000002890 T __Z3sum6S_int2
-00000000000028b0 T __Z3sum8S_jlong4
-00000000000028d0 T __Z3sum9S_jlong10
+00000000000028a0 T __Z3sum8S_jlong4
+00000000000028c0 T __Z3sum9S_jlong10
 0000000000002880 T __Z4incr5S_int
-0000000000002940 T __Z4totov
+0000000000002930 T __Z4totov
 00000000000018a0 T __Z7addPtrsPvS_
 0000000000001870 T __Z8getAdderv
-0000000000002a90 T __Z8new_listIiEPSt4listIT_SaIS1_EEv
+0000000000002a70 T __Z8new_listIiEPSt4listIT_SaIS1_EEv
 00000000000015e0 T __Z8testEnum5ETest
 0000000000001780 T __Z8test_intv
 0000000000001b90 T __Z8throwInti
@@ -194,20 +194,20 @@
 0000000000002420 T __ZN24InvisibleSourcesTemplateILi10EiE10deleteSomeEPi
 0000000000002350 T __ZN24InvisibleSourcesTemplateILi10EiEC1Ei
 00000000000023a0 T __ZN24InvisibleSourcesTemplateILi10EiEC2Ei
-0000000000001460 T __ZN5Ctest11getInstanceEv
+0000000000001440 T __ZN5Ctest11getInstanceEv
 0000000000001640 T __ZN5Ctest11static_voidEv
-00000000000015c0 T __ZN5Ctest14testAddStdCallEPvii
-0000000000001590 T __ZN5Ctest14testVirtualAddEii
-00000000000015d0 T __ZN5Ctest21testVirtualAddStdCallEPvii
-00000000000014a0 T __ZN5Ctest6getIntEv
-0000000000001490 T __ZN5Ctest7getEnumEv
-00000000000015b0 T __ZN5Ctest7testAddEii
-0000000000001400 T __ZN5CtestC1Ei
-00000000000013c0 T __ZN5CtestC1Ev
-0000000000001420 T __ZN5CtestC2Ei
-00000000000013e0 T __ZN5CtestC2Ev
-0000000000001440 T __ZN5CtestD1Ev
-0000000000001450 T __ZN5CtestD2Ev
+00000000000015a0 T __ZN5Ctest14testAddStdCallEPvii
+0000000000001570 T __ZN5Ctest14testVirtualAddEii
+00000000000015c0 T __ZN5Ctest21testVirtualAddStdCallEPvii
+0000000000001480 T __ZN5Ctest6getIntEv
+0000000000001470 T __ZN5Ctest7getEnumEv
+0000000000001590 T __ZN5Ctest7testAddEii
+00000000000013e0 T __ZN5CtestC1Ei
+00000000000013a0 T __ZN5CtestC1Ev
+0000000000001400 T __ZN5CtestC2Ei
+00000000000013c0 T __ZN5CtestC2Ev
+0000000000001420 T __ZN5CtestD1Ev
+0000000000001430 T __ZN5CtestD2Ev
 0000000000002610 T __ZN5Temp1IdE4tempEd
 00000000000025e0 T __ZN5Temp1IdED0Ev
 00000000000025f0 T __ZN5Temp1IdED1Ev
@@ -237,11 +237,11 @@
 00000000000026f0 T __ZN5TempVIiLi66EED1Ev
 0000000000002700 T __ZN5TempVIiLi66EED2Ev
 0000000000001740 T __ZN6Ctest214testVirtualAddEii
-0000000000001540 T __ZN6Ctest216getCtestInstanceEv
+0000000000001520 T __ZN6Ctest216getCtestInstanceEv
 0000000000001730 T __ZN6Ctest218setDestructedStateEi
 0000000000001750 T __ZN6Ctest27testAddEii
 0000000000001720 T __ZN6Ctest28setStateEPi
-00000000000014b0 T __ZN6Ctest28toStringEv
+0000000000001490 T __ZN6Ctest28toStringEv
 0000000000001680 T __ZN6Ctest2C1Ev
 00000000000016b0 T __ZN6Ctest2C2Ev
 00000000000016e0 T __ZN6Ctest2D1Ev
@@ -271,8 +271,8 @@
                  U __ZNSsC1EPKcRKSaIcE
                  U __ZNSsD1Ev
                  U __ZNSt15_List_node_base4hookEPS_
-0000000000002da0 T __ZNSt6vectorIiSaIiEE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPiS1_EERKi
-0000000000002b90 T __ZNSt6vectorIiSaIiEE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPiS1_EEmRKi
+0000000000002d90 T __ZNSt6vectorIiSaIiEE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPiS1_EERKi
+0000000000002b70 T __ZNSt6vectorIiSaIiEE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPiS1_EEmRKi
                  U __ZNSt8ios_base4InitC1Ev
                  U __ZNSt8ios_base4InitD1Ev
                  U __ZNSt9exceptionD2Ev
@@ -341,7 +341,7 @@
                  U ___cxa_guard_release
                  U ___cxa_throw
                  U ___gxx_personality_v0
-0000000000001124 t __dyld_func_lookup
+0000000000001104 t __dyld_func_lookup
                  U __objc_empty_cache
                  U __objc_empty_vtable
 0000000000006a40 D _delete_int_list
@@ -358,19 +358,19 @@
 00000000000069f8 D _new_int_vector
 0000000000006b10 S _ntest
                  U _objc_msgSend_fixup
-0000000000001320 T _otherFunc
+0000000000001300 T _otherFunc
                  U _sin
-0000000000001140 T _sinInt
+0000000000001120 T _sinInt
 0000000000006a28 D _sizeof_int_vector
                  U _strlen
-0000000000001390 T _testASinB
-0000000000001340 T _testAddDyncall
-0000000000001350 T _testAddJNA
-00000000000012d0 T _testInPlaceSquare
-0000000000001230 T _testSum
-00000000000012a0 T _testSumInt
-0000000000001250 T _testSumi
-0000000000001270 T _testSumll
-0000000000001130 T _voidTest
+0000000000001370 T _testASinB
+0000000000001320 T _testAddDyncall
+0000000000001330 T _testAddJNA
+00000000000012b0 T _testInPlaceSquare
+0000000000001210 T _testSum
+0000000000001280 T _testSumInt
+0000000000001230 T _testSumi
+0000000000001250 T _testSumll
+0000000000001110 T _voidTest
                  U _wcslen
-0000000000001110 t dyld_stub_binding_helper
+00000000000010f0 t dyld_stub_binding_helper

@@ -44,15 +44,18 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	void* targetId = info->fNativeClass ? JLONG_TO_PTR(info->fNativeClass) : getNativeObjectPointer(env, instance, NULL);
-	void* callback = //objc_msgSend_stret;//
-		objc_msgSend;
+	void* callback;
 	
 #if defined(DC__Arch_Intel_x86)
 	switch (info->fInfo.fReturnType) {
-	case eDoubleValue:
-	case eFloatValue:
-		callback = objc_msgSend_fpret;
-		break;
+    case eDoubleValue:
+    case eFloatValue:
+      callback = objc_msgSend_fpret;
+      break;
+    default:
+      callback = //objc_msgSend_stret;//
+        objc_msgSend;
+      break;
 	}
 #endif
 
@@ -62,10 +65,9 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 	dcArgPointer(call->vm, targetId);
 	dcArgPointer(call->vm, info->fSelector);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_TRUE)// TODO isVarArgs ?? 
-	&&
-	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
-
+	// TODO isVarArgs ?? 
+	callFunction(call, &info->fInfo, args, result, callback, IS_VAR_ARGS);
+	
 	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
 	

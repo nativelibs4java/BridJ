@@ -32,9 +32,20 @@
 #include <jni.h>
 #include "Exceptions.h"
 
-jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava, jboolean isVarArgs);
+typedef enum _CallFlags {
+  CALLING_JAVA = 1 << 0,
+  IS_VAR_ARGS = 1 << 1,
+  SETS_LASTERROR = 1 << 2,
+  FORCE_VOID_RETURN = 1 << 3
+} CallFlags;
 
-jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava, jboolean forceVoidReturn);
+jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, CallFlags flags);
+
+jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, CallFlags flags);
+
+jboolean callFunction(CallTempStruct* call, CommonCallbackInfo* info, DCArgs* args, DCValue* result, void* callback, CallFlags flags);
+
+jboolean callGenericFunction(CallTempStruct* call, CommonCallbackInfo* info, DCArgs* args, DCValue* result, void* callback);
 
 jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env, CommonCallbackInfo* info);
 void cleanupCallHandler(CallTempStruct* call);

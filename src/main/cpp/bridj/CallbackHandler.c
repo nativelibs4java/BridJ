@@ -55,13 +55,9 @@ void __cdecl CToJavaCallHandler_Sub(CallTempStruct* call, NativeToJavaCallbackCa
 		dcbArgPointer(args); // consume the pointer to the block instance ; TODO use it to reuse native callbacks !!!
 	
 	if (info->fIsGenericCallback) {
-		followArgsGenericJavaCallback(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
-		&&
-		followCallGenericJavaCallback(call, info->fInfo.fReturnType, result, (void*)(*call->env)->CallObjectMethod);
+		callGenericFunction(call, &info->fInfo, args, result, (void*)(*call->env)->CallObjectMethod);
 	} else {
-		followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE, JNI_TRUE)
-		&&
-		followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
+		callFunction(call, &info->fInfo, args, result, info->fJNICallFunction, CALLING_JAVA | IS_VAR_ARGS);
 	}
 	
 }
@@ -115,11 +111,9 @@ void __cdecl CPPToJavaCallHandler_Sub(CallTempStruct* call, NativeToJavaCallback
 	dcArgPointer(call->vm, javaObject);
 	dcArgPointer(call->vm, info->fInfo.fMethodID);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE, JNI_TRUE)
-	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
-
+	callFunction(call, &info->fInfo, args, result, info->fJNICallFunction, CALLING_JAVA | IS_VAR_ARGS);
 }
+
 char __cdecl CPPToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
 	CallTempStruct* call;
@@ -159,9 +153,8 @@ void __cdecl JavaToCCallHandler_Sub(CallTempStruct* call, JavaToNativeCallbackCa
 	callbackPtr = getNativeObjectPointer(call->env, instance, NULL);
 	
 	// printf("doJavaToCCallHandler(callback = %d) !!!\n", callback);
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE)
-	&&
-	followCall(call, info->fInfo.fReturnType, result, callbackPtr, JNI_FALSE, JNI_FALSE);
+	
+	callFunction(call, &info->fInfo, args, result, callbackPtr, 0);
 }
 char __cdecl JavaToCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {

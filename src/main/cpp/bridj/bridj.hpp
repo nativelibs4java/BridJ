@@ -117,10 +117,21 @@ typedef enum ValueType {
 	eTimeTObjectValue
 } ValueType;
 
+typedef enum _LastErrorKind {
+  eLastErrorKindWindows = 1,
+  eLastErrorKindCLibrary
+} LastErrorKind;
+
+typedef struct _LastError {
+  jint value;
+  LastErrorKind kind;
+} LastError;
+
 typedef struct CallTempStruct {
 	DCCallVM* vm;
 	JNIEnv *env;
 	jobject* pCallIOs;
+	LastError lastError;
 #if defined(__GNUC__)
 	jmp_buf exceptionContext;
 	Signals signals;
@@ -140,6 +151,8 @@ typedef struct CommonCallbackInfo {
 	JNIEnv* fEnv;
 	jmethodID fMethodID;
 	jobject fMethod;
+	jboolean fThrowsLastError;
+	jboolean fSetsLastError;
 } CommonCallbackInfo;
 
 typedef struct VirtualMethodCallInfo {
@@ -154,7 +167,6 @@ typedef struct FunctionCallInfo {
 	struct CommonCallbackInfo fInfo;
 	jclass fClass;
 	void* fForwardedSymbol;
-	jboolean fCheckLastError;
 } FunctionCallInfo, CPPMethodCallInfo;
 
 #ifdef BRIDJ_OBJC_SUPPORT
