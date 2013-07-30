@@ -1025,7 +1025,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     /**
       * @deprecated Will be removed in a future version, please use {@link Pointer#getPointer(NativeObject)} instead.
       */
-    @deprecated
+    @Deprecated
     public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
          return getPointer(instance);
     }
