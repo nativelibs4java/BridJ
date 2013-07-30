@@ -44,7 +44,8 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	void* targetId = info->fNativeClass ? JLONG_TO_PTR(info->fNativeClass) : getNativeObjectPointer(env, instance, NULL);
-	void* callback;
+	void* callback = //objc_msgSend_stret;//
+        objc_msgSend;
 	
 #if defined(DC__Arch_Intel_x86)
 	switch (info->fInfo.fReturnType) {
@@ -53,8 +54,6 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
       callback = objc_msgSend_fpret;
       break;
     default:
-      callback = //objc_msgSend_stret;//
-        objc_msgSend;
       break;
 	}
 #endif
