@@ -206,12 +206,12 @@ public class list<T> extends CPPObject {
     }
 
     private boolean isRoot(Pointer a) {
-        return same(a, pointerTo(this));
+        return same(a, getPointer(this));
     }
 
     protected void hook(Pointer<list_node<T>> prev, Pointer<list_node<T>> next, T value) {
         list_node<T> tmp = createNode();
-        Pointer<list_node<T>> pTmp = pointerTo(tmp);
+        Pointer<list_node<T>> pTmp = getPointer(tmp);
         tmp.set(value);
         tmp.next(next);
         tmp.prev(prev);

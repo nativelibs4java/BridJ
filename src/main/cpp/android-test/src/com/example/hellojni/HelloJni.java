@@ -95,7 +95,7 @@ public class HelloJni extends Activity
         				return a * fa + b * fb;	
         			}
         		};
-        		pcb = pointerTo(cb);
+        		pcb = getPointer(cb);
         		//*/
         		///*
         		pcb = allocateDynamicCallback(

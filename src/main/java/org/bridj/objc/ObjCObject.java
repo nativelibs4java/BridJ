@@ -100,7 +100,7 @@ public class ObjCObject extends NativeObject {
             return false;
         }
 
-        Pointer<ObjCObject> p = pointerTo((ObjCObject) o);
+        Pointer<ObjCObject> p = getPointer((ObjCObject) o);
         return isEqual(p);
     }
 

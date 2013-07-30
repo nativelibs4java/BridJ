@@ -70,7 +70,7 @@ public class CPPTest {
 	@Test
 	public void test_Ctest_constructors() {
         Ctest ct =  new Ctest();
-        Pointer<Ctest> p = pointerTo(ct);
+        Pointer<Ctest> p = getPointer(ct);
         assertEquals(-123456, ct.firstField());
 		assertEquals(-33, new Ctest(-33).firstField());
 	}
@@ -106,13 +106,13 @@ public class CPPTest {
 	void testAdd(Ctest instance, int a, int b, int res, int baseRes) {
 		//long peer = Pointer.getAddress(test, Ctest.class);
 		
-		//TestCPP.print(instance.getClass().getSimpleName(), pointerTo(instance).getPeer(), 10, 2);
-		//TestCPP.print(instance.getClass().getSimpleName() + "'s vtable", pointerTo(instance).getSizeT(), 10, 2);
+		//TestCPP.print(instance.getClass().getSimpleName(), getPointer(instance).getPeer(), 10, 2);
+		//TestCPP.print(instance.getClass().getSimpleName() + "'s vtable", getPointer(instance).getSizeT(), 10, 2);
                 
 		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
 
-        c = Pointer.pointerTo(instance).getNativeObject(Ctest.class).testAdd(a, b);
+        c = Pointer.getPointer(instance).getNativeObject(Ctest.class).testAdd(a, b);
         assertEquals(baseRes, c);
 
         if (Platform.isWindows()) {
@@ -135,7 +135,7 @@ public class CPPTest {
     @Test
     public void testJavaVirtualOverride() {
         Ctest test = new Ctest();
-        assertEquals(3, testIndirectVirtualAdd(pointerTo(test), 1, 2));
+        assertEquals(3, testIndirectVirtualAdd(getPointer(test), 1, 2));
 
         test = new Ctest(10) {
             @Override
@@ -149,7 +149,7 @@ public class CPPTest {
         System.out.println("virtualMethods = " + virtualMethods);
         //*/
         int a = 1, b = 2;
-        int ind = testIndirectVirtualAdd(pointerTo(test), a, b);
+        int ind = testIndirectVirtualAdd(getPointer(test), a, b);
         assertEquals(a * 10 + b * 100, ind);
     }
 	

@@ -78,7 +78,7 @@ public class ObjCProxy extends ObjCObject {
 
     public Pointer<NSMethodSignature> methodSignatureForSelector(SEL sel) {
         Pair<NSMethodSignature, Method> sig = getMethodAndSignature(sel);
-        return sig == null ? null : pointerTo(sig.getFirst());
+        return sig == null ? null : getPointer(sig.getFirst());
     }
 
     public synchronized Pair<NSMethodSignature, Method> getMethodAndSignature(SEL sel) {

@@ -362,7 +362,7 @@ public class ObjectiveCRuntime extends CRuntime {
                      throw new RuntimeException("Block constructor should have id " + ObjCBlock.CALLBACK_CONSTRUCTOR_ID + " (got " + constructorId + " ) and only one callback argument (got " + args.length + ")");
                     		
                      Callback cb = (Callback)firstArg;
-                     Pointer<Callback> pcb = pointerTo(cb);
+                     Pointer<Callback> pcb = getPointer(cb);
                      Pointer<T> peer = (Pointer)pointerToAddress(ObjCJNI.createObjCBlockWithFunctionPointer(pcb.getPeer()), type).withReleaser(ObjCBlockReleaser);;
                      if (peer == null)
                      throw new RuntimeException("Failed to create Objective-C block for callback " + cb);

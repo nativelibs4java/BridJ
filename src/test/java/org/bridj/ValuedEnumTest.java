@@ -115,7 +115,7 @@ public class ValuedEnumTest {
         MyEnum expected = MyEnum.Two;
         int expectedInt = (int)expected.value();
         for (int i = 0; i < nTests; i++) {
-            int ret = PMyEnumToInt(pointerTo(expected));
+            int ret = PMyEnumToInt(pointerToEnum(expected));
             if (expectedInt != ret)
                 assertEquals(expectedInt, ret);
         }
@@ -156,7 +156,7 @@ public class ValuedEnumTest {
         assertFalse(it.hasNext());
         assertEquals(Fruit.Banana, gotFruit);
         
-        Pointer<IntValuedEnum<Fruit>> pFruit = pointerTo(fruit);
+        Pointer<IntValuedEnum<Fruit>> pFruit = pointerToEnum(fruit);
         assertEquals(Fruit.Banana, pFruit.get());
         pFruit.set(Fruit.Orange);
         assertEquals(Fruit.Orange, pFruit.get());

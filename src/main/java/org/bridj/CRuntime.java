@@ -313,7 +313,7 @@ public class CRuntime extends AbstractBridJRuntime {
             try {
                 T clone = (T) typeClass.newInstance();
                 Pointer<T> p = allocateStructMemory(pointerIO);
-                Pointer.pointerTo(instance).copyTo(p);
+                Pointer.getPointer(instance).copyTo(p);
                 initialize(clone, p);
                 return clone;
             } catch (Exception ex) {

@@ -246,7 +246,7 @@ public class TestCPP {
             Ctest test = new Ctest();
             //long thisPtr = test.$this.getPeer();
             //System.out.println(hex(thisPtr));
-            print("Ctest.this", Pointer.pointerTo(test, Ctest.class).getPointer().getPeer(), 10, 2);
+            print("Ctest.this", Pointer.getPointer(test, Ctest.class).getPointer().getPeer(), 10, 2);
             int res = test.testAdd(1, 2);
             System.out.println("res = " + res);
             res = test.testVirtualAdd(1, 2);
@@ -271,10 +271,10 @@ public class TestCPP {
                 MyStruct s = new MyStruct();
                 s.a(10);
                 System.out.println("Created MyStruct and set it to 10");
-                int a = Pointer.pointerTo(s).getInt();
+                int a = Pointer.getPointer(s).getInt();
                 a = s.a();
-                Pointer.pointerTo(s).setInt(10);
-                a = Pointer.pointerTo(s).getInt();
+                Pointer.getPointer(s).setInt(10);
+                a = Pointer.getPointer(s).getInt();
                 a = s.a();
                 if (s.a() != 10)
                     throw new RuntimeException("invalid value = " + a);

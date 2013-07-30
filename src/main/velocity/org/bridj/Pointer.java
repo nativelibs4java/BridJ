@@ -101,7 +101,7 @@ import static org.bridj.SizeT.safeIntCast;
  * <p>
  * <ul>
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
- *		{@link Pointer#pointerTo(NativeObject)}
+ *		{@link Pointer#getPointer(NativeObject)}
  *  </li>
  *  <li>Allocating a dynamic callback (without a static {@link Callback} definition, which would be the preferred way) :<br>
  *      {@link Pointer#allocateDynamicCallback(DynamicCallback, org.bridj.ann.Convention.Style, Type, Type[])}
@@ -201,7 +201,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon :
      <pre>{@code
-     for (float f : pointerTo(1f, 2f, 3.3f))
+     for (float f : pointerToFloats(1f, 2f, 3.3f))
      	System.out.println(f); }</pre>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName consecutive values provided in argument
@@ -1007,7 +1007,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     /**
      * Get a pointer to an enum. 
      */
-    public static <E extends Enum<E>> Pointer<IntValuedEnum<E>> pointerTo(IntValuedEnum<E> instance) {
+    public static <E extends Enum<E>> Pointer<IntValuedEnum<E>> pointerToEnum(IntValuedEnum<E> instance) {
     	Class<E> enumClass;
     	if (instance instanceof FlagSet) {
     		enumClass = ((FlagSet)instance).getEnumClass();
@@ -1021,34 +1021,41 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	p.setInt((int)instance.value());
     	return p;
     }
-    
+
+    /**
+      * @deprecated Will be removed in a future version, please use {@link Pointer#getPointer(NativeObject)} instead.
+      */
+    @deprecated
+    public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
+         return getPointer(instance);
+    }
     
     /**
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
-    public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
-    		return pointerTo(instance, null);
+    public static <N extends NativeObject> Pointer<N> getPointer(N instance) {
+    		return getPointer(instance, null);
     }
     /**
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
-    public static <N extends NativeObjectInterface> Pointer<N> pointerTo(N instance) {
-    		return (Pointer)pointerTo((NativeObject)instance);
+    public static <N extends NativeObjectInterface> Pointer<N> getPointer(N instance) {
+    		return (Pointer)getPointer((NativeObject)instance);
     }
     
     /**
      * Get a pointer to a native object, specifying the type of the pointer's target.<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
-    public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Type targetType) {
+    public static <R extends NativeObject> Pointer<R> getPointer(NativeObject instance, Type targetType) {
 		return instance == null ? null : (Pointer<R>)instance.peer;
     }
     /**
-    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link Pointer#pointerTo(NativeObject, Type)}).<br>
+    * Get the address of a native object, specifying the type of the pointer's target (same as {@code getPointer(instance, targetType).getPeer()}, see {@link Pointer#getPointer(NativeObject, Type)}).<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static long getAddress(NativeObject instance, Class targetType) {
-		return getPeer(pointerTo(instance, targetType));
+		return getPeer(getPointer(instance, targetType));
     }
     
 #docGetOffset("native object", "O extends NativeObject", "Pointer#getNativeObject(Type)")

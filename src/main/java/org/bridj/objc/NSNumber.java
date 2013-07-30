@@ -79,6 +79,6 @@ public class NSNumber extends NSObject {
         }
 
         NSNumber nn = (NSNumber) o;
-        return isEqualToNumber(pointerTo(nn));
+        return isEqualToNumber(getPointer(nn));
     }
 }

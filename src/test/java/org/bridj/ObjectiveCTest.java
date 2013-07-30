@@ -161,7 +161,7 @@ public class ObjectiveCTest {
     }
     static void test_NSNonExistentTestClass_add(ObjCObject proxy) {
     	if (!mac) return;
-        NSNonExistentTestClass p = pointerTo(proxy).as(NSNonExistentTestClass.class).get();
+        NSNonExistentTestClass p = getPointer(proxy).as(NSNonExistentTestClass.class).get();
         Pointer<Integer> ptr = pointerToInt(64);
         assertEquals(1 + ptr.get(), p.add2(1, ptr));
 		assertEquals(127, p.add8((byte)1, (short)2, (int)4, (char)8, (long)16, (double)32, ptr), 0);
@@ -197,7 +197,7 @@ public class ObjectiveCTest {
                 return v + 1;
             }
 		};
-        NSNonExistentTestClass p = pointerTo(new ObjCProxy(proxy)).as(NSNonExistentTestClass.class).get();
+        NSNonExistentTestClass p = getPointer(new ObjCProxy(proxy)).as(NSNonExistentTestClass.class).get();
         System.out.println(p.description().get());
         assertEquals(11, p.incf(10), 0);
     }
@@ -228,7 +228,7 @@ public class ObjectiveCTest {
 
         //System.out.println("handler: " + handler);
 
-        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, pointerTo(handler));
+        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, getPointer(handler));
 
         //System.out.println("hook: " + hook);
         
@@ -257,7 +257,7 @@ public class ObjectiveCTest {
    
    static void testDelegate(Delg delegate) {
        DelgHolder holder = new DelgHolder();
-       holder.setDelegate(pointerTo(delegate));
+       holder.setDelegate(getPointer(delegate));
        
        int a = 10, b = 20, expected = a + b;
        int res = holder.outerAdd_to(a, b);
@@ -292,7 +292,7 @@ public class ObjectiveCTest {
             }
        };
        int a = 10, b = 20, expected = a + b;
-       int res = forwardBlockCallIntIntInt(pointerTo(block), a, b);
+       int res = forwardBlockCallIntIntInt(getPointer(block), a, b);
        assertEquals(expected, res);
    }
    //*/

@@ -74,7 +74,7 @@ public class NSDictionary extends NSObject {
         int i = 0;
         for (Map.Entry<String, NSObject> e : map.entrySet()) {
             keys.set(i, (Pointer) pointerToNSString(e.getKey()));
-            objects.set(i, pointerTo(e.getValue()));
+            objects.set(i, getPointer(e.getValue()));
             i++;
         }
 

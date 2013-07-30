@@ -92,7 +92,7 @@ public class MFCRuntime extends CPPRuntime {
 
     public void getOverriddenVirtualMethods(Map<String, Pointer<?>> out) {
         //super.getVirtualMethodBindings(out);
-        out.put("mfcGetMessageMap", Pointer.pointerTo(mfcGetMessageMapCallback));
+        out.put("mfcGetMessageMap", Pointer.getPointer(mfcGetMessageMapCallback));
     }
 
     @Override

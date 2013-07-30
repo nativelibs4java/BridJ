@@ -65,7 +65,7 @@ public class Run {
 
         //System.out.println("handler: " + handler);
 
-        Pointer hook = Foundation.NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, pointerTo(handler));
+        Pointer hook = Foundation.NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, getPointer(handler));
 
         //System.out.println("hook: " + hook);
 

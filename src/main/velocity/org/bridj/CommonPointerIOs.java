@@ -76,7 +76,7 @@ class CommonPointerIOs {
 		}
 		@Override
 		public void set(Pointer<N> pointer, long index, N value) {
-			Pointer<N> ps = Pointer.pointerTo(value);
+			Pointer<N> ps = Pointer.getPointer(value);
 			ps.copyTo(pointer.offset(index * getTargetSize()));
 		}
 	}

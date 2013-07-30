@@ -60,6 +60,6 @@ import org.bridj.ann.Runtime;
 public abstract class Callback<C extends Callback<C>> extends NativeObject implements CallbackInterface {
 
     public Pointer<C> toPointer() {
-        return (Pointer) Pointer.pointerTo(this);
+        return (Pointer) Pointer.getPointer(this);
     }
 }

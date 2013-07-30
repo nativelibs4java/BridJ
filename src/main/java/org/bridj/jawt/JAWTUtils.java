@@ -59,7 +59,7 @@ public class JAWTUtils {
         }
 
         JAWT awt = new JAWT().version(JAWT_VERSION_1_4);
-        Pointer<JAWT> pAwt = pointerTo(awt);
+        Pointer<JAWT> pAwt = getPointer(awt);
         if (!JAWT_GetAWT(env, pAwt)) {
             throw new RuntimeException("Failed to get JAWT pointer !");
         }

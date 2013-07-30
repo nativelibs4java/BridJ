@@ -460,7 +460,7 @@ public class COMRuntime extends CPPRuntime {
     }
 
     static void change(VARIANT v, ValuedEnum<VARENUM> vt) {
-        Pointer<VARIANT> pv = pointerTo(v);
+        Pointer<VARIANT> pv = getPointer(v);
         int res = VariantChangeType(pv, pv, (short) 0, (short) vt.value());
         assert res == S_OK;
     }
@@ -564,7 +564,7 @@ public class COMRuntime extends CPPRuntime {
             return null;
         }
         VARIANT clone = new VARIANT();
-        error(VariantCopy(pointerTo(clone), pointerTo(instance)));
+        error(VariantCopy(getPointer(clone), getPointer(instance)));
         return clone;
     }
 
