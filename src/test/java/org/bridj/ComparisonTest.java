@@ -442,7 +442,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 30); // */
+        assertBridJFaster(bridJFaster, 8); // */
 	}
 	
 	ByteBuffer next(ByteBuffer b, long skip) {
@@ -550,7 +550,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Cast to struct array", "Cast to BridJ's struct array", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 30); // */
+        assertBridJFaster(bridJFaster, 10); // */
 	}
 	
 	/*
@@ -665,7 +665,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 1.2);
+        assertBridJFaster(bridJFaster, 0.9);
 	}
 	static void assertBridJFaster(double factor, double minExpectedFactor) {
 		if (factor < 0)
