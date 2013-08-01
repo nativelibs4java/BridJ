@@ -39,6 +39,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
+import org.bridj.ann.Alignment;
 import org.bridj.ann.Library;
 import org.bridj.ann.Array;
 import org.bridj.ann.Ptr;
@@ -348,6 +349,16 @@ public class StructTest {
             io.setDoubleField(this, 1, b);
             return this;
         }
+        
+        @Field(2)
+	@Alignment(16)
+		public int c() {
+			return io.getIntField(this, 2);
+        }
+        public MyStruct c(int c) {
+            io.setIntField(this, 2, c);
+            return this;
+        }
 	}
 
     public static class TestStruct extends MyStruct {
@@ -355,14 +366,14 @@ public class StructTest {
         public TestStruct() { super(); }
 
         @Array(10)
-        @Field(2)
+        @Field(3)
 		public Pointer<Integer> values() {
-			return io.getPointerField(this, 2);
+			return io.getPointerField(this, 3);
         }
 
-        @Field(3)
+        @Field(4)
         public MyStruct sub() {
-			return io.getNativeObjectField(this, 3);
+			return io.getNativeObjectField(this, 4);
         }
     }
 
@@ -375,12 +386,16 @@ public class StructTest {
         
         @Field(1)
 		public double b;
+        
+        @Field(2)
+	@Alignment(16)
+		public int c;
 
         @Array(10)
-        @Field(2)
+        @Field(3)
 		public Pointer<Integer> values;
 
-        @Field(3)
+        @Field(4)
         public MyStruct sub;
 	}
 	
@@ -422,11 +437,14 @@ public class StructTest {
 		long len = sizeOf(MyStruct.class);
 		int a = 10;
 		double b = 12.0;
+		int c = -3;
 		getPointer(x).clearBytesAtOffset(0, len, (byte)0xff);
 		for (MyStruct s : new MyStruct[] { x, y })
-			s.a(a).b(b);
+			s.a(a).b(b).c(c);
 		
-		assertFalse(getPointer(x).compareBytes(getPointer(y), len) == 0);
+		//assertFalse(getPointer(x).compareBytes(getPointer(y), len) == 0);
+		//SolidRanges sr = x.io.desc.getSolidRanges();
+		//assertArrayEquals(new long[] { 0, 16}, sr.offsets);
 		assertEquals(x, y);
 		assertFalse(x.equals(z));
 	}

@@ -52,7 +52,8 @@ final class SolidRanges {
             long length = f.byteLength;
 
             if (offset == lastOffset) {
-                lengths.set(count - 1, Math.max(lengths.get(count - 1), length));
+		length = Math.max(lengths.get(count - 1), length);
+                lengths.set(count - 1, length);
             } else if (offset == nextOffset && count != 0) {
                 lengths.set(count - 1, lengths.get(count - 1) + length);
             } else {
