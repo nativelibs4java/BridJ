@@ -1,4 +1,4 @@
-sudo apt-get install subversion git maven2 openjdk-7-jdk g++
+sudo apt-get install subversion git maven2 openjdk-7-* g++
 
 mkdir src
 mkdir bin
