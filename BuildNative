@@ -23,7 +23,7 @@ OS=`uname -s | sed s/_NT-.*/_NT/`
 ARCH=`uname -m`
 
 case $ARCH in
-i86pc|i386|x86)
+i86pc|i386|i486|i586|i686|x86)
 	ARCH=x86
 	;;
 x86_64|amd64)
