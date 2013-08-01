@@ -1,12 +1,38 @@
-Current development version (0.6.3-SNAPSHOT)
+Current development version (0.7-SNAPSHOT)
 
 - Added support for Raspberry Pi (Linux/armel (soft-float) and Linux/armhf (hard-float)).
-- Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
-- Improved performance of all operations of Pointers with bounds (~ 25% faster).
+- Added a new all-in-one android release zip with classes JAR (now contains no native lib), native libs, sources & javadoc.
+- Added programmatic setting of library dependencies: BridJ.addNativeLibraryDependencies (issue #424),  -Dbridj.Xyz.dependencies=Abc,Def and BRIDJ_XYZ_DEPENDENCIES=Abc,Def (issue #391) 
+- Added a very useful BRIDJ_DEBUG_POINTER_RELEASES=1 / -Dbridj.debug.pointer.releases=true mode that helps track double releases (also enabled when BRIDJ_DEBUG_POINTERS=1 / -Dbridj.debug.pointers=true).
+- Added Pointer.pointerToAddress(peer, size, io, release) + fixed COMTest
 - Added fallback to GCC demangler on Windows (issue #356).
-- Better logs, less logs (issue #328).  
-- Don't warn about structs/classes with no fields in C++ runtime (issue #346).
+- Added support for exact library file name (issue #424)
+- Added Pointer.pointerTo(IntValuedEnum<E>) (issue #414)
+- Dropped C# runtime stubs
+- Dropped linux-only and mac-only packages.
+- Improved performance of all operations of Pointers with bounds (~ 25% faster).
 - Improved concurrency of callbacks and structs creation.
+- Improved logs (issue #328, issue #346).  
+- Improved C++ templates (still WIP, std::list protoype and fixed std::vector)
+- Improved Grails integration with Platform.getClassLoader change (issue #431)
+- Refactored StructIO (split out description of struct and its fields as top-level entities, StructIO now just does IO). This is what justifies version bump.
+- Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
+- Fixed usage of local refs in getLibrarySymbols to avoid reaching Dalvik's limit (issue #376)
+- Fixed openjdk library path (take it from sun.boot.library.path)
+- Fixed VARIANT memory management: use VariantInit and VariantClear + allocate it (and other structs tagged with COMRuntime) with CoTaskMemAlloc (see issue #389)
+- Fixed typo in EllipsisHelper that broke some varargs
+- Fixed loading of dependent libraries on Windows using LoadLibraryEx + LOAD_WITH_ALTERED_PATH (issue #378)
+- Fixed binding of c library on windows
+- Fixed pointerToCStrings: don't update string array (might be causing / aggravating #397)
+- Fixed native library lookup logic (issue #406)
+- Fixed NPE in DefaultParameterizedType.hashCode (issue #411)
+- Fixed handling of @Name when demangler goes nuts (issue #413)
+- Fixed FlagSet.toString() and had FlagSet.fromValue(int, E[]) to return raw enum when possible instead of always a FlagSet (issue #414)
+- Fixed alignment on 32-bit linux (issue #320)
+- Fixed warnings about missing vtables for COM objects (issue #355)
+- Fixed disappearing MFC & STL classes in artifacts (issue #392)
+- Documented effects of protected mode (issue #394)
+- Documented DefaultParameterizedType.paramType (see issue #418)
 ...
 
 BridJ 0.6.2 (20130107)

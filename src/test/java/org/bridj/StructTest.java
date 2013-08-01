@@ -393,14 +393,14 @@ public class StructTest {
 		s.a(10);
 		s.b(20);
 		
-		TestStructWithFields fs = new TestStructWithFields(pointerTo(s));
+		TestStructWithFields fs = new TestStructWithFields(getPointer(s));
 
         assertEquals(s.a(), 10); // no modification of original struct
 		assertEquals(s.b(), 20, 0);
 		assertEquals(s.a(), fs.a); // read fields upon creation
 		assertEquals(s.b(), fs.b, 0);
 
-		assertEquals(pointerTo(s.sub()), pointerTo(fs.sub));
+		assertEquals(getPointer(s.sub()), getPointer(fs.sub));
 
         assertEquals(s.values(), fs.values);
 
@@ -422,11 +422,11 @@ public class StructTest {
 		long len = sizeOf(MyStruct.class);
 		int a = 10;
 		double b = 12.0;
-		pointerTo(x).clearBytesAtOffset(0, len, (byte)0xff);
+		getPointer(x).clearBytesAtOffset(0, len, (byte)0xff);
 		for (MyStruct s : new MyStruct[] { x, y })
 			s.a(a).b(b);
 		
-		assertFalse(pointerTo(x).compareBytes(pointerTo(y), len) == 0);
+		assertFalse(getPointer(x).compareBytes(getPointer(y), len) == 0);
 		assertEquals(x, y);
 		assertFalse(x.equals(z));
 	}
@@ -610,7 +610,7 @@ public class StructTest {
         ThisStruct s = new ThisStruct();
         assertEquals(2 * 4, BridJ.sizeOf(ThisStruct.class));
         SubStruct sub = s.sub();
-        assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
+        assertEquals("Invalid sub-struct !", getPointer(s).offset(4), getPointer(sub));
         
     }
     
@@ -634,7 +634,7 @@ public class StructTest {
         ThisStructFields s = new ThisStructFields();
         s.a = 10;
         BridJ.writeToNative(s);
-        s = pointerTo(s).get();
+        s = getPointer(s).get();
         int a = s.a;
         assertEquals(10, a);
     }
@@ -643,11 +643,11 @@ public class StructTest {
         ThisStructFields s = new ThisStructFields();
         assertEquals(2 * 4, BridJ.sizeOf(ThisStructFields.class));
         SubStructFields sub = s.sub;
-        assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
+        assertEquals("Invalid sub-struct !", getPointer(s).offset(4), getPointer(sub));
         sub.a = 100;
         BridJ.writeToNative(s);
         
-        s = pointerTo(s).get();
+        s = getPointer(s).get();
         assertEquals(100, s.sub.a);
     }
     
@@ -663,7 +663,7 @@ public class StructTest {
         StructWithArrays s = new StructWithArrays();
         Pointer<Integer> pInts = s.ints();
         assertEquals("Invalid array field pointer type", Integer.class, pInts.getTargetType());
-        assertEquals("Invalid sub array", pointerTo(s).getPeer(), pInts.getPeer());
+        assertEquals("Invalid sub array", getPointer(s).getPeer(), pInts.getPeer());
     }
     
     public static class CLongSize extends StructObject {
@@ -701,7 +701,7 @@ public class StructTest {
     	assertEquals(2 * Pointer.SIZE, s);
     	//System.out.println("sizeof = " + s);
     	NoLoop l = new NoLoop();
-    	Pointer<NoLoop> p = pointerTo(l);
+    	Pointer<NoLoop> p = getPointer(l);
     	//System.out.println("NoLoop = " + p);
     	//System.out.println("valid bytes = " + p.getValidBytes() + ", sizeof = " + s);
     	l = p.get();
@@ -765,7 +765,7 @@ public class StructTest {
     		s.a = 10;
     		s.b = -20;
     		BridJ.writeToNative(s);
-    		TinyStruct t = pointerTo(s).as(TinyStruct.class).get();
+    		TinyStruct t = getPointer(s).as(TinyStruct.class).get();
     		assertEquals(s.a, t.a);
     		assertEquals(s.b, t.b);
     }
@@ -784,7 +784,7 @@ public class StructTest {
     @Test
     public void testTimeval() {
     		TimeT.timeval tv = new TimeT.timeval();
-    		Pointer<TimeT.timeval> ptv = pointerTo(tv);
+    		Pointer<TimeT.timeval> ptv = getPointer(tv);
     		tv = ptv.get();
     }
     	
@@ -868,7 +868,7 @@ public class StructTest {
     
     @Test
     public void testEnumsFieldRegression() {
-        Pointer<cec_device_type_list> pDeviceTypeList = Pointer.pointerTo(new cec_device_type_list());
+        Pointer<cec_device_type_list> pDeviceTypeList = Pointer.getPointer(new cec_device_type_list());
         cec_device_type_list deviceTypeList = pDeviceTypeList.get();
         Pointer<IntValuedEnum<cec_device_type>> pDeviceTypes = deviceTypeList.types();
     }

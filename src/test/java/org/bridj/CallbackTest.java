@@ -52,7 +52,7 @@ public class CallbackTest {
             }
         };
 
-        pointerTo(cb).release();
+        getPointer(cb).release();
     }
 	@Test
 	public void testJavaTargetIntCallbacks() {

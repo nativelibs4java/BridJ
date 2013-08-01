@@ -67,11 +67,14 @@ import java.lang.annotation.Target;
 
 /**
  * Alignment of a C struct / struct field, in bytes.<br>
- * If this annotation is not present, BridJ will infer the alignment using the C/C++ rules.
+ * If this annotation is not present, BridJ will infer the alignment using the
+ * C/C++ rules.
+ *
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Alignment {
+
     int value();
 }

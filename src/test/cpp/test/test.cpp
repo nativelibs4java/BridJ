@@ -480,6 +480,16 @@ TEST_API int __cdecl MyEnumToInt(MyEnum value) {
 	return (int)value;
 }
 
+TEST_API int PMyEnumToInt(MyEnum *value) {
+  return value ? (int)*value : 0;
+}
+
+TEST_API MyEnum* intToPMyEnum(int value) {
+  static MyEnum e;
+  e = (MyEnum)value;
+  return &e;  
+}
+
 int Module::add(int a, int b) { 
     return a + b; 
 }

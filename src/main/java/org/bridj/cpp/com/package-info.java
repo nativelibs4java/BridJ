@@ -29,6 +29,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-BridJ COM support (Windows-only, working but under-tested).
-*/
+ * BridJ COM support (Windows-only, working but under-tested).
+ */
 package org.bridj.cpp.com;

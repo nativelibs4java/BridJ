@@ -28,34 +28,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.bridj.ann;
+package org.bridj;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.FileNotFoundException;
 
-import org.bridj.BridJRuntime;
+import java.util.Collection;
 
-/**
- * Specify the runtime that should be used to bind native methods (default is
- * {@link org.bridj.CRuntime} if no annotation is provided).
- * <br>
- * Also see
- *
- * @see org.bridj.Bridj.register().
- * @author Olivier
- */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-public @interface Runtime {
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-    Class //<? extends BridJRuntime>
-            value();
+import org.bridj.ann.*;
+import org.bridj.*;
+
+public class MemoryTest {
+    String[] strings = {"a", "b", "c"};
+	@Test
+	public void testGC() {
+	    for (int i = 0; i < 10; i++) {
+	        for (int j = 0; j < 100; j++) {
+	            Pointer.allocateBytes(2);
+	            Pointer.allocateSizeT();
+	            Pointer.pointerToCStrings(strings);
+	        }
+	        System.gc();
+	    }
+	}
+	@Test
+	public void testRelease() {
+	    for (int i = 0; i < 10; i++) {
+	        for (int j = 0; j < 100; j++) {
+	            Pointer.release(Pointer.allocateBytes(2));
+	            Pointer.release(Pointer.allocateSizeT());
+	            Pointer.release(Pointer.pointerToCStrings(strings));
+	        }
+	        System.gc();
+	    }
+	}
 }

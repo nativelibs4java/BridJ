@@ -13,7 +13,7 @@ for F in target/bridj*.jar ; do
         echo ""
         echo $F
         CONTENTS=`unzip -l $F`
-        echo "$CONTENTS" | grep BridJ.class > /dev/null || fail "Does not have BridJ"
+        echo "$CONTENTS" | grep org/bridj/BridJ.class > /dev/null || fail "Does not have BridJ"
         ANDROID_CLASSES="DexFormat AndroidClassDefiner AndroidSupport"
         if [[ $F =~ .*android.* ]]; then
             for CLS in $ANDROID_CLASSES; do
@@ -23,12 +23,26 @@ for F in target/bridj*.jar ; do
             echo "$CONTENTS" | egrep "\.so|\.dll|\.dylib" && fail "Android jar should not have binaries"
         else
             for CLS in $ANDROID_CLASSES; do
-                echo "$CONTENTS" | grep $CLS.class > /dev/null && fail "Has class $CLS"
+                echo "$CONTENTS" | grep $CLS.class > /dev/null && fail "   Has class $CLS"
             done
-            echo "$CONTENTS" | grep -i Android && fail "Has some android references"
+            echo "$CONTENTS" | grep -i Android && fail "   Has some android references"
             echo "$CONTENTS" | egrep "\.so|\.dll|\.dylib" || exit 1
         fi 
-        echo "$CONTENTS" | grep junit && fail "Has JUnit"
+        if [[ $F =~ .*unix-only.* ]]; then
+            echo "$CONTENTS" | egrep "/(mfc|com)/" && fail "   Has windows-only classes"
+            for FLAVOUR in linux_ sunos_ darwin_ ; do
+                echo "$CONTENTS" | grep $FLAVOUR || fail "   Has no resource matching $FLAVOUR"
+            done
+        fi 
+        if [[ $F =~ .*windows-only.* ]]; then
+            echo "$CONTENTS" | egrep "/mfc/" || fail "   Has no MFC classes"
+            echo "$CONTENTS" | egrep "/com/" || fail "   Has no COM classes"
+            echo "$CONTENTS" | egrep "linux_|sunos_|darwin_|ndroid" && fail "   Has unix resources"
+        fi 
+        if [[ $F =~ .*c-only.* ]]; then
+            echo "$CONTENTS" | egrep "/(cpp|objc)/" && fail "   Has non-windows content"
+        fi
+        echo "$CONTENTS" | grep junit && fail "   Has JUnit"
     fi
 done
 

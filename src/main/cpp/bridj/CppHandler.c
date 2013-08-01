@@ -102,10 +102,11 @@ void JavaToVirtualMethodCallHandler_Sub(CallTempStruct* call, VirtualMethodCallI
 	}
 		
 	dcArgPointer(call->vm, thisPtr);
-
-	followArgs(call, args, nParams, pParamTypes, JNI_FALSE, JNI_FALSE) 
+	
+	CallFlags flags = 0;
+	followArgs(call, args, nParams, pParamTypes, flags) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callbackFn, JNI_FALSE, JNI_FALSE);
+	followCall(call, info->fInfo.fReturnType, result, callbackFn, flags);
 
 }
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
@@ -140,9 +141,7 @@ void JavaToCPPMethodCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info
 	}
 	dcArgPointer(call->vm, thisPtr);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE) 
-	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
+	callFunction(call, &info->fInfo, args, result, info->fForwardedSymbol, 0);
 }
 char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {

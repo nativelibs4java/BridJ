@@ -44,6 +44,7 @@ import static org.bridj.BridJ.*;
 
 @Library("Foundation")
 public class NSObject extends ObjCObject {
+
     public NSObject(Pointer<? extends NSObject> peer) {
         super(peer);
     }
@@ -51,6 +52,4 @@ public class NSObject extends ObjCObject {
     public NSObject() {
         super();
     }
-
-    
 }

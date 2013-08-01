@@ -28,34 +28,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bridj.ann;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.bridj.BridJRuntime;
-
 /**
- * Specify the runtime that should be used to bind native methods (default is
- * {@link org.bridj.CRuntime} if no annotation is provided).
- * <br>
- * Also see
+ * Applies to bindings of functions that may set errno / last error.
  *
- * @see org.bridj.Bridj.register().
- * @author Olivier
+ * @author ochafik
  */
-@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-public @interface Runtime {
-
-    Class //<? extends BridJRuntime>
-            value();
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface SetsLastError {
 }

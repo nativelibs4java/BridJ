@@ -33,20 +33,23 @@ package org.bridj.cpp.std;
 import org.bridj.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
-
 /**
- * Util methods for STL bindings in BridJ, <i>intended for internal use only</i>.
+ * Util methods for STL bindings in BridJ, <i>intended for internal use
+ * only</i>.
+ *
  * @author ochafik
  */
 public final class STL extends StructCustomizer {
+
     /**
      * Perform platform-dependent structure bindings adjustments
      */
     @Override
-	public void afterBuild(StructDescription desc) {
-        if (!Platform.isWindows())
+    public void afterBuild(StructDescription desc) {
+        if (!Platform.isWindows()) {
             return;
-        
+        }
+
         Class c = desc.getStructClass();
         if (c == vector.class) {
             // On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
@@ -56,7 +59,6 @@ public final class STL extends StructCustomizer {
             if (c == list.list_node.class) {
                 desc.setFieldOffset("data", 6 * Pointer.SIZE, false);
             }
-        } 
-	}
+        }
+    }
 }
-

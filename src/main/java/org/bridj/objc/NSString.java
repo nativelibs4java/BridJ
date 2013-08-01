@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj.objc;
+
 import org.bridj.Pointer;
 import org.bridj.Pointer.StringType;
 import org.bridj.ann.Library;
@@ -39,32 +40,35 @@ import static org.bridj.objc.FoundationLibrary.*;
 public class NSString extends NSObject {
 
     public native int length();
+
     public native boolean isAbsolutePath();
+
     public native Pointer<Byte> UTF8String();
 
     public NSString() {
         super();
     }
+
     public NSString(String s) {
         super(pointerToNSString(s));
     }
+
     public String toString() {
-    		return UTF8String().getString(StringType.C, Charset.forName("utf-8"));
+        return UTF8String().getString(StringType.C, Charset.forName("utf-8"));
     }
+
     public int hashCode() {
-    		return toString().hashCode();
+        return toString().hashCode();
     }
-    
+
     /*
-    public boolean equals(Object o) {
-    		if (!(o instanceof NSString))
-    			return false;
-    		return o.toString().equals(toString());
-    }
-    */
-    
+     public boolean equals(Object o) {
+     if (!(o instanceof NSString))
+     return false;
+     return o.toString().equals(toString());
+     }
+     */
     public static NSString valueOf(String s) {
         return pointerToNSString(s).get();
     }
-    
 }

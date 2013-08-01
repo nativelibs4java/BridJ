@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-BridJ JAWT utilities (to get the native peer handle of an AWT {@link java.awt.Component}).
-*/
+ * BridJ JAWT utilities (to get the native peer handle of an AWT
+ * {@link java.awt.Component}).
+ */
 package org.bridj.jawt;

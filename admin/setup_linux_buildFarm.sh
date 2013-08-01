@@ -1,19 +1,10 @@
-sudo apt-get install subversion git maven2
+sudo apt-get install subversion git maven2 openjdk-7-* g++
 
 mkdir src
 mkdir bin
 
 cd src
 
-svn co https://dyncall.org/svn/dyncall/trunk dyncall
-git clone https://ochafik@github.com/ochafik/nativelibs4java.git
-
-cd dyncall
-echo "export DYNCALL_HOME=\"`pwd`\"" >> ~/.bashrc
-
-cat ../nativelibs4java/libraries/Runtime/BridJ/src/main/cpp/bridj/dyncall.diff | sed 's/~\/src\/dyncall\///' | patch -p0
-
-cd
 cd src/nativelibs4java/libraries
 mvn install -DskipTests
 

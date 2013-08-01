@@ -51,6 +51,7 @@ class AndroidClassDefiner implements ClassDefiner {
 
     protected final File cacheDir;
     protected final ClassLoader parentClassLoader;
+
     public AndroidClassDefiner(File cacheDir, ClassLoader parentClassLoader) throws IOException {
         this.cacheDir = cacheDir;
         this.parentClassLoader = parentClassLoader;
@@ -58,12 +59,14 @@ class AndroidClassDefiner implements ClassDefiner {
 
     static void delete(File f) {
         File[] fs = f.listFiles();
-        if (fs != null)
-            for (File ff : fs)
+        if (fs != null) {
+            for (File ff : fs) {
                 delete(ff);
+            }
+        }
         f.delete();
     }
-    
+
     private static final byte[] dex(String className, byte[] classData) throws ClassFormatError {
         try {
             DexOptions dexOptions = new DexOptions();
@@ -72,13 +75,15 @@ class AndroidClassDefiner implements ClassDefiner {
             dxFile.add(CfTranslator.translate(className.replace('.', '/') + ".class", classData, cfOptions, dexOptions));
             StringWriter out = BridJ.debug ? new StringWriter() : null;
             byte[] dexData = dxFile.toDex(out, false);
-            if (BridJ.debug)
+            if (BridJ.debug) {
                 BridJ.info("Dex output for class " + className + " : " + out);
+            }
             return dexData;
         } catch (IOException ex) {
             throw new ClassFormatError("Unable to convert class data to Dalvik code using Dex : " + ex);
         }
     }
+
     public Class<?> defineClass(String className, byte[] classData) throws ClassFormatError {
         byte[] dexData = dex(className, classData);
 
@@ -105,12 +110,14 @@ class AndroidClassDefiner implements ClassDefiner {
         } catch (Throwable th) {
             throw new RuntimeException("Failed with tempFile = " + apkFile + " : " + th, th);
         } finally {
-            if (apkFile != null)
+            if (apkFile != null) {
                 delete(apkFile);
+            }
 
-            if (tempDir != null)
+            if (tempDir != null) {
                 delete(tempDir);
+            }
         }
-        
+
     }
 }

@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj.cpp;
-                                            
+
 import org.bridj.SizeT;
 import java.util.Set;
 import org.bridj.ann.Template;
@@ -86,65 +86,74 @@ import org.bridj.demangling.Demangler;
 
 /**
  * C++ runtime (derives from the C runtime).<br>
- * Deals with registration and lifecycle of C++ classes and methods (virtual or not).
+ * Deals with registration and lifecycle of C++ classes and methods (virtual or
+ * not).
+ *
  * @author ochafik
  */
 public class CPPRuntime extends CRuntime {
 
-	public static final int DEFAULT_CONSTRUCTOR = -1, SKIP_CONSTRUCTOR = -2;
-	
+    public static final int DEFAULT_CONSTRUCTOR = -1, SKIP_CONSTRUCTOR = -2;
+
     public static CPPRuntime getInstance() {
         return BridJ.getRuntimeByRuntimeClass(CPPRuntime.class);
     }
 
     @Override
     public Type getType(NativeObject instance) {
-        if (!(instance instanceof CPPObject))
+        if (!(instance instanceof CPPObject)) {
             return super.getType(instance);
-        
+        }
+
         Class<?> cls = instance.getClass();
-        return new CPPType(cls, getTemplateParameters((CPPObject)instance, cls));
+        return new CPPType(cls, getTemplateParameters((CPPObject) instance, cls));
     }
-    
+
     public static Object[] getTemplateParameters(CPPObject object, Class<?> typeClass) {
-    	synchronized(object) {
-    		Object[] params = null;
-    		if (object.templateParameters != null) {
-    			params = object.templateParameters.get(typeClass);
-    		}
-    		return params;// == null ? new Object[0] : params;
+        synchronized (object) {
+            Object[] params = null;
+            if (object.templateParameters != null) {
+                params = object.templateParameters.get(typeClass);
+            }
+            return params;// == null ? new Object[0] : params;
         }
     }
+
     public static Type[] getTemplateTypeParameters(CPPObject object, Type type) {
-        if (!(type instanceof ParameterizedType))
+        if (!(type instanceof ParameterizedType)) {
             return new Type[0];
+        }
         Class<?> typeClass = Utils.getClass(type);
-        ParameterizedType pt = (ParameterizedType)type;
+        ParameterizedType pt = (ParameterizedType) type;
         Object[] params = getTemplateParameters(object, typeClass);
         Template t = typeClass.getAnnotation(Template.class);
-        if (t == null)
+        if (t == null) {
             throw new RuntimeException("No " + Template.class.getName() + " annotation on class " + typeClass.getName());
-        if (t.paramNames().length != params.length)
+        }
+        if (t.paramNames().length != params.length) {
             throw new RuntimeException(Template.class.getName() + " annotation's paramNames on class " + typeClass.getName() + " (" + Arrays.asList(t.paramNames()) + " does not match count of actual template params " + Arrays.asList(params));
-        if (t.paramNames().length != t.value().length)
+        }
+        if (t.paramNames().length != t.value().length) {
             throw new RuntimeException(Template.class.getName() + " annotation's paramNames and value lengths on class " + typeClass.getName() + " don't match");
+        }
         int typeParamCount = pt.getActualTypeArguments().length;
         Type[] ret = new Type[typeParamCount];
         int typeParamIndex = 0;
         for (int i = 0, n = params.length; i < typeParamCount; i++) {
             Object value = t.value()[i];
             if (Type.class.isInstance(value)) {
-                ret[typeParamIndex++] = (Type)value;
+                ret[typeParamIndex++] = (Type) value;
             }
         }
         assert typeParamIndex == typeParamCount;
         return ret; // TODO cache some of this method
     }
+
     public void setTemplateParameters(CPPObject object, Class<?> typeClass, Object[] params) {
-        synchronized(object) {
-    		if (object.templateParameters == null)
-                object.templateParameters = (Map)Collections.singletonMap(typeClass, params);
-            else {
+        synchronized (object) {
+            if (object.templateParameters == null) {
+                object.templateParameters = (Map) Collections.singletonMap(typeClass, params);
+            } else {
                 try {
                     // Singleton map might not be mutable.
                     object.templateParameters.put(typeClass, params);
@@ -155,77 +164,87 @@ public class CPPRuntime extends CRuntime {
             }
         }
     }
+
     protected interface ClassTypeVariableExtractor {
-    		Type extract(CPPObject instance);
+
+        Type extract(CPPObject instance);
     }
+
     protected interface MethodTypeVariableExtractor {
-    		Type extract(CPPObject instance, Object[] methodTemplateParameters);
+
+        Type extract(CPPObject instance, Object[] methodTemplateParameters);
     }
 
     protected static int getAnnotatedTemplateTypeVariableIndexInArguments(TypeVariable<?> var) {
-    		GenericDeclaration d = var.getGenericDeclaration();
-    		AnnotatedElement e = (AnnotatedElement)d;
-    		
-    		Template t = e.getAnnotation(Template.class);
-    		if (t == null)
-    			throw new RuntimeException(e + " is not a C++ class template (misses the @" + Template.class.getName() + " annotation)");
-    		
-    		int iTypeVar = Arrays.asList(d.getTypeParameters()).indexOf(var);
-    		int nTypes = 0, iParam = -1;
-    		Class<?>[] values = t.value();
-    		for (int i = 0, n = values.length; i < n; i++) {
-    			Class<?> c = values[i];
-    			if (c == Class.class || c == Type.class)
-    				nTypes++;
-    			
-    			if (nTypes == iTypeVar) {
-    				iParam = i;
-    				break;
-    			}
-    		}
-    		if (iParam < 0)
-    		throw new RuntimeException("Couldn't find the type variable " + var + " (offset " + iTypeVar + ") in the @" + Template.class.getName() + " annotation : " + Arrays.asList(values));
-    	
-    		return iParam;
+        GenericDeclaration d = var.getGenericDeclaration();
+        AnnotatedElement e = (AnnotatedElement) d;
+
+        Template t = e.getAnnotation(Template.class);
+        if (t == null) {
+            throw new RuntimeException(e + " is not a C++ class template (misses the @" + Template.class.getName() + " annotation)");
+        }
+
+        int iTypeVar = Arrays.asList(d.getTypeParameters()).indexOf(var);
+        int nTypes = 0, iParam = -1;
+        Class<?>[] values = t.value();
+        for (int i = 0, n = values.length; i < n; i++) {
+            Class<?> c = values[i];
+            if (c == Class.class || c == Type.class) {
+                nTypes++;
+            }
+
+            if (nTypes == iTypeVar) {
+                iParam = i;
+                break;
+            }
+        }
+        if (iParam < 0) {
+            throw new RuntimeException("Couldn't find the type variable " + var + " (offset " + iTypeVar + ") in the @" + Template.class.getName() + " annotation : " + Arrays.asList(values));
+        }
+
+        return iParam;
     }
+
     protected ClassTypeVariableExtractor createClassTypeVariableExtractor(TypeVariable<Class<?>> var) {
-    		final Class<?> typeClass = var.getGenericDeclaration();
-    		final int iTypeInParams = getAnnotatedTemplateTypeVariableIndexInArguments(var);
-    		return new ClassTypeVariableExtractor() {
-    			public Type extract(CPPObject instance) {
-    				typeClass.cast(instance);
-    				Object[] params = getTemplateParameters(instance, typeClass);
-    				if (params == null)
-    					throw new RuntimeException("No type parameters found in this instance : " + instance);
-    				
-    				return (Type)params[iTypeInParams];
-    			}
-    		};
+        final Class<?> typeClass = var.getGenericDeclaration();
+        final int iTypeInParams = getAnnotatedTemplateTypeVariableIndexInArguments(var);
+        return new ClassTypeVariableExtractor() {
+            public Type extract(CPPObject instance) {
+                typeClass.cast(instance);
+                Object[] params = getTemplateParameters(instance, typeClass);
+                if (params == null) {
+                    throw new RuntimeException("No type parameters found in this instance : " + instance);
+                }
+
+                return (Type) params[iTypeInParams];
+            }
+        };
     }
+
     protected MethodTypeVariableExtractor createMethodTypeVariableExtractor(TypeVariable<?> var) {
-    		GenericDeclaration d = var.getGenericDeclaration();
-    		if (d instanceof Class) {
-    			final Class<?> typeClass = (Class<?>)d;
-    			final ClassTypeVariableExtractor ce = createClassTypeVariableExtractor((TypeVariable)var);
-    			return new MethodTypeVariableExtractor() {
-				public Type extract(CPPObject instance, Object[] methodTemplateParameters) {
-					return ce.extract(instance);
-				}
-			};
-    		} else {
-    			Method method = (Method)d;
-    			final Class<?> typeClass = method.getDeclaringClass();
-    			
-			final int iTypeInParams = getAnnotatedTemplateTypeVariableIndexInArguments(var);
-			return new MethodTypeVariableExtractor() {
-				public Type extract(CPPObject instance, Object[] methodTemplateParameters) {
-					typeClass.cast(instance);
-					return (Type)methodTemplateParameters[iTypeInParams];
-				}
-			};
-		}
+        GenericDeclaration d = var.getGenericDeclaration();
+        if (d instanceof Class) {
+            final Class<?> typeClass = (Class<?>) d;
+            final ClassTypeVariableExtractor ce = createClassTypeVariableExtractor((TypeVariable) var);
+            return new MethodTypeVariableExtractor() {
+                public Type extract(CPPObject instance, Object[] methodTemplateParameters) {
+                    return ce.extract(instance);
+                }
+            };
+        } else {
+            Method method = (Method) d;
+            final Class<?> typeClass = method.getDeclaringClass();
+
+            final int iTypeInParams = getAnnotatedTemplateTypeVariableIndexInArguments(var);
+            return new MethodTypeVariableExtractor() {
+                public Type extract(CPPObject instance, Object[] methodTemplateParameters) {
+                    typeClass.cast(instance);
+                    return (Type) methodTemplateParameters[iTypeInParams];
+                }
+            };
+        }
     }
-    
+
     @Override
     public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
         //String className = null;
@@ -269,8 +288,10 @@ public class CPPRuntime extends CRuntime {
     }
 
     protected static class VirtMeth {
+
         Method implementation, definition;
     }
+
     protected void listVirtualMethods(Class<?> type, List<VirtMeth> out) {
         if (!CPPObject.class.isAssignableFrom(type)) {
             return;
@@ -292,9 +313,9 @@ public class CPPRuntime extends CRuntime {
             for (int iParentMethod = 0; iParentMethod < nParentMethods; iParentMethod++) {
                 VirtMeth pvm = out.get(iParentMethod);
                 Method parentMethod = pvm.definition;
-                if (parentMethod.getDeclaringClass() == type)
+                if (parentMethod.getDeclaringClass() == type) {
                     continue; // was just added in the same listVirtualMethods call !
-
+                }
                 //if (parentMethod.getAnnotation(Virtual.class) == null)
                 //    continue; // not a virtual method, too bad
 
@@ -341,24 +362,26 @@ public class CPPRuntime extends CRuntime {
             }
             if (Modifier.isStatic(modifiers)) {
                 builder.addFunction(mci);
-                if (debug)
-                	info("Registering " + method + " as function or static C++ method " + symbol.getName());
+                if (debug) {
+                    info("Registering " + method + " as function or static C++ method " + symbol.getName());
+                }
             } else {
                 builder.addFunction(mci);
-                if (debug)
-                	info("Registering " + method + " as C++ method " + symbol.getName());
+                if (debug) {
+                    info("Registering " + method + " as C++ method " + symbol.getName());
+                }
             }
         } else {
             if (Modifier.isStatic(modifiers)) {
                 warning("Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
             }
-            
+
             int theoreticalVirtualIndex = va.value();
             int theoreticalAbsoluteVirtualIndex = theoreticalVirtualIndex < 0 ? - 1 : getAbsoluteVirtualIndex(method, theoreticalVirtualIndex, type);
-            
+
             int absoluteVirtualIndex;
-            
-            Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? (Pointer)pointerToAddress(getVirtualTable(type, typeLibrary), Pointer.class) : null;
+
+            Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? (Pointer) pointerToAddress(getVirtualTable(type, typeLibrary), Pointer.class) : null;
             if (pVirtualTable == null) {
                 if (theoreticalAbsoluteVirtualIndex < 0) {
                     error("Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found and the virtual method index is not provided in its @Virtual annotation.");
@@ -382,11 +405,13 @@ public class CPPRuntime extends CRuntime {
                 }
             }
             mci.setVirtualIndex(absoluteVirtualIndex);
-            if (debug)
-				info("Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
+            if (debug) {
+                info("Registering " + method.toGenericString() + " as virtual C++ method with absolute virtual table index = " + absoluteVirtualIndex);
+            }
             builder.addVirtualMethod(mci);
         }
     }
+
     int getAbsoluteVirtualIndex(Method method, int virtualIndex, Class<?> type) {
         Class<?> superclass = type.getSuperclass();
         int virtualOffset = getVirtualMethodsCount(superclass);
@@ -396,49 +421,59 @@ public class CPPRuntime extends CRuntime {
                 // TODO handle polymorphism in overloads :
                 superclass.getMethod(method.getName(), method.getParameterTypes());
                 isNewVirtual = false;
-            } catch (NoSuchMethodException ex) {}
+            } catch (NoSuchMethodException ex) {
+            }
         }
         int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
         return absoluteVirtualIndex;
     }
+
     public static class MemoryOperators {
-    		protected DynamicFunction<Pointer<?>> newFct;
-    		protected DynamicFunction<Pointer<?>> newArrayFct;
-    		protected DynamicFunction<Void> deleteFct;
-    		protected DynamicFunction<Void> deleteArrayFct;
-    		
-            protected MemoryOperators() {}
-    		public MemoryOperators(NativeLibrary library) {
-    			for (Symbol sym : library.getSymbols()) {
-    				try {
-                        MemberRef parsedRef = sym.getParsedRef();
-                        IdentLike n = parsedRef.getMemberName();
-                        
-                        if (SpecialName.New.equals(n))
-                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Pointer.class, SizeT.class);
-                        else if (SpecialName.NewArray.equals(n))
-                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Pointer.class, SizeT.class);
-                        else if (SpecialName.Delete.equals(n))
-                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Void.class, Pointer.class);
-                        else if (SpecialName.DeleteArray.equals(n))
-                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Void.class, Pointer.class);
-                        
-    				} catch (Exception ex) {}
-    			}
-    		}
-            
-            public Pointer<?> cppNew(long size) {
-                return newFct.apply(new SizeT(size));
+
+        protected DynamicFunction<Pointer<?>> newFct;
+        protected DynamicFunction<Pointer<?>> newArrayFct;
+        protected DynamicFunction<Void> deleteFct;
+        protected DynamicFunction<Void> deleteArrayFct;
+
+        protected MemoryOperators() {
+        }
+
+        public MemoryOperators(NativeLibrary library) {
+            for (Symbol sym : library.getSymbols()) {
+                try {
+                    MemberRef parsedRef = sym.getParsedRef();
+                    IdentLike n = parsedRef.getMemberName();
+
+                    if (SpecialName.New.equals(n)) {
+                        newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Pointer.class, SizeT.class);
+                    } else if (SpecialName.NewArray.equals(n)) {
+                        newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Pointer.class, SizeT.class);
+                    } else if (SpecialName.Delete.equals(n)) {
+                        newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Void.class, Pointer.class);
+                    } else if (SpecialName.DeleteArray.equals(n)) {
+                        newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Void.class, Pointer.class);
+                    }
+
+                } catch (Exception ex) {
+                }
             }
-            public Pointer<?> cppNewArray(long size) {
-                return newArrayFct.apply(new SizeT(size));
-            }
-            public void cppDelete(Pointer<?> ptr) {
-                deleteFct.apply(ptr);
-            }
-            public void cppDeleteArray(Pointer<?> ptr) {
-                deleteArrayFct.apply(ptr);
-            }
+        }
+
+        public Pointer<?> cppNew(long size) {
+            return newFct.apply(new SizeT(size));
+        }
+
+        public Pointer<?> cppNewArray(long size) {
+            return newArrayFct.apply(new SizeT(size));
+        }
+
+        public void cppDelete(Pointer<?> ptr) {
+            deleteFct.apply(ptr);
+        }
+
+        public void cppDeleteArray(Pointer<?> ptr) {
+            deleteArrayFct.apply(ptr);
+        }
     }
     volatile MemoryOperators memoryOperators;
 
@@ -448,49 +483,54 @@ public class CPPRuntime extends CRuntime {
                 NativeLibrary libStdCpp = BridJ.getNativeLibrary("stdc++");
                 memoryOperators = new MemoryOperators(libStdCpp);
             } catch (Exception ex) {
-            	BridJ.error(null, ex);
+                BridJ.error(null, ex);
             }
         }
         return memoryOperators;
     }
-    
-    int getPositionInVirtualTable(Method method, NativeLibrary library) {
-		Class<?> type = method.getDeclaringClass();
-		Pointer<Pointer<?>> pVirtualTable = (Pointer)pointerToAddress(getVirtualTable(type, library), Pointer.class);
-		return getPositionInVirtualTable(pVirtualTable, method, library);
-	}
-    String getCPPClassName(Class<?> declaringClass) {
-		return declaringClass.getSimpleName();
-	}
 
-	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method, NativeLibrary library) {
-		//Pointer<?> typeInfo = pVirtualTable.get(1);
-		int methodsOffset = 0;//library.isMSVC() ? 0 : -2;///2;
-		String className = getCPPClassName(method.getDeclaringClass());
-		for (int iVirtual = 0;; iVirtual++) {
-			Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
-			String virtualMethodName = pMethod == null ? null : library.getSymbolName(pMethod.getPeer());
-			//System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
-			if (virtualMethodName == null) {
-                if (debug)
-                	info("\tVtable(" + className + ")[" + iVirtual + "] = null");
+    int getPositionInVirtualTable(Method method, NativeLibrary library) {
+        Class<?> type = method.getDeclaringClass();
+        Pointer<Pointer<?>> pVirtualTable = (Pointer) pointerToAddress(getVirtualTable(type, library), Pointer.class);
+        return getPositionInVirtualTable(pVirtualTable, method, library);
+    }
+
+    String getCPPClassName(Class<?> declaringClass) {
+        return declaringClass.getSimpleName();
+    }
+
+    public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method, NativeLibrary library) {
+        //Pointer<?> typeInfo = pVirtualTable.get(1);
+        int methodsOffset = 0;//library.isMSVC() ? 0 : -2;///2;
+        String className = getCPPClassName(method.getDeclaringClass());
+        for (int iVirtual = 0;; iVirtual++) {
+            Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
+            String virtualMethodName = pMethod == null ? null : library.getSymbolName(pMethod.getPeer());
+            //System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
+            if (virtualMethodName == null) {
+                if (debug) {
+                    info("\tVtable(" + className + ")[" + iVirtual + "] = null");
+                }
                 return -1;
             }
             try {
                 MemberRef mr = library.parseSymbol(virtualMethodName);
-                if (debug)
-                	info("\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
-                if (mr != null && mr.matchesSignature(method))
+                if (debug) {
+                    info("\tVtable(" + className + ")[" + iVirtual + "] = " + virtualMethodName + " = " + mr);
+                }
+                if (mr != null && mr.matchesSignature(method)) {
                     return iVirtual;
-                else if (library.isMSVC() && !mr.matchesEnclosingType(method))
+                } else if (library.isMSVC() && !mr.matchesEnclosingType(method)) {
                     break; // no NULL terminator in MSVC++ vtables, so we have to guess when we've reached the end
+                }
             } catch (Demangler.DemanglingException ex) {
                 BridJ.warning("Failed to demangle '" + virtualMethodName + "' during inspection of virtual table for '" + method.toGenericString() + "' : " + ex);
             }
-            
-		}
-		return -1;
-	}
+
+        }
+        return -1;
+    }
+
     static int getDefaultDyncallCppConvention() {
         int convention = DC_CALL_C_DEFAULT;
         if (!Platform.is64Bits() && Platform.isWindows()) {
@@ -498,29 +538,31 @@ public class CPPRuntime extends CRuntime {
         }
         return convention;
     }
-    
+
     private String ptrToString(Pointer<?> ptr, NativeLibrary library) {
         return ptr == null ? "null" : Long.toHexString(ptr.getPeer()) + " (" + library.getSymbolName(ptr.getPeer()) + ")";
     }
 
     @Convention(Style.ThisCall)
     public abstract static class CPPDestructor extends Callback {
+
         public abstract void destroy(long peer);
     }
-
     Set<Type> typesThatDontNeedASyntheticVirtualTable = new HashSet<Type>();
     Map<Type, VTable> syntheticVirtualTables = new HashMap<Type, VTable>();
 
     protected boolean installRegularVTablePtr(Type type, NativeLibrary library, Pointer<?> peer) {
         long vtablePtr = getVirtualTable(type, library);
         if (vtablePtr != 0) {
-            if (BridJ.debug)
+            if (BridJ.debug) {
                 BridJ.info("Installing regular vtable pointer " + Pointer.pointerToAddress(vtablePtr) + " to instance at " + peer + " (type = " + Utils.toString(type) + ")");
+            }
             peer.setSizeT(vtablePtr);
             return true;
         }
         return false;
     }
+
     protected boolean installSyntheticVTablePtr(Type type, NativeLibrary library, Pointer<?> peer) {
         synchronized (syntheticVirtualTables) {
             VTable vtable = syntheticVirtualTables.get(type);
@@ -529,11 +571,12 @@ public class CPPRuntime extends CRuntime {
                     List<VirtMeth> methods = new ArrayList<VirtMeth>();
                     listVirtualMethods(Utils.getClass(type), methods);
                     boolean needsASyntheticVirtualTable = false;
-                    for (VirtMeth method : methods)
+                    for (VirtMeth method : methods) {
                         if (!Modifier.isNative(method.implementation.getModifiers())) {
                             needsASyntheticVirtualTable = true;
                             break;
                         }
+                    }
                     if (needsASyntheticVirtualTable) {
                         Type parentType = Utils.getParent(type);
                         Pointer<Pointer> parentVTablePtr = null;
@@ -542,9 +585,9 @@ public class CPPRuntime extends CRuntime {
                             if (BridJ.debug) {
                                 BridJ.info("Found parent virtual table pointer = " + ptrToString(parentVTablePtr, library));
                                 /*Pointer<Pointer> expectedParentVTablePtr = pointerToAddress(getVirtualTable(parentType, library), Pointer.class);
-                                if (expectedParentVTablePtr != null && !Utils.eq(parentVTablePtr, expectedParentVTablePtr))
-                                    BridJ.warning("Weird parent virtual table pointer : expected " + ptrToString(expectedParentVTablePtr, library) + ", got " + ptrToString(parentVTablePtr, library));
-                                */
+                                 if (expectedParentVTablePtr != null && !Utils.eq(parentVTablePtr, expectedParentVTablePtr))
+                                 BridJ.warning("Weird parent virtual table pointer : expected " + ptrToString(expectedParentVTablePtr, library) + ", got " + ptrToString(parentVTablePtr, library));
+                                 */
 
                             }
                             //parentVTablePtr = pointerToAddress(getVirtualTable(parentType, library), Pointer.class);
@@ -556,18 +599,23 @@ public class CPPRuntime extends CRuntime {
                 }
             }
             if (vtable != null) {
-                if (BridJ.debug)
+                if (BridJ.debug) {
                     BridJ.info("Installing synthetic vtable pointer " + vtable.ptr + " to instance at " + peer + " (type = " + Utils.toString(type) + ", " + vtable.callbacks.size() + " callbacks)");
+                }
                 peer.setPointer(vtable.ptr);
                 return vtable.ptr != null;
-            } else
+            } else {
                 return false;
+            }
         }
     }
+
     static class VTable {
+
         Pointer<Pointer<?>> ptr;
         Map<Method, Pointer<?>> callbacks = new HashMap<Method, Pointer<?>>();
     }
+
     protected VTable synthetizeVirtualTable(Type type, Pointer<Pointer> parentVTablePtr, List<VirtMeth> methods, NativeLibrary library) {
         int nMethods = methods.size();
         //Pointer<Pointer> parentVTablePtr = pointerToAddress(getVirtualTable(Utils.getParent(type), library), Pointer.class);
@@ -591,17 +639,19 @@ public class CPPRuntime extends CRuntime {
                     pMethod = null;
                 }
             }
-            vtable.ptr.set(iMethod, (Pointer)pMethod);
+            vtable.ptr.set(iMethod, (Pointer) pMethod);
         }
         return vtable;
     }
+
     static int getTemplateParametersCount(Class<?> typeClass) {
-    		Template t = typeClass.getAnnotation(Template.class);
-		// TODO do something with these args !
-		int templateParametersCount = t == null ? 0 : t.value().length;
-		return templateParametersCount;
+        Template t = typeClass.getAnnotation(Template.class);
+        // TODO do something with these args !
+        int templateParametersCount = t == null ? 0 : t.value().length;
+        return templateParametersCount;
     }
     Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
+
     DynamicFunction getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
         Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
         DynamicFunction constructor = constructors.get(key);
@@ -609,26 +659,32 @@ public class CPPRuntime extends CRuntime {
             try {
                 final Constructor<?> constr;
                 try {
-                		constr = findConstructor(typeClass, constructorId, true);
-                		
-                		if (debug)
-                			BridJ.info("Found constructor for " + Utils.toString(type) + " : " + constr);
+                    constr = findConstructor(typeClass, constructorId, true);
+
+                    if (debug) {
+                        BridJ.info("Found constructor for " + Utils.toString(type) + " : " + constr);
+                    }
                 } catch (NoSuchMethodException ex) {
-                		if (debug)
-                			BridJ.info("No constructor for " + Utils.toString(type));
-                		return null;
+                    if (debug) {
+                        BridJ.info("No constructor for " + Utils.toString(type));
+                    }
+                    return null;
                 }
-                Symbol symbol = lib == null ? null : lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                    return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
-                }});
+                Symbol symbol = lib == null ? null : lib.getFirstMatchingSymbol(new SymbolAccepter() {
+                    public boolean accept(Symbol symbol) {
+                        return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
+                    }
+                });
                 if (symbol == null) {
-                	if (debug)
-                		BridJ.info("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
-					return null;
+                    if (debug) {
+                        BridJ.info("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
+                    }
+                    return null;
                 }
 
-                if (debug)
-                	info("Registering constructor " + constr + " as " + symbol.getName());
+                if (debug) {
+                    info("Registering constructor " + constr + " as " + symbol.getName());
+                }
 
                 // TODO do something with these args !
                 int templateParametersCount = getTemplateParametersCount(typeClass);
@@ -643,27 +699,33 @@ public class CPPRuntime extends CRuntime {
                 constructor = constructorFactory.newInstance(pointerToAddress(symbol.getAddress()));
                 constructors.put(key, constructor);
             } catch (Throwable th) {
-            		th.printStackTrace();
+                th.printStackTrace();
                 throw new RuntimeException("Unable to create constructor " + constructorId + " for " + type + " : " + th, th);
             }
         }
         return constructor;
     }
     Map<Type, CPPDestructor> destructors = new HashMap<Type, CPPDestructor>();
+
     CPPDestructor getDestructor(final Class<?> typeClass, Type type, NativeLibrary lib) {
         CPPDestructor destructor = destructors.get(type);
         if (destructor == null) {
-            Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                return symbol.matchesDestructor(typeClass);
-            }});
-            if (BridJ.debug && symbol != null)
+            Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() {
+                public boolean accept(Symbol symbol) {
+                    return symbol.matchesDestructor(typeClass);
+                }
+            });
+            if (BridJ.debug && symbol != null) {
                 info("Registering destructor of " + Utils.toString(type) + " as " + symbol.getName());
+            }
 
-            if (symbol != null)
+            if (symbol != null) {
                 destructors.put(type, destructor = pointerToAddress(symbol.getAddress(), CPPDestructor.class).get());
+            }
         }
         return destructor;
     }
+
     Pointer.Releaser newCPPReleaser(final Type type) {
         try {
             final Class<?> typeClass = Utils.getClass(type);
@@ -673,67 +735,67 @@ public class CPPRuntime extends CRuntime {
             throw new RuntimeException("Failed to create a C++ destructor for type " + Utils.toString(type) + " : " + th, th);
         }
     }
+
     Pointer.Releaser newCPPReleaser(final Type type, final Class<?> typeClass, NativeLibrary lib) throws FileNotFoundException {
         Pointer.Releaser releaser = null;
         //final Class<?> typeClass = Utils.getClass(type);
         //NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
         if (lib != null && BridJ.enableDestructors) {
             final CPPDestructor destructor = getDestructor(typeClass, type, lib);
-            if (destructor != null)
+            if (destructor != null) {
                 releaser = new Pointer.Releaser() { //@Override 
-                public void release(Pointer<?> p) {
-                       if (BridJ.debug)
-                           BridJ.info("Destructing instance of C++ type " + Utils.toString(type) + " (address = " + p + ", destructor = " + pointerTo(destructor) + ")");
+                    public void release(Pointer<?> p) {
+                        if (BridJ.debug) {
+                            BridJ.info("Destructing instance of C++ type " + Utils.toString(type) + " (address = " + p + ", destructor = " + getPointer(destructor) + ")");
+                        }
 
-                    //System.out.println("Destructing instance of C++ type " + type + "...");
-                    long peer = p.getPeer();
-                    destructor.destroy(peer);
-                    BridJ.setJavaObjectFromNativePeer(peer, null);
-                }};
+                        //System.out.println("Destructing instance of C++ type " + type + "...");
+                        long peer = p.getPeer();
+                        destructor.destroy(peer);
+                        BridJ.setJavaObjectFromNativePeer(peer, null);
+                    }
+                };
+            }
         }
         return releaser;
     }
+
     protected <T extends CPPObject> Pointer<T> newCPPInstance(T instance, final Type type, int constructorId, Object... args) {
         Pointer<T> peer = null;
         try {
             final Class<T> typeClass = Utils.getClass(type);
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
 
-            if (BridJ.debug)
-				info("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
+            if (BridJ.debug) {
+                info("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
+            }
             Pointer.Releaser releaser = newCPPReleaser(type, typeClass, lib);
 
             long size = sizeOf(type, null);
             peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).as(type);
-            
+
             DynamicFunction constructor = constructorId == SKIP_CONSTRUCTOR ? null : getConstructor(typeClass, type, lib, constructorId);
-            
+
             if (lib != null && CPPObject.class.isAssignableFrom(typeClass)) {
                 installRegularVTablePtr(type, lib, peer);
             } else {
                 // TODO ObjCObject : call alloc on class type !!
             }
-            
-            // Setting the C++ template parameters in the instance :
-            int templateParametersCount = getTemplateParametersCount(typeClass);
-            if (templateParametersCount > 0) {
-                Object[] templateArgs = takeLeft(args, templateParametersCount);
-                setTemplateParameters(instance, typeClass, templateArgs);
-            }
-            
+
             // Calling the constructor with the non-template parameters :
             if (constructor != null) {
-				Object[] consThisArgs = new Object[args.length + 1];
-				consThisArgs[0] = peer;
-				System.arraycopy(args, 0, consThisArgs, 1, args.length);
+                Object[] consThisArgs = new Object[1 + args.length];
+                consThisArgs[0] = peer;
+                System.arraycopy(args, 0, consThisArgs, 1, args.length);
 
-				constructor.apply(consThisArgs);
-			}
-			
-			// Install synthetic virtual table and associate the Java instance to the corresponding native pointer : 
+                constructor.apply(consThisArgs);
+            }
+
+            // Install synthetic virtual table and associate the Java instance to the corresponding native pointer : 
             if (CPPObject.class.isAssignableFrom(typeClass)) {
-                if (installSyntheticVTablePtr(type, lib, peer))
+                if (installSyntheticVTablePtr(type, lib, peer)) {
                     BridJ.setJavaObjectFromNativePeer(peer.getPeer(), instance);
+                }
             } else {
                 // TODO ObjCObject : call alloc on class type !!
             }
@@ -746,57 +808,59 @@ public class CPPRuntime extends CRuntime {
             throw new RuntimeException("Failed to allocate new instance of type " + type, ex);
         }
     }
-    
-    
     /*
-	Map<Type, Pointer<Pointer<?>>> vtablePtrs = new HashMap<Type, Pointer<Pointer<?>>>();
-	@SuppressWarnings("unchecked")
-	public
-	//Pointer<Pointer<?>>
-    long getVirtualTable(Type type, NativeLibrary library) {
-		Pointer<Pointer<?>> p = vtablePtrs.get(type);
-		if (p == null) {
-			Class<?> typeClass = Utils.getClass(type);
-			// TODO ask for real template name
-			String className = typeClass.getSimpleName();
-			String vtableSymbol;
-            if (Platform.isWindows())
-                vtableSymbol = "??_7" + className + "@@6B@";
-            else
-                vtableSymbol = "_ZTV" + className.length() + className;
+     Map<Type, Pointer<Pointer<?>>> vtablePtrs = new HashMap<Type, Pointer<Pointer<?>>>();
+     @SuppressWarnings("unchecked")
+     public
+     //Pointer<Pointer<?>>
+     long getVirtualTable(Type type, NativeLibrary library) {
+     Pointer<Pointer<?>> p = vtablePtrs.get(type);
+     if (p == null) {
+     Class<?> typeClass = Utils.getClass(type);
+     // TODO ask for real template name
+     String className = typeClass.getSimpleName();
+     String vtableSymbol;
+     if (Platform.isWindows())
+     vtableSymbol = "??_7" + className + "@@6B@";
+     else
+     vtableSymbol = "_ZTV" + className.length() + className;
 
-            long addr = library.getSymbolAddress(vtableSymbol);
-			//long addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
-//			System.out.println(TestCPP.hex(addr));
-//			TestCPP.print(type.getName() + " vtable", addr, 5, 2);
+     long addr = library.getSymbolAddress(vtableSymbol);
+     //long addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
+     //			System.out.println(TestCPP.hex(addr));
+     //			TestCPP.print(type.getName() + " vtable", addr, 5, 2);
         	
-			p = (Pointer)Pointer.pointerToAddress(addr, Pointer.class);
-			vtablePtrs.put(type, p);
-		}
-		return p.getPeer();
-	}*/
-    
+     p = (Pointer)Pointer.pointerToAddress(addr, Pointer.class);
+     vtablePtrs.put(type, p);
+     }
+     return p.getPeer();
+     }*/
     Map<Type, Long> vtables = new HashMap<Type, Long>();
-	long getVirtualTable(Type type, NativeLibrary library) {
+
+    long getVirtualTable(Type type, NativeLibrary library) {
         Long vtable = vtables.get(type);
         if (vtable == null) {
             final Class<?> typeClass = Utils.getClass(type);
             if (false) {
-	            String className = typeClass.getSimpleName();
-				String vtableSymbol;
-	            if (Platform.isWindows())
-	                vtableSymbol = "??_7" + className + "@@6B@";
-	            else
-	                vtableSymbol = "_ZTV" + className.length() + className;
-	
-				vtables.put(type, vtable = library.getSymbolAddress(vtableSymbol));
-			} else {
-				Symbol symbol = library.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) { 
-					return symbol.matchesVirtualTable(typeClass);
-				}});
-				if (symbol != null) {
-					if (BridJ.debug)
-						info("Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
+                String className = typeClass.getSimpleName();
+                String vtableSymbol;
+                if (Platform.isWindows()) {
+                    vtableSymbol = "??_7" + className + "@@6B@";
+                } else {
+                    vtableSymbol = "_ZTV" + className.length() + className;
+                }
+
+                vtables.put(type, vtable = library.getSymbolAddress(vtableSymbol));
+            } else {
+                Symbol symbol = library.getFirstMatchingSymbol(new SymbolAccepter() {
+                    public boolean accept(Symbol symbol) {
+                        return symbol.matchesVirtualTable(typeClass);
+                    }
+                });
+                if (symbol != null) {
+                    if (BridJ.debug) {
+                        info("Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
+                    }
 //                    Pointer<Pointer> pp = pointerToAddress(symbol.getAddress(), Pointer.class);
 //                    
 //                    for (int i = 0; i < 6; i++) {
@@ -808,37 +872,43 @@ public class CPPRuntime extends CRuntime {
 ////                        if (n == null)
 ////                            break;
 //                    }
-                }
-                else if (getVirtualMethodsCount(typeClass) > 0)
+                } else if (getVirtualMethodsCount(typeClass) > 0 && warnAboutMissingVTables()) {
                     error("Failed to find a vtable for type " + Utils.toString(type));
-                
+                }
+
                 if (symbol != null) {
                     long address = symbol.getAddress();
                     vtable = library.isMSVC() ? address : address + 2 * Pointer.SIZE;
                 } else {
                     vtable = 0L;
                 }
-				vtables.put(type, vtable);//*/
-			}
+                vtables.put(type, vtable);//*/
+            }
         }
         return vtable;
     }
-    
+
+    protected boolean warnAboutMissingVTables() {
+        return true;
+    }
+
     @Override
-	protected boolean shouldWarnIfNoFieldsInStruct() {
-		return false;
-	}
-	
+    protected boolean shouldWarnIfNoFieldsInStruct() {
+        return false;
+    }
+
     public class CPPTypeInfo<T extends CPPObject> extends CTypeInfo<T> {
+
         protected final int typeParamCount;
         protected Object[] templateParameters;
-            
+
         public CPPTypeInfo(Type type) {
             super(type);
             Class<?> typeClass = Utils.getClass(type);
             typeParamCount = typeClass.getTypeParameters().length;
-            if (typeParamCount > 0 && !(type instanceof ParameterizedType))
+            if (typeParamCount > 0 && !(type instanceof ParameterizedType)) {
                 throw new RuntimeException("Class " + typeClass.getName() + " takes type parameters");
+            }
             templateParameters = getTemplateParameters(type);
         }
         Map<TypeVariable<Class<?>>, ClassTypeVariableExtractor> classTypeVariableExtractors;
@@ -846,42 +916,50 @@ public class CPPRuntime extends CRuntime {
 
         @Override
         protected T newCastInstance() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-            if (templateParameters.length == 0)
+            if (templateParameters.length == 0) {
                 return super.newCastInstance();
-            
+            }
+
             Class<?> cc = getCastClass();
             for (Constructor c : cc.getConstructors()) {
                 if (Utils.parametersComplyToSignature(templateParameters, c.getParameterTypes())) {
                     c.setAccessible(true);
-                    T instance = (T)c.newInstance(templateParameters);
+                    T instance = (T) c.newInstance(templateParameters);
 //                    setTemplateParameters(instance, typeClass, templateParameters);
                     return instance;
                 }
             }
             throw new RuntimeException("Failed to find template constructor in class " + cc.getName());
         }
-        
+
         public Type resolveClassType(CPPObject instance, TypeVariable<?> var) {
-            return getClassTypeVariableExtractor((TypeVariable)var).extract(instance);
+            return getClassTypeVariableExtractor((TypeVariable) var).extract(instance);
         }
-		public Type resolveMethodType(CPPObject instance, Object[] methodTemplateParameters, TypeVariable<?> var) {
+
+        public Type resolveMethodType(CPPObject instance, Object[] methodTemplateParameters, TypeVariable<?> var) {
             return getMethodTypeVariableExtractor(var).extract(instance, methodTemplateParameters);
         }
-		protected synchronized ClassTypeVariableExtractor getClassTypeVariableExtractor(TypeVariable<Class<?>> var) {
-			if (classTypeVariableExtractors == null)
-				classTypeVariableExtractors = new HashMap<TypeVariable<Class<?>>, ClassTypeVariableExtractor>();
-			ClassTypeVariableExtractor e = classTypeVariableExtractors.get(var);
-			if (e == null)
-				classTypeVariableExtractors.put(var, e = createClassTypeVariableExtractor(var));
-			return e;
+
+        protected synchronized ClassTypeVariableExtractor getClassTypeVariableExtractor(TypeVariable<Class<?>> var) {
+            if (classTypeVariableExtractors == null) {
+                classTypeVariableExtractors = new HashMap<TypeVariable<Class<?>>, ClassTypeVariableExtractor>();
+            }
+            ClassTypeVariableExtractor e = classTypeVariableExtractors.get(var);
+            if (e == null) {
+                classTypeVariableExtractors.put(var, e = createClassTypeVariableExtractor(var));
+            }
+            return e;
         }
-		protected synchronized MethodTypeVariableExtractor getMethodTypeVariableExtractor(TypeVariable<?> var) {
-			if (methodTypeVariableExtractors == null)
-				methodTypeVariableExtractors = new HashMap<TypeVariable<?>, MethodTypeVariableExtractor>();
-			MethodTypeVariableExtractor e = methodTypeVariableExtractors.get(var);
-			if (e == null)
-				methodTypeVariableExtractors.put(var, e = createMethodTypeVariableExtractor(var));
-			return e;
+
+        protected synchronized MethodTypeVariableExtractor getMethodTypeVariableExtractor(TypeVariable<?> var) {
+            if (methodTypeVariableExtractors == null) {
+                methodTypeVariableExtractors = new HashMap<TypeVariable<?>, MethodTypeVariableExtractor>();
+            }
+            MethodTypeVariableExtractor e = methodTypeVariableExtractors.get(var);
+            if (e == null) {
+                methodTypeVariableExtractors.put(var, e = createMethodTypeVariableExtractor(var));
+            }
+            return e;
         }
 
         @Override
@@ -908,35 +986,36 @@ public class CPPRuntime extends CRuntime {
                 peer = peer.withReleaser(newCPPReleaser(type));
             }
             T instance = super.cast(peer);
-            setTemplateParameters(instance, (Class)typeClass, templateParameters);
+            setTemplateParameters(instance, (Class) typeClass, templateParameters);
             return instance;
         }
+
         @Override
         public void initialize(T instance, Pointer peer) {
             setTemplateParameters(instance, typeClass, templateParameters);
             super.initialize(instance, peer);
         }
-        
+
         @SuppressWarnings("unchecked")
         @Override
         public void initialize(T instance, int constructorId, Object... targsAndArgs) {
             if (instance instanceof CPPObject) {
-                CPPObject cppInstance = (CPPObject)instance;
+                CPPObject cppInstance = (CPPObject) instance;
                 //instance.peer = allocate(instance.getClass(), constructorId, args);
-                int[] position = new int[] { 0 };
+                int[] position = new int[]{0};
 
                 //TODO
                 //Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, targsAndArgs), position);
 //                assert Arrays.asList(templateParameters).equals(Arrays.asList(takeLeft(targsAndArgs, typeParamCount)));
 //                Object[] args = takeRight(targsAndArgs, targsAndArgs.length - typeParamCount);
                 Type cppType = type;
-                setTemplateParameters(instance, (Class)typeClass, templateParameters);
+                setTemplateParameters(instance, (Class) typeClass, templateParameters);
                 //int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
                 //System.out.println("actualArgsOffset = " + actualArgsOffset);
                 //Object[] actualArgs = new Object[nActualArgs];
                 //System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
-                
-                setNativeObjectPeer(instance, newCPPInstance((CPPObject)instance, cppType, constructorId, targsAndArgs));
+
+                setNativeObjectPeer(instance, newCPPInstance((CPPObject) instance, cppType, constructorId, targsAndArgs));
                 super.initialize(instance, DEFAULT_CONSTRUCTOR);
             } else {
                 super.initialize(instance, constructorId, targsAndArgs);
@@ -957,19 +1036,23 @@ public class CPPRuntime extends CRuntime {
         }
 
         private Object[] getTemplateParameters(Type type) {
-            if (!(type instanceof CPPType))
+            if (!(type instanceof CPPType)) {
                 return new Object[0];
-            return ((CPPType)type).getTemplateParameters();
+            }
+            return ((CPPType) type).getTemplateParameters();
         }
-	}
+    }
     /// Needs not be fast : TypeInfo will be cached in BridJ anyway !
+
     @Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CPPTypeInfo(type);
     }
+
     @Override
     public Type getType(Class<?> cls, Object[] targsAndArgs, int[] typeParamCount) {
-        int targsCount = cls.getTypeParameters().length;
+        Template tpl = cls.getAnnotation(Template.class);
+        int targsCount = tpl != null ? tpl.value().length : cls.getTypeParameters().length;
         if (typeParamCount != null) {
             assert typeParamCount.length == 1;
             typeParamCount[0] = targsCount;
@@ -978,6 +1061,6 @@ public class CPPRuntime extends CRuntime {
     }
 
     public <T extends CPPObject> CPPTypeInfo<T> getCPPTypeInfo(final Type type) {
-        return (CPPTypeInfo)getTypeInfo(type);
+        return (CPPTypeInfo) getTypeInfo(type);
     }
 }

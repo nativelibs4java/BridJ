@@ -69,10 +69,10 @@ void initObjCProxy(JNIEnv* env) {
 	return self;
 }
 
-- dealloc {
+- (void)dealloc {
 	JNIEnv* env = GetEnv();
 	(*env)->DeleteGlobalRef(env, javaInstance);
-	[super dealloc];	
+	[super dealloc];
 }
 
 - (void)forwardInvocation: (NSInvocation*)invocation {

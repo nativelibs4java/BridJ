@@ -37,6 +37,8 @@ import org.bridj.ann.Virtual;
  *
  * @author Olivier
  */
-public class ITaskbarList2  extends ITaskbarList {
-	@Virtual(0) public native int MarkFullscreenWindow(Pointer<Integer> hWnd, boolean fFullscreen);
+public class ITaskbarList2 extends ITaskbarList {
+
+    @Virtual(0)
+    public native int MarkFullscreenWindow(Pointer<Integer> hWnd, boolean fFullscreen);
 }

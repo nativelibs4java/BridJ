@@ -29,6 +29,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-Dummy typed functions interfaces.
-*/
+ * Dummy typed functions interfaces.
+ */
 package org.bridj.func;

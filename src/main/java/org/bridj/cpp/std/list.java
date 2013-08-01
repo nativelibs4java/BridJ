@@ -51,101 +51,122 @@ import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
 
 /**
- * Binding for <a href="http://www.sgi.com/tech/stl/Vector.html">STL's std::vector</a> class.
+ * Binding for <a href="http://www.sgi.com/tech/stl/Vector.html">STL's
+ * std::vector</a> class.
+ *
  * @author ochafik
  * @param <T>
  */
-@Template({ Type.class })
+@Template({Type.class})
 @Struct(customizer = STL.class)
 public class list<T> extends CPPObject {
-    @Library("c") protected static native @Ptr long malloc(@Ptr long size);
-    @Library("c") protected static native void free(@Ptr long address);
-    
-    @Template({ Type.class })
-	public static class list_node<T> extends CPPObject {
-		@Deprecated
-		@Field(0)
-		public Pointer<list_node<T>> next() {
-			return io.getPointerField(this, 0);
-		}
-	
+
+    @Library("c")
+    protected static native @Ptr
+    long malloc(@Ptr long size);
+
+    @Library("c")
+    protected static native void free(@Ptr long address);
+
+    @Template({Type.class})
+    public static class list_node<T> extends CPPObject {
+
         @Deprecated
-		@Field(0)
+        @Field(0)
+        public Pointer<list_node<T>> next() {
+            return io.getPointerField(this, 0);
+        }
+
+        @Deprecated
+        @Field(0)
         public void next(Pointer<list_node<T>> value) {
             io.setPointerField(this, 0, value);
         }
-		@Deprecated
-		@Field(1)
-		public Pointer<list_node<T>> prev() {
-			return io.getPointerField(this, 1);
-		}
+
+        @Deprecated
+        @Field(1)
+        public Pointer<list_node<T>> prev() {
+            return io.getPointerField(this, 1);
+        }
+
         @Field(1)
         public void prev(Pointer<list_node<T>> value) {
             io.setPointerField(this, 1, value);
         }
-		@Deprecated
-		@Field(2)
-		@Array(1)
-		public Pointer<T> data() {
-			return io.getPointerField(this, 2);
-		}
-		public list_node(Type t) {
-			super((Void)null, CPPRuntime.SKIP_CONSTRUCTOR, t);
-		}
-		public list_node(Pointer<? extends list_node> peer, Type t) {
-			super(peer, t);
-			if (!isValid())
-				throw new RuntimeException("Invalid list internal data ! Are you trying to use an unsupported version of the STL ?");
-		}
-		protected boolean isValid() {
-			long next = getPeer(next());
-			long prev = getPeer(prev());
-			if (next == 0 && prev == 0)
-				return false;
-			return true; // TODO other checks?
-		}
-		public T get() {
-			return data().get();
-		}
-		public void set(T value) {
-			data().set(value);
-		}
-	}
-	protected volatile Type _T;
-	protected Type T() {
-		if (_T == null) {
-			_T = (Type)CPPRuntime.getInstance().getTemplateParameters(this, list.class)[0];
-		}
-		return _T;
-	}
-	protected list_node<T> createNode() {
-		Type T = T();
-		long size = BridJ.sizeOf(T);
-        return new list_node<T>((Pointer)pointerToAddress(malloc(size)), T); 
-	}
-	protected void deleteNode(list_node<T> node) {
-		free(Pointer.getAddress(node, list_node.class));
-	}
-	
-	@Deprecated
+
+        @Deprecated
+        @Field(2)
+        @Array(1)
+        public Pointer<T> data() {
+            return io.getPointerField(this, 2);
+        }
+
+        public list_node(Type t) {
+            super((Void) null, CPPRuntime.SKIP_CONSTRUCTOR, t);
+        }
+
+        public list_node(Pointer<? extends list_node> peer, Type t) {
+            super(peer, t);
+            if (!isValid()) {
+                throw new RuntimeException("Invalid list internal data ! Are you trying to use an unsupported version of the STL ?");
+            }
+        }
+
+        protected boolean isValid() {
+            long next = getPeer(next());
+            long prev = getPeer(prev());
+            if (next == 0 && prev == 0) {
+                return false;
+            }
+            return true; // TODO other checks?
+        }
+
+        public T get() {
+            return data().get();
+        }
+
+        public void set(T value) {
+            data().set(value);
+        }
+    }
+    protected volatile Type _T;
+
+    protected Type T() {
+        if (_T == null) {
+            _T = (Type) CPPRuntime.getInstance().getTemplateParameters(this, list.class)[0];
+        }
+        return _T;
+    }
+
+    protected list_node<T> createNode() {
+        Type T = T();
+        long size = BridJ.sizeOf(T);
+        return new list_node<T>((Pointer) pointerToAddress(malloc(size)), T);
+    }
+
+    protected void deleteNode(list_node<T> node) {
+        free(Pointer.getAddress(node, list_node.class));
+    }
+
+    @Deprecated
     @Field(0)
-	public Pointer<list_node<T>> next() {
-		return io.getPointerField(this, 0);
-	}
-	
-	@Deprecated
+    public Pointer<list_node<T>> next() {
+        return io.getPointerField(this, 0);
+    }
+
+    @Deprecated
     @Field(0)
-	public void next(Pointer<list_node<T>> value) {
-		io.setPointerField(this, 0, value);
-	}
-    
-	@Deprecated
+    public void next(Pointer<list_node<T>> value) {
+        io.setPointerField(this, 0, value);
+    }
+
+    @Deprecated
     @Field(1)
-	public Pointer<list_node<T>> prev() {
-		return io.getPointerField(this, 1);
-	}
-	
-	@Deprecated
+    public Pointer<list_node<T>> prev() {
+        return io.getPointerField(this, 1);
+    }
+
+    @Deprecated
     @Field(1)
 	public void prev(Pointer<list_node<T>> value) {
 		io.setPointerField(this, 1, value);
@@ -181,28 +202,34 @@ public class list<T> extends CPPObject {
         return n.get();
 //		return prev().get().get();
 	}
-	
+
     private boolean same(Pointer a, Pointer b) {
         return getPeer(a) == getPeer(b);
     }
+
     private boolean isRoot(Pointer a) {
-        return same(a, pointerTo(this));
+        return same(a, getPointer(this));
     }
-	protected void hook(Pointer<list_node<T>> prev, Pointer<list_node<T>> next, T value) {
-		list_node<T> tmp = createNode();
-		Pointer<list_node<T>> pTmp = pointerTo(tmp);
-		tmp.set(value);
+
+    protected void hook(Pointer<list_node<T>> prev, Pointer<list_node<T>> next, T value) {
+        list_node<T> tmp = createNode();
+        Pointer<list_node<T>> pTmp = getPointer(tmp);
+        tmp.set(value);
         tmp.next(next);
         tmp.prev(prev);
-        if (!isRoot(next))
+        if (!isRoot(next)) {
             next.get().prev(pTmp);
-        if (!isRoot(prev))
+        }
+        if (!isRoot(prev)) {
             prev.get().next(pTmp);
-	}
-	public void push_back(T value) {
-		hook(prev(), null, value);
-	}
-	public void push_front(T value) {
-		hook(null, next(), value);
-	}
+        }
+    }
+
+    public void push_back(T value) {
+        hook(prev(), null, value);
+    }
+
+    public void push_front(T value) {
+        hook(null, next(), value);
+    }
 }

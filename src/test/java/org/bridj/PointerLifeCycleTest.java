@@ -28,34 +28,52 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.bridj.ann;
+package org.bridj;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.List;
+import static org.bridj.Pointer.*;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-import org.bridj.BridJRuntime;
+public class PointerLifeCycleTest {
+    @Test
+    public void deallocTest() throws InterruptedException {
+        List<Pointer<SizeT>> ptrs = new ArrayList<Pointer<SizeT>>();
+        final int[] released = new int[1];
+        int n = 100, m = 3;
+        for (int i = 0; i < n; i++) {
+            //Pointer p = pointerToAddress(1).validBytes(10);
+            Pointer ptr = allocateSizeTs(m);
+            ptr = ptr.withReleaser(new Releaser() {
 
-/**
- * Specify the runtime that should be used to bind native methods (default is
- * {@link org.bridj.CRuntime} if no annotation is provided).
- * <br>
- * Also see
- *
- * @see org.bridj.Bridj.register().
- * @author Olivier
- */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-public @interface Runtime {
-
-    Class //<? extends BridJRuntime>
-            value();
+                public void release(Pointer<?> p) {
+                    synchronized (released) {
+                        released[0]++;
+                    }
+                }
+            }).withoutValidityInformation();
+            for (int j = 0; j < m; j++) {
+                ptr.setSizeTAtIndex(j, j);
+            }
+            ptrs.add(ptr);
+        }
+        gc();
+        assertEquals(0, released[0]);
+        for (Pointer<SizeT> ptr : ptrs) {
+            for (int j = 0; j < m; j++) {
+                assertEquals(j, ptr.getSizeTAtIndex(j));
+            }
+        }
+        ptrs.clear();
+        gc();
+        assertEquals(n, released[0]);
+    }
+    
+    void gc() throws InterruptedException {
+        System.gc();
+        Thread.sleep(100);
+        System.gc();
+        Thread.sleep(100);
+    }
 }

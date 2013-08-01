@@ -21,6 +21,10 @@ if [[ -z "$BRIDJ_TARGETS" ]] ; then
 	fi ;
 fi
 
+if [[ "$TARGET" != "clean" ]]; then
+    mvn generate-sources
+fi
+
 cd `dirname $0`/src/main/cpp/bridj
 
 for TARGET in $BRIDJ_TARGETS ; do

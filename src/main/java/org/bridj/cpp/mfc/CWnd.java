@@ -38,6 +38,7 @@ import org.bridj.ann.Virtual;
  * @author Olivier
  */
 public class CWnd extends MFCObject {
+
     @Virtual
     public native int SendMessage(int message, int wParam, int lParam);
 

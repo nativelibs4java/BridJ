@@ -56,7 +56,6 @@ public class GCC4Demangler extends Demangler {
         super(library, symbol);
     }
     private Map<String, List<IdentLike>> prefixShortcuts = new HashMap<String, List<IdentLike>>() {
-
         {
 
             // prefix shortcut: e.g. St is for std::
@@ -82,7 +81,7 @@ public class GCC4Demangler extends Demangler {
     };
     private Set<String> shouldContinueAfterPrefix = new HashSet<String>(Arrays.asList("t"));
     private Map<String, TypeRef> typeShortcuts = new HashMap<String, TypeRef>();
-    
+
     private <T> T ensureOfType(Object o, Class<T> type) throws DemanglingException {
         if (type.isInstance(o)) {
             return type.cast(o);
@@ -279,9 +278,12 @@ public class GCC4Demangler extends Demangler {
     }
 
     /**
-     * 
-     * @param res a list of identlikes with the namespace elements and finished with an Ident which will be replaced by a new one enriched with template info
-     * @return null if res was untouched, or the new id created because of the presence of template arguments
+     *
+     * @param res a list of identlikes with the namespace elements and finished
+     * with an Ident which will be replaced by a new one enriched with template
+     * info
+     * @return null if res was untouched, or the new id created because of the
+     * presence of template arguments
      */
     private String parsePossibleTemplateArguments(List<IdentLike> res) throws DemanglingException {
         if (consumeCharIf('I')) {
@@ -308,7 +310,9 @@ public class GCC4Demangler extends Demangler {
     }
 
     /**
-     * @return whether we should expect more parsing after this shortcut (e.g. std::vector<...> is actually not NSt6vectorI...EE but St6vectorI...E (without trailing N)
+     * @return whether we should expect more parsing after this shortcut (e.g.
+     * std::vector<...> is actually not NSt6vectorI...EE but St6vectorI...E
+     * (without trailing N)
      */
     private boolean parseShortcutInto(List<IdentLike> res) throws DemanglingException {
         char c = peekChar();
@@ -393,11 +397,11 @@ public class GCC4Demangler extends Demangler {
             return null; // can be a type info, a virtual table or strange things like that
         }
         /*
-        Reverse engineering of C++ operators :
-        delete[] = __ZdaPv
-        delete  = __ZdlPv
-        new[] = __Znam
-        new = __Znwm
+         Reverse engineering of C++ operators :
+         delete[] = __ZdaPv
+         delete  = __ZdlPv
+         new[] = __Znam
+         new = __Znwm
          */
         if (consumeCharsIf('d', 'l', 'P', 'v')) {
             mr.setMemberName(SpecialName.Delete);
@@ -422,8 +426,9 @@ public class GCC4Demangler extends Demangler {
             mr.setMemberName(ns.remove(ns.size() - 1));
             if (!ns.isEmpty()) {
                 ClassRef parent = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
-                if (mr.getMemberName() == SpecialName.Constructor || mr.getMemberName() == SpecialName.SpecialConstructor)
+                if (mr.getMemberName() == SpecialName.Constructor || mr.getMemberName() == SpecialName.SpecialConstructor) {
                     typeShortcuts.put(nextShortcutId(), parent);
+                }
                 if (!ns.isEmpty()) {
                     parent.setEnclosingType(new NamespaceRef(ns.toArray()));
                 }

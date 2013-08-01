@@ -29,22 +29,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "HandlersCommon.h"
+#include "string.h"
 
-void __cdecl JavaToFunctionCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info, DCArgs* args, DCValue* result)
+void __cdecl JavaToFunctionCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info, DCArgs* args, DCValue* result, jboolean setsLastError)
 {
 	dcMode(call->vm, info->fInfo.fDCMode);
 	//dcReset(call->vm);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE) 
-	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
-
+	callFunction(call, &info->fInfo, args, result, info->fForwardedSymbol, setsLastError ? SETS_LASTERROR : 0);
 }
 char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
 	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	CallTempStruct* call;
 	JNIEnv* env;
+	LastError lastError;
+	jboolean setsLastError = info->fInfo.fSetsLastError;
 	initCallHandler(args, &call, NULL, &info->fInfo);
 	env = call->env;
 	
@@ -52,17 +52,22 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 	
 	BEGIN_TRY(env, call);
 	
-	if (info->fCheckLastError)
+	if (setsLastError) {
 		clearLastError(info->fInfo.fEnv);
-	
-	JavaToFunctionCallHandler_Sub(call, info, args, result);
+	}
 
-	if (info->fCheckLastError)
-		throwIfLastError(info->fInfo.fEnv);
+	JavaToFunctionCallHandler_Sub(call, info, args, result, setsLastError);
+
+	if (setsLastError) {
+	  memcpy(&lastError, &call->lastError, sizeof(LastError));
+	}
 	
 	END_TRY(info->fInfo.fEnv, call);
 
 	cleanupCallHandler(call);
-	
+
+  if (setsLastError) {
+    setLastError(info->fInfo.fEnv, lastError, info->fInfo.fThrowsLastError);
+  }
 	return info->fInfo.fDCReturnType;
 }

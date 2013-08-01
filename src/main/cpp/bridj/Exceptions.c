@@ -44,7 +44,7 @@
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
 extern jclass gLastErrorClass;
-extern jmethodID gThrowNewLastErrorMethod;
+extern jmethodID gSetLastErrorMethod;
 
 extern jclass gSignalErrorClass;
 extern jmethodID gSignalErrorThrowMethod;
@@ -60,6 +60,9 @@ void throwException(JNIEnv* env, const char* message) {
 }
 
 void clearLastError(JNIEnv* env) {
+#ifdef _WIN32
+	SetLastError(0);
+#endif
 	errno = 0;
 }
 
@@ -104,27 +107,48 @@ jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode)
 }
 #endif
 
-void throwIfLastError(JNIEnv* env) {
-	int errorCode = 0;
-	int en = errno;
-	jstring message = NULL;
-	initMethods(env);
-	
-#ifdef _WIN32
-	errorCode = GetLastError();
-	if (errorCode)
-		message = formatWin32ErrorMessage(env, errorCode);
-	
-#endif
-	if (!errorCode) {
-		errorCode = en;
-		if (errorCode) {
-			const char* msg = strerror(errorCode);
-			message = msg ? (*env)->NewStringUTF(env, msg) : NULL;
-		}
+void setLastError(JNIEnv* env, LastError lastError, jboolean throwsLastError) {
+	if (lastError.value) {
+	  (*env)->CallStaticVoidMethod(env, gLastErrorClass, gSetLastErrorMethod, 
+	      lastError.value,
+	      lastError.kind,
+	      throwsLastError);
 	}
-	if (errorCode)
-		(*env)->CallStaticVoidMethod(env, gLastErrorClass, gThrowNewLastErrorMethod, errorCode, message);
+}
+
+LastError getLastError() {
+	int errnoCopy = errno;
+	LastError ret;
+#ifdef _WIN32
+	int errorCode = GetLastError();
+	if (errorCode) {
+	  ret.value = errorCode;
+	  ret.kind = eLastErrorKindWindows;
+	  return ret;
+	}
+#endif
+  ret.value = errnoCopy;
+  ret.kind = eLastErrorKindCLibrary;
+	return ret;
+}
+
+JNIEXPORT jstring JNICALL Java_org_bridj_LastError_getDescription(JNIEnv* env, jclass clazz, jint code, jint kind) {
+  if (!code) {
+    return NULL;
+  }
+  switch ((LastErrorKind)kind) {
+#ifdef _WIN32
+  case eLastErrorKindWindows:
+    return formatWin32ErrorMessage(env, code);
+#endif
+  case eLastErrorKindCLibrary:
+    {
+      const char* msg = strerror(code);
+      return msg ? (*env)->NewStringUTF(env, msg) : NULL;
+    }
+  default:
+    return NULL; // TODO throw something?
+  }
 }
 
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {

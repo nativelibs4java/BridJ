@@ -35,10 +35,12 @@ import java.util.Iterator;
 
 /**
  * Interface for Java enumerations that have an integral value associated
+ *
  * @author ochafik
  * @param <E> type of the enum
  */
 public interface ValuedEnum<E extends Enum<E>> extends Iterable<E> {
+
     long value();
 //
 //    public static class EnumWrapper<EE extends Enum<EE>> implements ValuedEnum<EE> {

@@ -37,10 +37,12 @@ import java.lang.annotation.Target;
 
 /**
  * Mono- or multi-dimensional array length (used on Pointer types).
+ *
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 public @interface Array {
+
     long[] value();
 }

@@ -36,8 +36,8 @@ package org.bridj;
 
 /**
  * For internal use in BridJ only : marks a callback
+ *
  * @author ochafik
  */
 public interface CallbackInterface extends NativeObjectInterface {
-    
 }

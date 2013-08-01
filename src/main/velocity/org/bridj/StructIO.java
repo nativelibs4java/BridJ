@@ -148,7 +148,7 @@ public class StructIO {
 				ptr.set(value);
 			}
 		} catch (Throwable th) {
-			throw new RuntimeException("Unexpected error while writing fields from struct " + Utils.toString(desc.structType) + " (" + pointerTo(struct) + ")", th);
+			throw new RuntimeException("Unexpected error while writing fields from struct " + Utils.toString(desc.structType) + " (" + getPointer(struct) + ")", th);
 		}
 	}
 	
@@ -184,7 +184,7 @@ public class StructIO {
 				}
 			}
 		} catch (Throwable th) {
-			throw new RuntimeException("Unexpected error while reading fields from struct " + Utils.toString(desc.structType) + " (" + pointerTo(struct) + ") : " + th, th);
+			throw new RuntimeException("Unexpected error while reading fields from struct " + Utils.toString(desc.structType) + " (" + getPointer(struct) + ") : " + th, th);
 		}
 	}
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {

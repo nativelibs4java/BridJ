@@ -113,7 +113,9 @@ static inline jboolean DoTrapSignals(CallTempStruct* call) {
 
 #endif // defined(ENABLE_PROTECTED_MODE)
 
+LastError getLastError();
+
 void clearLastError(JNIEnv* env);
-void throwIfLastError(JNIEnv* env);
+void setLastError(JNIEnv* env, LastError lastError, jboolean throwsLastError);
 
 #endif // _BRIDJ_EXCEPTIONS_H

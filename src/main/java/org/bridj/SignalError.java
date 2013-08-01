@@ -35,6 +35,7 @@ package org.bridj;
  * Not public yet.
  */
 class SignalError extends NativeError {
+
     final int signal;
     final int code;
     final long address;
@@ -61,7 +62,8 @@ class SignalError extends NativeError {
     }
 
     /**
-     * Memory address that caused the SIGBUS or SIGSEGV signal, or zero for other signals
+     * Memory address that caused the SIGBUS or SIGSEGV signal, or zero for
+     * other signals
      */
     public long getAddress() {
         return address;
@@ -91,10 +93,12 @@ class SignalError extends NativeError {
             return simple;
         }
         return simple + " (" + sub + ")";
-    }    
+    }
+
     public static void throwNew(int signal, int code, long address) {
         throw new SignalError(signal, code, address);
     }
+
     /**
      * http://pubs.opengroup.org/onlinepubs/7908799/xsh/signal.h.html
      */
@@ -179,5 +183,4 @@ class SignalError extends NativeError {
                 return "Native error";
         }
     }
-    
 }

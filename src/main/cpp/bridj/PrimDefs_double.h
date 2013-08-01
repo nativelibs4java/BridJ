@@ -37,7 +37,11 @@
 #define wrapperName 	Double
 #define bufferName 		DoubleBuffer
 #define primSize		8
+#if defined(__SIZEOF_SIZE_T__) && (__SIZEOF_SIZE_T__ == 4)
+#define alignmentMask	3
+#else
 #define alignmentMask	7
+#endif
 
 #define TEMP_REORDER_VAR_TYPE jlong
 

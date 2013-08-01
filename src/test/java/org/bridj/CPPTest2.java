@@ -73,7 +73,7 @@ public class CPPTest2 {
     @Test
     public void test() {
         
-        IModule m = new AModule(), i = pointerTo(m).as(IModule.class).get();
+        IModule m = new AModule(), i = getPointer(m).as(IModule.class).get();
         
 		assertEquals("AModule.add failed", 3, m.add(1, 2));
 		assertEquals("AModule.subtract failed", -1, m.subtract(1, 2));
@@ -107,6 +107,6 @@ public class CPPTest2 {
  				return a * 10 + b * 100;	
  			}
  		};
- 		assertEquals(210, testIVirtualAdd(pointerTo(v), 1, 2));
+ 		assertEquals(210, testIVirtualAdd(getPointer(v), 1, 2));
  	}
 }

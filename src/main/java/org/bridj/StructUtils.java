@@ -130,7 +130,7 @@ class StructUtils {
     }
 
     static int compare(StructObject a, StructObject b, SolidRanges solidRanges) {
-        Pointer<StructObject> pA = pointerTo(a), pB = pointerTo(b);
+        Pointer<StructObject> pA = getPointer(a), pB = getPointer(b);
         if (pA == null || pB == null) {
             return pA != null ? 1 : pB != null ? -1 : 0;
         }

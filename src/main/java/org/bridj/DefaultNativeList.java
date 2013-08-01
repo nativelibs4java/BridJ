@@ -43,8 +43,9 @@ import static org.bridj.Pointer.*;
 
 /**
  * TODO : smart rewrite by chunks for removeAll and retainAll !
+ *
  * @author ochafik
- * @param <T> 
+ * @param <T>
  */
 class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, RandomAccess {
     /*
@@ -54,7 +55,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
      * 
      * We've reimplemented more methods than needed on purpose, for performance reasons (mainly using a native-optimized indexOf, that uses memmem and avoids deserializing too many elements)
      */
-    
+
     final ListType type;
     final PointerIO<T> io;
     volatile Pointer<T> pointer;
@@ -63,39 +64,44 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
     public Pointer<?> getPointer() {
         return pointer;
     }
-    
+
     /**
-     * Create a native list that uses the provided storage and implementation strategy
+     * Create a native list that uses the provided storage and implementation
+     * strategy
+     *
      * @param pointer
      * @param type Implementation type
      */
     DefaultNativeList(Pointer<T> pointer, ListType type) {
-        if (pointer == null || type == null)
+        if (pointer == null || type == null) {
             throw new IllegalArgumentException("Cannot build a " + getClass().getSimpleName() + " with " + pointer + " and " + type);
-        
+        }
+
         this.io = pointer.getIO("Cannot create a list out of untyped pointer " + pointer);
         this.type = type;
         this.size = pointer.getValidElements();
         this.pointer = pointer;
     }
-    
+
     protected void checkModifiable() {
-        if (type == ListType.Unmodifiable)
+        if (type == ListType.Unmodifiable) {
             throw new UnsupportedOperationException("This list is unmodifiable");
+        }
     }
-    
+
     protected int safelyCastLongToInt(long i, String content) {
-        if (i > Integer.MAX_VALUE)
+        if (i > Integer.MAX_VALUE) {
             throw new RuntimeException(content + " is bigger than Java int's maximum value : " + i);
-        
-        return (int)i;
+        }
+
+        return (int) i;
     }
-    
+
     @Override
     public int size() {
         return safelyCastLongToInt(size, "Size of the native list");
     }
-    
+
     @Override
     public void clear() {
         checkModifiable();
@@ -104,27 +110,30 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
 
     @Override
     public T get(int i) {
-        if (i >= size || i < 0)
-            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size +")");
-        
+        if (i >= size || i < 0) {
+            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size + ")");
+        }
+
         return pointer.get(i);
     }
 
     @Override
     public T set(int i, T e) {
         checkModifiable();
-        if (i >= size || i < 0)
-            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size +")");
-        
+        if (i >= size || i < 0) {
+            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size + ")");
+        }
+
         T old = pointer.get(i);
         pointer.set(i, e);
         return old;
     }
-    
+
     void add(long i, T e) {
         checkModifiable();
-        if (i > size || i < 0)
-            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size +")");
+        if (i > size || i < 0) {
+            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size + ")");
+        }
         requireSize(size + 1);
         if (i < size) {
             pointer.moveBytesAtOffsetTo(i, pointer, i + 1, size - i);
@@ -132,16 +141,17 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         pointer.set(i, e);
         size++;
     }
+
     @Override
     public void add(int i, T e) {
-        add((long)i, e);
+        add((long) i, e);
     }
 
     protected void requireSize(long newSize) {
         if (newSize > pointer.getValidElements()) {
             switch (type) {
                 case Dynamic:
-                    long nextSize = newSize < 5 ? newSize + 1 : (long)(newSize * 1.6);
+                    long nextSize = newSize < 5 ? newSize + 1 : (long) (newSize * 1.6);
                     Pointer<T> newPointer = allocateArray(io, nextSize);
                     pointer.copyTo(newPointer);
                     pointer = newPointer;
@@ -154,11 +164,12 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
             }
         }
     }
-    
+
     T remove(long i) {
         checkModifiable();
-        if (i >= size || i < 0)
-            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size +")");
+        if (i >= size || i < 0) {
+            throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size + ")");
+        }
         T old = pointer.get(i);
         long targetSize = io.getTargetSize();
         pointer.moveBytesAtOffsetTo((i + 1) * targetSize, pointer, i * targetSize, targetSize);
@@ -168,16 +179,17 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
 
     @Override
     public T remove(int i) {
-        return remove((long)i);
+        return remove((long) i);
     }
-    
+
     @Override
     public boolean remove(Object o) {
         checkModifiable();
         long i = indexOf(o, true, 0);
-        if (i < 0)
+        if (i < 0) {
             return false;
-        
+        }
+
         remove(i);
         return true;
     }
@@ -185,18 +197,20 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
     long indexOf(Object o, boolean last, int offset) {
         Pointer<T> pointer = this.pointer;
         assert offset >= 0 && (last || offset > 0);
-        if (offset > 0)
+        if (offset > 0) {
             pointer = pointer.next(offset);
-        
+        }
+
         Pointer<T> needle = allocate(io);
-        needle.set((T)o);
+        needle.set((T) o);
         Pointer<T> occurrence = last ? pointer.findLast(needle) : pointer.find(needle);
-        if (occurrence == null)
+        if (occurrence == null) {
             return -1;
-        
+        }
+
         return occurrence.getPeer() - pointer.getPeer();
     }
-    
+
     @Override
     public int indexOf(Object o) {
         return safelyCastLongToInt(indexOf(o, false, 0), "Index of the object");
@@ -211,14 +225,15 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
     public boolean contains(Object o) {
         return indexOf(o) >= 0;
     }
-    
+
     @Override
     public boolean addAll(int i, Collection<? extends T> clctn) {
-        if (i >= 0 && i < size)
+        if (i >= 0 && i < size) {
             requireSize(size + clctn.size());
+        }
         return super.addAll(i, clctn);
     }
-    
+
     @Override
     public Object[] toArray() {
         return pointer.validElements(size).toArray();

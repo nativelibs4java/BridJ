@@ -38,7 +38,8 @@ import java.lang.reflect.Method;
 import static org.bridj.Pointer.*;
 
 /**
- * Factory that is able to create dynamic functions bindings with a given signature
+ * Factory that is able to create dynamic functions bindings with a given
+ * signature
  */
 public class DynamicFunctionFactory {
 
@@ -50,7 +51,7 @@ public class DynamicFunctionFactory {
         try {
             this.constructor = callbackClass.getConstructor();
             this.method = method;
-            
+
             MethodCallInfo mci = methodCallInfoBuilder.apply(method);
             callbackHandle = JNI.bindJavaToCCallbacks(mci);
         } catch (Throwable th) {
@@ -61,23 +62,24 @@ public class DynamicFunctionFactory {
 
     @Override
     protected void finalize() throws Throwable {
-        if (BridJ.debugNeverFree)
-			return;
-		
-		JNI.freeJavaToCCallbacks(callbackHandle, 1);
+        if (BridJ.debugNeverFree) {
+            return;
+        }
+
+        JNI.freeJavaToCCallbacks(callbackHandle, 1);
     }
 
-
     public DynamicFunction newInstance(Pointer<?> functionPointer) {
-        if (functionPointer == null)
+        if (functionPointer == null) {
             return null;
-        
+        }
+
         try {
             DynamicFunction dcb = constructor.newInstance();
             dcb.peer = (Pointer) functionPointer;
             dcb.method = method;
             dcb.factory = this;
-            
+
             return dcb;
         } catch (Throwable th) {
             th.printStackTrace();
@@ -89,6 +91,4 @@ public class DynamicFunctionFactory {
     public String toString() {
         return getClass().getSimpleName() + "(" + method + ")";
     }
-
-
 }

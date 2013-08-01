@@ -101,7 +101,7 @@ import static org.bridj.SizeT.safeIntCast;
  * <p>
  * <ul>
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
- *		{@link Pointer#pointerTo(NativeObject)}
+ *		{@link Pointer#getPointer(NativeObject)}
  *  </li>
  *  <li>Allocating a dynamic callback (without a static {@link Callback} definition, which would be the preferred way) :<br>
  *      {@link Pointer#allocateDynamicCallback(DynamicCallback, org.bridj.ann.Convention.Style, Type, Type[])}
@@ -172,7 +172,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 {
 
 #macro (declareCheckedPeerAtOffset $byteOffset $validityCheckLength)
-	long checkedPeer = peer + $byteOffset;
+	long checkedPeer = getPeer() + $byteOffset;
 	if (validStart != UNKNOWN_VALIDITY && (
 			checkedPeer < validStart || 
 			(checkedPeer + $validityCheckLength) > validEnd
@@ -201,7 +201,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon :
      <pre>{@code
-     for (float f : pointerTo(1f, 2f, 3.3f))
+     for (float f : pointerToFloats(1f, 2f, 3.3f))
      	System.out.println(f); }</pre>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName consecutive values provided in argument
@@ -348,10 +348,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public static final int defaultAlignment = Integer.parseInt(Platform.getenvOrProperty("BRIDJ_DEFAULT_ALIGNMENT", "bridj.defaultAlignment", "-1"));
 	
 	protected final PointerIO<T> io;
-	protected final long peer, offsetInParent;
+	private final long peer_;
+     protected final long offsetInParent;
 	protected final Pointer<?> parent;
 	protected volatile Object sibling;
-	protected final long validStart, validEnd;
+	protected final long validStart;
+     protected final long validEnd;
 
 	/**
 	 * Object responsible for reclamation of some pointed memory when it's not used anymore.
@@ -362,7 +364,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 	Pointer(PointerIO<T> io, long peer, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling) {
 		this.io = io;
-		this.peer = peer;
+		this.peer_ = peer;
 		this.validStart = validStart;
 		this.validEnd = validEnd;
 		this.parent = parent;
@@ -370,11 +372,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		this.sibling = sibling;
 		if (peer == 0)
 			throw new IllegalArgumentException("Pointer instance cannot have NULL peer ! (use null Pointer instead)");
-		if (BridJ.debugPointers)
+		if (BridJ.debugPointers) {
 			creationTrace = new RuntimeException().fillInStackTrace();
+          }
 	}
 	Throwable creationTrace;
-	
+     Throwable deletionTrace;
+     Throwable releaseTrace;
+     
 #foreach ($data in [ ["Ordered", true, ""], ["Disordered", false, "_disordered"] ])
 #set ($orderingPrefix = $data.get(0))
 #set ($ordered = $data.get(1))
@@ -531,8 +536,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public synchronized void release() {
 		Object sibling = this.sibling;
 		this.sibling = null;
-		if (sibling instanceof Pointer)
+		if (sibling instanceof Pointer) {
 			((Pointer)sibling).release();
+          }
+          //this.peer_ = 0;
+          if (BridJ.debugPointerReleases) {
+               releaseTrace = new RuntimeException().fillInStackTrace();
+          }
 	}
 
 	/**
@@ -638,7 +648,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
 	@Deprecated
 	public Pointer<T> withoutValidityInformation() {
-		long peer = getPeer();
+          long peer = getPeer();
 		if (validStart == UNKNOWN_VALIDITY)
 			return this;
 		
@@ -700,7 +710,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @return Address of the memory pointed to by this pointer
 	 */
 	public final long getPeer() {
-		return peer;
+          if (BridJ.debugPointerReleases) {
+               if (releaseTrace != null) {
+                    throw new RuntimeException("Pointer was released here:\n\t" + Utils.toString(releaseTrace).replaceAll("\n", "\n\t"));
+               }
+          }
+		return peer_;
 	}
     
 	/**
@@ -990,31 +1005,57 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     
     /**
+     * Get a pointer to an enum. 
+     */
+    public static <E extends Enum<E>> Pointer<IntValuedEnum<E>> pointerToEnum(IntValuedEnum<E> instance) {
+    	Class<E> enumClass;
+    	if (instance instanceof FlagSet) {
+    		enumClass = ((FlagSet)instance).getEnumClass();
+        } else if (instance instanceof Enum) {
+        	enumClass = (Class)instance.getClass();
+        } else 
+        	throw new RuntimeException("Expected a FlagSet or an Enum, got " + instance);
+
+    	PointerIO<IntValuedEnum<E>> io = (PointerIO)PointerIO.getInstance(DefaultParameterizedType.paramType(IntValuedEnum.class, enumClass));
+    	Pointer<IntValuedEnum<E>> p = allocate(io);
+    	p.setInt((int)instance.value());
+    	return p;
+    }
+
+    /**
+      * @deprecated Will be removed in a future version, please use {@link Pointer#getPointer(NativeObject)} instead.
+      */
+    @Deprecated
+    public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
+         return getPointer(instance);
+    }
+    
+    /**
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
-    public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
-    		return pointerTo(instance, null);
+    public static <N extends NativeObject> Pointer<N> getPointer(N instance) {
+    		return getPointer(instance, null);
     }
     /**
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
-    public static <N extends NativeObjectInterface> Pointer<N> pointerTo(N instance) {
-    		return (Pointer)pointerTo((NativeObject)instance);
+    public static <N extends NativeObjectInterface> Pointer<N> getPointer(N instance) {
+    		return (Pointer)getPointer((NativeObject)instance);
     }
     
     /**
      * Get a pointer to a native object, specifying the type of the pointer's target.<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
-    public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Type targetType) {
+    public static <R extends NativeObject> Pointer<R> getPointer(NativeObject instance, Type targetType) {
 		return instance == null ? null : (Pointer<R>)instance.peer;
     }
     /**
-    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link Pointer#pointerTo(NativeObject, Type)}).<br>
+    * Get the address of a native object, specifying the type of the pointer's target (same as {@code getPointer(instance, targetType).getPeer()}, see {@link Pointer#getPointer(NativeObject, Type)}).<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static long getAddress(NativeObject instance, Class targetType) {
-		return getPeer(pointerTo(instance, targetType));
+		return getPeer(getPointer(instance, targetType));
     }
     
 #docGetOffset("native object", "O extends NativeObject", "Pointer#getNativeObject(Type)")
@@ -1155,7 +1196,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-	 Assign a value to the pointed memory location, and return it (different behaviour from {@link List\#set(int, Object)} which returns the old value of that element !!!).<br>
+	 Assign a value to the pointed memory location, and return it (different behaviour from {@link List#set(int, Object)} which returns the old value of that element !!!).<br>
      Take the following C++ code fragment :
      <pre>{@code
 	int* array = new int[10];
@@ -1176,7 +1217,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
      }</pre>
      @throws RuntimeException if called on a raw and untyped {@code Pointer} instance (see {@link Pointer#asUntyped()} and {@link  Pointer#getTargetType()}) 
-	 @return The value that was given (not the old value as in {@link List\#set(int, Object)} !!!)
+	 @return The value that was given (not the old value as in {@link List#set(int, Object)} !!!)
 	 */
     public T set(T value) {
         return set(0, value);
@@ -1196,7 +1237,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	throw new RuntimeException("Unexpected error", ex);
     }
 	/**
-     Sets the n-th element from this pointer, and return it (different behaviour from {@link List\#set(int, Object)} which returns the old value of that element !!!).<br>
+     Sets the n-th element from this pointer, and return it (different behaviour from {@link List#set(int, Object)} which returns the old value of that element !!!).<br>
      This is equivalent to the C/C++ square bracket assignment syntax.<br>
      Take the following C++ code fragment :
      <pre>{@code
@@ -1217,7 +1258,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      @param index offset in pointed elements at which the value should be copied. Can be negative if the pointer was offset and the memory before it is valid.
      @param value value to set at pointed memory location
      @throws RuntimeException if called on a raw and untyped {@code Pointer} instance (see {@link Pointer#asUntyped()} and {@link  Pointer#getTargetType()})
-     @return The value that was given (not the old value as in {@link List\#set(int, Object)} !!!)
+     @return The value that was given (not the old value as in {@link List#set(int, Object)} !!!)
 	 */
 	public T set(long index, T value) {
         getIO("Cannot set pointed value").set(this, index, value);
@@ -1451,6 +1492,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 						this.rel = null;
 						rel.release(this);
 					}
+                         //this.peer_ = 0;
+                         if (BridJ.debugPointerReleases)
+                              releaseTrace = new RuntimeException().fillInStackTrace();
 				}
 				protected void finalize() {
 					release();
@@ -1675,12 +1719,19 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			assert p.getSibling() == null;
 			assert p.validStart == p.getPeer();
 			
-		if (BridJ.debugPointers)
-			BridJ.info("Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
-		
-			if (!BridJ.debugNeverFree)
-				JNI.free(p.getPeer());
-    	}
+               if (BridJ.debugPointers) {
+                    p.deletionTrace = new RuntimeException().fillInStackTrace();
+               	BridJ.info("Freeing pointer " + p +
+                         " (peer = " + p.getPeer() +
+                         ", validStart = " + p.validStart +
+                         ", validEnd = " + p.validEnd + 
+                         ", validBytes = " + p.getValidBytes() + 
+                         ").\nCreation trace:\n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") +
+                         "\nDeletion trace:\n\t" + Utils.toString(p.deletionTrace).replaceAll("\n", "\n\t"));
+               }
+          	if (!BridJ.debugNeverFree)
+          		JNI.free(p.getPeer());
+          }
     }
     
     /**
@@ -3089,7 +3140,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 	/**
-	 * The update will take place inside the release() call
+	 * Allocate an array of pointers to strings.
 	 */
     public static Pointer<Pointer<$eltWrapper>> pointerTo${string}Strings(final String... strings) {
     	if (strings == null)
@@ -3101,15 +3152,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         	public void release(Pointer<?> p) {
         		Pointer<Pointer<$eltWrapper>> mem = (Pointer<Pointer<$eltWrapper>>)p;
         		for (int i = 0; i < len; i++) {
-        			Pointer<$eltWrapper> pp = mem.get(i);
-        			if (pp != null)
-        				strings[i] = pp.get${string}String();
-        			pp = pointers[i];
+        			Pointer<$eltWrapper> pp = pointers[i];
         			if (pp != null)
         				pp.release();
-                }
-        	}
-        });
+        		}
+        }});
         for (int i = 0; i < len; i++)
             mem.set(i, pointers[i] = pointerTo${string}String(strings[i]));
 
@@ -3215,7 +3262,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
     /**
-	 * Alias for {@link Pointer\#set(long, Object)} defined for more natural use from the Scala language.
+	 * Alias for {@link Pointer#set(long, Object)} defined for more natural use from the Scala language.
 	 */
 	public final void update(long index, T element) {
 		set(index, element);

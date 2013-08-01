@@ -30,7 +30,6 @@
  */
 package org.bridj;
 
-
 import org.bridj.StructFieldDeclaration;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -39,15 +38,18 @@ import org.bridj.util.Utils;
 import static org.bridj.dyncall.DyncallLibrary.*;
 
 class DyncallStructs {
+
     Pointer<DCstruct> struct;
-    
+
     static int toDCAlignment(long structIOAlignment) {
-        return structIOAlignment <= 0 ? DEFAULT_ALIGNMENT : (int)structIOAlignment;
+        return structIOAlignment <= 0 ? DEFAULT_ALIGNMENT : (int) structIOAlignment;
     }
+
     public static Pointer<DCstruct> buildDCstruct(StructDescription desc) {
-        if (!BridJ.Switch.StructsByValue.enabled)
+        if (!BridJ.Switch.StructsByValue.enabled) {
             return null;
-        
+        }
+
         List<StructFieldDescription> aggregatedFields = desc.getAggregatedFields();
         Pointer<DCstruct> struct = dcNewStruct(aggregatedFields.size(), toDCAlignment(desc.getStructAlignment())).withReleaser(new Pointer.Releaser() {
             public void release(Pointer<?> p) {
@@ -56,31 +58,33 @@ class DyncallStructs {
         });
         fillDCstruct(desc.structType, struct, aggregatedFields);
         dcCloseStruct(struct);
-        
+
         long expectedSize = desc.getStructSize();
         long size = dcStructSize(struct);
-        
+
         if (expectedSize != size) {
             BridJ.error("Struct size computed for " + Utils.toString(desc.structType) + " by BridJ (" + expectedSize + " bytes) and dyncall (" + size + " bytes) differ !");
             return null;
         }
         return struct;
     }
+
     protected static void fillDCstruct(Type structType, Pointer<DCstruct> struct, List<StructFieldDescription> aggregatedFields) {
         for (StructFieldDescription aggregatedField : aggregatedFields) {
             StructFieldDeclaration field = aggregatedField.aggregatedFields.get(0);
             Type fieldType = field.desc.nativeTypeOrPointerTargetType;
-            if (fieldType == null)
+            if (fieldType == null) {
                 fieldType = field.desc.valueType;
+            }
             Class fieldClass = Utils.getClass(fieldType);
 
             int alignment = toDCAlignment(aggregatedField.alignment);
             long arrayLength = field.desc.arrayLength;
-            
+
             if (StructObject.class.isAssignableFrom(fieldClass)) {
                 StructIO subIO = StructIO.getInstance(fieldClass, fieldType);
                 List<StructFieldDescription> subAggregatedFields = subIO.desc.getAggregatedFields();
-        
+
                 dcSubStruct(struct, subAggregatedFields.size(), alignment, arrayLength);
                 try {
                     fillDCstruct(subIO.desc.structType, struct, subAggregatedFields);
@@ -89,23 +93,24 @@ class DyncallStructs {
                 }
             } else {
                 int dctype;
-                if (fieldClass == int.class)
+                if (fieldClass == int.class) {
                     dctype = DC_SIGCHAR_INT;
-                else if (fieldClass == long.class || fieldClass == Long.class) {
+                } else if (fieldClass == long.class || fieldClass == Long.class) {
                     // TODO handle weird cases
                     dctype = DC_SIGCHAR_LONGLONG;
-                } else if (fieldClass == short.class || fieldClass == char.class || fieldClass == Short.class || fieldClass == Character.class)
+                } else if (fieldClass == short.class || fieldClass == char.class || fieldClass == Short.class || fieldClass == Character.class) {
                     dctype = DC_SIGCHAR_SHORT;
-                else if (fieldClass == byte.class || fieldClass == boolean.class || fieldClass == Byte.class || fieldClass == Boolean.class)
+                } else if (fieldClass == byte.class || fieldClass == boolean.class || fieldClass == Byte.class || fieldClass == Boolean.class) {
                     dctype = DC_SIGCHAR_CHAR; // handle @IntBool annotation ?
-                else if (fieldClass == float.class || fieldClass == Float.class)
+                } else if (fieldClass == float.class || fieldClass == Float.class) {
                     dctype = DC_SIGCHAR_FLOAT;
-                else if (fieldClass == double.class || fieldClass == Double.class)
+                } else if (fieldClass == double.class || fieldClass == Double.class) {
                     dctype = DC_SIGCHAR_DOUBLE;
-                else if (Pointer.class.isAssignableFrom(fieldClass))
+                } else if (Pointer.class.isAssignableFrom(fieldClass)) {
                     dctype = DC_SIGCHAR_POINTER;
-                else
+                } else {
                     throw new IllegalArgumentException("Unable to create dyncall struct field for type " + Utils.toString(fieldType) + " in struct " + Utils.toString(structType));
+                }
 
                 dcStructField(struct, dctype, alignment, arrayLength);
             }

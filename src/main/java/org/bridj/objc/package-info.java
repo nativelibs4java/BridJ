@@ -29,6 +29,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
-BridJ Objective-C runtime (MacOS X only, not working properly yet).
-*/
+ * BridJ Objective-C runtime (MacOS X only, not working properly yet).
+ */
 package org.bridj.objc;

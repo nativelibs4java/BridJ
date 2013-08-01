@@ -44,6 +44,8 @@ class CommonPointerIOs {
 		public NativeObjectPointerIO(Type nativeObjectType) {
 			super(nativeObjectType, -1, null);
 			this.nativeObjectType = nativeObjectType;
+			if (Utils.containsTypeVariables(nativeObjectType))
+			    throw new RuntimeException("Type " + nativeObjectType + " contains unresolved type variables!");
 		}
 
 
@@ -74,7 +76,7 @@ class CommonPointerIOs {
 		}
 		@Override
 		public void set(Pointer<N> pointer, long index, N value) {
-			Pointer<N> ps = Pointer.pointerTo(value);
+			Pointer<N> ps = Pointer.getPointer(value);
 			ps.copyTo(pointer.offset(index * getTargetSize()));
 		}
 	}
