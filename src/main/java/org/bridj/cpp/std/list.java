@@ -150,7 +150,6 @@ public class list<T> extends CPPObject {
 	public void prev(Pointer<list_node<T>> value) {
 		io.setPointerField(this, 1, value);
 	}
-	
 	//@Constructor(-1)
 	public list(Type t) {
 		super((Void)null, CPPRuntime.SKIP_CONSTRUCTOR, t);
@@ -171,7 +170,16 @@ public class list<T> extends CPPObject {
 	}
 	public T back() {
 		checkNotEmpty();
-		return prev().get().get();
+        Pointer<list_node<T>> prev = prev(), next = next();
+        Pointer<list_node<T>> nextPrev = next == null ? null : next.get().prev();
+        Pointer<list_node<T>> prevNext = prev == null ? null : prev.get().next();
+        int[] nextValues = next == null ? null : next.getInts(20);
+        int[] prevValues = prev == null ? null : prev.getInts(20);
+        
+        list_node<T> n = prev.get();
+        int[] values = pointerTo(n).getInts(20);
+        return n.get();
+//		return prev().get().get();
 	}
 	
     private boolean same(Pointer a, Pointer b) {

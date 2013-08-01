@@ -92,15 +92,23 @@ public class STLTest {
     
     @Test
 	public void testList() throws Exception {
-        int n = 10;
-        Pointer<?> nativeList = new_int_list.apply();
-        long[] ptrs = nativeList.getSizeTs(10);
-        long peer = nativeList.getPeer();
-        list<Integer> bridjList = new list<Integer>((Pointer)nativeList, Integer.class);
-        assertTrue("bad empty()", bridjList.empty());
-        for (int i = 0; i < n; i++) {
-            int_list_push_back.apply(nativeList, i);
-            assertEquals("bad back() at index " + i, i, (int)bridjList.back());
+        try {
+            int n = 10;
+            Pointer<?> nativeList = new_int_list.apply();
+            list<Integer> bridjList = new list<Integer>((Pointer)nativeList, Integer.class);
+            assertTrue("bad empty()", bridjList.empty());
+            int_list_push_back.apply(nativeList, 66);
+                
+            int[] values = nativeList.getInts(20);
+            long[] ptrs = nativeList.getSizeTs(10);
+            long peer = nativeList.getPeer();
+            for (int i = n; --i != 0;) {
+                int_list_push_back.apply(nativeList, i);
+                assertEquals("bad back() at index " + i, i, (int)bridjList.back());
+            }
+        } catch (Throwable th) {
+            th.printStackTrace();
+            assertNull(th);
         }
     }
 }
