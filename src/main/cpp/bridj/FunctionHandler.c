@@ -43,7 +43,7 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	CallTempStruct* call;
 	JNIEnv* env;
-	LastError lastError;
+	LastError lastError = { 0, 0 };
 	jboolean setsLastError = info->fInfo.fSetsLastError;
 	initCallHandler(args, &call, NULL, &info->fInfo);
 	env = call->env;

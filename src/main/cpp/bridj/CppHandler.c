@@ -102,11 +102,10 @@ void JavaToVirtualMethodCallHandler_Sub(CallTempStruct* call, VirtualMethodCallI
 	}
 		
 	dcArgPointer(call->vm, thisPtr);
-	
-	CallFlags flags = 0;
-	followArgs(call, args, nParams, pParamTypes, flags) 
+
+	followArgs(call, args, nParams, pParamTypes, NO_FLAGS) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callbackFn, flags);
+	followCall(call, info->fInfo.fReturnType, result, callbackFn, NO_FLAGS);
 
 }
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)

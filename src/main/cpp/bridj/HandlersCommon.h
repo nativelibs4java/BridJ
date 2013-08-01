@@ -33,6 +33,7 @@
 #include "Exceptions.h"
 
 typedef enum _CallFlags {
+  NO_FLAGS = 0,
   CALLING_JAVA = 1 << 0,
   IS_VAR_ARGS = 1 << 1,
   SETS_LASTERROR = 1 << 2,
