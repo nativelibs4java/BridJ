@@ -68,6 +68,8 @@ public class LastError extends NativeError {
 
     final int code, kind;
     String description;
+    
+    static final int eLastErrorKindWindows = 1, eLastErrorKindCLibrary = 2;
 
     LastError(int code, int kind) {
         super(null);
@@ -115,15 +117,13 @@ public class LastError extends NativeError {
         return lastError.get();
     }
     
-    private static void setLastError(int code, int kind, boolean throwLastError) {
-        if (code == 0) {
-            return;
+    private static LastError setLastError(int code, int kind) {
+    	if (code == 0) {
+            return null;
         }
         LastError err = new LastError(code, kind);
         err.fillInStackTrace();
         lastError.set(err);
-        if (throwLastError) {
-            throw err;
-        }
+        return err;
     }
 }

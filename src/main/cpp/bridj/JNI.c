@@ -226,7 +226,7 @@ void initMethods(JNIEnv* env) {
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lorg/bridj/NativeObject;" CLASS_SIG ")J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)" POINTER_SIG);
-		gSetLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "setLastError", "(IIZ)V");
+		gSetLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "setLastError", "(II)Lorg/bridj/LastError;");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lorg/bridj/CallIO;");
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)" OBJECT_SIG);
 		gGetCallIOStructMethod = (*env)->GetMethodID(env, gCallIOClass, "getDCStruct", "()J");
@@ -957,7 +957,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaToCCallbacks(
 		const char* dcSig;
 		
 		info->fInfo.fThrowsLastError = throwsLastError;
-		info->fInfo.fSetsLastError = setsLastError;
+		info->fInfo.fSetsLastError = setsLastError || throwsLastError;
 		
 		// TODO DIRECT C++ virtual thunk
 		dcSig = GET_CHARS(dcSignature);

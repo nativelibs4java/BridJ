@@ -109,14 +109,17 @@ jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode)
 
 void setLastError(JNIEnv* env, LastError lastError, jboolean throwsLastError) {
 	if (lastError.value) {
-	  (*env)->CallStaticVoidMethod(env, gLastErrorClass, gSetLastErrorMethod, 
-	      lastError.value,
-	      lastError.kind,
-	      throwsLastError);
+		jobject err = (*env)->CallStaticObjectMethod(env, gLastErrorClass, gSetLastErrorMethod, 
+			lastError.value,
+			lastError.kind);
+		if (err && throwsLastError) {
+			(*env)->Throw(env, err);
+		}
 	}
 }
 
 LastError getLastError() {
+	{
 	int errnoCopy = errno;
 	LastError ret;
 #ifdef _WIN32
@@ -127,9 +130,10 @@ LastError getLastError() {
 	  return ret;
 	}
 #endif
-  ret.value = errnoCopy;
-  ret.kind = eLastErrorKindCLibrary;
+	ret.value = errnoCopy;
+	ret.kind = eLastErrorKindCLibrary;
 	return ret;
+	}
 }
 
 JNIEXPORT jstring JNICALL Java_org_bridj_LastError_getDescription(JNIEnv* env, jclass clazz, jint code, jint kind) {
