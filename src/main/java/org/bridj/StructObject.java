@@ -70,4 +70,16 @@ public abstract class StructObject extends NativeObject {
     public String toString() {
         return BridJ.describe(this);
     }
+    
+    /**
+     * Get the offset of a field in a struct.
+     */
+    public static long offsetOfField(StructObject o, String name) {
+        for (StructFieldDescription desc : o.io.desc.fields) {
+            if (desc.name.equals(name)) {
+                return desc.byteOffset;
+            }
+        }
+        throw new NoSuchFieldError(name);
+    }
 }

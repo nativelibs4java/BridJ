@@ -351,7 +351,7 @@ public class StructTest {
         }
         
         @Field(2)
-	@Alignment(16)
+        @Alignment(32)
 		public int c() {
 			return io.getIntField(this, 2);
         }
@@ -388,7 +388,7 @@ public class StructTest {
 		public double b;
         
         @Field(2)
-	@Alignment(16)
+        @Alignment(32)
 		public int c;
 
         @Array(10)
@@ -442,9 +442,11 @@ public class StructTest {
 		for (MyStruct s : new MyStruct[] { x, y })
 			s.a(a).b(b).c(c);
 		
-		//assertFalse(getPointer(x).compareBytes(getPointer(y), len) == 0);
-		//SolidRanges sr = x.io.desc.getSolidRanges();
-		//assertArrayEquals(new long[] { 0, 16}, sr.offsets);
+        assertEquals(32, StructObject.offsetOfField(x, "c"));
+//		System.out.println(StructIO.getInstance(MyStruct.class).desc.describe());
+//		SolidRanges sr = x.io.desc.getSolidRanges();
+		assertFalse(getPointer(x).compareBytes(getPointer(y), len) == 0);
+        //assertArrayEquals(new long[] { 0, 16}, sr.offsets);
 		assertEquals(x, y);
 		assertFalse(x.equals(z));
 	}

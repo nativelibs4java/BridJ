@@ -457,11 +457,11 @@ public class ComparisonTest {
 		
 		long n = 100000;
 		long warmup = 2000;
-		long structSize = 10;
+		int structSize = (int)BridJ.sizeOf(StructTest.MyStruct.class);
 		int arraySize = 5;
-		Pointer<StructTest.MyStruct> pBridJ = allocateBytes(100).as(StructTest.MyStruct.class).validElements(arraySize);
-		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
-        ByteBuffer pNIO = ByteBuffer.allocateDirect(100);
+		Pointer<StructTest.MyStruct> pBridJ = allocateArray(StructTest.MyStruct.class, arraySize);
+		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(arraySize * structSize);
+        ByteBuffer pNIO = ByteBuffer.allocateDirect(arraySize * structSize);
 		
 		for (int i = 0; i < warmup; i++) {
 			StructTest.MyStruct[] a = pBridJ.toArray(new StructTest.MyStruct[arraySize]);

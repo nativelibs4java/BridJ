@@ -130,7 +130,8 @@ public class StructFieldDescription {
                     field.desc.byteLength = SizeT.SIZE;
                 } else {
                     field.desc.byteLength = primTypeLength(field.valueClass);
-                    field.desc.alignment = primTypeAlignment(field.valueClass, field.desc.byteLength);
+                    if (field.desc.alignment < 0)
+                        field.desc.alignment = primTypeAlignment(field.valueClass, field.desc.byteLength);
                 }
             } else if (field.valueClass == CLong.class) {
                 field.desc.byteLength = CLong.SIZE;
@@ -140,7 +141,8 @@ public class StructFieldDescription {
                 field.desc.nativeTypeOrPointerTargetType = resolveType(field.desc.valueType, structType);
                 StructDescription desc = StructIO.getInstance(field.valueClass, field.desc.valueType).desc;
                 field.desc.byteLength = desc.getStructSize();
-                field.desc.alignment = desc.getStructAlignment();
+                if (field.desc.alignment < 0)
+                    field.desc.alignment = desc.getStructAlignment();
                 field.desc.isNativeObject = true;
             } else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
                 field.desc.nativeTypeOrPointerTargetType = resolveType((field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType) field.desc.valueType).getActualTypeArguments()[0]) : null, structType);
@@ -163,7 +165,8 @@ public class StructFieldDescription {
                 field.desc.nativeTypeOrPointerTargetType = resolveType(tpe, structType);
                 if (field.desc.isArray) {
                     field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
-                    field.desc.alignment = alignmentOf(field.desc.nativeTypeOrPointerTargetType);
+                    if (field.desc.alignment < 0)
+                        field.desc.alignment = alignmentOf(field.desc.nativeTypeOrPointerTargetType);
                 } else {
                     field.desc.byteLength = Pointer.SIZE;
                 }
@@ -186,7 +189,8 @@ public class StructFieldDescription {
                 }
             } else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
                 field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
-                field.desc.alignment = primTypeAlignment(field.valueClass, field.desc.byteLength);
+                if (field.desc.alignment < 0)
+                    field.desc.alignment = primTypeAlignment(field.valueClass, field.desc.byteLength);
             } else {
                 //throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
                 StructDescription desc = StructIO.getInstance(field.valueClass, field.desc.valueType).desc;

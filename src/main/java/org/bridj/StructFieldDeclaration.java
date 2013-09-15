@@ -36,6 +36,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import org.bridj.ann.Alignment;
 import org.bridj.ann.Array;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
@@ -138,6 +139,7 @@ class StructFieldDeclaration {
         AnnotatedElement getter = (AnnotatedElement) member;
         Field fil = getter.getAnnotation(Field.class);
         Bits bits = getter.getAnnotation(Bits.class);
+        Alignment alignment = getter.getAnnotation(Alignment.class);
         Array arr = getter.getAnnotation(Array.class);
         if (fil != null) {
             field.index = fil.value();
@@ -150,6 +152,9 @@ class StructFieldDeclaration {
 
         if (bits != null) {
             field.desc.bitLength = bits.value();
+        }
+        if (alignment != null) {
+            field.desc.alignment = alignment.value();
         }
         if (arr != null) {
             long length = 1;
