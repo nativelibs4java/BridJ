@@ -345,7 +345,7 @@ public class MethodCallInfo {
                     throw new RuntimeException("Annotation " + Constructor.class.getName() + " cannot have more than one (long) argument");
                 }
             }
-            return ValueType.eSizeTValue;
+            return isCLong ? ValueType.eCLongValue : ValueType.eSizeTValue;
         }
         if (c == null || c.equals(Void.TYPE)) {
             return ValueType.eVoidValue;
@@ -456,6 +456,13 @@ public class MethodCallInfo {
             case eLongValue:
                 dcChar = DC_SIGCHAR_LONGLONG;
                 javaChar = "J";
+                break;
+            case eCLongValue:
+                javaChar = "J";
+				dcChar = DC_SIGCHAR_LONG;
+                if (Platform.CLONG_SIZE != 8) {
+                    direct = false;
+                }
                 break;
             case eSizeTValue:
                 javaChar = "J";
