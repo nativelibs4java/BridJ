@@ -2255,13 +2255,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     public long get${sizePrim}() {
 		return ${sizePrim}.SIZE == 8 ? 
 			getLong() : 
-			getInt();
+			getInt() & 0xFFFFFFFFL;
 	}
 #docGetOffset($sizePrim $sizePrim "Pointer#get${sizePrim}()")
     public long get${sizePrim}AtOffset(long byteOffset) {
 		return ${sizePrim}.SIZE == 8 ? 
 			getLongAtOffset(byteOffset) : 
-			getIntAtOffset(byteOffset);
+			getIntAtOffset(byteOffset) & 0xFFFFFFFFL;
 	}
 #docGetIndex($sizePrim "get${sizePrim}AtOffset(valueIndex * ${sizePrim}.SIZE")
 	public long get${sizePrim}AtIndex(long valueIndex) {
