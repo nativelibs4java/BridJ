@@ -51,7 +51,6 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 {	
 	JNIEnv* env = call->env;
 	int iParam;
-	//printf("ARGS : %d args\n", (int)nTypes);
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];
 		switch (type) {
@@ -169,7 +168,6 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						ptr = createPointerFromIO(env, ptr, callIO);
 					} else {
 						ptr = ptr ? getPointerPeer(env, ptr) : NULL;
-						// printf("ARG POINTER = %d\n", ptr);
 					}
 					dcArgPointer(call->vm, ptr);
 				}
@@ -265,9 +263,12 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 {
 	JNIEnv* env = call->env;
 	switch (returnType) {
+#define GET_LAST_ERROR() \
+		if (flags & SETS_LASTERROR) call->lastError = getLastError();
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \
 			result->uni = dcCall ## capCase(call->vm, callback); \
+			GET_LAST_ERROR(); \
 			break;
 		CALL_CASE(eIntValue, Int, INT, i)
 		CALL_CASE(eLongValue, LongLong, LONGLONG, l)
@@ -278,20 +279,26 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
 			result->L = (jlong)dcCallLong(call->vm, callback);
+			GET_LAST_ERROR();
 			break;
 		case eSizeTValue:
 			result->L = (size_t)dcCallPointer(call->vm, callback);
-		    break;
+			GET_LAST_ERROR();
+			break;
 		    
 		#define CALL_BOXED_INTEGRAL(type, capitalized) \
 			if (flags & CALLING_JAVA) { \
-				time_t tt = Unbox ## capitalized(env, dcCallPointer(call->vm, callback)); \
+				void* pt = dcCallPointer(call->vm, callback); \
+				type tt; \
+				GET_LAST_ERROR(); \
+				tt = (type)Unbox ## capitalized(env, pt); \
 				if (sizeof(type) == 4) \
 					result->i = (jint)tt; \
 				else \
 					result->l = (jlong)tt; \
 			} else { \
 				type tt = (sizeof(type) == 4) ? (type)dcCallInt(call->vm, callback) : (type)dcCallLongLong(call->vm, callback); \
+				GET_LAST_ERROR(); \
 				result->p = Box ## capitalized(env, tt); \
 			}
 			
@@ -306,12 +313,15 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		    break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);
+			GET_LAST_ERROR();
 			break;
 		case eIntFlagSet:
 			{
 				int flags = dcCallInt(call->vm, callback);
-				jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
-				jobject obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
+				jobject callIO, obj;
+				GET_LAST_ERROR();
+				callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
+				obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
 					
 				result->p = obj;
 			}
@@ -319,13 +329,13 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case ePointerValue:
 			{
 				void* ptr = dcCallPointer(call->vm, callback);
+				GET_LAST_ERROR();
 				if (flags & CALLING_JAVA)
 					result->p = ptr ? getPointerPeer(env, ptr) : NULL;
 					//result->p = ptr;
 				else
 				{
 					jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
-					//printf("RETURNED POINTER = %d\n", ptr);
 					result->p = createPointerFromIO(env, ptr, callIO);
 				}
 			}
@@ -345,18 +355,17 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 				throwException(env, "Invalid wchar_t size !");
 				return JNI_FALSE;
 			}
+			GET_LAST_ERROR();
 			break;
 		default:
 			if (flags & FORCE_VOID_RETURN) 
 			{
 				dcCallVoid(call->vm, callback);
+				GET_LAST_ERROR();
 				break;
 			}
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
-	}
-	if (flags & SETS_LASTERROR) {
-	  call->lastError = getLastError();
 	}
 	HACK_REFETCH_ENV(); 
 	if ((flags & CALLING_JAVA) && (*env)->ExceptionCheck(env))
