@@ -339,8 +339,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     
-	protected static long UNKNOWN_VALIDITY = -1;
-	protected static long NO_PARENT = 0/*-1*/;
+	protected static final long UNKNOWN_VALIDITY = -1;
+	protected static final long NO_PARENT = 0/*-1*/;
+  private static final long POINTER_MASK = Platform.is64Bits() ? -1 : 0xFFFFFFFFL;
 	
 	/**
 	 * Default alignment used to allocate memory from the static factory methods in Pointer class (any value lower or equal to 1 means no alignment)
@@ -1466,6 +1467,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		final Releaser releaser,
 		Object sibling)
 	{
+    peer = peer & POINTER_MASK;
 		if (peer == 0)
 			return null;
 		
