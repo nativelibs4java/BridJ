@@ -42,6 +42,12 @@
 #pragma warning(disable: 4054) // casting a function pointer to a data pointer
 #pragma warning(disable: 4996)
 
+#include "dyncall_macros.h"
+
+#ifdef DC__OS_Darwin
+#define BRIDJ_OBJC_SUPPORT
+#endif
+
 #ifndef _WIN32
 #define __cdecl
 #endif

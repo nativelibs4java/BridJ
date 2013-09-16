@@ -1,6 +1,9 @@
-#include "HandlersCommon.h"
+#include "bridj.hpp"
 
 #ifdef BRIDJ_OBJC_SUPPORT
+
+#include "HandlersCommon.h"
+
 #include <objc/objc.h>
 #include <Block.h>
 #include "bridj.hpp"
@@ -53,5 +56,4 @@ void releaseObjCBlock(const void* block) {
 	Block_release(block);	
 }
 
-#endif
-
+#endif // BRIDJ_OBJC_SUPPORT

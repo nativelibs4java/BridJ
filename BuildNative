@@ -6,40 +6,118 @@ function failed() {
 }
 
 cd `dirname $0`
-export DYNCALL_HOME=`pwd`/dyncall
+BASE_DIR=$PWD
+export DYNCALL_HOME=$BASE_DIR/dyncall
 
 if [[ ! -d "$DYNCALL_HOME" ]]
 then
-	`pwd`/admin/checkout_and_patch_dyncall.sh src/main/cpp/bridj/dyncall.diff || failed "Failed to checkout and patch dyncall"
+	$BASE_DIR/admin/checkout_and_patch_dyncall.sh src/main/cpp/bridj/dyncall.diff || failed "Failed to checkout and patch dyncall"
 fi
 
-if [[ -z "$BRIDJ_TARGETS" ]] ; then
-	if [[ -d /Applications && ! -z "$ANDROID_NDK_HOME" ]] ; then
-		BRIDJ_TARGETS="default android" ;
-	else
-		BRIDJ_TARGETS="default" ;
-	fi ;
+
+OS=`uname -s | sed s/_NT-.*/_NT/`
+ARCH=`uname -m`
+
+case $ARCH in
+i86pc|i386|x86)
+	ARCH=x86
+	;;
+x86_64|amd64)
+	ARCH=x64
+	;;
+esac
+
+OS_ARCH=""
+case $OS in
+WindowsNT)
+	case $ARCH in
+	x86)
+		OS_ARCH=win32
+		;;
+	x64)
+		OS_ARCH=win64
+		;;
+	esac
+	OS="windows"
+	;;
+Darwin)
+	OS="darwin"
+	OS_ARCH="darwin_universal"
+	;;
+Linux)
+	case $ARCH in
+	arm32)
+		if [[ -d /lib/arm-linux-gnueabihf ]] ; then
+      OS_ARCH="linux_armhf"
+    elif [[ -d /lib/arm-linux-gnueabi ]] ; then
+    	OS_ARCH="linux_armel"
+  	else
+  		failed "Unknown Linux arm flavour: please edit $0 and Platform.java"
+		fi
+		;;
+	esac
+	OS="linux"
+	;;
+SunOS)
+	OS="sunos"
+	;;
+OpenBSD)
+	OS="openbsd"
+	;;
+FreeBSD|GNU/kFreeBSD)
+	OS="freebsd"
+	;;
+NetBSD)
+	OS="netbsd"
+	;;
+esac
+OS_ARCH=${OS_ARCH:-${OS}_${ARCH}}
+
+CMDS=$@
+if [[ -z "$BRIDJ_TARGETS" ]]; then
+	BRIDJ_TARGETS="default"
+	if [[ -n "$ANDROID_NDK_HOME" ]] ; then
+		BRIDJ_TARGETS="$BRIDJ_TARGETS android" ;
+	fi
 fi
 
-if [[ "$TARGET" != "clean" ]]; then
+if [[ "$1" != "clean" && "$FAST" != "1" ]]; then
     mvn generate-sources
 fi
 
-cd `dirname $0`/src/main/cpp/bridj
+if [[ "$DEBUG" == "1" ]]; then
+	CONFIG=debug
+else
+	CONFIG=release
+fi
 
-for TARGET in $BRIDJ_TARGETS ; do
-    if [[ "$TARGET" == "android" ]]; then
-        ./MakeAndroid.sh $@ || fail "Make failed"
-    else
-        if [[ "$DEBUG" == "1" ]] ; then
-            TARGET=$TARGET BUILD_CONFIG=debug ./Make.sh $@ || failed "Make failed"
-        else 
-            if [[ "$@" == "fast" ]] ; then
-                TARGET=$TARGET ./Make.sh || failed "Make failed"
-            else
-                TARGET=$TARGET ./Make.sh $@ || failed "Make failed"
-            fi
-        fi
-    fi
+for BRIDJ_TARGET in $BRIDJ_TARGETS ; do
+	case $BRIDJ_TARGET in
+	default)
+		cd $DYNCALL_HOME/dyncall
+		sh ./configure
+		make $@ || failed "Failed building dyncall"
+
+		export DYNCALL_HOME
+		export OS
+		export ARCH
+		export CONFIG
+		export OUT_DIR=$BASE_DIR/src/main/resources/org/bridj/lib/$OS_ARCH
+		export OBJ_DIR=target/build/${OS}_${ARCH}_${CONFIG}
+
+		cd $BASE_DIR/src/main/cpp/bridj
+		make $@ || failed "Build of lib failed"
+
+		export OUT_DIR=$BASE_DIR/src/test/resources/org/bridj/lib/$OS_ARCH
+
+		cd $BASE_DIR/src/test/cpp/test
+		make $@ || failed "Build of test lib failed"
+
+		cd $BASE_DIR/src/test/cpp/dependsOnTest
+		make $@ || failed "Build of dependsOnTest lib failed"
+		;;
+	android)
+		$BASE_DIR/src/main/cpp/bridj/MakeAndroid.sh $@
+		;;
+	esac
 done
-

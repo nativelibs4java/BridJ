@@ -1,3 +1,7 @@
+#include "bridj.hpp"
+
+#ifdef BRIDJ_OBJC_SUPPORT
+
 #include "JNI.h"
 #include "org_bridj_JNI.h"
 #include "bridj.hpp"
@@ -101,3 +105,5 @@ jobject Java_org_bridj_objc_ObjCJNI_createObjCProxyPeer(JNIEnv* env, jclass cl, 
 	id proxyInstance = [[ObjCProxy alloc] initWithEnv: env javaInstance: javaInstance];
 	return createPointerFromIO(env, proxyInstance, gObjCProxyCallIO);
 }
+
+#endif // BRIDJ_OBJC_SUPPORT

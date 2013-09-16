@@ -39,7 +39,8 @@ else
 	PATCH_CMD=gpatch
 fi
 
-$PATCH_CMD -i $PATCH_FILE -N -p0 || ( rm -fR $DYNCALL_HOME && failed "Patch failed, deleted $DYNCALL_HOME" )
+$PATCH_CMD -i $PATCH_FILE -N -p0
+# $PATCH_CMD -i $PATCH_FILE -N -p0 || ( rm -fR $DYNCALL_HOME && failed "Patch failed, deleted $DYNCALL_HOME" )
 
 echo "Ensuring all diffed files are added to SVN..."
 svn add `find . -type f | grep -v .svn` 2> /dev/null 

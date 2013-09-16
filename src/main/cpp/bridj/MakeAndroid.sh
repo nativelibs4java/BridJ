@@ -21,19 +21,20 @@ if [[ ! -e jni/dyncall ]]; then
 fi
 
 #ABIS="x86 armeabi mips"
-ABIS="x86 armeabi"
+#ABIS="x86 armeabi"
 
-$ANDROID_NDK_HOME/ndk-build $@ || fail "Failed to build Android lib for ABI $ABI"
+$ANDROID_NDK_HOME/ndk-build $@ || fail "Failed to build Android lib"
+#$ANDROID_NDK_HOME/ndk-build APP_ABI=$ABI $@ || fail "Failed to build Android lib for ABI $ABI"
 
-exit 0
-
-for ABI in $ABIS; do
-    $ANDROID_NDK_HOME/ndk-build "APP_ABI=$ABI" $@ || fail "Failed to build Android lib for ABI $ABI"
-    if [[ "$@" != "clean" ]]; then
-        LIB_DIR="$RESOURCES/libs/$ABI"
-        [ -d "$LIB_DIR" ] || mkdir -p "$LIB_DIR" || fail "Failed to create output dir $LIB_DIR"
-        cp libs/$ABI/*.so "$LIB_DIR"
+if [[ "$@" != "clean" ]]; then
+	for OUT_DIR in obj/local/* ; do
+	  if [[ -d $OUT_DIR && -f $OUT_DIR/libbridj.so ]]; then
+	  	ABI=`basename $OUT_DIR`
+	  	LIB_DIR=$RESOURCES/libs/$ABI
+	  	[[ -d "$LIB_DIR" ]] || mkdir -p "$LIB_DIR"
+      cp $OUT_DIR/libbridj.so $LIB_DIR
     fi
-done
+	done
+fi
 
 rm jni/dyncall || fail "Failed to remove jni/dyncall symlink"

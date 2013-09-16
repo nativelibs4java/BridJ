@@ -28,9 +28,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "HandlersCommon.h"
+#include "bridj.hpp"
 
 #ifdef BRIDJ_OBJC_SUPPORT
+
+#include "HandlersCommon.h"
+
 #include <objc/message.h>
 
 char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
@@ -72,5 +75,6 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 	
 	return info->fInfo.fDCReturnType;
 }
-#endif
+
+#endif // BRIDJ_OBJC_SUPPORT
 
