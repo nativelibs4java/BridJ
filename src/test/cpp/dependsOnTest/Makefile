@@ -6,6 +6,7 @@ SHARED_LIB	 = dependsOnTest
 UNITS += dependsOnTest
 
 CPPFLAGS	+=	-I../test
+CPPFLAGS	+= -fPIC
 
 ifeq ($(OS), darwin)
 CPPFLAGS  += -mmacosx-version-min=10.5

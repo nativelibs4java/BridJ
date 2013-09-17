@@ -7,6 +7,8 @@ UNITS += test
 UNITS += structs
 UNITS += templates
 
+CPPFLAGS	+= -fPIC
+
 ifeq ($(OS), darwin)
 UNITS += objctest
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/

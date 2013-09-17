@@ -42,6 +42,7 @@ CPPFLAGS  += -U_FORTIFY_SOURCE
 CPPFLAGS  += -std=c99
 
 LDFLAGS		+= -lpthread
+CPPFLAGS	+= -fPIC
 
 ifeq ($(OS), sunos)
 # http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
