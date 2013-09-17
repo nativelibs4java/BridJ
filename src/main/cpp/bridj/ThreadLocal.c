@@ -92,8 +92,8 @@ void initThreadLocal(JNIEnv* env) {
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)                
-{ 
-    switch (fdwReason) 
+{
+    switch (fdwReason)
     {
 	case DLL_PROCESS_ATTACH:
 		break;
@@ -111,10 +111,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	default:
 		break;
     }
- 
-    return TRUE; 
-    UNREFERENCED_PARAMETER(hinstDLL); 
-    UNREFERENCED_PARAMETER(lpvReserved); 
+
+    return TRUE;
+    UNREFERENCED_PARAMETER(hinstDLL);
+    UNREFERENCED_PARAMETER(lpvReserved);
 }
 
 #else
@@ -132,20 +132,8 @@ void initThreadLocal(JNIEnv* env) {
 	pthread_key_create(&gTlsKey, destroyThreadLocal);
 }
 
-/*
-CallTempStruct* getTempCallStruct(JNIEnv* env) {
-	jlong handle = (*env)->CallStaticLongMethod(env, gBridJClass, gGetTempCallStruct);
-	return (CallTempStruct*)JLONG_TO_PTR(handle);
-}
-void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
-	//s->env = NULL;
-	jlong h = PTR_TO_JLONG(s);
-	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, h);
-}*/
-
 #endif
 
-#if 1
 CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
 	if (!pNode) {
@@ -156,7 +144,7 @@ CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	if (pNode->fUsed) {
 		if (!pNode->fNext)
 			pNode->fNext = NewNode(pNode);
-		
+
 		pNode = pNode->fNext;
 		SET_THREAD_LOCAL_DATA(pNode);
 	}
@@ -168,7 +156,7 @@ CallTempStruct* getCurrentTempCallStruct(JNIEnv* env) {
 	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
 	if (!pNode || !pNode->fUsed)
 		return NULL;
-	
+
 	return &pNode->fCallTempStruct;
 }
 
@@ -179,6 +167,10 @@ void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 		return;
 	}
 	pNode->fUsed = JNI_FALSE;
+	if (s->localRefsToCleanup.buffer) {
+		free(s->localRefsToCleanup.buffer);
+		memset(&s->localRefsToCleanup, sizeof(PointerVector), 0);
+	}
 	if (pNode->fPrevious)
 		SET_THREAD_LOCAL_DATA(pNode->fPrevious);
 }
@@ -188,19 +180,4 @@ void freeCurrentThreadLocalData() {
 	FreeNodes(pNode);
 	SET_THREAD_LOCAL_DATA(NULL);
 }
-#else
 
-CallTempStruct* getTempCallStruct(JNIEnv* env) {
-	CallTempStruct* s = MALLOC_STRUCT(CallTempStruct);
-	InitCallTempStruct(s);
-	return s;
-}
-
-void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
-	FreeCallTempStruct(s);
-	free(s);
-}
-
-void freeCurrentThreadLocalData() {
-}
-#endif

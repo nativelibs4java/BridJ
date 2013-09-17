@@ -39,9 +39,22 @@ import static org.junit.Assert.*;
 
 import org.bridj.ann.*;
 import org.bridj.*;
+import static org.bridj.BridJ.*;
+import static org.bridj.Pointer.*;
 
+@Library("test")
 public class MemoryTest {
-    String[] strings = {"a", "b", "c"};
+	static {
+		BridJ.register();
+	}
+	public static abstract class CallbackType extends Callback<CallbackType> {
+		abstract public void apply(Pointer<Byte > v1, Pointer<Byte > v2);
+	}
+	public static native void defineCallback(Pointer<CallbackType> callback);
+	public static native void callCallback(long times, Pointer<Byte> value);
+
+
+  static String[] strings = {"a", "b", "c"};
 	@Test
 	public void testGC() {
 	    for (int i = 0; i < 10; i++) {
@@ -63,5 +76,18 @@ public class MemoryTest {
 	        }
 	        System.gc();
 	    }
+	}
+
+	@Test
+	public void testCallbacks() {
+		final Pointer<Byte> v = pointerToByte((byte)1);
+		CallbackType cb = new CallbackType() {
+			public void apply(Pointer<Byte> v1, Pointer<Byte> v2) {
+				assertEquals(v, v1);
+				assertNotNull(v2);
+			}
+		};
+	  defineCallback(getPointer(cb));
+	  callCallback(1000000, v);
 	}
 }

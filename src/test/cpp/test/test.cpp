@@ -578,3 +578,16 @@ size_t Constructed::sizeOf() {
 	return sizeof(Constructed);
 }
 
+
+
+typedef void (*CallbackType)(const char*, const char*);
+CallbackType gCallback;
+TEST_API void defineCallback(CallbackType callback) {
+	gCallback = callback;
+}
+
+TEST_API void callCallback(long long times, const char* value) {
+	for (long long i = 0; i < times; i++) {
+		gCallback(value, "test");
+	}
+}

@@ -7,7 +7,7 @@ NDK_DEBUG := 1
 
 LOCAL_LDLIBS += -ldl
 LOCAL_LDFLAGS += -Wl,--export-dynamic -Wl,--allow-multiple-definition
-LOCAL_CFLAGS += -U_FORTIFY_SOURCE
+LOCAL_CFLAGS += -U_FORTIFY_SOURCE -std=c99
 
 # For thumb, call with LOCAL_ARM_MODE=thumb
 LOCAL_ARM_MODE := $(if $(LOCAL_ARM_MODE),$(LOCAL_ARM_MODE),arm)

@@ -133,11 +133,20 @@ typedef struct _LastError {
   LastErrorKind kind;
 } LastError;
 
+typedef struct PointerVector {
+	void** buffer;
+	size_t bufferLength;
+	size_t length;
+} PointerVector;
+
+void vectorAppend(PointerVector* vector, void* value);
+
 typedef struct CallTempStruct {
 	DCCallVM* vm;
 	JNIEnv *env;
 	jobject* pCallIOs;
 	LastError lastError;
+	PointerVector localRefsToCleanup;
 #if defined(__GNUC__)
 	jmp_buf exceptionContext;
 	Signals signals;
@@ -145,6 +154,8 @@ typedef struct CallTempStruct {
 	jlong signalAddress;
 #endif
 } CallTempStruct;
+
+void addTempCallLocalRef(CallTempStruct* call, jobject obj);
 
 typedef struct CommonCallbackInfo {
 	int nParams;

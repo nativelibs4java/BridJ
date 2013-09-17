@@ -17,6 +17,7 @@ UNITS += Platform
 UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
 UNITS += ThreadLocal
+UNITS += Utils
 
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncall

@@ -61,8 +61,11 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						int flags = dcbArgInt(args);
 						jobject obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
 						dcArgPointer(call->vm, obj);
+						(*env)->DeleteLocalRef(env, obj);
 					} else {
-						int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
+						jobject obj = (jobject)dcbArgPointer(args);
+						int arg = (jint)getFlagValue(env, obj);
+						(*env)->DeleteLocalRef(env, obj);
 						if (flags & IS_VAR_ARGS)
 							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 						else
@@ -83,7 +86,9 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{ \
 					if (flags & CALLING_JAVA) { \
 						type arg = (sizeof(type) == 4) ? (type)dcbArgInt(args) : (type)dcbArgLongLong(args); \
-						dcArgPointer(call->vm, Box ## capitalized(env, arg)); \
+						jobject boxed = Box ## capitalized(env, arg); \
+						dcArgPointer(call->vm, boxed); \
+						/*addTempCallLocalRef(call, boxed);*/ \
 					} else { \
 						jobject parg = dcbArgPointer(args); \
 						jlong arg = Unbox ## capitalized(env, parg); \
@@ -93,6 +98,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 							dcArgInt(call->vm, (jint)arg); \
 						else \
 							dcArgLongLong(call->vm, (jlong)arg); \
+						(*env)->DeleteLocalRef(env, parg); \
 					} \
 				}
 			#define ARG_UNBOXED_INTEGRAL(type, capitalized) \
@@ -166,6 +172,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					if (flags & CALLING_JAVA)
 					{
 						ptr = createPointerFromIO(env, ptr, callIO);
+						addTempCallLocalRef(call, ptr);
 					} else {
 						ptr = ptr ? getPointerPeer(env, ptr) : NULL;
 					}
@@ -210,14 +217,14 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				} else {
 					jobjectArray arr = (jobjectArray)dcbArgPointer(args);
 					jsize n = (*env)->GetArrayLength(env, arr), i;
-					
+
 					for (i = 0; i < n; i++) {
 						jobject arg = (*env)->GetObjectArrayElement(env, arr, i);
 						#define TEST_INSTANCEOF(cl, st) \
 							if ((*env)->IsInstanceOf(env, arg, cl)) st;
-					
+
 						if (arg == NULL)
-							dcArgPointer(call->vm, getPointerPeer(env, (void*)NULL));
+							dcArgPointer(call->vm, NULL);//getPointerPeer(env, (void*)NULL));
 						else
 						// As per the C standard for varargs, all ints are promoted to ptrdiff_t and float is promoted to double : 
 						TEST_INSTANCEOF(gIntClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxInt(env, arg)))
@@ -243,9 +250,13 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						TEST_INSTANCEOF(gPointerClass, dcArgPointer(call->vm, getPointerPeer(env, (void*)arg)))
 						else {
 							throwException(env, "Invalid value type in ellipsis");
+							(*env)->DeleteLocalRef(env, arg);
+							(*env)->DeleteLocalRef(env, arr);
 							return JNI_FALSE;
 						}
+						(*env)->DeleteLocalRef(env, arg);
 					}
+					(*env)->DeleteLocalRef(env, arr);
 				}
 				break;
 			}
@@ -373,7 +384,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 	return JNI_TRUE;
 }
 
-jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env, CommonCallbackInfo* info) 
+jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env, CommonCallbackInfo* info)
 {
 	jobject instance = NULL;
 	CallTempStruct* call = NULL;
@@ -391,13 +402,21 @@ jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env, Com
 
 	if (gLog && call && info)
 		logCall(call->env, info->fMethod);
-	
+
 	return instance;
+}
+
+void addTempCallLocalRef(CallTempStruct* call, jobject obj) {
+	vectorAppend(&call->localRefsToCleanup, obj);
 }
 
 void cleanupCallHandler(CallTempStruct* call)
 {
+	JNIEnv *env = call->env;
+	for (size_t i = 0, n = call->localRefsToCleanup.length; i < n; i++) {
+		(*env)->DeleteLocalRef(env, call->localRefsToCleanup.buffer[i]);
+	}
+	call->localRefsToCleanup.length = 0;
 	dcReset(call->vm);
 	releaseTempCallStruct(call->env, call);
 }
-	
