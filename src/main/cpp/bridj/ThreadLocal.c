@@ -169,7 +169,9 @@ void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 	pNode->fUsed = JNI_FALSE;
 	if (s->localRefsToCleanup.buffer) {
 		free(s->localRefsToCleanup.buffer);
-		memset(&s->localRefsToCleanup, sizeof(PointerVector), 0);
+		s->localRefsToCleanup.buffer = NULL;
+		s->localRefsToCleanup.bufferLength = 0;
+		s->localRefsToCleanup.length = 0;
 	}
 	if (pNode->fPrevious)
 		SET_THREAD_LOCAL_DATA(pNode->fPrevious);
