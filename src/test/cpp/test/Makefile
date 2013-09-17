@@ -27,8 +27,10 @@ ifeq ($(OS), windows)
 CPPFLAGS	+=	"-IC:\Program Files\Microsoft SDKs\Windows\v6.0A\Include"
 endif
 
-ifdef BUILD_OS_darwin
-endif
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/linux
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/solaris
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/windows
 
 LDFLAGS   += -l stdc++
 
