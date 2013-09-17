@@ -24,7 +24,6 @@ CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncall
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncallback
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dynload
 
-
 ifeq ($(OS), darwin)
 CPPFLAGS  += -no-integrated-as
 CPPFLAGS  += -D_DARWIN_C_SOURCE
@@ -32,6 +31,8 @@ CPPFLAGS  += -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Head
 CPPFLAGS  += -mmacosx-version-min=10.4
 LDFLAGS   += -mmacosx-version-min=10.4
 LDFLAGS	  += -ldl -framework Foundation -all_load
+else
+LDFLAGS   += -Wl,--hash-style=both
 endif
 
 # Lower requirement for GLIBC version number (2.2.5) :
