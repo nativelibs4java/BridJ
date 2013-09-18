@@ -414,7 +414,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\bridj\JNI.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\bridj\ObjCHandler.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\Platform.c"
 				>
 			</File>
 			<File
@@ -445,22 +453,10 @@
 				RelativePath="..\..\..\bridj\ThreadLocal.c"
 				>
 			</File>
-			<Filter
-				Name="jni"
+			<File
+				RelativePath="..\..\..\bridj\Utils.c"
 				>
-				<File
-					RelativePath="..\..\..\bridj\JNI.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\bridj\Platform.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\bridj\Pointer.c"
-					>
-				</File>
-			</Filter>
+			</File>
 		</Filter>
 		<Filter
 			Name="Fichiers d&apos;en-tête"

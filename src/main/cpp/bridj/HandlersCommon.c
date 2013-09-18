@@ -413,7 +413,8 @@ void addTempCallLocalRef(CallTempStruct* call, jobject obj) {
 void cleanupCallHandler(CallTempStruct* call)
 {
 	JNIEnv *env = call->env;
-	for (size_t i = 0, n = call->localRefsToCleanup.length; i < n; i++) {
+	size_t i, n;
+	for (i = 0, n = call->localRefsToCleanup.length; i < n; i++) {
 		(*env)->DeleteLocalRef(env, call->localRefsToCleanup.buffer[i]);
 	}
 	call->localRefsToCleanup.length = 0;
