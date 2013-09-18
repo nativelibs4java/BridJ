@@ -34,7 +34,9 @@ CPPFLAGS  += -mmacosx-version-min=10.4
 LDFLAGS   += -mmacosx-version-min=10.4
 LDFLAGS	  += -ldl -framework Foundation -all_load
 else
+ifneq ($(OS), sunos)
 LDFLAGS   += -Wl,--hash-style=both
+endif
 endif
 
 # Lower requirement for GLIBC version number (2.2.5) :
