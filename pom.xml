@@ -517,7 +517,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                         <zip destfile="${project.build.directory}/${project.build.finalName}-android.zip">
                             <zipfileset dir="${project.build.directory}" includes="README.Android.txt" fullpath="README.BridJ.txt"/>
                             <zipfileset dir="." includes="LICENSE" fullpath="LICENSE.BridJ.txt"/>
-                            <zipfileset prefix="bridj-libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar"/>
+                            <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar"/>
                             <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar.properties"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-sources.jar"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-javadoc.jar"/>
