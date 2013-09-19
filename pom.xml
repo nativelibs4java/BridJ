@@ -182,7 +182,6 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
 										<exclude>org/bridj/func/**</exclude>
@@ -225,7 +224,6 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/**</exclude>
 										<exclude>org/bridj/func/**</exclude>
@@ -266,7 +264,6 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/objc/**</exclude>
 										<exclude>org/bridj/lib/linux_*/**</exclude>
@@ -309,7 +306,6 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/cpp/com/**</exclude>
 										<exclude>org/bridj/cpp/mfc/**</exclude>
@@ -352,7 +348,6 @@
 								<filter>
 									<artifact>com.nativelibs4java:bridj</artifact>
 									<excludes>
-										<exclude>libs/**</exclude>
 										<exclude>org/bridj/Android**</exclude>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 									</excludes>
@@ -402,7 +397,6 @@
 									<excludes>
 										<exclude>org/bridj/lib/android_*/**</exclude>
 										<exclude>org/bridj/lib/iphoneos_*/**</exclude>
-										<exclude>libs/**</exclude>
 									</excludes>
 								</filter>
 								<filter>
@@ -521,7 +515,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                             <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar.properties"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-sources.jar"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-javadoc.jar"/>
-                            <zipfileset prefix="bridj-native-libs" dir="src/main/resources/libs" includes="*/*"/>
+                            <zipfileset prefix="bridj-native-libs" dir="src/main/android-libs" includes="*/*"/>
                         </zip>
                       </tasks>
                     </configuration>

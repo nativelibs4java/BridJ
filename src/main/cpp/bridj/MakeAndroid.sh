@@ -10,7 +10,7 @@ function fail {
 cd $(dirname $0)
 
 BRIDJ_HOME="$PWD/../../../.."
-RESOURCES="$BRIDJ_HOME/src/main/resources"
+LIBS_DIR="$BRIDJ_HOME/src/main/android-libs"
 DYNCALL_HOME="$BRIDJ_HOME/dyncall"
 NDK_PROJECT_PATH="$PWD"
 
@@ -30,9 +30,9 @@ if [[ "$@" != "clean" ]]; then
 	for OUT_DIR in obj/local/* ; do
 	  if [[ -d $OUT_DIR && -f $OUT_DIR/libbridj.so ]]; then
 	  	ABI=`basename $OUT_DIR`
-	  	LIB_DIR=$RESOURCES/libs/$ABI
-	  	[[ -d "$LIB_DIR" ]] || mkdir -p "$LIB_DIR"
-      cp $OUT_DIR/libbridj.so $LIB_DIR
+	  	ABI_DIR=$LIBS_DIR/$ABI
+	  	[[ -d "$ABI_DIR" ]] || mkdir -p "$ABI_DIR"
+      cp $OUT_DIR/libbridj.so $ABI_DIR
     fi
 	done
 fi

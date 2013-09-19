@@ -115,21 +115,25 @@ function buildProjects() {
 			$MAKE_CMD $@
 
 			# If the library has an Android build file, build it with the NDK.
-			if [[ -f jni/Android.mk && -n "$ANDROID_NDK_HOME" && "$ANDROID" != "0" ]]; then
-				$ANDROID_NDK_HOME/ndk-build $@
+			if [[ -f jni/Android.mk && "$ANDROID" != "0" ]]; then
+				if [[ -z "$ANDROID_NDK_HOME" ]]; then
+					echo "WARNING: library in $D has an Android build file, but ANDROID_NDK_HOME is not defined. Skipped Android build."
+			  else
+					$ANDROID_NDK_HOME/ndk-build $@
 
-				LIBS_DIR=$TOP/src/$SRC_TYPE/resources/libs
-				if [[ "$@" == "clean" ]]; then
-					rm -fR obj libs
-					rm -fR $LIBS_DIR
-				else
-					for OUT_DIR in libs/* ; do
-					  if [[ -d $OUT_DIR && "`find libs -name 'lib*.so' | wc -l`" != "0" ]]; then
-					  	ABI=`basename $OUT_DIR`
-					  	[[ -d "$LIBS_DIR/$ABI" ]] || mkdir -p "$LIBS_DIR/$ABI"
-				      cp $OUT_DIR/lib*.so $LIBS_DIR/$ABI
-				    fi
-					done
+					LIBS_DIR=$TOP/src/$SRC_TYPE/android-libs
+					if [[ "$@" == "clean" ]]; then
+						rm -fR obj libs
+						rm -fR $LIBS_DIR
+					else
+						for OUT_DIR in libs/* ; do
+						  if [[ -d $OUT_DIR && "`find libs -name 'lib*.so' | wc -l`" != "0" ]]; then
+						  	ABI=`basename $OUT_DIR`
+						  	[[ -d "$LIBS_DIR/$ABI" ]] || mkdir -p "$LIBS_DIR/$ABI"
+					      cp $OUT_DIR/lib*.so $LIBS_DIR/$ABI
+					    fi
+						done
+					fi
 				fi
 			fi
 		fi
