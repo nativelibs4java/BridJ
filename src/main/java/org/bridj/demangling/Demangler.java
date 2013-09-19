@@ -537,6 +537,23 @@ public abstract class Demangler {
         public String toString() {
             return pointedType + "*";
         }
+
+        @Override
+        public boolean matches(Type type, Annotations annotations) {
+            if (super.matches(type, annotations))
+                return true;
+
+            if (type == Long.TYPE && annotations.isAnnotationPresent(Ptr.class))
+                return true;
+            
+            Class typeClass = getTypeClass(type);
+            if (!Pointer.class.isAssignableFrom(typeClass))
+                return false;
+            Type pointedType = Utils.getUniqueParameterizedTypeParameter(type);
+            return this.pointedType.matches(pointedType, annotations);
+        }
+        
+        
     }
 
     protected static TypeRef pointerType(TypeRef tr) {
