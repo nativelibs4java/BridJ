@@ -111,6 +111,55 @@
 			<url>http://oss.sonatype.org/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
+
+	<profiles>
+		<profile>
+			<id>native</id>
+			<activation>
+				<!-- You may want to disable by default: -->
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>native</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.2.1</version>
+						<executions>
+							<execution>
+								<id>BuildBinaries</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${basedir}/src/scripts/Build.sh</executable>
+									<workingDirectory>${basedir}</workingDirectory>
+								</configuration>
+							</execution>
+							<execution>
+								<id>CleanBinaries</id>
+								<phase>clean</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>${basedir}/src/scripts/Build.sh</executable>
+									<workingDirectory>${basedir}</workingDirectory>
+									<arguments>
+										<argument>clean</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
 
 

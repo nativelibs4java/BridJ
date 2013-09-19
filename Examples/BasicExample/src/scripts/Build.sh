@@ -83,7 +83,7 @@ fi
 
 set -e
 
-cd `dirname $0`
+cd `dirname $0`/../..
 export TOP=${TOP:-$PWD}
 export OS
 export ARCH
@@ -110,17 +110,24 @@ function buildProjects() {
 		if [[ -d "$D" ]]; then
 			cd $D
 			export OUT_BASE_DIR=$TOP/src/$SRC_TYPE/resources/$LIBS_PATH
+
+			# Build with GNU or BSD Make
 			$MAKE_CMD $@
 
+			# If the library has an Android build file, build it with the NDK.
 			if [[ -f jni/Android.mk && -n "$ANDROID_NDK_HOME" && "$ANDROID" != "0" ]]; then
 				$ANDROID_NDK_HOME/ndk-build $@
-				if [[ "$@" != "clean" ]]; then
+
+				LIBS_DIR=$TOP/src/$SRC_TYPE/resources/libs
+				if [[ "$@" == "clean" ]]; then
+					rm -fR obj libs
+					rm -fR $LIBS_DIR
+				else
 					for OUT_DIR in libs/* ; do
 					  if [[ -d $OUT_DIR && "`find libs -name 'lib*.so' | wc -l`" != "0" ]]; then
 					  	ABI=`basename $OUT_DIR`
-					  	LIB_DIR=$TOP/src/$SRC_TYPE/resources/libs
-					  	[[ -d "$LIB_DIR" ]] || mkdir -p "$LIB_DIR"
-				      cp $OUT_DIR/lib*.so $LIB_DIR/$ABI
+					  	[[ -d "$LIBS_DIR/$ABI" ]] || mkdir -p "$LIBS_DIR/$ABI"
+				      cp $OUT_DIR/lib*.so $LIBS_DIR/$ABI
 				    fi
 					done
 				fi

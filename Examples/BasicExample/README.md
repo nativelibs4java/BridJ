@@ -6,7 +6,6 @@ This sample project shows how BridJ &amp; JNAerator can be used to maintain a cu
 
 To build on Unix (MacOS X, Linux, Solaris), simply type the following lines
 ```
-./Build.sh clean && ./Build.sh
 mvn clean install
 ```
 
