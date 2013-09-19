@@ -109,15 +109,30 @@ function buildProjects() {
 	for D in $BASE/* ; do
 		if [[ -d "$D" ]]; then
 			cd $D
+			export OUT_BASE_DIR=$TOP/src/$SRC_TYPE/resources/$LIBS_PATH
 			$MAKE_CMD $@
+
+			if [[ -f jni/Android.mk && -n "$ANDROID_NDK_HOME" && "$ANDROID" != "0" ]]; then
+				$ANDROID_NDK_HOME/ndk-build $@
+				if [[ "$@" != "clean" ]]; then
+					for OUT_DIR in libs/* ; do
+					  if [[ -d $OUT_DIR && "`find libs -name 'lib*.so' | wc -l`" != "0" ]]; then
+					  	ABI=`basename $OUT_DIR`
+					  	LIB_DIR=$TOP/src/$SRC_TYPE/resources/libs
+					  	[[ -d "$LIB_DIR" ]] || mkdir -p "$LIB_DIR"
+				      cp $OUT_DIR/lib*.so $LIB_DIR/$ABI
+				    fi
+					done
+				fi
+			fi
 		fi
 	done
 }
 
 # Build main projects (one per native folder).
-export OUT_BASE_DIR=${OUT_BASE_DIR:-$TOP/src/main/resources/$LIBS_PATH}
+SRC_TYPE=main
 buildProjects $TOP/src/main/native/ $@
 
 # Build test projects.
-export OUT_BASE_DIR=${OUT_BASE_DIR:-$TOP/src/test/resources/$LIBS_PATH}
+SRC_TYPE=test
 buildProjects $TOP/src/test/native/ $@
