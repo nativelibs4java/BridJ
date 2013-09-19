@@ -6,35 +6,44 @@
 	<name>BridJ Example Project</name>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.5</maven.compiler.source>
 		<maven.compiler.target>1.5</maven.compiler.target>
+		<bridj.version>0.7-SNAPSHOT</bridj.version>
 	</properties>
-	
+
 	<dependencies>
 
 		<dependency>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>bridj</artifactId>
-			<version>0.7-SNAPSHOT</version>
+			<version>${bridj.version}</version>
 		</dependency>
-		
-		
+
+		<dependency>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>bridj</artifactId>
+			<version>${bridj.version}</version>
+			<type>zip</type>
+			<classifier>android</classifier>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<!--
-				If you're okay that your bindings will be regenerated at each build : 
+				If you're okay that your bindings will be regenerated at each build :
 			-->
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
@@ -48,10 +57,10 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<!--
 				If you'd rather re-generate bindings on demand inside src/main/java (with "mvn jnaerator:generate"), maybe to tweak them after generation and version them :
-			
+
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-jnaerator-plugin</artifactId>
@@ -60,162 +69,190 @@
 					<javaOutputDirectory>src/main/java</javaOutputDirectory>
 				</configuration>
 			</plugin>
-			-->
-			
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.4</version>
+		-->
 
-				<executions>
-					<execution>
-						<id>android-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>android</shadedClassifierName>
-							<artifactSet>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.4</version>
+
+			<executions>
+				<execution>
+					<id>android-jar</id>
+					<phase>package</phase>
+					<goals>
+						<goal>shade</goal>
+					</goals>
+					<configuration>
+						<shadedArtifactAttached>true</shadedArtifactAttached>
+						<shadedClassifierName>android</shadedClassifierName>
+						<artifactSet>
+							<excludes>
+								<exclude>junit:junit</exclude>
+							</excludes>
+						</artifactSet>
+						<filters>
+							<filter>
+								<artifact>*:*</artifact>
 								<excludes>
-									<exclude>junit:junit</exclude>
+									<exclude>lib/**</exclude>
+									<exclude>org/bridj/lib/**</exclude>
+									<exclude>org/bridj/cpp/com/**</exclude>
+									<exclude>org/bridj/cpp/mfc/**</exclude>
+									<exclude>org/bridj/objc/**</exclude>
+									<exclude>org/bridj/jawt/**</exclude>
+
+									<exclude>junit/**</exclude>
+									<exclude>META-INF/*.SF</exclude>
+									<exclude>META-INF/*.DSA</exclude>
+									<exclude>META-INF/*.RSA</exclude>
+									<exclude>META-INF/maven/**</exclude>
 								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>lib/**</exclude>
-										<exclude>org/bridj/lib/**</exclude>
-										<exclude>org/bridj/cpp/com/**</exclude>
-										<exclude>org/bridj/cpp/mfc/**</exclude>
-										<exclude>org/bridj/objc/**</exclude>
-										<exclude>org/bridj/jawt/**</exclude>
+							</filter>
+						</filters>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
 
-										<exclude>junit/**</exclude>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.DSA</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-										<exclude>META-INF/maven/**</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<version>2.8</version>
+			<executions>
+				<execution>
+					<goals>
+						<goal>properties</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+       <plugin>
+       	<artifactId>maven-antrun-plugin</artifactId>
+       	<version>1.7</version>
+       	<executions>
+       		<execution>
+       			<phase>generate-resources</phase>
+       			<configuration>
+       				<target>
+       					<echo>ANDROID ZIP IS ${com.nativelibs4java:bridj:zip:android}</echo>
+       					<unzip src="${com.nativelibs4java:bridj:zip:android}" dest="${project.build.directory}/bridj-android" />
+       					<copy todir="src/main/android-libs">
+          				<fileset dir="${project.build.directory}/bridj-android/libs" includes="**/*" excludes="*.txt" T/>
+          			</copy>
+       					<copy todir="src/main/android-libs">
+          				<fileset dir="${project.build.directory}/bridj-android/native-libs" includes="**/*" excludes="*.txt" />
+          			</copy>
+       				</target>
+       			</configuration>
+       			<goals>
+       				<goal>run</goal>
+       			</goals>
+       		</execution>
+       	</executions>
+       </plugin>
+       <plugin>
+       	<groupId>org.apache.maven.plugins</groupId>
+       	<artifactId>maven-javadoc-plugin</artifactId>
+       	<executions>
+       		<execution>
+       			<id>attach-javadocs</id>
+       			<goals>
+       				<goal>jar</goal>
+       			</goals>
+       			<configuration>
+       			</configuration>
+       		</execution>
+       	</executions>
+       </plugin>
+       <plugin>
+       	<groupId>org.codehaus.mojo</groupId>
+       	<artifactId>build-helper-maven-plugin</artifactId>
+       	<version>1.2</version>
+       	<executions>
+       		<execution>
+       			<phase>verify</phase>
+       			<goals>
+       				<goal>attach-artifact</goal>
+       			</goals>
+       			<configuration>
+       				<artifacts>
+       					<artifact>
+       						<file>${project.build.directory}/${project.build.finalName}-android.zip</file>
+       						<classifier>android</classifier>
+       						<type>zip</type>
+       					</artifact>
+       				</artifacts>
+       			</configuration>
+       		</execution>
+       	</executions>
+       </plugin>
+     </plugins>
+   </build>
+   <repositories>
+   	<repository>
+   		<id>sonatype</id>
+   		<name>Sonatype OSS Snapshots Repository</name>
+   		<url>http://oss.sonatype.org/content/groups/public</url>
+   	</repository>
+    </repositories>
+    <pluginRepositories>
+    	<pluginRepository>
+    		<id>sonatype</id>
+    		<name>Sonatype OSS Snapshots Repository</name>
+    		<url>http://oss.sonatype.org/content/groups/public</url>
+    	</pluginRepository>
+    </pluginRepositories>
 
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.2</version>
-          <executions>
-            <execution>
-              <phase>verify</phase>
-              <goals>
-                <goal>attach-artifact</goal>
-              </goals>
-              <configuration>
-                <artifacts>
-                  <artifact>
-                    <file>${project.build.directory}/${project.build.finalName}-android.zip</file>
-                    <classifier>android</classifier>
-                    <type>zip</type>
-                  </artifact>
-                </artifacts>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-		</plugins>
-	</build>
-	<repositories>
-		<repository>
-			<id>sonatype</id>
-			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
-		</repository>
-		<!-- Uncomment to use Rococoa:
-        <repository>
-            <id>nativelibs4java-legacy</id>
-            <name>NativeLibs4Java Legacy Repository</name>
-            <url>http://nativelibs4java.sourceforge.net/maven/</url>
-        </repository>
-        -->
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>sonatype</id>
-			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
-		</pluginRepository>
-	</pluginRepositories>
-
-	<profiles>
-		<profile>
-			<id>native</id>
-			<activation>
-				<!-- You may want to disable by default: -->
-				<activeByDefault>true</activeByDefault>
-				<property>
-					<name>native</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.2.1</version>
-						<executions>
-							<execution>
-								<id>BuildBinaries</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${basedir}/src/scripts/Build.sh</executable>
-									<workingDirectory>${basedir}</workingDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>CleanBinaries</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${basedir}/src/scripts/Build.sh</executable>
-									<workingDirectory>${basedir}</workingDirectory>
-									<arguments>
-										<argument>clean</argument>
-									</arguments>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-</project>
+    <profiles>
+    	<profile>
+    		<id>native</id>
+    		<activation>
+    			<!-- You may want to disable by default: -->
+    			<activeByDefault>true</activeByDefault>
+    			<property>
+    				<name>native</name>
+    			</property>
+    		</activation>
+    		<build>
+    			<plugins>
+    				<plugin>
+    					<groupId>org.codehaus.mojo</groupId>
+    					<artifactId>exec-maven-plugin</artifactId>
+    					<version>1.2.1</version>
+    					<executions>
+    						<execution>
+    							<id>BuildBinaries</id>
+    							<phase>generate-resources</phase>
+    							<goals>
+    								<goal>exec</goal>
+    							</goals>
+    							<configuration>
+    								<executable>${basedir}/src/scripts/Build.sh</executable>
+    								<workingDirectory>${basedir}</workingDirectory>
+    							</configuration>
+    						</execution>
+    						<execution>
+    							<id>CleanBinaries</id>
+    							<phase>clean</phase>
+    							<goals>
+    								<goal>exec</goal>
+    							</goals>
+    							<configuration>
+    								<executable>${basedir}/src/scripts/Build.sh</executable>
+    								<workingDirectory>${basedir}</workingDirectory>
+    								<arguments>
+    									<argument>clean</argument>
+    								</arguments>
+    							</configuration>
+    						</execution>
+    					</executions>
+    				</plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+    </profiles>
+  </project>
 
 
 
