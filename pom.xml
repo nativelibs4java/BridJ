@@ -493,16 +493,16 @@
                         <echo file="${project.build.directory}/README.Android.txt">To use BridJ in your Android project:
 - Copy libs/ to your project's root directory.
 - If you're building a native library with the NDK:
-    - Copy bridj-native-libs/ to your project's root directory.
+    - Copy native-libs/ to your project's root directory.
     - Add the following to your jni/Android.mk file:
     
         include $(CLEAR_VARS)
         LOCAL_MODULE := bridj
-        LOCAL_SRC_FILES := ../bridj-native-libs/$(TARGET_ARCH_ABI)/libbridj.so
+        LOCAL_SRC_FILES := ../native-libs/$(TARGET_ARCH_ABI)/libbridj.so
         include $(PREBUILT_SHARED_LIBRARY)
         
 - If you're not building any native library with the NDK and just want to use BridJ to bind system libraries:
-    - Copy the contents of bridj-native-libs/ to libs/.
+    - Copy the contents of native-libs/ to libs/.
 
 In any case, if your project is already opened in the ADT / Eclipse, close it and reopen it to make sure it picks up the correct BridJ sources and javadoc locations.
 
@@ -515,7 +515,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                             <zipfileset prefix="libs" dir="${project.build.directory}" includes="${project.build.finalName}-android.jar.properties"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-sources.jar"/>
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-javadoc.jar"/>
-                            <zipfileset prefix="bridj-native-libs" dir="src/main/android-libs" includes="*/*"/>
+                            <zipfileset prefix="native-libs" dir="src/main/android-libs" includes="*/*"/>
                         </zip>
                       </tasks>
                     </configuration>
