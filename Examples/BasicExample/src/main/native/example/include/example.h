@@ -5,7 +5,7 @@ class SomeClass {
 	int m_value;
 public:
 	SomeClass(int value);
-	void someMethod(const char* message);
+	int someMethod(const char* message);
 };
 
 void someFunction(const char* message);

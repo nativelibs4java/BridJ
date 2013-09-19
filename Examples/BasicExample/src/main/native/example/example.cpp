@@ -8,8 +8,9 @@ SomeClass::SomeClass(int value): m_value(value) {
 	cout << "Building SomeClass with " << value << endl;
 }
 
-void SomeClass::someMethod(const char* message) {
+int SomeClass::someMethod(const char* message) {
 	cout << "SomeClass(" << m_value << ").someMethod(" << message << ")" << endl;
+	return m_value;
 }
 
 void someFunction(const char* message) {
