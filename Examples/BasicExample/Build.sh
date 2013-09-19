@@ -83,12 +83,12 @@ fi
 
 set -e
 
-TOP=${TOP:-$PWD}
+cd `dirname $0`
+export TOP=${TOP:-$PWD}
 export OS
 export ARCH
 export OS_ARCH
 export CONFIG
-export OUT_BASE_DIR=${OUT_BASE_DIR:-$TOP/src/main/resources/lib}
 export OBJ_BASE_DIR=${OBJ_BASE_DIR:-$TOP/target}
 
 if [[ "$ECHO" == "1" ]]; then
@@ -96,6 +96,28 @@ if [[ "$ECHO" == "1" ]]; then
 	echo "ARCH = $ARCH"
 	echo "OS_ARCH = $OS_ARCH"
 	echo "CONFIG = $CONFIG"
-else
-	$MAKE_CMD $@
+	exit 0
 fi
+
+# You can choose a different resource path,
+# see https://code.google.com/p/bridj/wiki/LibrariesLookup
+LIBS_PATH=lib
+
+function buildProjects() {
+	BASE=$1
+	shift
+	for D in $BASE/* ; do
+		if [[ -d "$D" ]]; then
+			cd $D
+			$MAKE_CMD $@
+		fi
+	done
+}
+
+# Build main projects (one per native folder).
+export OUT_BASE_DIR=${OUT_BASE_DIR:-$TOP/src/main/resources/$LIBS_PATH}
+buildProjects $TOP/src/main/native/ $@
+
+# Build test projects.
+export OUT_BASE_DIR=${OUT_BASE_DIR:-$TOP/src/test/resources/$LIBS_PATH}
+buildProjects $TOP/src/test/native/ $@

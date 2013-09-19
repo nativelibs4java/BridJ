@@ -57,9 +57,6 @@ TOP_DIR := ../../..
 
 # Write object files in Maven's output folders.
 OBJ_DIR = $(OBJ_BASE_DIR)/native_$(OS_ARCH)_$(CONFIG)_obj
-
-# You can choose a different resource path,
-# see https://code.google.com/p/bridj/wiki/LibrariesLookup
 OUT_DIR = $(OUT_BASE_DIR)/$(OS_ARCH)
 
 OBJS += $(foreach X,$(UNITS),$(OBJ_DIR)/$X.o)

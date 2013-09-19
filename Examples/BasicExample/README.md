@@ -1,12 +1,12 @@
-= BridJ &amp; JNAerator Example =
+# BridJ &amp; JNAerator Example
 
 This sample project shows how BridJ &amp; JNAerator can be used to maintain a custom native library built on many platforms, along with its bindings.
 
-= Building =
+# Building
 
 To build on Unix (MacOS X, Linux, Solaris), simply type the following lines
 ```
-./BuildAll.sh clean && ./BuildAll.sh
+./Build.sh clean && ./Build.sh
 mvn clean install
 ```
 
@@ -16,7 +16,7 @@ This will automatically:
 * Compile all the Java files under `src/main/java` (you can put your own there, for instance to wrap C/C++ entities in Java ones) and create a JAR in `target`
 * Run the tests in `src/test/java`
 
-= Customizing =
+# Customizing
 
 You may want to:
 * Add more `*.cpp` files under `src/main/native/example`: just add them in `src/main/native/example/Makefile` with a `UNITS += mynewfile` line, without the file extension.
