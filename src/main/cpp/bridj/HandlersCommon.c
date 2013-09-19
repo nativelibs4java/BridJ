@@ -88,7 +88,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						type arg = (sizeof(type) == 4) ? (type)dcbArgInt(args) : (type)dcbArgLongLong(args); \
 						jobject boxed = Box ## capitalized(env, arg); \
 						dcArgPointer(call->vm, boxed); \
-						/*addTempCallLocalRef(call, boxed);*/ \
+						addTempCallLocalRef(call, boxed); \
 					} else { \
 						jobject parg = dcbArgPointer(args); \
 						jlong arg = Unbox ## capitalized(env, parg); \
