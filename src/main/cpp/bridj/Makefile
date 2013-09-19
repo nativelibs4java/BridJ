@@ -24,7 +24,9 @@ CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncall
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncallback
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dynload
 
+ifneq ($(ARCH), arm)
 CPPFLAGS  += -mtune=generic
+endif
 
 ifeq ($(OS), darwin)
 CPPFLAGS  += -no-integrated-as

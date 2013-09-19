@@ -29,6 +29,8 @@ i86pc|i386|i486|i586|i686|x86)
 x86_64|amd64)
 	ARCH=x64
 	;;
+arm*)
+	ARCH=arm
 esac
 
 OS_ARCH=""
@@ -50,7 +52,7 @@ Darwin)
 	;;
 Linux)
 	case $ARCH in
-	arm32)
+	arm)
 		if [[ -d /lib/arm-linux-gnueabihf ]] ; then
       OS_ARCH="linux_armhf"
     elif [[ -d /lib/arm-linux-gnueabi ]] ; then
