@@ -135,12 +135,11 @@
        			<phase>generate-resources</phase>
        			<configuration>
        				<target>
-       					<echo>ANDROID ZIP IS ${com.nativelibs4java:bridj:zip:android}</echo>
        					<unzip src="${com.nativelibs4java:bridj:zip:android}" dest="${project.build.directory}/bridj-android" />
-       					<copy todir="src/main/android-libs">
-          				<fileset dir="${project.build.directory}/bridj-android/libs" includes="**/*" excludes="*.txt" T/>
+       					<copy todir="${basedir}/src/main/android-libs">
+          				<fileset dir="${project.build.directory}/bridj-android/libs" includes="**/*" excludes="*.txt" />
           			</copy>
-       					<copy todir="src/main/android-libs">
+       					<copy todir="${basedir}/src/main/android-libs">
           				<fileset dir="${project.build.directory}/bridj-android/native-libs" includes="**/*" excludes="*.txt" />
           			</copy>
        				</target>
