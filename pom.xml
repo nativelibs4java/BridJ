@@ -563,20 +563,31 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 						<artifactId>exec-maven-plugin</artifactId>
 						<version>1.2.1</version>
 						<executions>
-							<execution>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								
-								<configuration>
-									<executable>${basedir}/BuildNative</executable>
-									<workingDirectory>${basedir}</workingDirectory>
-									<!--arguments>
-										<argument>${basedir}/BuildNative</argument>
-									</arguments-->
-								</configuration>
-							</execution>
+    						<execution>
+    							<id>BuildBinaries</id>
+    							<phase>generate-resources</phase>
+    							<goals>
+    								<goal>exec</goal>
+    							</goals>
+    							<configuration>
+    								<executable>${basedir}/BuildNative</executable>
+    								<workingDirectory>${basedir}</workingDirectory>
+    							</configuration>
+    						</execution>
+    						<execution>
+    							<id>CleanBinaries</id>
+    							<phase>clean</phase>
+    							<goals>
+    								<goal>exec</goal>
+    							</goals>
+    							<configuration>
+    								<executable>${basedir}/BuildNative</executable>
+    								<workingDirectory>${basedir}</workingDirectory>
+    								<arguments>
+    									<argument>clean</argument>
+    								</arguments>
+    							</configuration>
+    						</execution>
 						</executions>
 					</plugin>
 				</plugins>
