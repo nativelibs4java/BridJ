@@ -117,7 +117,7 @@ function buildProjects() {
 			# If the library has an Android build file, build it with the NDK.
 			if [[ -f jni/Android.mk && "$ANDROID" != "0" ]]; then
 				if [[ -z "$ANDROID_NDK_HOME" ]]; then
-					echo "WARNING: library in $D has an Android build file, but ANDROID_NDK_HOME is not defined. Skipped Android build."
+					echo "INFO: native library in $D can be built for Android but ANDROID_NDK_HOME is not defined. Skipped Android build."
 			  else
 					$ANDROID_NDK_HOME/ndk-build $@
 
