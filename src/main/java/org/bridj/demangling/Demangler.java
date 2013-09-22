@@ -285,7 +285,7 @@ public abstract class Demangler {
     }
 
     public static String getMethodName(Method method) {
-    		Name name = method.getAnnotation(Name.class);
+        Name name = method.getAnnotation(Name.class);
         return name == null ? method.getName() : name.value();
     }
 
@@ -294,6 +294,13 @@ public abstract class Demangler {
         Class<?> typeClass = Utils.getClass(type);//getTypeClass(type);
         Name name = typeClass.getAnnotation(Name.class);
         return name == null ? typeClass.getSimpleName() : name.value();
+    }
+
+    public static String getFullClassName(Type type) {
+        Class<?> typeClass = Utils.getClass(type);//getTypeClass(type);
+        String simpleName = getClassName(typeClass);
+        Namespace namespace = typeClass.getAnnotation(Namespace.class);
+        return namespace != null ? namespace.value().replaceAll("::", ".") + "." + simpleName : simpleName;
     }
 
     public static class Symbol {
@@ -731,7 +738,7 @@ public abstract class Demangler {
 
         @Override
         public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
-            return b.append(getTypeClass(this.type).getName());
+            return b.append(getFullClassName(this.type));
         }
 
         @Override
@@ -866,8 +873,9 @@ public abstract class Demangler {
 
         @Override
         public boolean matches(Type type, Annotations annotations) {
-            Class<?> typeClass = getTypeClass(type);
-            if (typeClass != null && typeClass.getSimpleName().equals(ident.simpleName)) {
+            String fullName = getFullClassName(type);
+            String qname = getQualifiedName(false);
+            if (fullName != null && fullName.equals(qname)) {
                 return true;
             }
 

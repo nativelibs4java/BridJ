@@ -46,6 +46,7 @@ import org.bridj.ann.Ptr;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import org.bridj.Platform;
+import org.bridj.demangling.Demangler;
 
 /// http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html
 @Library("/usr/lib/libobjc.A.dylib")
@@ -235,7 +236,7 @@ public class ObjectiveCRuntime extends CRuntime {
             return selAnn.value();
         }
 
-        String n = method.getName();
+        String n = Demangler.getMethodName(method);
         if (n.endsWith("_")) {
             n = n.substring(0, n.length() - 1);
         }

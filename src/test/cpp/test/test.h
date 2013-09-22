@@ -28,17 +28,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifdef __GNUC__
-	#define TEST_API
-	#define __cdecl
-	#define __stdcall
-#else
-	#ifdef TEST_EXPORTS
-		#define TEST_API __declspec(dllexport)
-	#else
-		#define TEST_API __declspec(dllimport)
-	#endif
-#endif
+#ifndef _TEST_H
+#define _TEST_H
+
+#include "common.h"
 
 #include <string>
 
@@ -181,3 +174,5 @@ public :
 struct MyUnknownStruct;
 TEST_API MyUnknownStruct *newMyUnknownStruct(int a);
 TEST_API int deleteMyUnknownStruct(MyUnknownStruct *s);
+
+#endif // _TEST_H

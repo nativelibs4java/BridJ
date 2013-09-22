@@ -4,6 +4,7 @@
 SHARED_LIB	 = test
 
 UNITS += test
+UNITS += testNamespaces
 UNITS += structs
 UNITS += templates
 UNITS += objctest

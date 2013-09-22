@@ -62,6 +62,8 @@ import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.PointerIO;
+import static org.bridj.demangling.Demangler.getClassName;
+import static org.bridj.demangling.Demangler.getMethodName;
 
 import static org.bridj.dyncall.DyncallLibrary.*;
 
@@ -309,7 +311,7 @@ public class CPPRuntime extends CRuntime {
 
         methods:
         for (Method method : type.getDeclaredMethods()) {
-            String methodName = method.getName();
+            String methodName = getMethodName(method);
             Type[] methodParameterTypes = method.getGenericParameterTypes();
             for (int iParentMethod = 0; iParentMethod < nParentMethods; iParentMethod++) {
                 VirtMeth pvm = out.get(iParentMethod);
@@ -319,8 +321,7 @@ public class CPPRuntime extends CRuntime {
                 }
                 //if (parentMethod.getAnnotation(Virtual.class) == null)
                 //    continue; // not a virtual method, too bad
-
-                if (parentMethod.getName().equals(methodName) && isOverridenSignature(parentMethod.getGenericParameterTypes(), methodParameterTypes, 0)) {
+                if (getMethodName(parentMethod).equals(methodName) && isOverridenSignature(parentMethod.getGenericParameterTypes(), methodParameterTypes, 0)) {
                     VirtMeth vm = new VirtMeth();
                     vm.definition = pvm.definition;
                     vm.implementation = method;
@@ -420,7 +421,7 @@ public class CPPRuntime extends CRuntime {
         if (superclass != null) {
             try {
                 // TODO handle polymorphism in overloads :
-                superclass.getMethod(method.getName(), method.getParameterTypes());
+                superclass.getMethod(getMethodName(method), method.getParameterTypes());
                 isNewVirtual = false;
             } catch (NoSuchMethodException ex) {
             }
@@ -496,15 +497,10 @@ public class CPPRuntime extends CRuntime {
         return getPositionInVirtualTable(pVirtualTable, method, library);
     }
 
-    String getCPPClassName(Class<?> declaringClass) {
-        Name name = declaringClass.getAnnotation(Name.class);
-        return name == null ? declaringClass.getSimpleName() : name.value();
-    }
-
     public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method, NativeLibrary library) {
         //Pointer<?> typeInfo = pVirtualTable.get(1);
         int methodsOffset = 0;//library.isMSVC() ? 0 : -2;///2;
-        String className = getCPPClassName(method.getDeclaringClass());
+        String className = getClassName(method.getDeclaringClass());
         for (int iVirtual = 0;; iVirtual++) {
             Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
             String virtualMethodName = pMethod == null ? null : library.getSymbolName(pMethod.getPeer());
@@ -844,7 +840,7 @@ public class CPPRuntime extends CRuntime {
         if (vtable == null) {
             final Class<?> typeClass = Utils.getClass(type);
             if (false) {
-                String className = typeClass.getSimpleName();
+                String className = getClassName(typeClass);
                 String vtableSymbol;
                 if (Platform.isWindows()) {
                     vtableSymbol = "??_7" + className + "@@6B@";
