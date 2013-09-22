@@ -177,3 +177,7 @@ public :
 	Constructed(const char *x, const char *y, const char** result);
 	static size_t sizeOf();
 };
+
+struct MyUnknownStruct;
+TEST_API MyUnknownStruct *newMyUnknownStruct(int a);
+TEST_API int deleteMyUnknownStruct(MyUnknownStruct *s);

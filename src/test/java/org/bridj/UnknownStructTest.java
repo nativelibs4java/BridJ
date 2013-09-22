@@ -30,71 +30,43 @@
  */
 package org.bridj;
 
-import java.io.FileNotFoundException;
-
-import java.util.Collection;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.bridj.ann.*;
-import org.bridj.*;
-import static org.bridj.BridJ.*;
+import org.bridj.ann.Constructor;
+import org.bridj.ann.Convention;
+import org.bridj.ann.Ptr;
+import org.bridj.cpp.CPPObject;
+
+
+import org.bridj.BridJ;
+import org.bridj.Pointer;
+import org.bridj.ann.Field;
+import org.bridj.ann.Library;
+import org.bridj.ann.Name;
+import org.bridj.ann.Runtime;
+import org.bridj.ann.Virtual;
+import org.bridj.cpp.CPPRuntime;
+
+import org.junit.After;
 import static org.bridj.Pointer.*;
 
 @Library("test")
-public class MemoryTest {
-	static {
+@Runtime(CPPRuntime.class)
+public class UnknownStructTest {
+  static {
 		BridJ.register();
 	}
-	public static abstract class CallbackType extends Callback<CallbackType> {
-		abstract public void apply(Pointer<Byte > v1, Pointer<Byte > v2);
-	}
-	public static native void defineCallback(Pointer<CallbackType> callback);
-	public static native void copyChar(Pointer<Byte> dest, Pointer<Byte> src);
-	public static native void callCallback(long times, Pointer<Byte> value);
+	public static native Pointer<MyUnknownStruct> newMyUnknownStruct(int a);
+	public static native int deleteMyUnknownStruct(Pointer<MyUnknownStruct> s);
+	public static interface MyUnknownStruct {};
 
-
-  static String[] strings = {"a", "b", "c"};
 	@Test
-	public void testGC() {
-	    for (int i = 0; i < 10; i++) {
-	        for (int j = 0; j < 100; j++) {
-	            Pointer.allocateBytes(2);
-	            Pointer.allocateSizeT();
-	            Pointer.pointerToCStrings(strings);
-	        }
-	        System.gc();
-	    }
-	}
-	@Test
-	public void testRelease() {
-	    for (int i = 0; i < 10; i++) {
-	        for (int j = 0; j < 100; j++) {
-	            Pointer.release(Pointer.allocateBytes(2));
-	            Pointer.release(Pointer.allocateSizeT());
-	            Pointer.release(Pointer.pointerToCStrings(strings));
-	        }
-	        System.gc();
-	    }
-	}
-
-    @Test
-    public void testCopy() {
-        Pointer<Byte> dest = allocateByte(), src = pointerToByte((byte)10);
-        copyChar(dest, src);
-        assertEquals(dest.get(), src.get());
-    }
-	@Test
-	public void testCallbacks() {
-		final Pointer<Byte> v = pointerToByte((byte)1);
-		CallbackType cb = new CallbackType() {
-			public void apply(Pointer<Byte> v1, Pointer<Byte> v2) {
-				assertEquals(v, v1);
-				assertNotNull(v2);
-			}
-		};
-	  defineCallback(getPointer(cb));
-	  callCallback(1000000, v);
+	public void test() {
+		int a = 10;
+		Pointer<MyUnknownStruct> ps = newMyUnknownStruct(a);
+		assertNotNull(ps);
+		int aa = deleteMyUnknownStruct(ps);
+		assertEquals(a, aa);
 	}
 }

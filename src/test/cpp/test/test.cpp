@@ -580,14 +580,36 @@ size_t Constructed::sizeOf() {
 
 
 
-typedef void (*CallbackType)(const char*, const char*);
-CallbackType gCallback;
-TEST_API void defineCallback(CallbackType callback) {
+typedef void (*TwoPConstCharCallbackType)(const char*, const char*);
+TwoPConstCharCallbackType gCallback;
+TEST_API void defineCallback(TwoPConstCharCallbackType callback) {
 	gCallback = callback;
+}
+
+TEST_API void copyChar(char* dest, char* src) {
+	*dest = *src;
 }
 
 TEST_API void callCallback(long long times, const char* value) {
 	for (long long i = 0; i < times; i++) {
 		gCallback(value, "test");
 	}
+}
+
+struct MyUnknownStruct {
+	int a;
+};
+TEST_API MyUnknownStruct *newMyUnknownStruct(int a) {
+	MyUnknownStruct *ps = new MyUnknownStruct();
+	ps->a = a;
+	return ps;
+}
+TEST_API int deleteMyUnknownStruct(MyUnknownStruct *s) {
+	int a = s->a;
+	delete s;
+	return a;
+}
+
+TEST_API double callCallback(float (*cb)(int, long long), short a, char b) {
+    return cb(a, b);
 }
