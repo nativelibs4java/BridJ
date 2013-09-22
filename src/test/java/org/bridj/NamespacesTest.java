@@ -47,6 +47,8 @@ import java.util.logging.Logger;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.Iterator;
 import org.bridj.CPPTest3.Constructed;
 import org.junit.Test;
 
@@ -95,7 +97,31 @@ public class NamespacesTest {
         
         @Name("getValue")
         public native int renamedGetValue();
+        
+        @Name("getEnumValuePlus1")
+        public native int incrementedEnumValue(IntValuedEnum<RenamedEnum> e);
 	};
+    @Namespace("com::nativelibs4java::bridj") 
+    @Name("FullyNamespacedEnum")
+    public enum RenamedEnum implements IntValuedEnum<RenamedEnum > {
+		A(0),
+		B(1),
+		C(2);
+		RenamedEnum(long value) {
+			this.value = value;
+		}
+		public final long value;
+		public long value() {
+			return this.value;
+		}
+		public Iterator<RenamedEnum > iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static IntValuedEnum<RenamedEnum > fromValue(int value) {
+			return FlagSet.fromValue(value, values());
+		}
+	};
+    
     
 	@Namespace("bridj") 
     @Name("SimplyNamespacedClass")
@@ -172,5 +198,8 @@ public class NamespacesTest {
     public void testFullyNamespaced() {
         FullyNamespacedClass c = new FullyNamespacedClass(10);
         assertEquals(10, c.renamedGetValue());
+        
+        for (RenamedEnum v : RenamedEnum.values())
+            assertEquals(v.value + 1, c.incrementedEnumValue(v));
     }
 }

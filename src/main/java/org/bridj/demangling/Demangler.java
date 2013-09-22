@@ -873,7 +873,11 @@ public abstract class Demangler {
 
         @Override
         public boolean matches(Type type, Annotations annotations) {
-            String fullName = getFullClassName(type);
+            Class<?> typeClass = getTypeClass(type);
+            String fullName = getFullClassName(
+                ValuedEnum.class.isAssignableFrom(typeClass) ?
+                    normalize(Utils.getUniqueParameterizedTypeParameter(type)) :
+                    typeClass);
             String qname = getQualifiedName(false);
             if (fullName != null && fullName.equals(qname)) {
                 return true;
