@@ -398,7 +398,8 @@ public class GCC4Demangler extends Demangler {
             return mr;
         }
         consumeCharIf('_');
-        expectChars('Z');
+        if (!consumeCharIf('Z'))
+            return null;
 
         if (consumeCharIf('T')) {
             if (consumeCharIf('V')) {

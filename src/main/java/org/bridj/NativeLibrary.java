@@ -360,23 +360,6 @@ public class NativeLibrary {
 //		nameToAddr = new HashMap<String, Long>();
 
         String[] symbs = null;
-        if (false) // TODO turn to false !!!
-        {
-            try {
-                if (Platform.isMacOSX()) {
-                    Process process = java.lang.Runtime.getRuntime().exec(new String[]{"nm", "-gj", path});
-                    BufferedReader rin = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                    String line;
-                    List<String> symbsList = new ArrayList<String>();
-                    while ((line = rin.readLine()) != null) {
-                        symbsList.add(line);
-                    }
-                    symbs = symbsList.toArray(new String[symbsList.size()]);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
         if (symbs == null) {
             //System.out.println("Calling getLibrarySymbols");
             symbs = JNI.getLibrarySymbols(getHandle(), getSymbolsHandle());

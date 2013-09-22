@@ -56,6 +56,14 @@ public class DemanglingTest {
         return paramType(Pointer.class, target);
     }
     
+    @Test
+    public void cFunctions() throws DemanglingException {
+        for (String sym : new String[] { "__cxa_finalize", "__bss_start" }) {
+            assertEquals(null, new GCC4Demangler(null, sym).parseSymbol());
+            assertEquals(null, new VC9Demangler(null, sym).parseSymbol());
+        }
+    }
+    
 	@Test
 	public void gcc() {
 		demangle(

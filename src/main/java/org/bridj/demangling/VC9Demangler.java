@@ -225,51 +225,49 @@ public class VC9Demangler extends Demangler {
                 return mr;
             }
         }
-        if (consumeCharIf('?')) {
-            consumeCharsIf('@', '?');
+        
+        if (!consumeCharIf('@', '?'))
+            return null;
 
-            IdentLike memberName = parseFirstQualifiedTypeNameComponent();
-            if (memberName instanceof SpecialName) {
-                SpecialName specialName = (SpecialName) memberName;
-                if (!specialName.isFunction()) {
-                    return null;
-                }
+        IdentLike memberName = parseFirstQualifiedTypeNameComponent();
+        if (memberName instanceof SpecialName) {
+            SpecialName specialName = (SpecialName) memberName;
+            if (!specialName.isFunction()) {
+                return null;
             }
-            mr.setMemberName(memberName);
-            List<Object> qNames = parseNameQualifications();
+        }
+        mr.setMemberName(memberName);
+        List<Object> qNames = parseNameQualifications();
 
-            //TypeRef qualifiedName = parseQualifiedTypeName();
+        //TypeRef qualifiedName = parseQualifiedTypeName();
 
-            AccessLevelAndStorageClass ac = parseAccessLevelAndStorageClass();
-            CVClassModifier cvMod = null;
-            if (ac.modifiers != 0 && !Modifier.isStatic(ac.modifiers)) {
-                cvMod = parseCVClassModifier();
-            }
+        AccessLevelAndStorageClass ac = parseAccessLevelAndStorageClass();
+        CVClassModifier cvMod = null;
+        if (ac.modifiers != 0 && !Modifier.isStatic(ac.modifiers)) {
+            cvMod = parseCVClassModifier();
+        }
 
-            // Function property :
-            //allQualifiedNames.clear(); // TODO fix this !!
-            TypeRef encl;
-            if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
-                Object r = qNames.get(0);
-                ClassRef tr = r instanceof ClassRef ? (ClassRef) r : new ClassRef(new Ident((String) r));
-                //tr.setSimpleName(qNames.get(0));
-                qNames.remove(0);
-                tr.setEnclosingType(reverseNamespace(qNames));
-                encl = tr;
-            } else {
-                encl = reverseNamespace(qNames);
-            }
-
-            addBackRef(encl);
-            mr.setEnclosingType(encl);
-
-            parseFunctionProperty(mr);
-
-            if (position != length) {
-                error("Failed to demangle the whole symbol");
-            }
+        // Function property :
+        //allQualifiedNames.clear(); // TODO fix this !!
+        TypeRef encl;
+        if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
+            Object r = qNames.get(0);
+            ClassRef tr = r instanceof ClassRef ? (ClassRef) r : new ClassRef(new Ident((String) r));
+            //tr.setSimpleName(qNames.get(0));
+            qNames.remove(0);
+            tr.setEnclosingType(reverseNamespace(qNames));
+            encl = tr;
         } else {
-            mr.setMemberName(new Ident(str));
+            encl = reverseNamespace(qNames);
+        }
+
+        addBackRef(encl);
+        mr.setEnclosingType(encl);
+
+        parseFunctionProperty(mr);
+
+        if (position != length) {
+            error("Failed to demangle the whole symbol");
         }
         return mr;
     }
