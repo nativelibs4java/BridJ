@@ -11,7 +11,7 @@ public class ExampleTest {
 	@Test
 	public void testMessages() {
 		Pointer<Byte> message = pointerToCString("Message from Java");
-		someFunction(message);
+		someCFunction(message);
 
 		SomeClass c = new SomeClass(1234);
 		int value = c.someMethod(message);
