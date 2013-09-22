@@ -6,6 +6,8 @@ This sample project shows how BridJ &amp; JNAerator can be used to maintain a cu
 
 To build on Unix (MacOS X, Linux, Solaris), simply type the following lines
 ```
+git clone https://github.com/ochafik/nativelibs4java.git
+cd nativelibs4java/libraries/BridJ/Examples/BasicExample
 mvn clean install
 ```
 
