@@ -36,14 +36,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specify the real non-obfuscated name of a field / method / class (useful when the
- * name is a Java keyword but not a C one, e.g. to bind a C function named
- * 'transient')
+ * Specify the real non-obfuscated namespace of a C++ class.
  *
  * @author Olivier Chafik
  */
-@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Name {
+public @interface Namespace {
     String value();
 }

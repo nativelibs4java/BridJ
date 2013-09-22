@@ -82,6 +82,7 @@ import org.bridj.ann.Convention.Style;
 import org.bridj.demangling.Demangler.SpecialName;
 import static org.bridj.Pointer.*;
 import org.bridj.StructObject;
+import org.bridj.ann.Name;
 import org.bridj.demangling.Demangler;
 
 /**
@@ -496,7 +497,8 @@ public class CPPRuntime extends CRuntime {
     }
 
     String getCPPClassName(Class<?> declaringClass) {
-        return declaringClass.getSimpleName();
+        Name name = declaringClass.getAnnotation(Name.class);
+        return name == null ? declaringClass.getSimpleName() : name.value();
     }
 
     public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method, NativeLibrary library) {

@@ -6,6 +6,7 @@ SHARED_LIB	 = test
 UNITS += test
 UNITS += structs
 UNITS += templates
+UNITS += objctest
 
 CPPFLAGS	+= -fPIC
 
@@ -13,7 +14,7 @@ ifeq ($(OS), darwin)
 UNITS += objctest
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 #LDFLAGS		+= -lobjc
-LDFLAGS		+= -framework Foundation
+LDFLAGS		+= -framework Foundation  -all_load
 LDFLAGS		+= -install_name @rpath/libtest.dylib
 endif
 

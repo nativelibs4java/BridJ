@@ -1,3 +1,5 @@
+#if defined(__APPLE__) || defined(__Darwin__)
+
 #include "objctest.h"
 
 @implementation DelgHolder
@@ -23,3 +25,4 @@ int forwardBlockCallIntIntInt(int (^block)(int, int), int a, int b)
 	return block(a, b);	
 }
 
+#endif // defined(__APPLE__) || defined(__Darwin__)

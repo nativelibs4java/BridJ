@@ -581,7 +581,7 @@ public class CRuntime extends AbstractBridJRuntime {
     }
     protected Set<Class> rootCallbackClasses = new HashSet<Class>(Arrays.asList(Callback.class, DynamicFunction.class));
 
-    protected Method getUniqueAbstractCallbackMethod(Class type) {
+    public Method getUniqueAbstractCallbackMethod(Class type) {
         Class<?> parent = null;
         while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
             type = parent;

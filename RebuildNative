@@ -1,14 +1,4 @@
 #!/bin/bash
 
-./BuildNative clean
+FAST=1 ./BuildNative clean
 ./BuildNative
-
-if [[ -d /Applications ]] ; then
-	# MacOS X
-	for T in ios android ; do
-		TARGET=$T ./BuildNative clean
-		TARGET=$T ./BuildNative fast ;
-	done ;
-fi
-
-

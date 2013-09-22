@@ -100,11 +100,11 @@ public class CallbackTest {
 		
 		assertEquals(4, forwardPtrCall(new MyPtrCallback() {
 			@Override
-			public Pointer<Integer> doSomething(Pointer<Integer> a, Pointer<Integer> b) {
-				return pointerToInt(a.get() + b.get() + 1);
+			public Pointer<?> doSomething(Pointer<?> a, Pointer<?> b) {
+				return pointerToInt(a.as(int.class).get() + b.as(int.class).get() + 1);
 				//return pointerToInt(a.getInt() + b.getInt() + 1);
 			}
-		}.toPointer(), pa, pb).getInt()); // .get());
+		}.toPointer(), pa, pb).as(int.class).getInt()); // .get());
 	}
 	
 	@Test
@@ -116,7 +116,7 @@ public class CallbackTest {
 	static native Pointer<MyPtrCallback> getPtrAdder();
 	
 	public static abstract class MyPtrCallback extends Callback {
-		public abstract Pointer<Integer> doSomething(Pointer<Integer> a, Pointer<Integer> b); 
+		public abstract Pointer<?> doSomething(Pointer<?> a, Pointer<?> b); 
 	}
 	
 	

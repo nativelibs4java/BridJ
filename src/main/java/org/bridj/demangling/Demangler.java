@@ -35,6 +35,7 @@ import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
@@ -48,11 +49,13 @@ import org.bridj.Pointer;
 import org.bridj.TimeT;
 import org.bridj.SizeT;
 import org.bridj.CLong;
+import org.bridj.Callback;
 import org.bridj.ValuedEnum;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
 import org.bridj.ann.Name;
+import org.bridj.ann.Namespace;
 import org.bridj.ann.Template;
 import org.bridj.util.AnnotationUtils;
 import static org.bridj.util.AnnotationUtils.*;
@@ -282,12 +285,15 @@ public abstract class Demangler {
     }
 
     public static String getMethodName(Method method) {
-        Name nameAnn = method.getAnnotation(Name.class);
-        if (nameAnn != null) {
-            return nameAnn.value();
-        }
+    		Name name = method.getAnnotation(Name.class);
+        return name == null ? method.getName() : name.value();
+    }
 
-        return method.getName();
+    public static String getClassName(Type type) {
+        assert type != null;
+        Class<?> typeClass = Utils.getClass(type);//getTypeClass(type);
+        Name name = typeClass.getAnnotation(Name.class);
+        return name == null ? typeClass.getSimpleName() : name.value();
     }
 
     public static class Symbol {
@@ -424,7 +430,7 @@ public abstract class Demangler {
         }
 
         public boolean matchesConstructor(Type type, java.lang.reflect.Constructor<?> constr) {
-            if (!symbol.contains(Utils.getClass(type).getSimpleName())) {
+            if (!symbol.contains(getClassName(type))) {
                 return false;
             }
 
@@ -467,15 +473,39 @@ public abstract class Demangler {
 
         public abstract StringBuilder getQualifiedName(StringBuilder b, boolean generic);
 
+        public String getQualifiedName(boolean generic) {
+            StringBuilder sb = getQualifiedName(new StringBuilder(), generic);
+            return sb == null ? null : sb.toString();
+        }
+
         public boolean matchesParam(Object param, Annotations annotations) {
             return (param instanceof Type) && matches((Type) param, annotations);
         }
 
         public boolean matches(Type type, Annotations annotations) {
-            String thisName = getQualifiedName(new StringBuilder(), false).toString();
-            Class typeClass = getTypeClass(type);
-            String typeName = typeClass.getSimpleName();
-            return thisName.equals(typeName) || thisName.equals(typeClass.getName());
+            String thisName = getQualifiedName(false);
+            if (thisName == null)
+                return false;
+            Class<?> typeClass = getTypeClass(type);
+            String name = getClassName(typeClass);
+            if (thisName.equals(name))
+            	return true;
+            Namespace ns = typeClass.getAnnotation(Namespace.class);
+            String pack;
+            if (ns == null) {
+                if (typeClass.getPackage() == null)
+                    pack = "";
+                else
+                    pack = typeClass.getPackage().getName();
+            } else {
+                pack = ns.value().replaceAll("\b::\b", ".").trim();
+            }
+            if (pack.length() == 0)
+            	return false;
+            String qname = pack + "." + name;
+            if (thisName.matches("\b" + Pattern.quote(qname)))
+            	return true;
+            return false;
         }
 
         @Override
@@ -525,6 +555,7 @@ public abstract class Demangler {
         public TypeRef pointedType;
 
         public PointerTypeRef(TypeRef pointedType) {
+            assert pointedType != null;
             this.pointedType = pointedType;
         }
 
@@ -549,7 +580,13 @@ public abstract class Demangler {
             Class typeClass = getTypeClass(type);
             if (!Pointer.class.isAssignableFrom(typeClass))
                 return false;
-            Type pointedType = Utils.getUniqueParameterizedTypeParameter(type);
+//            return true;
+            Type pointedType = normalize(Utils.getUniqueParameterizedTypeParameter(type));
+            if (this.pointedType == null || this.pointedType.toString().equals("void"))
+                return pointedType == null;
+            if (pointedType == null) {
+                return true;
+            }
             return this.pointedType.matches(pointedType, annotations);
         }
         
@@ -607,11 +644,33 @@ public abstract class Demangler {
                 return Object[].class;
             }
         }
-        throw new UnsupportedOperationException("Unknown type type : " + type.getClass().getName());
+        return null;
+//        throw new UnsupportedOperationException("Unknown type type : " + (type == null ? null : type.getClass().getName()));
     }
 
+    private static Type normalize(Type t) {
+        if (t instanceof WildcardType) {
+            WildcardType wt = (WildcardType) t;
+            if (wt.getLowerBounds().length == 1)
+                return normalize(wt.getLowerBounds()[0]);
+            return null;
+        }
+        Class<?> c = Utils.getClass(t);
+        if (c != null && c.isPrimitive()) {
+            if (t == float.class) return Float.class;
+            if (t == double.class) return Double.class;
+            if (t == byte.class) return Byte.class;
+            if (t == char.class) return Character.class;
+            if (t == short.class) return Short.class;
+            if (t == int.class) return Integer.class;
+            if (t == long.class) return Long.class;
+            if (t == boolean.class) return Boolean.class;
+            if (t == void.class) return Void.class;
+        }
+        return t;
+    }
     static boolean equivalentTypes(Type a, Class ac, Annotations aAnnotations, Type b, Class bc, Annotations bAnnotations) {
-        if (a.equals(b)) {
+        if (normalize(a).equals(normalize(b))) {
             return true;
         }
 
@@ -679,6 +738,8 @@ public abstract class Demangler {
         public boolean matches(Type type, Annotations annotations) {
             Class<?> tc = getTypeClass(this.type);
             Class<?> typec = getTypeClass(type);
+            if (typec == null)
+                return true; // TODO check
             if (tc == typec || tc.equals(typec)) {
                 return true;
             }
@@ -805,7 +866,8 @@ public abstract class Demangler {
 
         @Override
         public boolean matches(Type type, Annotations annotations) {
-            if (getTypeClass(type).getSimpleName().equals(ident.simpleName)) {
+            Class<?> typeClass = getTypeClass(type);
+            if (typeClass != null && typeClass.getSimpleName().equals(ident.simpleName)) {
                 return true;
             }
 
@@ -857,6 +919,17 @@ public abstract class Demangler {
         public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
             // TODO Auto-generated method stub
             return null;
+        }
+
+        @Override
+        public boolean matches(Type type, Annotations annotations) {
+            Class<?> typeClass = getTypeClass(type);
+            if (!Callback.class.isAssignableFrom(typeClass))
+                return false;
+            Method method = CRuntime.getInstance().getUniqueAbstractCallbackMethod(typeClass);
+            if (method == null)
+                return false;
+            return function.matches(method);
         }
 
         @Override
