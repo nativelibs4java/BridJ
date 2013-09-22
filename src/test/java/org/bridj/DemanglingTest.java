@@ -52,6 +52,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 public class DemanglingTest {
 
+    static Type pointerType(Type target) {
+        return paramType(Pointer.class, target);
+    }
+    
 	@Test
 	public void gcc() {
 		demangle(
@@ -59,9 +63,23 @@ public class DemanglingTest {
 			"__Z17testInPlaceSquarePdj", // REMARK (REMI): c++filt does not accept double underscore as a prefix, I don't know if the ones in this file are intended... in the end, it should not really hurt that our demangler is too permissive
 			null, 
             ident("testInPlaceSquare"),
-			void.class, Pointer.class, int.class
+			void.class, pointerType(double.class), int.class
 		);
 	}
+
+    @Test
+	public void gccSimpleCallback() {
+        abstract class CbFloatIntLong extends Callback {
+            public abstract float apply(int i, long l);
+        }
+        demangle(
+            null,
+			"__Z12callCallbackPFfixEsc",
+			null, 
+            ident("callCallback"),
+			double.class, pointerType(CbFloatIntLong.class), short.class, byte.class);
+	}
+
     static Type clongType = CLong.class;//CPPType.getCPPType(new Object[] { CLong.class });
     @Test
     public void testLongLongBackReference() {
@@ -82,7 +100,7 @@ public class DemanglingTest {
             null,
             C.class,
             ident("m"),
-            paramType(Pointer.class, C.class)
+            pointerType(C.class)
         );
     }
     @Test
@@ -94,6 +112,17 @@ public class DemanglingTest {
             ident("testAddCLongs"),
             CLong.class, CLong.class, CLong.class
         );
+    }
+    @Test
+    public void testFloatPointer() {
+        demangle(
+            null,
+			"__Z19test_incr_float_outfPf",
+			null, 
+            ident("test_incr_float_out"),
+			void.class, float.class, pointerType(float.class)
+		);
+        
     }
     @Test
     public void testJLongsBackReference() {
@@ -159,7 +188,7 @@ public class DemanglingTest {
             "_Z17test_incr_int_outiPi",
             null, 
             ident("test_incr_int_out"),
-            null, int.class, paramType(Pointer.class, int.class)
+            null, int.class, pointerType(int.class)
         );
     }
     
@@ -241,9 +270,9 @@ public class DemanglingTest {
             Constructed.class,
             SpecialName.SpecialConstructor,
             null,
-            paramType(Pointer.class, Byte.class), 
-            paramType(Pointer.class, Byte.class), 
-            paramType(Pointer.class, paramType(Pointer.class, Byte.class))
+            pointerType(Byte.class), 
+            pointerType(Byte.class), 
+            pointerType(pointerType(Byte.class))
         );
 	}
 	@Test
@@ -319,7 +348,7 @@ public class DemanglingTest {
     public void complexPointerTypeParameters() {
         // TODO VC versions
         // NB: with gcc, we have no info about the return type (don't know about VC6)
-        demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, Pointer.class, Pointer.class, Pointer.class, Pointer.class);
+        demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, pointerType(Pointer.class), Pointer.class, pointerType(pointerType(Pointer.class)), pointerType(pointerType(int.class)));
         demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, "**Void", "*Void", "***Void", "**Integer");
     }
 
@@ -327,6 +356,53 @@ public class DemanglingTest {
     public void gccMemoryShortcuts() {
         // does VC do something similar?
         demangle(null, "_Z15shortcutsSimplePPPPccS_S0_S1_S2_PS2_", "null shortcutsSimple(byte****, byte, byte*, byte**, byte***, byte****, byte*****)");
+        
+        demangle(null, "__Z1fPsS_", "null f(short*, short*)");
+        demangle(null, "__Z1fPKsS_", "null f(short*, short)");
+        demangle(null, "__Z1fPKsS0_", "null f(short*, short*)");
+        demangle(null, "__Z1fPKcS0_S0_PKsS2_PKdS4_", "null f(byte*, byte*, byte*, short*, short*, double*, double*)");
+        demangle(null, "__ZN1AC2EPS_PS0_S1_", "null A.(A*, A**, A**)");
+        /*
+         * 
+         * 
+0000000000001700 T __Z15simpleCallback1PFvPKcE
+0000000000001710 T __Z15simpleCallback2PFvPcE
+TEST_API void simpleCallback1(void (*cb)(const char*)) {}
+TEST_API void simpleCallback2(void (*cb)(char*)) {}
+
+0000000000001650 T __Z18repeatedCallbacks1PFvPKcS0_S0_PKsS2_PKdS4_E
+0000000000001660 T __Z18repeatedCallbacks2PFvPcS_S_PsS0_PdS1_E
+0000000000001670 T __Z18repeatedCallbacks3PFvPcS_PsS0_S_S_E
+0000000000001680 T __Z18repeatedCallbacks4PFvPsS_PcS0_S_S_E
+0000000000001690 T __Z18repeatedCallbacks5PFvcccssddE
+TEST_API void repeatedCallbacks1(void (*cb)(const char*, const char*, const char*, const short*, const short*, const double*, const double*)) {}
+TEST_API void repeatedCallbacks2(void (*cb)(char*, char*, char*, short*, short*, double*, double*)) {}
+TEST_API void repeatedCallbacks3(void (*cb)(char*, char*, short*, short*, char*, char*)) {}
+TEST_API void repeatedCallbacks4(void (*cb)(short*, short*, char*, char*, short*, short*)) {}
+TEST_API void repeatedCallbacks5(void (*cb)(char, char, char, short, short, double, double)) {}
+
+00000000000024d0 T __Z13repeatedCall1PKcS0_S0_PKsS2_PKdS4_
+00000000000024e0 T __Z13repeatedCall2PcS_S_PsS0_PdS1_
+00000000000024f0 T __Z13repeatedCall3PcS_PsS0_S_S_
+0000000000002500 T __Z13repeatedCall4PsS_PcS0_S_S_
+0000000000002510 T __Z13repeatedCall5cccssdd
+TEST_API void repeatedCall1(const char*, const char*, const char*, const short*, const short*, const double*, const double*) {}
+TEST_API void repeatedCall2(char*, char*, char*, short*, short*, double*, double*) {}
+TEST_API void repeatedCall3(char*, char*, short*, short*, char*, char*) {}
+TEST_API void repeatedCall4(short*, short*, char*, char*, short*, short*) {}
+TEST_API void repeatedCall5(char, char, char, short, short, double, double) {}
+
+* 
+0000000000002480 T __Z13repeatedCall6PcS_
+0000000000002410 T __Z14repeatedCall6_PsS_
+0000000000002490 T __Z13repeatedCall7PKcS0_
+0000000000002450 T __Z13repeatedCall8PKsS0_PKcS2_
+TEST_API void repeatedCall6(char*, char*) {}
+TEST_API void repeatedCall6_(short*, short*) {}
+TEST_API void repeatedCall7(const char*, const char*) {}
+TEST_API void repeatedCall8(const short*, const short*, const char*, const char*) {}
+
+         */
     }
 
     @Test
@@ -350,13 +426,14 @@ public class DemanglingTest {
         demangle(null, "_ZN3bla5inputEPSt6vectorISsSaISsEEPS0_IPN7Helping4HandESaIS6_EE",
                 // bla::input(std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >*, std::vector<Helping::Hand*, std::allocator<Helping::Hand*> >*)
                 // bla::input(vectorof(string)*, vectorof(Helping::Hand*)*)
-                "null bla.input(" + vectorOfXYZ.replaceAll("XYZ", str) + "*, " + vectorOfXYZ.replaceAll("XYZ", "Helping.Hand*") + "*)");
+                "null bla.input(std.vector<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>, std.allocator<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>>>*, std.allocator<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>><Helping.Hand*, std.allocator<Helping.Hand*>>*)");
+                //"null bla.input(" + vectorOfXYZ.replaceAll("XYZ", str) + "*, " + vectorOfXYZ.replaceAll("XYZ", "Helping.Hand*") + "*)");
     }
 
     static IdentLike ident(String name) {
         return new Ident(name);
     }
-    private void demangle(String vc9, String gcc4, Type enclosingType, IdentLike memberName, Type returnType, Object... paramTypes) {
+    static void demangle(String vc9, String gcc4, Type enclosingType, IdentLike memberName, Type returnType, Object... paramTypes) {
         try {
 			if (vc9 != null)
 				checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
@@ -368,7 +445,7 @@ public class DemanglingTest {
 		}
     }
     
-    private void demangle(String vc9, String gcc4, String toString) {
+    static void demangle(String vc9, String gcc4, String toString) {
 		try {
 			if (vc9 != null)
 				assertEquals(toString, new VC9Demangler(null, vc9).parseSymbol().toString());
@@ -380,7 +457,7 @@ public class DemanglingTest {
 		}
     }
 
-    private void checkSymbol(String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Type returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
+    static void checkSymbol(String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Type returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
         if (symbol == null)
         		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
     		if (memberName != null)

@@ -96,8 +96,11 @@ public class GCC4Demangler extends Demangler {
         return n == -1 ? "_" : Integer.toString(n, 36).toUpperCase() + "_";
     }
 
-    private TypeRef parsePointerType() throws DemanglingException {
+    private TypeRef parsePointerType(boolean memorizePointed) throws DemanglingException {
+        String subId = memorizePointed ? nextShortcutId() : null;
         TypeRef pointed = parseType();
+        if (memorizePointed)
+            typeShortcuts.put(subId, pointed);
         TypeRef res = pointerType(pointed);
         String id = nextShortcutId();
         typeShortcuts.put(id, res);
@@ -177,15 +180,23 @@ public class GCC4Demangler extends Demangler {
                 }
                 return res;
             }
-            case 'P':
-                return parsePointerType();
-            case 'F':
+            case 'P': {
+                char nextChar = peekChar();
+                return parsePointerType(nextChar == 'K' || nextChar == 'N');
+            }
+            case 'F': {
                 // TODO parse function type correctly !!!
-                while (consumeChar() != 'E') {
+                MemberRef mr = new MemberRef();
+                mr.setValueType(parseType());
+                List<TypeRef> argTypes = new ArrayList<TypeRef>();
+                while (peekChar() != 'E') {
+                    argTypes.add(parseType());
                 }
-
-                return null;
-            case 'K':
+                mr.paramTypes = argTypes.toArray(new TypeRef[argTypes.size()]);
+                expectChars('E');
+                return new FunctionTypeRef(mr);
+            }
+            case 'K': 
                 return parseType();
             case 'v': // char
                 return classType(Void.TYPE);
@@ -257,6 +268,7 @@ public class GCC4Demangler extends Demangler {
             }
         }
         if (shouldContinue) {
+            int initialNextShortcutId = nextShortcutId;
             do {
                 String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
                 newlyAddedShortcutForThisType = id;
@@ -267,7 +279,7 @@ public class GCC4Demangler extends Demangler {
             } while (Character.isDigit(peekChar()) || peekChar() == 'C' || peekChar() == 'D');
             if (isParsingNonShortcutableElement) {
                 //prefixShortcuts.remove(previousShortcutId()); // correct the fact that we parsed one too much
-                nextShortcutId--;
+                nextShortcutId = initialNextShortcutId;
             }
         }
         parsePossibleTemplateArguments(res);
