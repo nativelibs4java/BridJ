@@ -8,14 +8,19 @@ Current development version (0.7-SNAPSHOT)
 - Added fallback to GCC demangler on Windows (issue #356).
 - Added support for exact library file name (issue #424)
 - Added Pointer.pointerTo(IntValuedEnum<E>) (issue #414)
+- Added support for C++ namespaces (issue #446)
+- Added support for @Name annotations on structs and enums (allows refactoring of such classes, issue #443)
 - Dropped C# runtime stubs
 - Dropped linux-only and mac-only packages.
 - Improved performance of all operations of Pointers with bounds (~ 25% faster).
 - Improved concurrency of callbacks and structs creation.
-- Improved logs (issue #328, issue #346).  
+- Improved logs (issue #328, issue #346).
 - Improved C++ templates (still WIP, std::list protoype and fixed std::vector)
 - Improved Grails integration with Platform.getClassLoader change (issue #431)
 - Refactored StructIO (split out description of struct and its fields as top-level entities, StructIO now just does IO). This is what justifies version bump.
+- Rebuilt Linux binaries with --hash-style=both for better backwards compatibility (issue #436)
+- Fixed @Alignment annotation
+- Fixed demangling of pointer types (now stricter matching of target types, with support for callbacks).
 - Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
 - Fixed usage of local refs in getLibrarySymbols to avoid reaching Dalvik's limit (issue #376)
 - Fixed openjdk library path (take it from sun.boot.library.path)
@@ -31,6 +36,7 @@ Current development version (0.7-SNAPSHOT)
 - Fixed alignment on 32-bit linux (issue #320)
 - Fixed warnings about missing vtables for COM objects (issue #355)
 - Fixed disappearing MFC & STL classes in artifacts (issue #392)
+- Fixed some GCC demangling shortcut cases like repeated const pointers.
 - Documented effects of protected mode (issue #394)
 - Documented DefaultParameterizedType.paramType (see issue #418)
 ...
