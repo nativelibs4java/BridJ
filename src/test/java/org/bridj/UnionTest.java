@@ -30,10 +30,14 @@
  */
 package org.bridj;
 
+import java.nio.ByteOrder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
+import org.bridj.ann.Union;
 
 /**
  *
@@ -89,5 +93,37 @@ public class UnionTest {
         MyUnionStruct us = new MyUnionStruct();
         us.b(10);
         assertEquals(10.0, us.bb(), 0.0);
+    }
+    
+    @Union
+    public static class Mixed extends StructObject {
+        
+        @Field(0) 
+        public byte singleByte() {
+            return this.io.getByteField(this, 0);
+        }
+        @Field(0) 
+        public Mixed singleByte(byte single) {
+            this.io.setByteField(this, 0, single);
+            return this;
+        }
+        @Field(1) 
+        public int fourBytes() {
+            return this.io.getIntField(this, 1);
+        }
+        @Field(1) 
+        public Mixed fourBytes(int fourBytes) {
+            this.io.setIntField(this, 1, fourBytes);
+            return this;
+        }
+    }
+    @Test
+    public void testMixedUnion() {
+        assertEquals(4, BridJ.sizeOf(Mixed.class));
+        Pointer<Mixed> p = Pointer.allocate(Mixed.class).order(ByteOrder.BIG_ENDIAN);
+        Mixed m = p.get();
+        m.singleByte((byte)1);
+        assertEquals(1, m.singleByte());
+        assertEquals(1 << (3 * 8), m.fourBytes());
     }
 }

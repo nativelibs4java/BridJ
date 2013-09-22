@@ -267,7 +267,9 @@ class StructUtils {
                 // Propagate offsets of aggregated field descs to field decls's descs
                 StructFieldDescription fieldDesc = field.desc;
                 fieldDesc.byteOffset = aggregatedField.byteOffset;
-                fieldDesc.byteLength = aggregatedField.byteLength;
+                // Let struct customizers alter the length of fields:
+                if (fieldDesc.byteLength < 0 || fieldDesc.byteLength > aggregatedField.byteLength)
+                    fieldDesc.byteLength = aggregatedField.byteLength;
                 fieldDesc.bitOffset = aggregatedField.bitOffset;
 
                 fieldDescs.add(fieldDesc);
