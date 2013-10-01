@@ -1380,7 +1380,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	return newPointer(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
 	}
 
-	private static final int LRU_POINTER_CACHE_SIZE = 16;
+	private static final int LRU_POINTER_CACHE_SIZE = 8;
   private static final int LRU_POINTER_CACHE_TOLERANCE = 1;
   private static final ThreadLocal<PointerLRUCache> localCachedPointers = new ThreadLocal<PointerLRUCache>() {
       @Override
