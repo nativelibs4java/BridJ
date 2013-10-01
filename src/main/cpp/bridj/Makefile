@@ -60,6 +60,7 @@ endif
 
 ifeq ($(OS), linux)
 CPPFLAGS  +=  -D_GNU_SOURCE
+CPPFLAGS += -z noexecstack
 endif
 
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/
