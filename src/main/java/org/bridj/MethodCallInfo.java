@@ -284,6 +284,7 @@ public class MethodCallInfo {
         if (callIOs == null) {
             callIOs = new ArrayList<CallIO>();
         }
+        assert handler != null;
         callIOs.add(handler);
     }
 

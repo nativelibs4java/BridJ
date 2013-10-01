@@ -36,13 +36,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import static org.bridj.util.Utils.*;
 
 interface CallIO {
 
     Object newInstance(long address);
-
-    void checkArg(Object arg);
 
     long getDCStruct();
 
@@ -58,12 +58,6 @@ interface CallIO {
             return new CallIO() {
                 public Object newInstance(long value) {
                     return FlagSet.fromValue(value, enumClass);
-                }
-
-                public void checkArg(Object e) {
-                    if (!(e instanceof FlagSet)) {
-                        enumClass.cast(e);
-                    }
                 }
 
                 public long getDCStruct() {
@@ -116,11 +110,6 @@ interface CallIO {
                 throw new RuntimeException("Failed to instantiate pointer of type " + type.getName(), ex);
             }
         }
-        //@Override
-
-        public void checkArg(Object ptr) {
-            type.cast(ptr);
-        }
 
         public long getDCStruct() {
             return 0;
@@ -147,13 +136,6 @@ interface CallIO {
         public NativeObject newInstance(long address) {
             return Pointer.pointerToAddress(address).getNativeObject(nativeClass);
         }
-        //@Override
-
-        public void checkArg(Object ptr) {
-            if (ptr == null) {
-                throw new IllegalArgumentException("Native object of type " + nativeClass.getName() + " passed by value cannot be given a null value !");
-            }
-        }
 
         public long getDCStruct() {
             return Pointer.getPeer(pStruct);
@@ -163,12 +145,10 @@ interface CallIO {
             return Pointer.getAddress((NativeObject) o, nativeClass);
         }
     }
+    public static final class GenericPointerHandler implements CallIO {
 
-    public static class GenericPointerHandler implements CallIO {
-
-        Type targetType;
-        PointerIO pointerIO;
-
+        private final Type targetType;
+        private final PointerIO pointerIO;
         public GenericPointerHandler(Type targetType) {
             this.targetType = targetType;
             this.pointerIO = PointerIO.getInstance(targetType);
@@ -177,14 +157,6 @@ interface CallIO {
 
         public Pointer<?> newInstance(long address) {
             return Pointer.pointerToAddress(address, pointerIO);
-        }
-        //@Override
-
-        public void checkArg(Object ptr) {
-            //Pointer<?> pointer = (Pointer<?>)ptr;
-            //if (pointer.getIO() == null)
-            //	pointer.setIO(pointerIO);
-            // TODO check existing pointerio !
         }
 
         public long getDCStruct() {

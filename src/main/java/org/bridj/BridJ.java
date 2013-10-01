@@ -405,6 +405,8 @@ public class BridJ {
         "Verbose mode"),
         Quiet("bridj.quiet", "BRIDJ_QUIET", false,
         "Quiet mode"),
+        CachePointers("bridj.cache.pointers", "BRIDJ_CACHE_POINTERS", true,
+        "Cache last recently used pointers in each thread"),
         AlignDouble("bridj.alignDouble", "BRIDJ_ALIGN_DOUBLE", false,
         "Align doubles on 8 bytes boundaries even on Linux 32 bits (see -malign-double GCC option)."),
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
@@ -507,6 +509,7 @@ public class BridJ {
     public static final boolean protectedMode = Switch.Protected.enabled;
     public static final boolean enableDestructors = Switch.Destructors.enabled;
     public static final boolean alignDoubles = Switch.AlignDouble.enabled;
+    public static final boolean cachePointers = Switch.CachePointers.enabled;
     static volatile int minLogLevelValue = (verbose ? Level.WARNING : Level.INFO).intValue();
 
     public static void setMinLogLevel(Level level) {
