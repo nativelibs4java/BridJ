@@ -56,6 +56,9 @@ CPPFLAGS  += -fno-stack-protector -funsafe-loop-optimizations
 CPPFLAGS	+=	-D__EXTENSIONS__
 LDFLAGS		+= 	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
+# Statically link against libgcc.a on Solaris, to avoid dependency to libgcc_s.so.x.x
+# See https://github.com/ochafik/nativelibs4java/issues/452
+LDFLAGS   += -static-libgcc
 endif
 
 ifeq ($(OS), linux)
