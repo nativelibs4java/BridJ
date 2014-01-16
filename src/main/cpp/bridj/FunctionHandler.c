@@ -59,7 +59,8 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 	JavaToFunctionCallHandler_Sub(call, info, args, result, setsLastError);
 
 	if (setsLastError) {
-	  memcpy(&lastError, &call->lastError, sizeof(LastError));
+	  lastError = call->lastError;
+	  //memcpy(&lastError, &call->lastError, sizeof(LastError));
 	}
 	
 	END_TRY(info->fInfo.fEnv, call);

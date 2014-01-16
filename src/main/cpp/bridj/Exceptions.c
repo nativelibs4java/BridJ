@@ -119,7 +119,6 @@ void setLastError(JNIEnv* env, LastError lastError, jboolean throwsLastError) {
 }
 
 LastError getLastError() {
-	{
 	int errnoCopy = errno;
 	LastError ret;
 #ifdef _WIN32
@@ -127,13 +126,14 @@ LastError getLastError() {
 	if (errorCode) {
 	  ret.value = errorCode;
 	  ret.kind = eLastErrorKindWindows;
-	  return ret;
 	}
+	else
 #endif
-	ret.value = errnoCopy;
-	ret.kind = eLastErrorKindCLibrary;
-	return ret;
+	{
+		ret.value = errnoCopy;
+		ret.kind = eLastErrorKindCLibrary;
 	}
+	return ret;
 }
 
 JNIEXPORT jstring JNICALL Java_org_bridj_LastError_getDescription(JNIEnv* env, jclass clazz, jint code, jint kind) {

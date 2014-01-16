@@ -1020,7 +1020,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 			info->fClass = GLOBAL_REF(declaringClass);
 		
 		info->fInfo.fThrowsLastError = throwsLastError;
-		info->fInfo.fSetsLastError = setsLastError;
+		info->fInfo.fSetsLastError = setsLastError || throwsLastError;
 		
 #ifndef NO_DIRECT_CALLS
 		if (direct && !gProtected && forwardedPointer)
