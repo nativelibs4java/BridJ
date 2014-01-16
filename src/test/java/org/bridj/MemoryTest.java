@@ -95,6 +95,6 @@ public class MemoryTest {
 			}
 		};
 	  defineCallback(getPointer(cb));
-	  callCallback(1000000, v);
+	  callCallback(1000000L, v);
 	}
 }

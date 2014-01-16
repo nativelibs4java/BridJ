@@ -35,6 +35,7 @@ CPPFLAGS  +=  -I$(JAVA_HOME)/include/
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/linux
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/solaris
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/windows
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/darwin
 
 LDFLAGS   += -l stdc++
 

@@ -25,7 +25,7 @@ ifeq ($(OS), windows)
 CPPFLAGS	+=	"-IC:\Program Files\Microsoft SDKs\Windows\v6.0A\Include"
 endif
 
-LDFLAGS   += -l stdc++
+#LDFLAGS   += -l stdc++
 LDFLAGS   += -L $(OBJ_DIR) -L $(OUT_DIR)
 LDFLAGS	  += -l test
 

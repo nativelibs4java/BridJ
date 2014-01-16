@@ -70,6 +70,7 @@ CPPFLAGS  +=  -I$(JAVA_HOME)/include/
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/linux
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/solaris
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/windows
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/darwin
 
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncall/$(BUILD_DIR)
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dynload/$(BUILD_DIR)
