@@ -39,6 +39,7 @@
 
 #ifdef _WIN32
 #include "windows.h"
+#define strerror_r(errno,buf,len) strerror_s(buf,len,errno)
 #endif
 
 #define STRERROR_BUFLEN 1024
