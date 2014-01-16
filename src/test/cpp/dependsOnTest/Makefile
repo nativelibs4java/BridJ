@@ -11,7 +11,7 @@ CPPFLAGS	+= -fPIC
 ifeq ($(OS), darwin)
 CPPFLAGS  += -mmacosx-version-min=10.5
 LDFLAGS   += -mmacosx-version-min=10.5
-LDFLAGS		+= -rpath
+# LDFLAGS		+= -rpath
 else
 ifeq ($(OS), sunos)
 # http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
