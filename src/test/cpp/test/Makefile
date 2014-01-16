@@ -15,7 +15,7 @@ ifeq ($(OS), darwin)
 UNITS += objctest
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 #LDFLAGS		+= -lobjc
-LDFLAGS		+= -framework Foundation  -all_load
+LDFLAGS		+= -framework Foundation -all_load
 LDFLAGS		+= -install_name @rpath/libtest.dylib
 endif
 
@@ -35,6 +35,7 @@ CPPFLAGS  +=  -I$(JAVA_HOME)/include/
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/linux
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/solaris
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/windows
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/darwin
 
 LDFLAGS   += -l stdc++
 

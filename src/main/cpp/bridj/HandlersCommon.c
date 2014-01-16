@@ -61,7 +61,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						int flags = dcbArgInt(args);
 						jobject obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
 						dcArgPointer(call->vm, obj);
-						(*env)->DeleteLocalRef(env, obj);
+						addTempCallLocalRef(call, obj);
 					} else {
 						jobject obj = (jobject)dcbArgPointer(args);
 						int arg = (jint)getFlagValue(env, obj);
@@ -92,13 +92,13 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					} else { \
 						jobject parg = dcbArgPointer(args); \
 						jlong arg = Unbox ## capitalized(env, parg); \
+						(*env)->DeleteLocalRef(env, parg); \
 						if (flags & IS_VAR_ARGS) \
 							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg); \
 						else if (sizeof(type) == 4) \
 							dcArgInt(call->vm, (jint)arg); \
 						else \
 							dcArgLongLong(call->vm, (jlong)arg); \
-						(*env)->DeleteLocalRef(env, parg); \
 					} \
 				}
 			#define ARG_UNBOXED_INTEGRAL(type, capitalized) \
@@ -333,7 +333,6 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 				GET_LAST_ERROR();
 				callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
 				obj = createPointerFromIO(env, JLONG_TO_PTR ((jlong)flags), callIO);
-					
 				result->p = obj;
 			}
 			break;

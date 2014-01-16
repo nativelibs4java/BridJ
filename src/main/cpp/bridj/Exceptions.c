@@ -41,6 +41,8 @@
 #include "windows.h"
 #endif
 
+#define STRERROR_BUFLEN 1024
+
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
 extern jclass gLastErrorClass;
@@ -147,8 +149,11 @@ JNIEXPORT jstring JNICALL Java_org_bridj_LastError_getDescription(JNIEnv* env, j
 #endif
   case eLastErrorKindCLibrary:
     {
-      const char* msg = strerror(code);
-      return msg ? (*env)->NewStringUTF(env, msg) : NULL;
+    	int err;
+    	char msg[STRERROR_BUFLEN];
+    	*msg = '\0';
+      err = strerror_r(code, msg, STRERROR_BUFLEN);
+      return err == 0 ? (*env)->NewStringUTF(env, msg) : NULL;
     }
   default:
     return NULL; // TODO throw something?

@@ -56,16 +56,21 @@ CPPFLAGS  += -fno-stack-protector -funsafe-loop-optimizations
 CPPFLAGS	+=	-D__EXTENSIONS__
 LDFLAGS		+= 	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
+# Statically link against libgcc.a on Solaris, to avoid dependency to libgcc_s.so.x.x
+# See https://github.com/ochafik/nativelibs4java/issues/452
+LDFLAGS   += -static-libgcc
 endif
 
 ifeq ($(OS), linux)
 CPPFLAGS  +=  -D_GNU_SOURCE
+CPPFLAGS += -z noexecstack
 endif
 
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/linux
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/solaris
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/windows
+CPPFLAGS  +=  -I$(JAVA_HOME)/include/darwin
 
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncall/$(BUILD_DIR)
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dynload/$(BUILD_DIR)

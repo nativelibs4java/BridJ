@@ -294,7 +294,7 @@ class CommonPointerIOs {
 
 #end
 
-	public static final PointerIO<SizeT> sizeTIO = new PointerIO<SizeT>(SizeT.class, SizeT.SIZE, null) {
+	public static final PointerIO<SizeT> SizeTIO = new PointerIO<SizeT>(SizeT.class, SizeT.SIZE, null) {
 		@Override
 		public SizeT get(Pointer<SizeT> pointer, long index) {
 			return new SizeT(pointer.getSizeTAtOffset(index * SizeT.SIZE));
@@ -305,7 +305,7 @@ class CommonPointerIOs {
 		}		
 	};
 	
-	public static final PointerIO<TimeT> timeTIO = new PointerIO<TimeT>(TimeT.class, TimeT.SIZE, null) {
+	public static final PointerIO<TimeT> TimeTIO = new PointerIO<TimeT>(TimeT.class, TimeT.SIZE, null) {
 		@Override
 		public TimeT get(Pointer<TimeT> pointer, long index) {
 			long offset = index * TimeT.SIZE;
@@ -321,7 +321,7 @@ class CommonPointerIOs {
 		}		
 	};
 	
-	public static final PointerIO<CLong> clongIO = new PointerIO<CLong>(CLong.class, CLong.SIZE, null) {
+	public static final PointerIO<CLong> CLongIO = new PointerIO<CLong>(CLong.class, CLong.SIZE, null) {
 		@Override
 		public CLong get(Pointer<CLong> pointer, long index) {
 			return new CLong(pointer.getCLongAtOffset(index * CLong.SIZE));

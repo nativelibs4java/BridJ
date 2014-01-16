@@ -282,7 +282,7 @@ void initMethods(JNIEnv* env) {
 
 jlong getFlagValue(JNIEnv *env, jobject valuedEnum)
 {
-	initMethods(env);
+	// initMethods(env);
 	return valuedEnum ? (*env)->CallLongMethod(env, valuedEnum, gGetValuedEnumValueMethod) : 0;	
 }
 
@@ -315,7 +315,7 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
 	jlong addr;
 	if (!callIO)
 		return NULL;
-	initMethods(env);
+	// initMethods(env);
 	addr = PTR_TO_JLONG(ptr);
 	instance = (*env)->CallObjectMethod(env, callIO, gNewCallIOInstance, addr);
 	return instance;
@@ -330,18 +330,18 @@ DCstruct* getNativeObjectPointerWithIO(JNIEnv *env, jobject instance, jobject ca
 }
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
-	initMethods(env);
+	// initMethods(env);
 	return pointer ? JLONG_TO_PTR((*env)->CallLongMethod(env, pointer, gGetPeerMethod)) : NULL;
 }
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
-	initMethods(env);
+	// initMethods(env);
 	return JLONG_TO_PTR((*env)->CallStaticLongMethod(env, gPointerClass, gAddressMethod, instance, targetClass));
 }
 
 
 jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject) {
-	initMethods(env);
+	// initMethods(env);
 	return (*env)->CallStaticObjectMethod(env, gBridJClass, gGetJavaObjectFromNativePeerMethod, PTR_TO_JLONG(nativeObject));
 }
 
@@ -369,7 +369,7 @@ jobject JNICALL Java_org_bridj_JNI_refToObject(JNIEnv *env, jclass clazz, jlong 
 }
 
 void logCall(JNIEnv *env, jobject method) {
-	initMethods(env);
+	// initMethods(env);
 	(*env)->CallStaticObjectMethod(env, gBridJClass, gLogCallMethod, method);
 }
 
@@ -835,7 +835,6 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 #define BEGIN_INFOS_LOOP(type)                                                                                           \
 	jsize i, n = (*env)->GetArrayLength(env, methodCallInfos);															 \
 	NEW_STRUCTS(n, type, infos);																						 \
-	initMethods(env);                                                                                        	 		 \
 	for (i = 0; i < n; i++)                                                                                          	 \
 	{                  																								 	 \
 		type* info = &infos[i];																						 	 \

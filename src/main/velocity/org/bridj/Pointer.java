@@ -1320,7 +1320,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		Pointer p = (Pointer)obj;
 		return getPeer() == p.getPeer();
 	}
-	
+  
 	/**
      * Create a pointer out of a native memory address
      * @param peer native memory address that is to be converted to a pointer
@@ -1328,7 +1328,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      */
     @Deprecated
     public static Pointer<?> pointerToAddress(long peer) {
-        return newPointer(null, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
+    	return pointerToAddress(peer, (PointerIO) null);
     }
 
     /**
@@ -1370,8 +1370,30 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
      */
     public static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
+    	if (BridJ.cachePointers)
+    		return (Pointer<P>)localCachedPointers.get().get(peer, io);
+    	else
+    		return pointerToAddress_(peer, io);
+	}
+
+	private static <P> Pointer<P> pointerToAddress_(long peer, PointerIO<P> io) {
     	return newPointer(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
 	}
+
+	private static final int LRU_POINTER_CACHE_SIZE = 8;
+  private static final int LRU_POINTER_CACHE_TOLERANCE = 1;
+  private static final ThreadLocal<PointerLRUCache> localCachedPointers = new ThreadLocal<PointerLRUCache>() {
+      @Override
+      protected PointerLRUCache initialValue() {
+          return new PointerLRUCache(LRU_POINTER_CACHE_SIZE, LRU_POINTER_CACHE_TOLERANCE) {
+          	@Override
+          	protected <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
+          		return pointerToAddress_(peer, io);
+          	}
+          };
+      }
+  };
+
 	/**
      * Create a pointer out of a native memory address
      * @param io PointerIO instance that knows how to read the elements pointed by the resulting pointer 
@@ -1471,11 +1493,8 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (peer == 0)
 			return null;
 		
-		if (validEnd != UNKNOWN_VALIDITY) {
-			long size = validEnd - validStart;
-			if (size <= 0)
-				return null;
-		}
+		if (validEnd != UNKNOWN_VALIDITY && validEnd <= validStart)
+			return null;
 		
 		if (releaser == null) {
 			if (ordered) {
