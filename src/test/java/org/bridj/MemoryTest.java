@@ -34,6 +34,8 @@ import java.io.FileNotFoundException;
 
 import java.util.Collection;
 
+import java.util.concurrent.*;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -97,4 +99,37 @@ public class MemoryTest {
 	  defineCallback(getPointer(cb));
 	  callCallback(1000000, v);
 	}
+
+	
+	
+	static void parallelStress(int nThreads, long times, Runnable runnable) throws Exception {
+		ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+		for (long i = 0; i < times; i++) {
+			executor.execute(runnable);
+		}
+		executor.shutdown();
+		executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+	}
+	@Library("c") @SetsLastError
+	public static native long strtol(@Ptr long str, @Ptr long endptr, int base) throws LastError;
+	//public static native @org.bridj.ann.CLong long strtol(Pointer<Byte> str, Pointer<Pointer<Byte>> endptr, int base) throws LastError;
+    
+	@Library("test")
+	public static native Pointer<Byte> incrPointer(Pointer<Byte> ptr);
+	
+    @Test
+    public void testErrors() throws Exception {
+    	final Pointer<Byte> s = pointerToCString("18446744073709551616");
+    	parallelStress(20, 100000, new Runnable() { public void run() {
+    		strtol(s.getPeer(), 0, 10);
+			assertNull(new LastError(0, LastError.eLastErrorKindWindows).getDescription());
+    		assertNull(new LastError(0, LastError.eLastErrorKindCLibrary).getDescription());
+    		assertNotNull(new LastError(1, LastError.eLastErrorKindWindows).getDescription());
+    		assertNotNull(new LastError(1, LastError.eLastErrorKindCLibrary).getDescription());
+    		assertEquals(s.getPeer() + 1, incrPointer(s).getPeer());
+    		//strtol(s, null, 10);
+    		//LastError e = LastError.getLastError();
+    		//assertNotNull(e);
+		}});
+    }
 }
