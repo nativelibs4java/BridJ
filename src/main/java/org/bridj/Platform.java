@@ -663,7 +663,11 @@ public class Platform {
     static File extractEmbeddedLibraryResource(String name) throws IOException {
         String firstLibraryResource = null;
 
-        for (String libraryResource : getEmbeddedLibraryResource(name)) {
+	List<String> libraryResources = getEmbeddedLibraryResource(name);
+	if (BridJ.veryVerbose) {
+	    BridJ.info("Library resources for " + name + ": " + libraryResources);
+        }               
+        for (String libraryResource : libraryResources) {
             if (firstLibraryResource == null) {
                 firstLibraryResource = libraryResource;
             }

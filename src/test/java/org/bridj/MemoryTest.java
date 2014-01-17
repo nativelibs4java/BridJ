@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.concurrent.*;
 
 import org.junit.Test;
+import org.junit.Ignore;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.*;
@@ -100,8 +101,6 @@ public class MemoryTest {
 	  callCallback(1000000L, v);
 	}
 
-	
-	
 	static void parallelStress(int nThreads, long times, Runnable runnable) throws Exception {
 		ExecutorService executor = Executors.newFixedThreadPool(nThreads);
 		for (long i = 0; i < times; i++) {
@@ -118,7 +117,8 @@ public class MemoryTest {
 	public static native Pointer<Byte> incrPointer(Pointer<Byte> ptr);
 	
     @Test
-    public void testErrors() throws Exception {
+    @Ignore
+	public void testErrors() throws Exception {
     	final Pointer<Byte> s = pointerToCString("18446744073709551616");
     	parallelStress(20, 100000, new Runnable() { public void run() {
     		strtol(s.getPeer(), 0, 10);

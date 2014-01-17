@@ -1,5 +1,5 @@
 # Requires the following variables:
-# OS, ARCH, CONFIG, DYNCALL_HOME, OBJ_DIR, OUT_DIR
+# OS, ARCH, CONFIG, DYNCALL_HOME, OBJ_DIR, OUT_DIR, DYNCALL_BUILD_DIR
 
 SHARED_LIB    = bridj
 
@@ -72,9 +72,9 @@ CPPFLAGS  +=  -I$(JAVA_HOME)/include/solaris
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/windows
 CPPFLAGS  +=  -I$(JAVA_HOME)/include/darwin
 
-LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncall/$(BUILD_DIR)
-LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dynload/$(BUILD_DIR)
-LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncallback/$(BUILD_DIR)
+LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncall/$(DYNCALL_BUILD_DIR)
+LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dynload/$(DYNCALL_BUILD_DIR)
+LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncallback/$(DYNCALL_BUILD_DIR)
 LDFLAGS   += -l dyncall_s -l dynload_s -l dyncallback_s
 
 include epilog.make
