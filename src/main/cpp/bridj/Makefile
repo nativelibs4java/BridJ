@@ -5,6 +5,7 @@ SHARED_LIB    = bridj
 
 UNITS += CallbackHandler
 UNITS += CppHandler
+UNITS += Errors
 UNITS += Exceptions
 UNITS += FunctionHandler
 UNITS += GenericJavaCallbackHandlers
@@ -62,7 +63,8 @@ LDFLAGS   += -static-libgcc
 endif
 
 ifeq ($(OS), linux)
-CPPFLAGS  +=  -D_GNU_SOURCE
+# GNU_SOURCE needs to be defined for dlopen, and undefined for strerror_r.
+# CPPFLAGS  +=  -D_GNU_SOURCE
 CPPFLAGS += -z noexecstack
 endif
 
@@ -75,6 +77,9 @@ CPPFLAGS  +=  -I$(JAVA_HOME)/include/darwin
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncall/$(DYNCALL_BUILD_DIR)
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dynload/$(DYNCALL_BUILD_DIR)
 LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncallback/$(DYNCALL_BUILD_DIR)
+LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncall
+LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dynload
+LDFLAGS   += -L$(DYNCALL_HOME)/dyncall/dyncallback
 LDFLAGS   += -l dyncall_s -l dynload_s -l dyncallback_s
 
 include epilog.make

@@ -28,6 +28,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#define _GNU_SOURCE
+
 #include "bridj.hpp"
 #include "jni.h"
 #include "JNI.h"
@@ -46,9 +48,6 @@
 
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
-extern jclass gLastErrorClass;
-extern jmethodID gSetLastErrorMethod;
-
 extern jclass gSignalErrorClass;
 extern jmethodID gSignalErrorThrowMethod;
 
@@ -62,13 +61,6 @@ void throwException(JNIEnv* env, const char* message) {
 	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message ? message : "No message (TODO)");
 }
 
-void clearLastError(JNIEnv* env) {
-#ifdef _WIN32
-	SetLastError(0);
-#endif
-	errno = 0;
-}
-
 #ifdef __GNUC__
 void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
 	initMethods(env);
@@ -80,86 +72,6 @@ void throwWindowsError(JNIEnv* env, int code, jlong info, jlong address) {
 	(*env)->CallStaticVoidMethod(env, gWindowsErrorClass, gWindowsErrorThrowMethod, code, info, address);
 }
 #endif
-
-#ifdef _WIN32
-jstring formatWin32ErrorMessage(JNIEnv* env, int errorCode)
-{
-	jstring message = NULL;
-	// http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx
-	LPVOID lpMsgBuf;
-	int res;
-	res = FormatMessageA(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
-		errorCode,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPSTR) &lpMsgBuf,
-		0, 
-		NULL 
-	);
-	if (res) {
-		message = (*env)->NewStringUTF(env, (LPCSTR)lpMsgBuf);
-		LocalFree(lpMsgBuf);
-	} else {
-#define MESSAGE_BUF_SIZE 2048
-		char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
-		//sprintf(lpMsgBuf, "Last Error Code = %d", errorCode);
-		message = (*env)->NewStringUTF(env, lpMsgBuf);
-	}
-	return message;
-}
-#endif
-
-void setLastError(JNIEnv* env, LastError lastError, jboolean throwsLastError) {
-	if (lastError.value) {
-		jobject err = (*env)->CallStaticObjectMethod(env, gLastErrorClass, gSetLastErrorMethod, 
-			lastError.value,
-			lastError.kind);
-		if (err && throwsLastError) {
-			(*env)->Throw(env, err);
-		}
-	}
-}
-
-LastError getLastError() {
-	int errnoCopy = errno;
-	LastError ret;
-#ifdef _WIN32
-	int errorCode = GetLastError();
-	if (errorCode) {
-	  ret.value = errorCode;
-	  ret.kind = eLastErrorKindWindows;
-	}
-	else
-#endif
-	{
-		ret.value = errnoCopy;
-		ret.kind = eLastErrorKindCLibrary;
-	}
-	return ret;
-}
-
-JNIEXPORT jstring JNICALL Java_org_bridj_LastError_getDescription(JNIEnv* env, jclass clazz, jint code, jint kind) {
-  if (!code) {
-    return NULL;
-  }
-  switch ((LastErrorKind)kind) {
-#ifdef _WIN32
-  case eLastErrorKindWindows:
-    return formatWin32ErrorMessage(env, code);
-#endif
-  case eLastErrorKindCLibrary:
-    {
-    	int err;
-    	char msg[STRERROR_BUFLEN];
-    	*msg = '\0';
-      err = strerror_r(code, msg, STRERROR_BUFLEN);
-      return err == 0 ? (*env)->NewStringUTF(env, msg) : NULL;
-    }
-  default:
-    return NULL; // TODO throw something?
-  }
-}
 
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 	if (!value)
