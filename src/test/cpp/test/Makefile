@@ -7,7 +7,6 @@ UNITS += test
 UNITS += testNamespaces
 UNITS += structs
 UNITS += templates
-UNITS += objctest
 
 CPPFLAGS	+= -fPIC
 

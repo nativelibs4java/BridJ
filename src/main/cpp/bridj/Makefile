@@ -27,7 +27,7 @@ CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncall
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dyncallback
 CPPFLAGS  += -I$(DYNCALL_HOME)/dyncall/dynload
 
-ifneq ($(ARCH), arm)
+ifneq ($(ARCH), armhf)
 CPPFLAGS  += -mtune=generic
 endif
 
