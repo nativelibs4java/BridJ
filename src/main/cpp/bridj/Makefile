@@ -11,9 +11,11 @@ UNITS += FunctionHandler
 UNITS += GenericJavaCallbackHandlers
 UNITS += HandlersCommon
 UNITS += JNI
+ifeq ($(OS), darwin)
 UNITS += ObjCBlocks
 UNITS += ObjCHandler
 UNITS += ObjCProxy
+endif
 UNITS += Platform
 UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
