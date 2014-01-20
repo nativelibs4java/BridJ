@@ -42,7 +42,14 @@ function get_arch() {
 	        echo x64
 	        ;;
         arm*)
-	        echo arm
+			    if [[ -d /lib/arm-linux-gnueabihf ]] ; then
+	        	echo "armhf"
+	        elif [[ -d /lib/arm-linux-gnueabi ]] ; then
+	        	echo "armel"
+    	    else
+    		    failed "Unknown Linux arm flavour: please edit $0 and Platform.java"
+	        fi
+	        ;;
         esac
     fi
 }
@@ -83,22 +90,6 @@ function get_os_arch() {
 	        ;;
 	    x64)
 	        echo win64
-	        ;;
-	    esac
-	    ;;
-    linux)
-	    case $ARCH in
-	    arm)
-	        if [[ -d /lib/arm-linux-gnueabihf ]] ; then
-	        	ARCH="armhf"
-	        elif [[ -d /lib/arm-linux-gnueabi ]] ; then
-	        	ARCH="armel"
-      	    else
-      		    failed "Unknown Linux arm flavour: please edit $0 and Platform.java"
-	        fi
-	        ;;
-	    *)
-	        echo ${OS}_${ARCH}
 	        ;;
 	    esac
 	    ;;
