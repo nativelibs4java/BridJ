@@ -30,6 +30,7 @@
  */
 #include "HandlersCommon.h"
 #include "JNI.h"
+#include "Errors.h"
 
 jboolean callFunction(CallTempStruct* call, CommonCallbackInfo* info, DCArgs* args, DCValue* result, void* callback, CallFlags flags)
 {

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "bridj.hpp"
 
 #include <stdio.h>

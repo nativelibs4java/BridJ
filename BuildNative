@@ -171,8 +171,8 @@ else
 fi
 
 if [[ $OS =~ sunos ]]; then
-    ARCH=x86 build_libraries
-    ARCH=x64 build_libraries
+    ARCH=x86 build_libraries $@
+    ARCH=x64 build_libraries $@
 else
-    build_libraries
+    build_libraries $@
 fi
