@@ -81,6 +81,18 @@ public class LastError extends NativeError {
         }*/
     }
 
+    public int hashCode() {
+    	return Integer.valueOf(code).hashCode() ^ Integer.valueOf(kind).hashCode();
+    }
+
+    public boolean equals(Object o) {
+    	if (!(o instanceof LastError)) {
+    		return false;
+    	}
+    	LastError e = (LastError) o;
+    	return code == e.code && kind == e.kind;
+    }
+
     /**
      * Native error code (as returned by <a
      * href="http://en.wikipedia.org/wiki/Errno.h">errno</a> or <a
@@ -117,8 +129,9 @@ public class LastError extends NativeError {
         return lastError.get();
     }
     
-    private static LastError setLastError(int code, int kind) {
-    	if (code == 0) {
+    static LastError setLastError(int code, int kind) {
+    		if (code == 0) {
+    				lastError.set(null);
             return null;
         }
         LastError err = new LastError(code, kind);

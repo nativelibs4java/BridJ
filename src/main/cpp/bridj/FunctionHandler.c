@@ -69,7 +69,7 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 	cleanupCallHandler(call);
 
   if (setsLastError) {
-    setLastError(info->fInfo.fEnv, lastError, info->fInfo.fThrowsLastError);
+    setLastError(env, lastError, info->fInfo.fThrowsLastError);
   }
 	return info->fInfo.fDCReturnType;
 }

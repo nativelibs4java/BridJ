@@ -109,24 +109,44 @@ public class MemoryTest {
 		executor.shutdown();
 		executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 	}
-	@Library("c") @SetsLastError
-	public static native long strtol(@Ptr long str, @Ptr long endptr, int base) throws LastError;
+	@Library("c")
+	@Name("strtol")
+	@SetsLastError
+	public static native long strtol_sets(@Ptr long str, @Ptr long endptr, int base);
+	
+	@Library("c")
+	@Name("strtol")
+	public static native long strtol_throws(@Ptr long str, @Ptr long endptr, int base) throws LastError;
+	
 	//public static native @org.bridj.ann.CLong long strtol(Pointer<Byte> str, Pointer<Pointer<Byte>> endptr, int base) throws LastError;
     
 	@Library("test")
 	public static native Pointer<Byte> incrPointer(Pointer<Byte> ptr);
 	
-    @Test
-    @Ignore
+  @Test
 	public void testErrors() throws Exception {
     	final Pointer<Byte> s = pointerToCString("18446744073709551616");
+    	final LastError expectedError = new LastError(34, LastError.eLastErrorKindCLibrary);
     	parallelStress(20, 100000, new Runnable() { public void run() {
-    		strtol(s.getPeer(), 0, 10);
-			assertNull(new LastError(0, LastError.eLastErrorKindWindows).getDescription());
+    		LastError.setLastError(0, LastError.eLastErrorKindCLibrary);
+    		assertNull(LastError.getLastError());
+    		strtol_sets(s.getPeer(), 0, 10);
+				assertEquals(expectedError, LastError.getLastError());
+				try {
+					strtol_throws(s.getPeer(), 0, 10);
+					fail("strtol didn't throw");
+				} catch (LastError e) {
+					assertEquals(expectedError, e);
+					assertSame(e, LastError.getLastError());
+				}
+    		assertNull(new LastError(0, LastError.eLastErrorKindWindows).getDescription());
     		assertNull(new LastError(0, LastError.eLastErrorKindCLibrary).getDescription());
-    		assertNotNull(new LastError(1, LastError.eLastErrorKindWindows).getDescription());
+    		if (Platform.isWindows()) {
+    			assertNotNull(new LastError(1, LastError.eLastErrorKindWindows).getDescription());
+    		}
     		assertNotNull(new LastError(1, LastError.eLastErrorKindCLibrary).getDescription());
-    		assertEquals(s.getPeer() + 1, incrPointer(s).getPeer());
+    		// assertEquals(s.getPeer() + 1, incrPointer(s).getPeer());
+
     		//strtol(s, null, 10);
     		//LastError e = LastError.getLastError();
     		//assertNotNull(e);
