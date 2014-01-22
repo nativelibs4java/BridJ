@@ -401,6 +401,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\bridj\Errors.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\bridj\FunctionHandler.c"
 				>
 			</File>

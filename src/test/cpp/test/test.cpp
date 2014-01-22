@@ -590,6 +590,10 @@ TEST_API void copyChar(char* dest, char* src) {
 	*dest = *src;
 }
 
+TEST_API char* incrPointer(char* ptr) {
+	return ptr + 1;
+}
+
 TEST_API void callCallback(long long times, const char* value) {
 	for (long long i = 0; i < times; i++) {
 		gCallback(value, "test");

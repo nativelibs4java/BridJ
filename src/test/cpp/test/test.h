@@ -175,4 +175,6 @@ struct MyUnknownStruct;
 TEST_API MyUnknownStruct *newMyUnknownStruct(int a);
 TEST_API int deleteMyUnknownStruct(MyUnknownStruct *s);
 
+TEST_API char* incrPointer(char* ptr);
+
 #endif // _TEST_H
