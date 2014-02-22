@@ -941,7 +941,7 @@ public abstract class Demangler {
             Class<?> typeClass = getTypeClass(type);
             if (!Callback.class.isAssignableFrom(typeClass))
                 return false;
-            Method method = CRuntime.getInstance().getUniqueAbstractCallbackMethod(typeClass);
+            Method method = CRuntime.getInstance().getFastestCallbackMethod(typeClass);
             if (method == null)
                 return false;
             return function.matches(method);

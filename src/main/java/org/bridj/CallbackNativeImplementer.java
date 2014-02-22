@@ -92,7 +92,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
                 String callbackTypeImplName = callbackTypeName.replace('$', '_') + implNameSuffix;
                 String sourceFile = callbackType.getSimpleName() + implNameSuffix + ".java";
 
-                Method callbackMethod = runtime.getUniqueAbstractCallbackMethod(callbackType);
+                Method callbackMethod = runtime.getFastestCallbackMethod(callbackType);
 
                 Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
                 MethodCallInfo mci = new MethodCallInfo(callbackMethod);

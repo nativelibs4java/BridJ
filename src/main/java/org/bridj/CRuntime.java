@@ -33,6 +33,7 @@ package org.bridj;
 import org.bridj.util.Utils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -581,14 +582,21 @@ public class CRuntime extends AbstractBridJRuntime {
     }
     protected Set<Class> rootCallbackClasses = new HashSet<Class>(Arrays.asList(Callback.class, DynamicFunction.class));
 
-    public Method getUniqueAbstractCallbackMethod(Class type) {
-        Class<?> parent = null;
-        while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
-            type = parent;
-        }
+    public Method getUniqueCallbackMethod(Class type) {
+        return getCallbackMethod(type, true);
+    }
+    public Method getFastestCallbackMethod(Class type) {
+        return getCallbackMethod(type, false);
+    }
+    public Method getCallbackMethod(Class type, boolean expectUniqueMethod) {
+//        Class<?> parent = null;
+//        while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
+//            type = parent;
+//        }
 
         Method method = null;
-        for (Method dm : type.getDeclaredMethods()) {
+        Method[] declaredMethods = type.getDeclaredMethods();
+        for (Method dm : declaredMethods) {
             int modifiers = dm.getModifiers();
             if (!Modifier.isAbstract(modifiers)) {
                 continue;
@@ -602,11 +610,49 @@ public class CRuntime extends AbstractBridJRuntime {
             //break;
         }
         if (method == null) {
-            throw new RuntimeException("Type doesn't have any abstract method : " + type.getName() + " (parent = " + parent.getName() + ")");
+            if (declaredMethods.length == 1) {
+                return declaredMethods[0];
+            } else if (declaredMethods.length == 2) {
+                Method m1 = declaredMethods[0], m2 = declaredMethods[1];
+                Class<?>[] params1 = m1.getParameterTypes(), params2 = m2.getParameterTypes();
+                int objectCount1 = 0, objectCount2 = 0;
+                Class<?> r1 = m1.getReturnType(), r2 = m2.getReturnType();
+                if (sameBindings(r1, r2) && params1.length == params2.length) {
+                    objectCount1 += getObjectCount(r1);
+                    objectCount2 += getObjectCount(r2);
+                    boolean same = true;
+                    for (int i = 0; i < params1.length; i++) {
+                        Class p1 = params1[i], p2 = params2[i];
+                        if (sameBindings(p1, p2)) {
+                            objectCount1 += getObjectCount(p1);
+                            objectCount2 += getObjectCount(p2);
+                        } else {
+                            same = false;
+                            break;
+                        }
+                    }
+                    if (same) {
+                        if (expectUniqueMethod) {
+                            throw new RuntimeException("Expected only one method in " + type.getName() + ", but got " + m1 + " and " + m2);
+                        }
+                        return objectCount1 < objectCount2 ? m1 : m2;
+                    }
+                }
+                throw new RuntimeException("Callback methods don't match: " + m1 + " vs. " + m2);
+            }
+            throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
         }
         return method;
     }
-
+    private static int getObjectCount(Class t) {
+        return t.isPrimitive() ? 0 : 1;
+    }
+    private static boolean sameBindings(Class t1, Class t2) {
+        return t1.equals(t2) ||
+            t1 == long.class && Pointer.class.isAssignableFrom(t2) ||
+            t2 == long.class && Pointer.class.isAssignableFrom(t1);
+    }
+    
     public <T extends NativeObject> Class<? extends T> getTypeForCast(Type type) {
         Class<?> typeClass = Utils.getClass(type);
         if (CallbackInterface.class.isAssignableFrom(typeClass)) {
@@ -661,7 +707,7 @@ public class CRuntime extends AbstractBridJRuntime {
     protected <T extends CallbackInterface> Pointer<T> registerCallbackInstance(T instance) {
         try {
             Class<?> c = instance.getClass();
-            MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
+            MethodCallInfo mci = new MethodCallInfo(getFastestCallbackMethod(c));
             mci.setDeclaringClass(c);
             mci.setJavaCallback(instance);
             return createCToJavaCallback(mci, c);
