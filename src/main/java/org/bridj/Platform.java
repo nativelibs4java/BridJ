@@ -588,7 +588,8 @@ public class Platform {
                     paths.add(root + "armeabi/"); // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
                 } else if (isLinux()) {
                     if (isArm()) {
-                        paths.add(root + (new File("/lib/arm-linux-gnueabihf").isDirectory() ? "linux_armhf/" : "linux_armel/"));
+                        paths.add(root + "linux_armhf/");
+                        // To discriminate between hard-float and soft-float, we used to test new File("/lib/arm-linux-gnueabihf").isDirectory().
                     } else {
                         paths.add(root + (is64Bits() ? "linux_x64/" : "linux_x86/"));
                     }
