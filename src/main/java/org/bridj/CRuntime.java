@@ -650,7 +650,9 @@ public class CRuntime extends AbstractBridJRuntime {
     private static boolean sameBindings(Class t1, Class t2) {
         return t1.equals(t2) ||
             t1 == long.class && Pointer.class.isAssignableFrom(t2) ||
-            t2 == long.class && Pointer.class.isAssignableFrom(t1);
+            t2 == long.class && Pointer.class.isAssignableFrom(t1) ||
+            t1 == int.class && IntValuedEnum.class.isAssignableFrom(t2) ||
+            t2 == int.class && IntValuedEnum.class.isAssignableFrom(t1);
     }
     
     public <T extends NativeObject> Class<? extends T> getTypeForCast(Type type) {
