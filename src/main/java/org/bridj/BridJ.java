@@ -1049,7 +1049,7 @@ public class BridJ {
             if (ll == null) {
                 boolean isWindows = Platform.isWindows();
                 if ("c".equals(name) || "m".equals(name) && isWindows) {
-                    ll = new NativeLibrary(isWindows ? "mscvrt" : null, 0, 0);
+                    ll = new NativeLibrary(isWindows ? "msvcrt" : null, 0, 0);
                 }
             }
         }
