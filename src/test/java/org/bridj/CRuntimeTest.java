@@ -135,4 +135,23 @@ public class CRuntimeTest {
         Pointer.getPointer(cb).asDynamicFunction(null, void.class, SizeT.class).apply(new SizeT(0L));
         assertEquals(1, calls[0]);
     }
+
+	public static abstract class AbstractCallback extends Callback<AbstractCallback> {
+        public abstract int apply(int foo);
+    }
+
+    private static class FooCallback extends AbstractCallback {
+        @Override
+        public int apply(int foo) {
+            return foo;
+        }
+
+        private void m1() { }
+        private void m2() { }
+    }
+
+    @Test
+    public void testSimpleOldStyleCallback() {
+        new FooCallback();
+    }
 }

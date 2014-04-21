@@ -588,12 +588,9 @@ public class CRuntime extends AbstractBridJRuntime {
     public Method getFastestCallbackMethod(Class type) {
         return getCallbackMethod(type, false);
     }
-    public Method getCallbackMethod(Class type, boolean expectUniqueMethod) {
-//        Class<?> parent = null;
-//        while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
-//            type = parent;
-//        }
 
+    private Method getSingleAbstractMethodMethod(Class type) {
+        assert Modifier.isAbstract(type.getModifiers());
         Method method = null;
         Method[] declaredMethods = type.getDeclaredMethods();
         for (Method dm : declaredMethods) {
@@ -609,43 +606,96 @@ public class CRuntime extends AbstractBridJRuntime {
             }
             //break;
         }
-        if (method == null) {
-            if (declaredMethods.length == 1) {
-                return declaredMethods[0];
-            } else if (declaredMethods.length == 2) {
-                Method m1 = declaredMethods[0], m2 = declaredMethods[1];
-                Class<?>[] params1 = m1.getParameterTypes(), params2 = m2.getParameterTypes();
-                int objectCount1 = 0, objectCount2 = 0;
-                Class<?> r1 = m1.getReturnType(), r2 = m2.getReturnType();
-                if (sameBindings(r1, r2) && params1.length == params2.length) {
-                    objectCount1 += getObjectCount(r1);
-                    objectCount2 += getObjectCount(r2);
-                    boolean same = true;
-                    for (int i = 0; i < params1.length; i++) {
-                        Class p1 = params1[i], p2 = params2[i];
-                        if (sameBindings(p1, p2)) {
-                            objectCount1 += getObjectCount(p1);
-                            objectCount2 += getObjectCount(p2);
-                        } else {
-                            same = false;
-                            break;
-                        }
-                    }
-                    if (same) {
-                        if (expectUniqueMethod) {
-                            throw new RuntimeException("Expected only one method in " + type.getName() + ", but got " + m1 + " and " + m2);
-                        }
-                        return objectCount1 < objectCount2 ? m1 : m2;
-                    }
-                }
-                throw new RuntimeException("Callback methods don't match: " + m1 + " vs. " + m2);
-            }
-            throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
-        }
         return method;
     }
-    private static int getObjectCount(Class t) {
+    
+    private boolean sameBindings(Method m1, Method m2) {
+        Class<?>[] params1 = m1.getParameterTypes(), params2 = m2.getParameterTypes();
+        Class<?> r1 = m1.getReturnType(), r2 = m2.getReturnType();
+        if (!sameBindings(r1, r2) || params1.length != params2.length) {
+            return false;
+        }
+        for (int i = 0; i < params1.length; i++) {
+            Class p1 = params1[i], p2 = params2[i];
+            if (!sameBindings(p1, p2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private static int getSignatureObjectCount(Class t) {
         return t.isPrimitive() ? 0 : 1;
+    }
+    private int getSignatureObjectCount(Method m) {
+        int count = getSignatureObjectCount(m.getReturnType());
+        for (Class<?> param : m.getParameterTypes()) {
+            count += getSignatureObjectCount(param);
+        }
+        return count;
+    }
+
+    public List<Method> getApplyMethods(Class type) {
+        List<Method> ret = new ArrayList<Method>();
+        for (Method method : type.getDeclaredMethods()) {
+            if (method.getName().equals("apply")) {
+                ret.add(method);
+            }
+        }
+        return ret;
+    }
+    
+    public Class<?> getAbstractCallback(Class type) {
+        Class<?> parent = null;
+        while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
+            type = parent;
+        }
+        if (!Modifier.isAbstract(type.getModifiers())) {
+            throw new RuntimeException("Callback definition " + type.getName() + " must be abstract.");
+        }
+        return type;
+    }
+    
+    public Method getCallbackMethod(Class<?> type, boolean expectUniqueMethod) {
+        Class<?> abstractCallback = getAbstractCallback(type);
+        Method singleAbstractMethod = getSingleAbstractMethodMethod(abstractCallback);
+        if (singleAbstractMethod != null) {
+            return singleAbstractMethod;
+        }
+
+        List<Method> applyList = getApplyMethods(type);
+        if (applyList.isEmpty()) {
+            throw new RuntimeException("Type doesn't have any abstract method nor any 'apply' method: " + abstractCallback.getName());
+        }
+        
+        Method m0 = applyList.get(0);
+        for (int i = 1, n = applyList.size(); i < n; i++) {
+            Method mi = applyList.get(i);
+            if (!sameBindings(m0, mi)) {
+                throw new RuntimeException("Callback apply methods don't match: " + m0 + " vs. " + mi);
+            }
+        }
+
+        boolean overridesOnlyOneMethod = applyList.size() == 1;
+        if (expectUniqueMethod) {
+            if (!overridesOnlyOneMethod) {
+                throw new RuntimeException("Expected only one overridden apply method in " + type.getName() + ", but got " + applyList);
+            }
+        }
+        if (overridesOnlyOneMethod) {
+            return applyList.get(0);
+        } else {
+            int bestCount = Integer.MAX_VALUE;
+            Method best = null;
+            for (Method m : applyList) {
+                int count = getSignatureObjectCount(m);
+                if (count < bestCount) {
+                    bestCount = count;
+                    best = m;
+                }
+            }
+            return best;
+        }
     }
     private static boolean sameBindings(Class t1, Class t2) {
         return t1.equals(t2) ||
