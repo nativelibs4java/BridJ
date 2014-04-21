@@ -48,8 +48,10 @@ public class StructFieldDescription {
     public final List<StructFieldDeclaration> aggregatedFields = new ArrayList<StructFieldDeclaration>();
     public long alignment = -1;
     public long byteOffset = -1, byteLength = -1;
-    public long bitOffset, bitLength = -1;
+    public long bitOffset = 0;
+    public long bitLength = -1;
     public long arrayLength = 1;
+    public long bitMask = -1;
     public boolean isArray, isNativeObject;
     public Type nativeTypeOrPointerTargetType;
     public java.lang.reflect.Field field;
@@ -222,5 +224,17 @@ public class StructFieldDescription {
             }
         }
         return aggregatedField;
+    }
+
+    void computeBitMask() {
+        if (bitLength < 0) {
+            bitMask = -1;
+        } else {
+            bitMask = 0;
+            for (int i = 0; i < bitLength; i++) {
+                bitMask = bitMask << 1 | 1;
+            }
+            bitMask = bitMask << bitOffset;
+        }
     }
 }

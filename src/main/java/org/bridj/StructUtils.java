@@ -271,6 +271,7 @@ class StructUtils {
                 if (fieldDesc.byteLength < 0 || fieldDesc.byteLength > aggregatedField.byteLength)
                     fieldDesc.byteLength = aggregatedField.byteLength;
                 fieldDesc.bitOffset = aggregatedField.bitOffset;
+                fieldDesc.bitMask = aggregatedField.bitMask;
 
                 fieldDescs.add(fieldDesc);
                 rangesBuilder.add(fieldDesc);
@@ -324,6 +325,7 @@ class StructUtils {
 
             aggregatedField.byteOffset = fieldByteOffset;
             aggregatedField.bitOffset = fieldBitOffset;
+            aggregatedField.computeBitMask();
         }
 
         if (cumulativeBitOffset > 0) {

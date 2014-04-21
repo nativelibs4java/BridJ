@@ -229,23 +229,42 @@ public class StructIO {
 		struct.peer.setIntAtOffset(fd.byteOffset, (int)value.value());
 	}
 	
+    private void setSignedIntegral(Pointer<?> ptr, long byteOffset, long byteLength, long bitMask, long bitOffset, long value) {
+        if (bitMask != -1) {
+            long previous = ptr.getSignedIntegralAtOffset(byteOffset, byteLength);
+            value = value << bitOffset;
+            value = previous & ~bitMask | value & bitMask;
+        }
+        ptr.setSignedIntegralAtOffset(byteOffset, value, byteLength);
+    }
+
 #foreach ($prim in $primitives)
     public final void set${prim.CapName}Field(StructObject struct, int fieldIndex, ${prim.Name} value) {
 		StructFieldDescription fd = desc.fields[fieldIndex];
 		#if ($prim.isSignedIntegral())
-		if ($prim.Size != fd.byteLength)
-			struct.peer.setSignedIntegralAtOffset(fd.byteOffset, value, fd.byteLength);
-		#end
-		struct.peer.set${prim.CapName}AtOffset(fd.byteOffset, value);
+        if ($prim.Size != fd.byteLength || fd.bitMask != -1)
+            setSignedIntegral(struct.peer, fd.byteOffset, fd.byteLength, fd.bitMask, fd.bitOffset, value);
+        else
+        #end
+            struct.peer.set${prim.CapName}AtOffset(fd.byteOffset, value);
 	}
 	public final ${prim.Name} get${prim.CapName}Field(StructObject struct, int fieldIndex) {
 		StructFieldDescription fd = desc.fields[fieldIndex];
-		#if ($prim.isSignedIntegral())
-		if ($prim.Size != fd.byteLength)
-			return (${prim.Name})struct.peer.getSignedIntegralAtOffset(fd.byteOffset, fd.byteLength);
+        ${prim.Name} value;
+        #if ($prim.isSignedIntegral())
+        if ($prim.Size != fd.byteLength)
+			value = (${prim.Name})struct.peer.getSignedIntegralAtOffset(fd.byteOffset, fd.byteLength);
+        else
 		#end
-		return struct.peer.get${prim.CapName}AtOffset(fd.byteOffset);
-	}
+            value = struct.peer.get${prim.CapName}AtOffset(fd.byteOffset);
+        
+        #if ($prim.isSignedIntegral())
+        return (${prim.Name}) ((value & fd.bitMask) >> fd.bitOffset);
+        #else
+        //assert fd.bitMask == -1;
+        return value;
+        #end
+    }
 #end	
 
 #foreach ($sizePrim in ["SizeT", "CLong"])
