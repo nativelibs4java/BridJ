@@ -1,6 +1,7 @@
-#ifndef __ANDROID__
-
+#include "autovar/autovar_ARCH.h"
 #include <string.h>
+
+#ifdef ARCH_X64
 
 #define WRAP_SUB(name, return_keyword, return_type, arg_defs, args, underscored_version, dotted_version) \
   return_type __ ## name ## _ ## underscored_version arg_defs; \
