@@ -66,7 +66,7 @@ endif
 
 ifeq ($(OS), linux)
 
-UNITS += memcpy
+UNITS += GLIBCCompatibilityWraps
 CPPFLAGS  += -Wl,--wrap=memcpy
 
 # GNU_SOURCE needs to be defined for dlopen, and undefined for strerror_r.
