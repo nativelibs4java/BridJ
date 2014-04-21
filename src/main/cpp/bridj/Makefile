@@ -50,6 +50,11 @@ CPPFLAGS  += -U_FORTIFY_SOURCE
 #CPPFLAGS += -Werror
 CPPFLAGS  += -std=c99
 
+ifeq ($(ARCH), x64)
+UNITS += GLIBCCompatibilityWraps
+CPPFLAGS  += -Wl,--wrap=memcpy
+endif
+
 LDFLAGS		+= -lpthread
 CPPFLAGS	+= -fPIC
 
@@ -65,9 +70,6 @@ LDFLAGS   += -static-libgcc
 endif
 
 ifeq ($(OS), linux)
-
-UNITS += GLIBCCompatibilityWraps
-CPPFLAGS  += -Wl,--wrap=memcpy
 
 # GNU_SOURCE needs to be defined for dlopen, and undefined for strerror_r.
 # CPPFLAGS  +=  -D_GNU_SOURCE
