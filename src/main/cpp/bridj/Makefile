@@ -65,6 +65,10 @@ LDFLAGS   += -static-libgcc
 endif
 
 ifeq ($(OS), linux)
+
+UNITS += memcpy
+CPPFLAGS  += -Wl,--wrap=memcpy
+
 # GNU_SOURCE needs to be defined for dlopen, and undefined for strerror_r.
 # CPPFLAGS  +=  -D_GNU_SOURCE
 CPPFLAGS += -z noexecstack
