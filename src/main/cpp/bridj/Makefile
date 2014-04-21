@@ -55,12 +55,14 @@ UNITS += GLIBCCompatibilityWraps
 CPPFLAGS  += -Wl,--wrap=memcpy
 endif
 
+CPPFLAGS  += -fno-stack-protector
+
 LDFLAGS		+= -lpthread
 CPPFLAGS	+= -fPIC
 
 ifeq ($(OS), sunos)
 # http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
-CPPFLAGS  += -fno-stack-protector -funsafe-loop-optimizations
+CPPFLAGS  += -funsafe-loop-optimizations
 CPPFLAGS	+=	-D__EXTENSIONS__
 LDFLAGS		+= 	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
