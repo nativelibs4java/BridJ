@@ -29,29 +29,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import org.bridj.FunctionTest.ETest;
-import static org.bridj.util.DefaultParameterizedType.*;
-import org.bridj.demangling.Demangler;
-import org.bridj.demangling.Demangler.TypeRef;
-import org.bridj.demangling.Demangler.Ident;
-import org.bridj.demangling.Demangler.IdentLike;
-import org.bridj.demangling.Demangler.DemanglingException;
-import org.bridj.demangling.Demangler.MemberRef;
-import org.bridj.demangling.GCC4Demangler;
-import org.bridj.demangling.VC9Demangler;
-import org.bridj.cpp.CPPType;
-import org.bridj.demangling.Demangler.SpecialName;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Type;
-import java.lang.annotation.Annotation;
 import org.bridj.CPPTest3.Constructed;
-import org.junit.Test;
+import org.bridj.FunctionTest.ETest;
+import org.bridj.ann.Ptr;
+import org.bridj.cpp.CPPType;
+import org.bridj.demangling.Demangler;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.Ident;
+import org.bridj.demangling.Demangler.IdentLike;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.SpecialName;
+import org.bridj.demangling.Demangler.TypeRef;
+import org.bridj.demangling.GCC4Demangler;
+import org.bridj.demangling.VC9Demangler;
+import static org.bridj.util.DefaultParameterizedType.*;
+import static org.bridj.util.PlatformTestUtils.force32Bits;
+import static org.bridj.util.PlatformTestUtils.force64Bits;
+import static org.bridj.util.ReflectionUtils.makeFieldWritable;
 
 import static org.junit.Assert.*;
+import org.junit.Test;
 public class DemanglingTest {
 
+    Demangler.Annotations PTR_ANNOTATION = new Demangler.Annotations() {
+        public <A extends Annotation> A getAnnotation(Class<A> c) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        public boolean isAnnotationPresent(Class<? extends Annotation> c) {
+            return c == Ptr.class;
+        }
+    };
+
+    Demangler.Annotations NO_ANNOTATION = new Demangler.Annotations() {
+        public <A extends Annotation> A getAnnotation(Class<A> c) {
+            return null;
+        }
+        public boolean isAnnotationPresent(Class<? extends Annotation> c) {
+            return false;
+        }
+    };
+    
     static Type pointerType(Type target) {
         return paramType(Pointer.class, target);
     }
@@ -96,8 +120,8 @@ public class DemanglingTest {
             "_Z14test_add9_longlllllllll",
             null, 
             ident("test_add9_long"),
-            long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
-            //clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
+//            long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
+            clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
         );
     }
     public static class C {}
@@ -513,6 +537,31 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
                 assertTrue("Problem in the expression of the test code", false);
             }
         }
+    }
+
+    @Test
+    public void testIntVsPointer_32bits() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        force32Bits();
+        
+        assertFalse(Demangler.equivalentTypes(int.class, NO_ANNOTATION, Pointer.class, NO_ANNOTATION));;
+        // This should not even be allowed: int tagged as @Ptr.
+        assertFalse(Demangler.equivalentTypes(int.class, PTR_ANNOTATION, Pointer.class, NO_ANNOTATION));
+        
+        assertFalse(Demangler.equivalentTypes(long.class, null, Pointer.class, NO_ANNOTATION));
+        assertFalse(Demangler.equivalentTypes(long.class, NO_ANNOTATION, Pointer.class, NO_ANNOTATION));
+        assertTrue(Demangler.equivalentTypes(long.class, PTR_ANNOTATION, Pointer.class, NO_ANNOTATION));
+    }
+
+    @Test
+    public void testIntVsPointer_64bits() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        force64Bits();
+        
+        assertFalse(Demangler.equivalentTypes(int.class, NO_ANNOTATION, Pointer.class, NO_ANNOTATION));
+        assertFalse(Demangler.equivalentTypes(int.class, PTR_ANNOTATION, Pointer.class, NO_ANNOTATION));
+        
+        assertTrue(Demangler.equivalentTypes(long.class, null, Pointer.class, NO_ANNOTATION)); 
+        assertFalse(Demangler.equivalentTypes(long.class, NO_ANNOTATION, Pointer.class, NO_ANNOTATION)); 
+        assertTrue(Demangler.equivalentTypes(long.class, PTR_ANNOTATION, Pointer.class, NO_ANNOTATION));
     }
 
 }

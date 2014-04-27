@@ -681,11 +681,37 @@ public abstract class Demangler {
             return true;
         }
 
+        if (aAnnotations != null && bAnnotations != null) {
+            if (xor(isPointerLike(a, ac, aAnnotations), isPointerLike(b, bc, bAnnotations))) {
+                return false;
+            }
+            if (xor(isCLong(a, ac, aAnnotations), isCLong(b, bc, bAnnotations))) {
+                return false;
+            }
+        }
         int as = getIntegralSize(a, ac, aAnnotations);
         int bs = getIntegralSize(b, bc, bAnnotations);
-
-        //System.out.println("a = " + a + ", b = " + b + ", as = " + as + ", bs = " + bs + ", equiv = " + (as != -1 && as == bs));
         return as != -1 && as == bs;
+    }
+    
+    static boolean xor(boolean a, boolean b) {
+        return a && !b || !a && b;
+    }
+    static boolean isPointerLike(Type type, Class typec, Annotations annotations) {
+        if (type == long.class || type == Long.class) {
+            return annotations == null && Pointer.SIZE == 8 ||
+                annotations != null && annotations.isAnnotationPresent(Ptr.class) &&
+                    !annotations.isAnnotationPresent(org.bridj.ann.CLong.class);
+        }
+        return type == SizeT.class || Pointer.class.isAssignableFrom(typec);
+    }
+
+    static boolean isCLong(Type type, Class typec, Annotations annotations) {
+        if (type == long.class || type == Long.class) {
+            return annotations == null && CLong.SIZE == 8 ||
+                annotations != null && annotations.isAnnotationPresent(org.bridj.ann.CLong.class);
+        }
+        return type == CLong.class;
     }
 
     static int getIntegralSize(Type type, Class typec, Annotations annotations) {
@@ -695,7 +721,7 @@ public abstract class Demangler {
         if (type == long.class || type == Long.class) {
             if (annotations != null) {
                 if (annotations.isAnnotationPresent(Ptr.class)) {
-                    return SizeT.SIZE;
+                    return Pointer.SIZE;
                 }
                 if (annotations.isAnnotationPresent(org.bridj.ann.CLong.class)) {
                     return CLong.SIZE;
@@ -727,8 +753,8 @@ public abstract class Demangler {
         return -1;
     }
 
-    public static boolean equivalentTypes(Type a, Type b) {
-        return equivalentTypes(a, getTypeClass(a), null, b, getTypeClass(b), null);
+    public static boolean equivalentTypes(Type a, Annotations aAnnotations, Type b, Annotations bAnnotations) {
+        return equivalentTypes(a, getTypeClass(a), aAnnotations, b, getTypeClass(b), bAnnotations);
     }
 
     public static class JavaTypeRef extends TypeRef {
