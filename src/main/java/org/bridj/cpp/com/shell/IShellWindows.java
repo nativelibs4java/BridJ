@@ -41,7 +41,7 @@ import org.bridj.cpp.com.IID;
 /**
  * IShellWindows provides access to the collection of open Shell windows (see
  *
- * @see <a
+ * See <a
  * href="http://msdn.microsoft.com/en-us/library/cc836570(VS.85).aspx">http://msdn.microsoft.com/en-us/library/cc836570(VS.85).aspx</a>)
  * @author Olivier
  */

@@ -39,7 +39,7 @@ import org.bridj.ann.Struct;
  * type adjustments or other hacks.<br>
  * A type customizer can be specified with {@link Struct#customizer() }.<br>
  * Each implementation must have a default constructor, and an unique instance
- * of each implementation class will be cached by {@link StructIO#getCustomizer(java.lang.Class)
+ * of each implementation class will be cached by {@link StructCustomizer#getInstance(java.lang.Class)
  * }.
  *
  * @deprecated The StructIO API is subject to future changes. Use this with care

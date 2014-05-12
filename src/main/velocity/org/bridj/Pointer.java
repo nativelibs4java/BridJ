@@ -561,7 +561,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 	/**
-	* Compare the byteCount bytes at the memory location pointed by this pointer to the byteCount bytes at the memory location pointer by other using the C @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a> function.<br>
+	* Compare the byteCount bytes at the memory location pointed by this pointer to the byteCount bytes at the memory location pointer by other using the C <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a> function.<br>
 	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
 	 */
 	public int compareBytes(Pointer<?> other, long byteCount) {
@@ -569,7 +569,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 	/**
-	 * Compare the byteCount bytes at the memory location pointed by this pointer shifted by byteOffset to the byteCount bytes at the memory location pointer by other shifted by otherByteOffset using the C @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a> function.<br>
+	 * Compare the byteCount bytes at the memory location pointed by this pointer shifted by byteOffset to the byteCount bytes at the memory location pointer by other shifted by otherByteOffset using the C <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a> function.<br>
 	 * @deprecated Avoid using the byte offset methods variants unless you know what you're doing (may cause alignment issues)
 	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
 	 */
@@ -2481,7 +2481,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
      * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.
      */
     @Deprecated
@@ -2492,7 +2492,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
      * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.<br>
      * See {@link Pointer#copyBytesAtOffsetTo(long, Pointer, long, long)} for more options.
      */
@@ -2502,7 +2502,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
      * Works even if the destination and source memory locations are overlapping.
      */
     @Deprecated
@@ -2513,7 +2513,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer, using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer, using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
      * Works even if the destination and source memory locations are overlapping.
      */
 	public Pointer<T> moveBytesTo(Pointer<?> destination, long byteCount) {
@@ -2521,7 +2521,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-     * Copy all valid bytes from the memory location indicated by this pointer to that of another pointer, using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
+     * Copy all valid bytes from the memory location indicated by this pointer to that of another pointer, using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
      * Works even if the destination and source memory locations are overlapping.
      */
 	public Pointer<T> moveBytesTo(Pointer<?> destination) {
@@ -2550,14 +2550,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-    * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(Pointer, long)}, {@link Pointer#getValidBytes()})
+    * Copy remaining bytes from this pointer to a destination using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(Pointer, long)}, {@link Pointer#getValidBytes()})
      */
     public Pointer<T> copyTo(Pointer<?> destination) {
     		return copyTo(destination, getValidElements());
     }
     
     /**
-    * Copy remaining elements from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesAtOffsetTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
+    * Copy remaining elements from this pointer to a destination using the <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesAtOffsetTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
     public Pointer<T> copyTo(Pointer<?> destination, long elementCount) {
     		PointerIO<T> io = getIO("Cannot copy untyped pointer without byte count information. Please use copyBytesAtOffsetTo(offset, destination, destinationOffset, byteCount) instead");
@@ -2819,26 +2819,26 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
 		 * They are often used in very old Mac OS programs and / or Pascal programs.<br>
 		 * Usual corresponding C types : {@code unsigned char* } and {@code const unsigned char* }<br>
-		 * Corresponding Pascal type : {@code ShortString } (see @see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
+		 * Corresponding Pascal type : {@code ShortString } (see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
 		 * See {@link Pointer#pointerToString(String, StringType, Charset)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalShort(false, true),
 		/**
 		 * Wide Pascal strings are ref-counted unicode strings that look like WideC strings but are prepended with a ref count and length (both 32 bits ints).<br>
 		 * They are the current default in Delphi (2010).<br>
-		 * Corresponding Pascal type : {@code WideString } (see @see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
+		 * Corresponding Pascal type : {@code WideString } (see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
 		 * See {@link Pointer#pointerToString(String, StringType, Charset)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalWide(true, true),
         /**
 		 * Pascal ANSI strings are ref-counted single-byte strings that look like C strings but are prepended with a ref count and length (both 32 bits ints).<br>
-		 * Corresponding Pascal type : {@code AnsiString } (see @see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
+		 * Corresponding Pascal type : {@code AnsiString } (see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
 		 * See {@link Pointer#pointerToString(String, StringType, Charset)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalAnsi(false, true),
         /**
          * Microsoft's BSTR strings, used in COM, OLE, MS.NET Interop and MS.NET Automation functions.<br>
-         * See @see <a href="http://msdn.microsoft.com/en-us/library/ms221069.aspx">http://msdn.microsoft.com/en-us/library/ms221069.aspx</a> for more details.<br>
+         * See <a href="http://msdn.microsoft.com/en-us/library/ms221069.aspx">http://msdn.microsoft.com/en-us/library/ms221069.aspx</a> for more details.<br>
          * See {@link Pointer#pointerToString(String, StringType, Charset)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         BSTR(true, true),

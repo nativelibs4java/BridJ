@@ -41,10 +41,14 @@ import java.lang.annotation.Target;
  * method this annotation is put on.<br>
  * This name can then be changed at runtime to match the platform-specific name
  * of the library with
- *
- * @see org.bridj.BridJ#setNativeLibraryActualName(String, String).<br>
+ * {@link org.bridj.BridJ#setNativeLibraryActualName(String, String)}.
+ * <p>
  * Alternative aliases can also be added at runtime with
- * @see org.bridj.BridJ#addNativeLibraryAlias(String, String).
+ * {@link org.bridj.BridJ#addNativeLibraryAlias(String, String)}.
+ * <p>
+ * Finally, dependencies can also be added at runtime with
+ * {@link org.bridj.BridJ#addNativeLibraryDependencies(java.lang.String, java.lang.String...)}.
+ * 
  * @author Olivier Chafik
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -36,11 +36,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * For annotations that can be forwarded to other annotations. E.g.
+ * For annotations that can be forwarded to other annotations.
+ * <p>
+ * E.g. {@code @Ptr} can be forwarded to {@code @MyPtr} if the MyPtr annotation
+ * class is annotated with {@code @Ptr }
  *
- * @Ptr can be forwarded to
- * @MyPtr if the MyPtr annotation class is annotated with
- * @Ptr
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)
