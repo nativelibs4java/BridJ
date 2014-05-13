@@ -1,8 +1,9 @@
 Current development version (0.7-SNAPSHOT)
 
+- Added LRU pointer cache (disable with -Dbridj.cache.pointers=false or BRIDJ_CACHE_POINTERS=0), which helps keep short-lived pointer garbage to a minimum for some use cases (see issue #440)
 - Added support for Raspberry Pi (Linux/armel (soft-float) and Linux/armhf (hard-float)).
 - Added a new all-in-one android release zip with classes JAR (now contains no native lib), native libs, sources & javadoc.
-- Added programmatic setting of library dependencies: BridJ.addNativeLibraryDependencies (issue #424),  -Dbridj.Xyz.dependencies=Abc,Def and BRIDJ_XYZ_DEPENDENCIES=Abc,Def (issue #391) 
+- Added programmatic setting of library dependencies: BridJ.addNativeLibraryDependencies (issue #424),  -Dbridj.Xyz.dependencies=Abc,Def and BRIDJ_XYZ_DEPENDENCIES=Abc,Def (issue #391)
 - Added a very useful BRIDJ_DEBUG_POINTER_RELEASES=1 / -Dbridj.debug.pointer.releases=true mode that helps track double releases (also enabled when BRIDJ_DEBUG_POINTERS=1 / -Dbridj.debug.pointers=true).
 - Added Pointer.pointerToAddress(peer, size, io, release) + fixed COMTest
 - Added fallback to GCC demangler on Windows (issue #356).
@@ -10,6 +11,8 @@ Current development version (0.7-SNAPSHOT)
 - Added Pointer.pointerTo(IntValuedEnum<E>) (issue #414)
 - Added support for C++ namespaces (issue #446)
 - Added support for @Name annotations on structs and enums (allows refactoring of such classes, issue #443)
+- Added support for new JNAerator-generated crossed callbacks (one with an object-heavy signature, and one with raw types, each calling the other, one of the two being overridden)
+- Dropped support for Linux soft-float for now (since Raspbian seems to have stopped releasing it)
 - Dropped C# runtime stubs
 - Dropped linux-only and mac-only packages.
 - Improved performance of all operations of Pointers with bounds (~ 25% faster).
@@ -17,8 +20,16 @@ Current development version (0.7-SNAPSHOT)
 - Improved logs (issue #328, issue #346).
 - Improved C++ templates (still WIP, std::list protoype and fixed std::vector)
 - Improved Grails integration with Platform.getClassLoader change (issue #431)
+- Improved PointerIO caching.
 - Refactored StructIO (split out description of struct and its fields as top-level entities, StructIO now just does IO). This is what justifies version bump.
 - Rebuilt Linux binaries with --hash-style=both for better backwards compatibility (issue #436)
+- Rebuilt Linux binaries with -z noexecstack
+- Rebuilt Unix libraries with -fno-stack-protector, and force GLIBC dependency down to 2.3.4 (issue #467)
+- Rebuilt Solaris binaries with statically linked libgcc (issue #452)
+- Fixed C++ demangling of int vs. pointer (issue #482)
+- Fixed bit fields in structs! (issue #496)
+- Fixed Windows c library alias: "msvcrt", not "mscvrt" (issue #492, thanks @rkraneis!)
+- Fixed multithreading crashes due to strerror (issue #450)
 - Fixed @Alignment annotation
 - Fixed demangling of pointer types (now stricter matching of target types, with support for callbacks).
 - Fixed support for Android/arm: artifact of last two releases lacked the binary, and had to move android libs from lib/ to libs/ (issue #382)
