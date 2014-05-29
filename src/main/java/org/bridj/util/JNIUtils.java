@@ -75,7 +75,8 @@ public class JNIUtils {
         }
         return cache;
     }
-    private static final String bridjPackage = BridJ.class.getPackage().getName();
+    private static final String bridjPackage =
+      BridJ.class.getPackage() == null ? "org.bridj" : BridJ.class.getPackage().getName();
     private static final String bridjNormalPackagePrefix = bridjPackage.endsWith(Version.VERSION_SPECIFIC_SUB_PACKAGE) ? bridjPackage.substring(0, bridjPackage.length() - Version.VERSION_SPECIFIC_SUB_PACKAGE.length()) : bridjPackage + ".";
     private static final String bridjVersionSpecificPackagePrefix = bridjPackage + ".";
 
