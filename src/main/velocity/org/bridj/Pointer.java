@@ -325,7 +325,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #end
 	
 	/** The NULL pointer is <b>always</b> Java's null value */
-    public static final Pointer NULL = null;
+    public static final Pointer<?> NULL = null;
 	
     /** 
      * Size of a pointer in bytes. <br>
