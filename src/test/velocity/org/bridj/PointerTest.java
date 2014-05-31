@@ -582,19 +582,34 @@ public class PointerTest {
 		assertEquals(three, (${prim.Name})dest.get(2)$precisionArg);
 		assertEquals(zero, (${prim.Name})dest.get(3)$precisionArg);
 	}
-	
-	@Test
-	public void test${prim.BufferName}Update() {
-		// Non-direct buffer
-		${prim.BufferName} b = ${prim.BufferName}.allocate(1);
-		Pointer<	${prim.WrapperName}> p = pointerTo${prim.CapName}s(b);
-		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} }) { 
-			p.set(value);
-			assertEquals(value, (${prim.Name})p.get()$precisionArg);
-			p.updateBuffer(b);
-			assertEquals(value, b.get(0)$precisionArg);
-		}
-	}
+  
+  @Test
+  public void test${prim.BufferName}Update() {
+    // Non-direct buffer
+    ${prim.BufferName} b = ${prim.BufferName}.allocate(1);
+    Pointer<${prim.WrapperName}> p = pointerTo${prim.CapName}s(b);
+    for (${prim.Name} value : new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} }) { 
+      p.set(value);
+      assertEquals(value, (${prim.Name})p.get()$precisionArg);
+      p.updateBuffer(b);
+      assertEquals(value, b.get(0)$precisionArg);
+    }
+  }
+  
+  @Test
+  public void test${prim.BufferName}Slice() {
+    // Non-direct buffer
+    ${prim.BufferName} b = ${prim.BufferName}.allocate(2);
+    b.put(0, ${prim.value($v1)});
+    b.put(1, ${prim.value($v2)});
+
+    b.position(1);
+    ${prim.BufferName} bb = b.slice();
+    Pointer<${prim.WrapperName}> pp = pointerTo${prim.CapName}s(bb);
+
+    assertEquals(1, pp.getValidElements());
+    assertEquals(${prim.value($v2)}, pp.get${prim.CapName}()$precisionArg);
+  }
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void testIllegal${prim.BufferName}() {

@@ -1946,7 +1946,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return null;
 		
 		if (!buffer.isDirect()) {
-			return pointerTo${prim.CapName}s(buffer.array());
+      ${prim.Name}[] array = buffer.array();
+      int offset = buffer.arrayOffset();
+      int length = array.length - offset;
+      Pointer<${prim.WrapperName}> ptr = allocate${prim.CapName}s(length);
+      ptr.set${prim.CapName}sAtOffset(0, array, offset, length);
+			return ptr;
 			//throw new UnsupportedOperationException("Cannot create pointers to indirect ${prim.BufferName} buffers");
 		}
 		
