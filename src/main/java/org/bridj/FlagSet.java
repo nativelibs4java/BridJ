@@ -305,7 +305,7 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         List<EE> ret = new ArrayList<EE>();
         for (EE e : enums) {
             long eMask = ((ValuedEnum<?>) e).value();
-            if ((value & eMask) == eMask) {
+            if ((eMask == 0 && value == 0) || (eMask != 0 && (value & eMask) == eMask)) {
                 ret.add((EE) e);
             }
         }

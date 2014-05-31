@@ -66,17 +66,7 @@ public class ValuedEnumTest {
 	public static native Pointer<IntValuedEnum<MyEnum>> intToPMyEnum(int value);
     
     private static final int nTests = 100000;
-    
-    @Test
-    public void testSingleIntToEnum() {
-        MyEnum expected = MyEnum.Two;
-        int expectedInt = (int)expected.value();
-        ValuedEnum<MyEnum> ret = intToMyEnum(expectedInt);
-        FlagSet<MyEnum> f = (FlagSet<MyEnum>)ret;
-        assertEquals(MyEnum.class, f.getEnumClass());
-        assertEquals(expectedInt, f.value());
-    }
-    
+
     @Test
     public void testIntToEnum() {
         MyEnum expected = MyEnum.Two;
@@ -85,6 +75,7 @@ public class ValuedEnumTest {
             ValuedEnum<MyEnum> ret = intToMyEnum(expectedInt);
             if (expectedInt != ret.value())
                 assertEquals(expectedInt, ret.value());
+            assertTrue(expected == ret);
         }
     }
     
@@ -143,6 +134,16 @@ public class ValuedEnumTest {
                 return FlagSet.fromValue(value, values());
         }
     };
+    
+    @Test
+    public void testFromValue() {
+        for (Fruit fruit : Fruit.values()) {
+            assertEquals(fruit, Fruit.fromValue((int) fruit.value()));
+        }
+        for (MyEnum e : MyEnum.values()) {
+            assertEquals(e, intToMyEnum((int) e.value()));
+        }
+    }
 
     @Test
     public final void testFruitToStringAndIterator() {
