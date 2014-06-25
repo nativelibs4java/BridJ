@@ -28,7 +28,7 @@ Current development version (0.7-SNAPSHOT)
 - Rebuilt Solaris binaries with statically linked libgcc (issue #452)
 - Fixed C++ demangling of int vs. pointer (issue #482)
 - Fixed bit fields in structs! (issue #496)
-- Fixed Windows c library alias: "msvcrt", not "mscvrt" (issue #492, thanks @rkraneis!)
+- Fixed Windows c library alias: "msvcrt", not "mscvrt" (issue #492, thanks to @rkraneis for the patch!)
 - Fixed multithreading crashes due to strerror (issue #450)
 - Fixed @Alignment annotation
 - Fixed demangling of pointer types (now stricter matching of target types, with support for callbacks).
