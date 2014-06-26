@@ -50,6 +50,11 @@ public final class CLong extends AbstractIntegral {
         super(value);
     }
 
+    @Override
+    public int byteSize() {
+    	return SIZE;
+    }
+
     public static CLong valueOf(long value) {
         return new CLong(value);
     }

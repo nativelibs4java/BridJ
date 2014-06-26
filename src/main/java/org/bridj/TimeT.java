@@ -52,6 +52,11 @@ public final class TimeT extends AbstractIntegral {
         super(value);
     }
 
+    @Override
+    public int byteSize() {
+    	return SIZE;
+    }
+
     public Date toDate() {
         return new Date(value);
     }

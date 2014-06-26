@@ -188,7 +188,10 @@ public abstract class PointerIO<T> {
   	public static PointerIO<Pointer> getPointerInstance() {
       return PointerIO;
   	}
-  	
+
+  	public static PointerIO<TimeT> getTimeTInstance() {
+      return (PointerIO)CommonPointerIOs.TimeTIO;
+  	}
 
     public static <P> PointerIO<P> getBufferPrimitiveInstance(Buffer buffer) {
         #foreach ($prim in $primitivesNoBool)

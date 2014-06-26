@@ -46,6 +46,11 @@ public final class SizeT extends AbstractIntegral {
         super(value);
     }
 
+    @Override
+    public int byteSize() {
+    	return SIZE;
+    }
+
     public static SizeT valueOf(long value) {
         if (value == 0) {
             return ZERO;

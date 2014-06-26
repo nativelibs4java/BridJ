@@ -41,6 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import static org.bridj.SizeT.safeIntCast;
 
+#set ($integrals = [ "SizeT", "CLong"])
 /**
  * Pointer to a native memory location.<br>
  * Pointer is the entry point of any pointer-related operation in BridJ.
@@ -54,7 +55,7 @@ import static org.bridj.SizeT.safeIntCast;
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} <br>
 #end
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
  *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} <br>
 #end
  *</li>
@@ -62,7 +63,7 @@ import static org.bridj.SizeT.safeIntCast;
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}AtIndex(long)} / {@link Pointer#set${prim.CapName}AtIndex(long, ${prim.Name})} <br>
 #end
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
  *	  {@link Pointer#get${sizePrim}AtIndex(long)} / {@link Pointer#set${sizePrim}AtIndex(long, long)} <br>
 #end
  *</li>
@@ -70,7 +71,7 @@ import static org.bridj.SizeT.safeIntCast;
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}AtOffset(long)} / {@link Pointer#set${prim.CapName}AtOffset(long, ${prim.Name})} <br>
 #end
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
  *		{@link Pointer#get${sizePrim}AtOffset(long)} / {@link Pointer#set${sizePrim}AtOffset(long, long)} <br>
 #end
  *</li>
@@ -78,7 +79,7 @@ import static org.bridj.SizeT.safeIntCast;
 #foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}sAtOffset(long, int)} / {@link Pointer#set${prim.CapName}sAtOffset(long, ${prim.Name}[])}<br>
 #end
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
  *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}sAtOffset(long, int)} / {@link Pointer#set${sizePrim}sAtOffset(long, long[])}<br>
 #end
  *  </li>
@@ -110,7 +111,7 @@ import static org.bridj.SizeT.safeIntCast;
 #foreach ($prim in $primitives)
  *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br>
 #end
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
  *		{@link Pointer#pointerTo${sizePrim}(long)} / {@link Pointer#allocate${sizePrim}()}<br>
 #end
  *  </li>
@@ -118,7 +119,7 @@ import static org.bridj.SizeT.safeIntCast;
 #foreach ($prim in $primitivesNoBool)
  *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br>
 #end
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
  *		{@link Pointer#pointerTo${sizePrim}s(long[])} / {@link Pointer#allocate${sizePrim}s(long)}<br>
 #end
  *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br>
@@ -459,8 +460,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		}
 #end
 
-
-#foreach ($sizePrim in ["SizeT", "CLong"])
+#foreach ($sizePrim in $integrals)
 
 #macro (setPrimitiveValue $primName $peer $value)
 	#if ($primName != "byte" && $primName != "boolean")
@@ -2233,7 +2233,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return setArrayAtOffset(0L, array);
 	}
 	
-	#foreach ($sizePrim in ["SizeT", "CLong"])
+	#foreach ($sizePrim in $integrals)
 //-- size primitive: $sizePrim --
 
 #docAllocateCopy($sizePrim $sizePrim)
@@ -3401,4 +3401,28 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		out[i] = in[valuesOffset + i];
     	return out;
     }
+
+	public Pointer<T> setIntegralAtOffset(long byteOffset, AbstractIntegral value) {
+		switch (value.byteSize()) {
+			case 8:
+				setLongAtOffset(byteOffset, value.longValue());
+				break;
+			case 4:
+				setIntAtOffset(byteOffset, SizeT.safeIntCast(value.longValue()));
+				break;
+			default:
+				throw new UnsupportedOperationException("Unsupported integral size");
+		}
+		return this;
+	}
+  public long getIntegralAtOffset(long byteOffset, int integralSize) {
+		switch (integralSize) {
+			case 8:
+				return getLongAtOffset(byteOffset);
+			case 4:
+				return getIntAtOffset(byteOffset);
+			default:
+				throw new UnsupportedOperationException("Unsupported integral size");
+		}
+	}
 }

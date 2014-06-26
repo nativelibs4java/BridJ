@@ -277,4 +277,13 @@ public class StructIO {
 		return struct.peer.get${sizePrim}AtOffset(fd.byteOffset);
 	}
 #end
+
+  public final void setTimeTField(StructObject struct, int fieldIndex, TimeT value) {
+		StructFieldDescription fd = desc.fields[fieldIndex];
+		struct.peer.setIntegralAtOffset(fd.byteOffset, value);
+	}
+	public final TimeT getTimeTField(StructObject struct, int fieldIndex) {
+		StructFieldDescription fd = desc.fields[fieldIndex];
+		return new TimeT(struct.peer.getIntegralAtOffset(fd.byteOffset, TimeT.SIZE));
+	}
 }

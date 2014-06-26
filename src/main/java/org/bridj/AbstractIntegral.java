@@ -35,13 +35,17 @@ package org.bridj;
  *
  * @author Olivier
  */
-class AbstractIntegral extends Number {
+abstract class AbstractIntegral extends Number {
 
     protected final long value;
 
     public AbstractIntegral(long value) {
         this.value = value;
     }
+
+    /** Size in bytes of this integral type. */
+    public abstract int byteSize();
+
     private static final long HIGH_NEG = 0xffffffff00000000L;
 
     public static int safeIntCast(long value) {
