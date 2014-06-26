@@ -123,6 +123,7 @@ public class MemoryTest {
 	@Library("test")
 	public static native Pointer<Byte> incrPointer(Pointer<Byte> ptr);
 	
+	@Ignore
   @Test
 	public void testErrors() throws Exception {
     	final Pointer<Byte> s = pointerToCString("18446744073709551616");
