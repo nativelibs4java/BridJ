@@ -342,7 +342,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_arch_x64_masm.asm"
+				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_x64_masm.asm"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
