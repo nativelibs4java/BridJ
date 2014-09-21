@@ -711,11 +711,14 @@ public class BridJ {
                 String bits = is64Bits() ? "64" : "32";
                 if (isLinux()) {
                     // First try Ubuntu's multi-arch paths (cf. https://wiki.ubuntu.com/MultiarchSpec)
-                    String abi = isArm() ? "gnueabi" : "gnu";
-                    String multiArch = getMachine() + "-linux-" + abi;
-                    nativeLibraryPaths.add("/lib/" + multiArch);
-                    nativeLibraryPaths.add("/usr/lib/" + multiArch);
-
+                    String[] abis = isArm() ?
+                        new String[] {"gnueabi", "gnueabihf"} :
+                        new String[] {"gnu"};
+                    for (String abi : abis) {
+                      String multiArch = getMachine() + "-linux-" + abi;
+                      nativeLibraryPaths.add("/lib/" + multiArch);
+                      nativeLibraryPaths.add("/usr/lib/" + multiArch);
+                    }
                     // Add /usr/lib32 and /lib32
                     nativeLibraryPaths.add("/usr/lib" + bits);
                     nativeLibraryPaths.add("/lib" + bits);
@@ -728,6 +731,11 @@ public class BridJ {
                 nativeLibraryPaths.add("/usr/lib");
                 nativeLibraryPaths.add("/lib");
                 nativeLibraryPaths.add("/usr/local/lib");
+            }
+            for (Iterator<String> it = nativeLibraryPaths.iterator(); it.hasNext();) {
+              if (!new File(it.next()).isDirectory()) {
+                it.remove();
+              }
             }
         }
         return nativeLibraryPaths;
