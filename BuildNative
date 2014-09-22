@@ -9,10 +9,16 @@ cd `dirname $0`
 BASE_DIR=$PWD
 export DYNCALL_HOME=$BASE_DIR/dyncall
 
+DYNCALL_DIFF=$BASE_DIR/src/main/cpp/bridj/dyncall.diff
+
 if [[ ! -d "$DYNCALL_HOME" ]]
 then
-	$BASE_DIR/admin/checkout_and_patch_dyncall.sh src/main/cpp/bridj/dyncall.diff || failed "Failed to checkout and patch dyncall"
+	$BASE_DIR/admin/checkout_and_patch_dyncall.sh $DYNCALL_DIFF || failed "Failed to checkout and patch dyncall"
 fi
+
+cd $DYNCALL_HOME
+svn diff > $DYNCALL_DIFF
+cd $BASE_DIR
 
 MAKE_CMD=make
 if [[ "`which gmake`" != "" ]]; then
