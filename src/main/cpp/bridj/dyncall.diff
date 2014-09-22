@@ -107,6 +107,199 @@ Index: dyncall/dyncallback/dyncall_args.c
 +#  include "dyncall_args_sparc64.c"
  #endif
  
+Index: dyncall/dyncallback/dyncall_args_arm32_arm_armhf.c
+===================================================================
+--- dyncall/dyncallback/dyncall_args_arm32_arm_armhf.c	(revision 0)
++++ dyncall/dyncallback/dyncall_args_arm32_arm_armhf.c	(working copy)
+@@ -0,0 +1,140 @@
++/*
++
++ Package: dyncall
++ Library: dyncallback
++ File: dyncallback/dyncall_args_arm32_arm.c
++ Description: Callback's Arguments VM - Implementation for ARM32 (ARM mode)
++ License:
++
++   Copyright (c) 2007-2011 Daniel Adler <dadler@uni-goettingen.de>,
++                           Tassilo Philipp <tphilipp@potion-studios.com>
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++
++#include "dyncall_args_arm32_arm.h"
++
++
++static void arm_align_64(DCArgs* args)
++{
++  /* Look at signature to see if current calling convention needs alignment */
++  /* or not (e.g. EABI has different alignment). If nothing specified, fall */
++  /* back to default behaviour for this platform.                           */
++  /* @@@ check signature string */
++
++  int sig =
++#if defined(DC__ABI_ARM_EABI)
++    0; /* EABI */
++#else
++    1; /* ATPCS */
++#endif
++  if(sig == 0) {
++    if(args->reg_count < 4)
++      args->reg_count = (args->reg_count+1)&~1;
++    if(args->reg_count >= 4 && (int)args->stack_ptr & 4)
++      ++args->stack_ptr;
++  }
++}
++
++
++static void* arm_word(DCArgs* args)
++{
++  if(args->reg_count < 4)
++    return &args->reg_data[args->reg_count++];
++  else
++    return (void*)args->stack_ptr++;
++}
++
++static DCfloat arm_float(DCArgs* p)
++{
++  if (p->s < 16) {
++    DCfloat value = p->S[p->s++];
++    if (p->d < p->s) {
++      p->d = (p->s+1) & ~(1U);
++    } else {
++      p->s = p->d;
++    }
++    return value;
++  } else {
++    return *(DCfloat*)  arm_word(p);
++  }
++}
++
++static DCdouble arm_double(DCArgs* p)
++{
++  if (p->d <= 14) {
++  //if (p->d < 16) {
++    DCdouble value = * (double*) &p->S[p->d];
++    p->d += 2;
++    if (!(p->s & 1)) {
++      /* if s is even it always equals d. 
++	 otherwise, s points to an odd float register. 
++       */
++      p->s = p->d;
++    }
++    return value;
++  } else {
++    p->s = 16;
++    union {
++      DCdouble d;
++      DClong   l[2];
++    } d;
++    arm_align_64(p);
++    d.l[0] = *(DClong*)arm_word(p);
++    d.l[1] = *(DClong*)arm_word(p);
++    return d.d;
++  }
++}
++
++
++static DClonglong arm_longlong(DCArgs* args)
++{
++  union {
++    DClonglong ll;
++    DClong     l[2];
++  } ll;
++  arm_align_64(args);
++  ll.l[0] = *(DClong*)arm_word(args);
++  ll.l[1] = *(DClong*)arm_word(args);
++  return ll.ll;
++}
++
++
++
++// ----------------------------------------------------------------------------
++// C API implementation:
++
++
++// base operations:
++
++DClonglong  dcbArgLongLong (DCArgs* p) { return arm_longlong(p); }
++DClong      dcbArgLong     (DCArgs* p) { return *(DClong*)arm_word(p); }
++DCint       dcbArgInt      (DCArgs* p) { return (DCint)   dcbArgLong(p); }
++DCchar      dcbArgChar     (DCArgs* p) { return (DCchar)  dcbArgLong(p); }
++DCshort     dcbArgShort    (DCArgs* p) { return (DCshort) dcbArgLong(p); }
++DCbool      dcbArgBool     (DCArgs* p) { return (dcbArgLong(p) == 0) ? 0 : 1; }
++
++DCuint      dcbArgUInt     (DCArgs* p) { return (DCuint)     dcbArgInt(p);      }
++DCuchar     dcbArgUChar    (DCArgs* p) { return (DCuchar)    dcbArgChar(p);     }
++DCushort    dcbArgUShort   (DCArgs* p) { return (DCushort)   dcbArgShort(p);    }
++DCulong     dcbArgULong    (DCArgs* p) { return (DCulong)    dcbArgLong(p);     }
++DCulonglong dcbArgULongLong(DCArgs* p) { return (DCulonglong)dcbArgLongLong(p); }
++
++
++DCpointer   dcbArgPointer  (DCArgs* p) { return (DCpointer)  dcbArgLong(p); }
++
++DCdouble    dcbArgDouble   (DCArgs* p) { return arm_double(p); }
++DCfloat     dcbArgFloat    (DCArgs* p) { return arm_float(p); }
++
+Index: dyncall/dyncallback/dyncall_args_arm32_arm_armhf.h
+===================================================================
+--- dyncall/dyncallback/dyncall_args_arm32_arm_armhf.h	(revision 0)
++++ dyncall/dyncallback/dyncall_args_arm32_arm_armhf.h	(working copy)
+@@ -0,0 +1,43 @@
++/*
++
++ Package: dyncall
++ Library: dyncallback
++ File: dyncallback/dyncall_args_arm32_arm.h
++ Description: Callback's Arguments VM - Header for ARM32 (ARM mode)
++ License:
++
++   Copyright (c) 2007-2011 Daniel Adler <dadler@uni-goettingen.de>,
++                           Tassilo Philipp <tphilipp@potion-studios.com>
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++#ifndef DYNCALLBACK_ARGS_ARM32_ARM_H
++#define DYNCALLBACK_ARGS_ARM32_ARM_H
++
++#include "dyncall_args.h"
++
++struct DCArgs
++{
++	/* Don't change order! */
++	long  reg_data[4];
++	int   reg_count;
++	long* stack_ptr;
++  unsigned int s;
++  unsigned int d;
++  DCfloat      S[16];
++};
++
++#endif /* DYNCALLBACK_ARGS_ARM32_ARM_H */
++
 Index: dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s
 ===================================================================
 --- dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s	(revision 1637)
