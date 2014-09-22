@@ -1,6 +1,131 @@
+Index: dyncall/dyncall/dyncall_call_arm32_arm_armhf.S
+===================================================================
+--- dyncall/dyncall/dyncall_call_arm32_arm_armhf.S	(revision 1637)
++++ dyncall/dyncall/dyncall_call_arm32_arm_armhf.S	(working copy)
+@@ -52,22 +52,8 @@
+ 	mov	r5  , r1	 /* r5 = 'args' (2nd argument is passed in r1). */
+ 	
+ 	/* Load 16 single-precision registers (= 8 double-precision registers). */
+-	flds	s0,  [r3,#0 ]
+-	flds	s1,  [r3,#4 ]
+-	flds	s2,  [r3,#8 ]
+-	flds	s3,  [r3,#12]
+-	flds	s4,  [r3,#16]
+-	flds	s5,  [r3,#20]
+-	flds	s6,  [r3,#24]
+-	flds	s7,  [r3,#28]
+-	flds	s8,  [r3,#32]
+-	flds	s9,  [r3,#36]
+-	flds	s10, [r3,#40]
+-	flds	s11, [r3,#44]
+-	flds	s12, [r3,#48]
+-	flds	s13, [r3,#52]
+-	flds	s14, [r3,#56]
+-	flds	s15, [r3,#60]
++	/* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0068b/Bcfchhif.html */
++	fldmiad r3, {d0-d7}
+ 
+ 	sub	r2 , r2 , #16	
+ 	cmp     r2, #0
+Index: dyncall/dyncall/dyncall_call_arm32_thumb_armhf.S
+===================================================================
+--- dyncall/dyncall/dyncall_call_arm32_thumb_armhf.S	(revision 1637)
++++ dyncall/dyncall/dyncall_call_arm32_thumb_armhf.S	(working copy)
+@@ -61,22 +61,8 @@
+ 	mov	r5  , r1	 /* r5 = 'args' (2nd argument is passed in r1). */
+ 	
+ 	/* Load 16 single-precision registers (= 8 double-precision registers). */
+-	flds	s0,  [r3,#0 ]
+-	flds	s1,  [r3,#4 ]
+-	flds	s2,  [r3,#8 ]
+-	flds	s3,  [r3,#12]
+-	flds	s4,  [r3,#16]
+-	flds	s5,  [r3,#20]
+-	flds	s6,  [r3,#24]
+-	flds	s7,  [r3,#28]
+-	flds	s8,  [r3,#32]
+-	flds	s9,  [r3,#36]
+-	flds	s10, [r3,#40]
+-	flds	s11, [r3,#44]
+-	flds	s12, [r3,#48]
+-	flds	s13, [r3,#52]
+-	flds	s14, [r3,#56]
+-	flds	s15, [r3,#60]
++	/* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0068b/Bcfchhif.html */
++	fldmiad r3, {d0-d7}
+ 
+ 	sub	r2 , #16	
+ 	cmp     r2, #0
+Index: dyncall/dyncall/dyncall_callvm_arm32_arm_armhf.c
+===================================================================
+--- dyncall/dyncall/dyncall_callvm_arm32_arm_armhf.c	(revision 1637)
++++ dyncall/dyncall/dyncall_callvm_arm32_arm_armhf.c	(working copy)
+@@ -105,7 +105,8 @@
+ static void a_double(DCCallVM* in_p, DCdouble x)
+ {
+   DCCallVM_arm32_armhf* p = (DCCallVM_arm32_armhf*)in_p;
+-  if (p->d < 16) {
++  if (p->d <= 14) {
++  //if (p->d < 16) {
+     * (double*) &p->S[p->d] = x;
+     p->d += 2;
+     if (!(p->s & 1)) {
+Index: dyncall/dyncallback/dyncall_args.c
+===================================================================
+--- dyncall/dyncallback/dyncall_args.c	(revision 1637)
++++ dyncall/dyncallback/dyncall_args.c	(working copy)
+@@ -26,20 +26,24 @@
+ #include "../dyncall/dyncall_macros.h"
+ 
+ #if defined(DC__Arch_Intel_x86)
+-#include "dyncall_args_x86.c"
++#  include "dyncall_args_x86.c"
+ #elif defined (DC__Arch_AMD64)
+-#include "dyncall_args_x64.c"
++#  include "dyncall_args_x64.c"
+ #elif defined (DC__Arch_PowerPC)
+-#include "dyncall_args_ppc32.c"
++#  include "dyncall_args_ppc32.c"
+ #elif defined (DC__Arch_ARM_ARM)
+-#include "dyncall_args_arm32_arm.c"
++#  if defined(DC__ABI_ARM_HF)
++#    include "dyncall_args_arm32_arm_armhf.c"
++#  else
++#    include "dyncall_args_arm32_arm.c"
++#  endif
+ #elif defined (DC__Arch_ARM_THUMB)
+-#include "dyncall_args_arm32_thumb.c"
++#  include "dyncall_args_arm32_thumb.c"
+ #elif defined (DC__Arch_MIPS)
+-#include "dyncall_args_mips.c"
++#  include "dyncall_args_mips.c"
+ #elif defined (DC__Arch_Sparc)
+-#include "dyncall_args_sparc32.c"
++#  include "dyncall_args_sparc32.c"
+ #elif defined (DC__Arch_Sparcv9)
+-#include "dyncall_args_sparc64.c"
++#  include "dyncall_args_sparc64.c"
+ #endif
+ 
+Index: dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s
+===================================================================
+--- dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s	(revision 1637)
++++ dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s	(working copy)
+@@ -52,6 +52,11 @@
+ 	/* Grab arguments. */
+ 	mov		%r4, #0
+ 	stmdb	%r13!, {%r0-%r4, %r11}			/* Spill first 4 args to DCArgs, along with reg_count and (stack) pointer to remaining args. */
++	sub     %r13, #4                          /* Make room for s */
++	mov     %r13, #0                         /* Initialize s to 0 */
++	sub     %r13, #4                          /* Make room for d */
++	mov     %r13, #0                         /* Initialize d to 0 */
++	fstmdbd %r13!, { d0-d7 }                 /* Copy d0 to d7 to S while decreasing frame pointer */
+ 
+ 	/* Prepare callback handler call. */
+ 	mov		%r0, %r12						/* Parameter 0 (r0) = DCCallback pointer (r12, pointer to thunk). */
 Index: dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- dyncall/dynload/dynload_syms_elf.c	(revision 1418)
+--- dyncall/dynload/dynload_syms_elf.c	(revision 1637)
 +++ dyncall/dynload/dynload_syms_elf.c	(working copy)
 @@ -54,6 +54,7 @@
  
@@ -12,7 +137,7 @@ Index: dyncall/dynload/dynload_syms_elf.c
  #include <string.h>
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_syms_mach-o.c	(revision 1418)
+--- dyncall/dynload/dynload_syms_mach-o.c	(revision 1637)
 +++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -28,6 +28,7 @@
   dynamic symbol resolver for Mach-O
@@ -314,7 +439,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  		return NULL;
 Index: dyncall/dynload/dynload_unix.c
 ===================================================================
---- dyncall/dynload/dynload_unix.c	(revision 1418)
+--- dyncall/dynload/dynload_unix.c	(revision 1637)
 +++ dyncall/dynload/dynload_unix.c	(working copy)
 @@ -40,7 +40,7 @@
  
@@ -327,7 +452,7 @@ Index: dyncall/dynload/dynload_unix.c
  
 Index: dyncall/dynload/dynload_windows.c
 ===================================================================
---- dyncall/dynload/dynload_windows.c	(revision 1418)
+--- dyncall/dynload/dynload_windows.c	(revision 1637)
 +++ dyncall/dynload/dynload_windows.c	(working copy)
 @@ -40,7 +40,9 @@
  DLLib* dlLoadLibrary(const char* libPath)
