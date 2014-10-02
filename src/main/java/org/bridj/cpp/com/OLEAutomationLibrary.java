@@ -1047,17 +1047,17 @@ public class OLEAutomationLibrary {
 
     public static native int SafeArrayDestroyDescriptor(Pointer<SAFEARRAY> SAFEARRAYPtr1);
 
-    public static native int SafeArrayPutElement(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<CLong> LONGPtr1, Pointer<?> voidPtr1);
+    public static native int SafeArrayPutElement(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<org.bridj.CLong> LONGPtr1, Pointer<?> voidPtr1);
 
-    public static native int SafeArrayGetElement(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<CLong> LONGPtr1, Pointer<?> voidPtr1);
+    public static native int SafeArrayGetElement(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<org.bridj.CLong> LONGPtr1, Pointer<?> voidPtr1);
 
     public static native int SafeArrayLock(Pointer<SAFEARRAY> SAFEARRAYPtr1);
 
     public static native int SafeArrayUnlock(Pointer<SAFEARRAY> SAFEARRAYPtr1);
 
-    public static native int SafeArrayGetUBound(Pointer<SAFEARRAY> SAFEARRAYPtr1, int UINT1, Pointer<CLong> LONGPtr1);
+    public static native int SafeArrayGetUBound(Pointer<SAFEARRAY> SAFEARRAYPtr1, int UINT1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int SafeArrayGetLBound(Pointer<SAFEARRAY> SAFEARRAYPtr1, int UINT1, Pointer<CLong> LONGPtr1);
+    public static native int SafeArrayGetLBound(Pointer<SAFEARRAY> SAFEARRAYPtr1, int UINT1, Pointer<org.bridj.CLong> LONGPtr1);
 
     public static native int SafeArrayGetDim(Pointer<SAFEARRAY> SAFEARRAYPtr1);
 
@@ -1069,7 +1069,7 @@ public class OLEAutomationLibrary {
 
     public static native int SafeArrayUnaccessData(Pointer<SAFEARRAY> SAFEARRAYPtr1);
 
-    public static native int SafeArrayPtrOfIndex(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<CLong> LONGPtr1, Pointer<Pointer<?>> voidPtrPtr1);
+    public static native int SafeArrayPtrOfIndex(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<org.bridj.CLong> LONGPtr1, Pointer<Pointer<?>> voidPtrPtr1);
 
     public static native int SafeArrayCopyData(Pointer<SAFEARRAY> SAFEARRAYPtr1, Pointer<SAFEARRAY> SAFEARRAYPtr2);
 
@@ -1175,35 +1175,35 @@ public class OLEAutomationLibrary {
 
     public static native int VarI2FromDisp(Pointer<IDispatch> IDispatchPtr1, int LCID1, Pointer<Short> SHORTPtr1);
 
-    public static native int VarI4FromUI1(byte BYTE1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromUI1(byte BYTE1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromI2(short SHORT1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromI2(short SHORT1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromI8(long LONG641, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromI8(long LONG641, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromR4(float FLOAT1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromR4(float FLOAT1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromR8(double DOUBLE1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromR8(double DOUBLE1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromDate(DATE DATE1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromDate(DATE DATE1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromBool(short VARIANT_BOOL1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromBool(short VARIANT_BOOL1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromI1(byte char1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromI1(byte char1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromUI2(short USHORT1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromUI2(short USHORT1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromUI4(int ULONG1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromUI4(int ULONG1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromUI8(long ULONG641, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromUI8(long ULONG641, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromStr(Pointer<Character> OLECHARPtr1, int LCID1, int ULONG1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromStr(Pointer<Character> OLECHARPtr1, int LCID1, int ULONG1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromCy(CY CY1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromCy(CY CY1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromDec(Pointer<DECIMAL> DECIMALPtr1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromDec(Pointer<DECIMAL> DECIMALPtr1, Pointer<org.bridj.CLong> LONGPtr1);
 
-    public static native int VarI4FromDisp(Pointer<IDispatch> IDispatchPtr1, int LCID1, Pointer<CLong> LONGPtr1);
+    public static native int VarI4FromDisp(Pointer<IDispatch> IDispatchPtr1, int LCID1, Pointer<org.bridj.CLong> LONGPtr1);
 
     public static native int VarI8FromUI1(byte BYTE1, Pointer<Long> LONG64Ptr1);
 
@@ -1705,7 +1705,7 @@ public class OLEAutomationLibrary {
 
     public static native int DispGetParam(Pointer<DISPPARAMS> DISPPARAMSPtr1, int UINT1, short VARTYPE1, Pointer<VARIANT> VARIANTPtr1, Pointer<Integer> UINTPtr1);
 
-    public static native int DispGetIDsOfNames(Pointer<ITypeInfo> ITypeInfoPtr1, Pointer<Pointer<Character>> OLECHARPtrPtr1, int UINT1, Pointer<CLong> DISPIDPtr1);
+    public static native int DispGetIDsOfNames(Pointer<ITypeInfo> ITypeInfoPtr1, Pointer<Pointer<Character>> OLECHARPtrPtr1, int UINT1, Pointer<org.bridj.CLong> DISPIDPtr1);
 
     public static native int DispInvoke(Pointer<?> voidPtr1, Pointer<ITypeInfo> ITypeInfoPtr1, @CLong long DISPID1, short WORD1, Pointer<DISPPARAMS> DISPPARAMSPtr1, Pointer<VARIANT> VARIANTPtr1, Pointer<EXCEPINFO> EXCEPINFOPtr1, Pointer<Integer> UINTPtr1);
 
