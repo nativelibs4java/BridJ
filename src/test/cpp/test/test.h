@@ -177,4 +177,17 @@ TEST_API int deleteMyUnknownStruct(MyUnknownStruct *s);
 
 TEST_API char* incrPointer(char* ptr);
 
+class TEST_API Hello
+{
+ public:
+  Hello(const int& a, const int& b);
+  ~Hello();
+
+  int Sum();
+ private:
+  int a;
+  int b;
+};
+
+
 #endif // _TEST_H

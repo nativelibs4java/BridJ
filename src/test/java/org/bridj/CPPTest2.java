@@ -30,12 +30,14 @@
  */
 package org.bridj;
 import java.io.File;
+import org.bridj.ann.Constructor;
 import org.bridj.ann.Library;
 import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPObject;
 
 import org.bridj.*;
 import static org.bridj.Pointer.*;
+import org.bridj.ann.Field;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
@@ -109,4 +111,28 @@ public class CPPTest2 {
  		};
  		assertEquals(210, testIVirtualAdd(getPointer(v), 1, 2));
  	}
+
+  public static class Hello extends CPPObject {
+    @Constructor(0)
+    public Hello(Pointer<Integer> a, Pointer<Integer> b) {
+      super((Void)null, 0, a, b);
+    }
+    public native int Sum();
+    @Field(0)
+    public int a() {
+        return io.getIntField(this, 0);
+    }
+    @Field(1)
+    public int b() {
+        return io.getIntField(this, 1);
+    }
+  }
+
+  @Test
+  public void testHello() {
+    Hello h = new Hello(pointerToInt(1), pointerToInt(2));
+    assertEquals(1, h.a());
+    assertEquals(2, h.b());
+    assertEquals(3, h.Sum());
+  }
 }

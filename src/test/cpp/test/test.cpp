@@ -617,3 +617,18 @@ TEST_API int deleteMyUnknownStruct(MyUnknownStruct *s) {
 TEST_API double callCallback(float (*cb)(int, long long), short a, char b) {
     return cb(a, b);
 }
+
+Hello::Hello(const int& a, const int& b) {
+  this->a = a;
+  this->b = b;
+}
+int Hello::Sum() {
+  return a + b;
+}
+
+TEST_API Hello* NewHello(int a, int b) {
+  return new Hello(a, b);
+}
+TEST_API int Sum(Hello* h) {
+  return h->Sum();
+}
