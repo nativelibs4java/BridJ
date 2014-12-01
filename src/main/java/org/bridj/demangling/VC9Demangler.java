@@ -395,6 +395,8 @@ public class VC9Demangler extends Demangler {
             case 'Q': // const pointer
             case 'R': // volatile pointer
             case 'S': // const volatile pointer
+                boolean isReference = c == 'A' || c == 'B';
+                boolean isConst = c == 'Q' || c == 'S';
                 if (!consumeCharsIf('$', 'A')) // __gc
                 {
                     consumeCharsIf('$', 'B');  // __pin
@@ -408,11 +410,11 @@ public class VC9Demangler extends Demangler {
                             indices[i] = parseNumber(false);
                         }
                     }
-                    tr = pointerType(parseType(true));
+                    tr = pointerType(parseType(true), isConst, isReference);
                 } else {
                     MemberRef mr = new MemberRef();
                     parseFunctionProperty(mr);
-                    tr = pointerType(new FunctionTypeRef(mr));
+                    tr = pointerType(new FunctionTypeRef(mr), isConst, isReference);
                 }
                 addBackRef(tr);
                 return tr;

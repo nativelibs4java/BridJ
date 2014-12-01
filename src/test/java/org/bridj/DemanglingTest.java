@@ -390,9 +390,9 @@ public class DemanglingTest {
         demangle(null, "_Z15shortcutsSimplePPPPccS_S0_S1_S2_PS2_", "null shortcutsSimple(byte****, byte, byte*, byte**, byte***, byte****, byte*****)");
         
         demangle(null, "__Z1fPsS_", "null f(short*, short*)");
-        demangle(null, "__Z1fPKsS_", "null f(short*, short)");
-        demangle(null, "__Z1fPKsS0_", "null f(short*, short*)");
-        demangle(null, "__Z1fPKcS0_S0_PKsS2_PKdS4_", "null f(byte*, byte*, byte*, short*, short*, double*, double*)");
+        demangle(null, "__Z1fPKsS_", "null f(const short*, short)");
+        demangle(null, "__Z1fPKsS0_", "null f(const short*, const short*)");
+        demangle(null, "__Z1fPKcS0_S0_PKsS2_PKdS4_", "null f(const byte*, const byte*, const byte*, const short*, const short*, const double*, const double*)");
         demangle(null, "__ZN1AC2EPS_PS0_S1_", "null A.(A*, A**, A**)");
         /*
          * 

@@ -96,12 +96,12 @@ public class GCC4Demangler extends Demangler {
         return n == -1 ? "_" : Integer.toString(n, 36).toUpperCase() + "_";
     }
 
-    private TypeRef parsePointerType(boolean memorizePointed) throws DemanglingException {
+    private TypeRef parsePointerType(boolean memorizePointed, boolean isConst, boolean isReference) throws DemanglingException {
         String subId = memorizePointed ? nextShortcutId() : null;
         TypeRef pointed = parseType();
         if (memorizePointed)
             typeShortcuts.put(subId, pointed);
-        TypeRef res = pointerType(pointed);
+        TypeRef res = pointerType(pointed, isConst, isReference);
         String id = nextShortcutId();
         typeShortcuts.put(id, res);
         return res;
@@ -180,9 +180,12 @@ public class GCC4Demangler extends Demangler {
                 }
                 return res;
             }
+            case 'R': // Reference: TODO: treat const ref as a value.
             case 'P': {
                 char nextChar = peekChar();
-                return parsePointerType(nextChar == 'K' || nextChar == 'N');
+                boolean isReference = c == 'R';
+                boolean isConst = nextChar == 'K';
+                return parsePointerType(isConst || nextChar == 'N', isConst, isReference);
             }
             case 'F': {
                 // TODO parse function type correctly !!!
@@ -196,7 +199,7 @@ public class GCC4Demangler extends Demangler {
                 expectChars('E');
                 return new FunctionTypeRef(mr);
             }
-            case 'K': 
+            case 'K': // const?
                 return parseType();
             case 'v': // char
                 return classType(Void.TYPE);

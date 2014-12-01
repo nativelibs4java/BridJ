@@ -560,10 +560,14 @@ public abstract class Demangler {
     public static class PointerTypeRef extends TypeRef {
 
         public TypeRef pointedType;
+        public boolean isReference;
+        public boolean isConst;
 
-        public PointerTypeRef(TypeRef pointedType) {
+        public PointerTypeRef(TypeRef pointedType, boolean isConst, boolean isReference) {
             assert pointedType != null;
             this.pointedType = pointedType;
+            this.isReference = isReference;
+            this.isConst = isConst;
         }
 
         @Override
@@ -573,7 +577,7 @@ public abstract class Demangler {
 
         @Override
         public String toString() {
-            return pointedType + "*";
+            return (isConst ? "const " : "") + pointedType + (isReference ? "&" : "*");
         }
 
         @Override
@@ -600,8 +604,8 @@ public abstract class Demangler {
         
     }
 
-    protected static TypeRef pointerType(TypeRef tr) {
-        return new PointerTypeRef(tr);
+    protected static TypeRef pointerType(TypeRef tr, boolean isConst, boolean isReference) {
+        return new PointerTypeRef(tr, isConst, isReference);
     }
 
     protected static TypeRef classType(final Class<?> c, Class<? extends Annotation>... annotations) {
