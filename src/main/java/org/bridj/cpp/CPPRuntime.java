@@ -674,7 +674,9 @@ public class CPPRuntime extends CRuntime {
                     }
                 });
                 if (symbol == null) {
-                    if (debug) {
+                    if (constructorId >= 0) {
+                        throw new RuntimeException("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
+                    } else if (debug) {
                         BridJ.info("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
                     }
                     return null;
