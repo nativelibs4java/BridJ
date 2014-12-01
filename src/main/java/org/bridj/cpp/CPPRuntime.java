@@ -509,7 +509,11 @@ public class CPPRuntime extends CRuntime {
                 if (debug) {
                     info("\tVtable(" + className + ")[" + iVirtual + "] = null");
                 }
+            }
+            if (pMethod == null) {
                 return -1;
+            } else if (virtualMethodName == null) {
+                continue;
             }
             try {
                 MemberRef mr = library.parseSymbol(virtualMethodName);
