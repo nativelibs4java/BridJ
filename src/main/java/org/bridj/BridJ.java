@@ -31,11 +31,15 @@
 package org.bridj;
 
 import org.bridj.ann.Forwardable;
+
 import java.util.Set;
 import java.util.HashSet;
+
 import org.bridj.util.Utils;
+
 import static org.bridj.util.AnnotationUtils.*;
 import static org.bridj.util.Utils.*;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -59,13 +63,17 @@ import org.bridj.BridJRuntime.TypeInfo;
 import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.ann.Library;
+
 import java.util.Stack;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
+
 import org.bridj.util.StringUtils;
+
 import static org.bridj.Platform.*;
 import static java.lang.System.*;
+
 import org.bridj.util.ClassDefiner;
 import org.bridj.util.ASMUtils;
 
@@ -734,9 +742,11 @@ public class BridJ {
                 nativeLibraryPaths.add("/usr/local/lib");
             }
             for (Iterator<String> it = nativeLibraryPaths.iterator(); it.hasNext();) {
-              if (!new File(it.next()).isDirectory()) {
+                final String next = it.next();
+                if (null != next && new File(next).isDirectory()) {
+                    continue;
+                }
                 it.remove();
-              }
             }
         }
         return nativeLibraryPaths;
