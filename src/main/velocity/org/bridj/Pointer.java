@@ -2438,7 +2438,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (values == null)
 			return null;
 		int n = values.length, s = Pointer.SIZE;
-		PointerIO<Pointer> pio = PointerIO.getPointerInstance(); // TODO get actual pointer instances PointerIO !!!
+		PointerIO<?> pio = PointerIO.getPointerInstance(); // TODO get actual pointer instances PointerIO !!!
 		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocateArray(pio, n);
 		for (int i = 0; i < n; i++) {
 			p.setPointerAtOffset(i * s, values[i]);

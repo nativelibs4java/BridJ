@@ -97,7 +97,7 @@ public abstract class PointerIO<T> {
 		return null;
 	}
 	
-	private static final PointerIO<Pointer> PointerIO = getPointerInstance((PointerIO)null);
+	private static final PointerIO<?> PointerIO = getPointerInstance((PointerIO<?>)null);
 
 	public static <T> PointerIO<Pointer<T>> getPointerInstance(Type target) {
 		return getPointerInstance((PointerIO<T>)getInstance(target));
@@ -185,7 +185,7 @@ public abstract class PointerIO<T> {
   	}
   	#end #end
 
-  	public static PointerIO<Pointer> getPointerInstance() {
+  	public static PointerIO<?> getPointerInstance() {
       return PointerIO;
   	}
 
