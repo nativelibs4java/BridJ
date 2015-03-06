@@ -1937,9 +1937,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 //-- primitive (no bool): $prim.Name --
 
 	/**
-     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}.<br>
-     * If the NIO ${prim.BufferName} is not direct, then its backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}), unless a call to {@link Pointer#updateBuffer(Buffer)} is made manually.<br>
-     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) can be used safely : it retains a reference to the original NIO buffer, so that this latter cannot be garbage collected before the pointer.</br>
+     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}.<br/>
+     * If the NIO ${prim.BufferName} is not direct, then its backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}), unless a call to {@link Pointer#updateBuffer(Buffer)} is made manually.<br/>
+     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) can be used safely : it retains a reference to the original NIO buffer, so that this latter cannot be garbage collected before the pointer.<br>
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
         if (buffer == null)
