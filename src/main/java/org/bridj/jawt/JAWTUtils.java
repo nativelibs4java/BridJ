@@ -46,6 +46,9 @@ import org.bridj.ann.Convention;
  * Contains a method that returns the native peer handle of an AWT component :
  * BridJ JAWT utilities
  * {@link org.bridj.jawt.JAWTUtils#getNativePeerHandle(java.awt.Component)}
+ *
+ * <p>Note that this does not work anymore on Mac OS X
+ * (<a href="http://forum.lwjgl.org/index.php?topic=4326.0">see this thread</a>).
  */
 public class JAWTUtils {
 
@@ -102,7 +105,12 @@ public class JAWTUtils {
                     pInfo = pInfo.as(JAWT_DrawingSurfaceInfo.class);
                 }
                 Pointer<?> platformInfo = pInfo.get().platformInfo();
-                long peer = platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
+                long peer;
+                if (Platform.isMacOSX()) {
+                  peer = platformInfo.getPeer();
+                } else {
+                  peer = platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
+                }
                 runnable.run(component, peer);
             } finally {
                 surface.Unlock().get().invoke(pSurface);

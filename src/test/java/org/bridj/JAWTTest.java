@@ -42,6 +42,11 @@ public class JAWTTest {
 	
 	@Test
 	public void testWindowPeer() throws Exception {
+    if (Platform.isMacOSX()) {
+      // Oracle Java and jawt: it's complicated.
+      // See http://forum.lwjgl.org/index.php?topic=4326.0
+      return;
+    }
 		assertEquals(6 * Pointer.SIZE, BridJ.sizeOf(JAWT_DrawingSurface.class));
 		assertEquals(4 * 4, BridJ.sizeOf(JAWT_Rectangle.class));
 		//assertEquals(4 + 5 * Pointer.SIZE, BridJ.sizeOf(JAWT.class));
@@ -52,6 +57,7 @@ public class JAWTTest {
 		f.pack();
 		
 		f.setVisible(true);
+    Thread.sleep(500);
 		long p = JAWTUtils.getNativePeerHandle(f);
 		assertTrue(p != 0);
 		f.setVisible(false);

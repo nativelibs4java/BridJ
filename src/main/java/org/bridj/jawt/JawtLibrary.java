@@ -58,6 +58,7 @@ public class JawtLibrary {
         try {
             //if (Platform.isLinux()) 
             //	SystemBridJ.getNativeLibrary("headless/libmawt");
+            // System.loadLibrary("jawt");
         } catch (Throwable th) {
         }
         BridJ.register();
