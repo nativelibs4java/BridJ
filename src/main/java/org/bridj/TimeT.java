@@ -44,10 +44,6 @@ public final class TimeT extends AbstractIntegral {
 
     public static final int SIZE = Platform.TIME_T_SIZE;
 
-    static {
-        BridJ.register();
-    }
-
     public TimeT(long value) {
         super(value);
     }
@@ -76,6 +72,10 @@ public final class TimeT extends AbstractIntegral {
 
     @Struct(customizer = timeval_customizer.class)
     public static class timeval extends StructObject {
+
+        static {
+            BridJ.register();
+        }
 
         public long getTime() {
             return seconds() * 1000 + milliseconds();
