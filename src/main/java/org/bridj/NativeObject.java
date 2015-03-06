@@ -53,11 +53,6 @@ public abstract class NativeObject implements NativeObjectInterface {
     protected NativeObject(int constructorId, Object... args) {
         BridJ.initialize(this, constructorId, args);
     }
-    /*
-     @Override
-     protected void finalize() throws Throwable {
-     BridJ.deallocate(this);
-     }*/
 
     public NativeObject clone() throws CloneNotSupportedException {
         return BridJ.clone(this);

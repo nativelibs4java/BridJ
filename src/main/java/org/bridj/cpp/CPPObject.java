@@ -63,9 +63,9 @@ public abstract class CPPObject extends StructObject {
     protected CPPObject(Void voidArg, int constructorId, Object... args) {
         super(voidArg, constructorId, args);
     }
-    /*
-     @Override
-     protected void finalize() throws Throwable {
-     BridJ.deallocate(this);
-     }*/
+
+    @Override
+    protected void finalize() throws Throwable {
+      BridJ.setJavaObjectFromNativePeer(peer.getPeer(), null);
+    }
 }

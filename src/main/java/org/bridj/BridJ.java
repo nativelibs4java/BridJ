@@ -54,7 +54,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.*;
@@ -105,8 +105,7 @@ public class BridJ {
     static final Map<File, NativeLibrary> librariesByFile = new HashMap<File, NativeLibrary>();
     private static NativeEntities orphanEntities = new NativeEntities();
     static final Map<Class<?>, BridJRuntime> classRuntimes = new HashMap<Class<?>, BridJRuntime>();
-    static final Map<Long, NativeObject> strongNativeObjects = new HashMap<Long, NativeObject>(),
-            weakNativeObjects = new WeakHashMap<Long, NativeObject>();
+    static final Map<Long, NativeObject> strongNativeObjects = new HashMap<Long, NativeObject>();
 
     public static long sizeOf(Type type) {
         Class c = Utils.getClass(type);
@@ -140,25 +139,6 @@ public class BridJ {
         throw new RuntimeException("Unable to compute size of type " + Utils.toString(type));
     }
 
-    static synchronized void registerNativeObject(NativeObject ob) {
-        weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
-    }
-    /// Caller should display message such as "target was GC'ed. You might need to add a BridJ.protectFromGC(NativeObject), BridJ.unprotectFromGC(NativeObject)
-
-    static synchronized NativeObject getNativeObject(long peer) {
-        NativeObject ob = weakNativeObjects.get(peer);
-        if (ob == null) {
-            ob = strongNativeObjects.get(peer);
-        }
-        return ob;
-    }
-
-    static synchronized void unregisterNativeObject(NativeObject ob) {
-        long peer = Pointer.getAddress(ob, null);
-        weakNativeObjects.remove(peer);
-        strongNativeObjects.remove(peer);
-    }
-
     /**
      * Keep a hard reference to a native object to avoid its garbage
      * collection.<br>
@@ -167,7 +147,6 @@ public class BridJ {
      */
     public static synchronized <T extends NativeObject> T protectFromGC(T ob) {
         long peer = Pointer.getAddress(ob, null);
-        weakNativeObjects.remove(peer);
         strongNativeObjects.put(peer, ob);
         return ob;
     }
@@ -178,14 +157,15 @@ public class BridJ {
      */
     public static synchronized <T extends NativeObject> T unprotectFromGC(T ob) {
         long peer = Pointer.getAddress(ob, null);
-        if (strongNativeObjects.remove(peer) != null) {
-            weakNativeObjects.put(peer, ob);
+        NativeObject removed = strongNativeObjects.remove(peer);
+        if (removed != ob) {
+          throw new IllegalStateException("Unprotected object " + removed + " instead of " + ob + " for address " + peer);
         }
         return ob;
     }
 
     public static void delete(NativeObject nativeObject) {
-        unregisterNativeObject(nativeObject);
+        BridJ.setJavaObjectFromNativePeer(Pointer.getAddress(nativeObject, null), null);
         Pointer.getPointer(nativeObject, null).release();
     }
 
@@ -253,18 +233,21 @@ public class BridJ {
     public static boolean isCastingNativeObjectReturnTypeInCurrentThread() {
         return currentlyCastingNativeObject.get().peek() == CastingType.CastingNativeObjectReturnType;
     }
-    private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
+
+
+    private static final ConcurrentHashMap<Long, NativeObject> registeredObjects =
+        new ConcurrentHashMap<Long, NativeObject>();
 
     public static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
         if (object == null) {
-            knownNativeObjects.remove(peer);
+            registeredObjects.remove(peer);
         } else {
-            knownNativeObjects.put(peer, object);
+            registeredObjects.put(peer, object);
         }
     }
 
     public static synchronized Object getJavaObjectFromNativePeer(long peer) {
-        return knownNativeObjects.get(peer);
+        return registeredObjects.get(peer);
     }
 
     private static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type, CastingType castingType) {
@@ -628,7 +611,6 @@ public class BridJ {
      */
     public synchronized static void releaseAll() {
         strongNativeObjects.clear();
-        weakNativeObjects.clear();
         gc();
 
         for (NativeLibrary lib : librariesByFile.values()) {
@@ -856,6 +838,9 @@ public class BridJ {
         try {
             synchronized (nativeLibraryFiles) {
                 File nativeLibraryFile = nativeLibraryFiles.get(libraryName);
+                if (debug) {
+                  info("Library named '" + libraryName + "' is associated to file '" + nativeLibraryFiles + "'", null);
+                }
                 if (nativeLibraryFile == null) {
                     nativeLibraryFiles.put(libraryName, nativeLibraryFile = findNativeLibraryFile(libraryName));
                 }
@@ -931,6 +916,10 @@ public class BridJ {
                 }
             }
             List<String> possibleFileNames = getPossibleFileNames(name);
+            if (debug) {
+              info("Possible file names for library '" + libraryName + "' with name '" + name + "': " + possibleFileNames, null);
+            }
+
             for (String path : paths) {
                 File pathFile = path == null ? null : new File(path);
                 File f = new File(name);
