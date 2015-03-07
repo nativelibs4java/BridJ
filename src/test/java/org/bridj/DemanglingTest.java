@@ -120,7 +120,8 @@ public class DemanglingTest {
             "_Z14test_add9_longlllllllll",
             null, 
             ident("test_add9_long"),
-//            long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
+            //long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
+            //long.class, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
             clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
         );
     }
@@ -468,9 +469,9 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
     static void demangle(String vc9, String gcc4, Type enclosingType, IdentLike memberName, Type returnType, Object... paramTypes) {
         try {
 			if (vc9 != null)
-				checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
+				checkSymbol("msvc", vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
 			if (gcc4 != null)
-				checkSymbol(gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes,null, null);
+				checkSymbol("gcc", gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes,null, null);
 		} catch (DemanglingException ex) {
 			Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
 			throw new AssertionError(ex.toString());
@@ -489,26 +490,27 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
 		}
     }
 
-    static void checkSymbol(String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Type returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
+    static void checkSymbol(String demanglerName, String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Type returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
+	String demanglerSuffix = " for " + demanglerName;
         if (symbol == null)
-        		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
+        		assertTrue("Symbol not successfully parsed" + demanglerSuffix + ": \"" + str + "\"", false);
     		if (memberName != null)
-            assertEquals("Bad name", memberName, symbol.getMemberName());
+            assertEquals("Bad name" + demanglerSuffix, memberName, symbol.getMemberName());
         if (enclosingType != null) {
-        	assertNotNull("Null enclosing type : " + symbol, symbol.getEnclosingType());
-            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + (enclosingType instanceof Class ? ((Class)enclosingType).getName() : enclosingType.toString()) + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
+        	assertNotNull("Null enclosing type" + demanglerSuffix + " : " + symbol, symbol.getEnclosingType());
+            assertTrue("Bad enclosing type"+ demanglerSuffix + " (got " + symbol.getEnclosingType() + ", expected " + (enclosingType instanceof Class ? ((Class)enclosingType).getName() : enclosingType.toString()) + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
         }
         if (returnType != null && symbol.getValueType() != null)
-	    assertTrue("Bad return type : expected " + returnType + ", got " + symbol.getValueType() + " (got class " + symbol.getValueType().getClass().getName() + ")", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
+	    assertTrue("Bad return type"+ demanglerSuffix + " : expected " + returnType + ", got " + symbol.getValueType() + " (got class " + symbol.getValueType().getClass().getName() + ")", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
 
         int nArgs = symbol.paramTypes.length;
-        assertEquals("Bad number of parameters (symbol = " + symbol + ")", paramTypes.length, nArgs);
+        assertEquals("Bad number of parameters"+ demanglerSuffix + " (symbol = " + symbol + ")", paramTypes.length, nArgs);
 
         for (int iArg = 0; iArg < nArgs; iArg++) {
             if (paramTypes[iArg] instanceof Type) {
             	Type expecting = (Type)paramTypes[iArg];
             	TypeRef demangled = symbol.paramTypes[iArg];
-            	 assertTrue("Bad type for " + (iArg + 1) + "th param : (symbol = " + symbol + ", expecting " + expecting + " and demangled " + demangled + " (" + demangled.getClass().getName() + ")", 
+            	 assertTrue("Bad type for " + (iArg + 1) + "th param"+ demanglerSuffix + " : (symbol = " + symbol + ", expecting " + expecting + " and demangled " + demangled + " (" + demangled.getClass().getName() + ")", 
             	 	 demangled.matches(expecting, paramAnns == null ? null : Demangler.annotations(paramAnns[iArg])));
             	 
             } else if (paramTypes[iArg] instanceof String) {
