@@ -404,7 +404,7 @@ public class BridJ {
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
         "Log each native call performed (or call from native to Java callback)"),
         WarnStructFields("bridj.warnStructFields", "BRIDJ_WARN_STRUCT_FIELDS", true,
-        "Warn when struct fields are implemented with Java fields instead of methods")
+        "Warn when struct fields are implemented with Java fields instead of methods"),
         Protected("bridj.protected", "BRIDJ_PROTECTED", false,
         "Protect all native calls (including memory accesses) against native crashes (disables assembly optimizations and adds quite some overhead)."),
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
