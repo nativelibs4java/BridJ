@@ -403,6 +403,8 @@ public class BridJ {
         "Align doubles on 8 bytes boundaries even on Linux 32 bits (see -malign-double GCC option)."),
         LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
         "Log each native call performed (or call from native to Java callback)"),
+        WarnStructFields("bridj.warnStructFields", "BRIDJ_WARN_STRUCT_FIELDS", true,
+        "Warn when struct fields are implemented with Java fields instead of methods")
         Protected("bridj.protected", "BRIDJ_PROTECTED", false,
         "Protect all native calls (including memory accesses) against native crashes (disables assembly optimizations and adds quite some overhead)."),
         Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
@@ -498,6 +500,7 @@ public class BridJ {
     public static final boolean verbose = debug || veryVerbose || Switch.Verbose.enabled;
     public static final boolean quiet = Switch.Quiet.enabled;
     public static final boolean logCalls = Switch.LogCalls.enabled;
+    public static final boolean warnStructFields = Switch.LogCalls.enabled;
     public static final boolean protectedMode = Switch.Protected.enabled;
     public static final boolean enableDestructors = Switch.Destructors.enabled;
     public static final boolean alignDoubles = Switch.AlignDouble.enabled;
