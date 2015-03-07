@@ -148,6 +148,10 @@ public class list<T> extends CPPObject {
         free(Pointer.getAddress(node, list_node.class));
     }
 
+    private Pointer<list_node<T>> node() {
+        return (Pointer) Pointer.getPointer(this).as(list_node.class);
+    }
+    
     @Deprecated
     @Field(0)
     public Pointer<list_node<T>> next() {
@@ -183,13 +187,13 @@ public class list<T> extends CPPObject {
 			throw new NoSuchElementException();
 	}
 	public boolean empty() {
-		return next() != null;
+        return Pointer.getPeer(next()) == Pointer.getPeer(node());
 	}
-	public T front() {
+	public T back() {
 		checkNotEmpty();
 		return next().get().get();
 	}
-	public T back() {
+	public T front() {
 		checkNotEmpty();
         Pointer<list_node<T>> prev = prev(), next = next();
         Pointer<list_node<T>> nextPrev = next == null ? null : next.get().prev();

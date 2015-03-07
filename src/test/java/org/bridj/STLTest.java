@@ -88,27 +88,30 @@ public class STLTest {
         int_vector_push_back.apply(nativeVector, -1);
         assertEquals("bad size after push_back", n + 1, bridjVector.size());
         assertEquals("bad back", -1, (int)bridjVector.back());
+        int_vector_push_back.apply(nativeVector, -2);
+        assertEquals("bad size after push_back", n + 2, bridjVector.size());
+        assertEquals("bad back", -2, (int)bridjVector.back());
     }
     
     @Test
 	public void testList() throws Exception {
-        try {
-            int n = 10;
-            Pointer<?> nativeList = new_int_list.apply();
-            list<Integer> bridjList = new list<Integer>((Pointer)nativeList, Integer.class);
-            assertTrue("bad empty()", bridjList.empty());
-            int_list_push_back.apply(nativeList, 66);
-                
-            int[] values = nativeList.getInts(20);
-            long[] ptrs = nativeList.getSizeTs(10);
-            long peer = nativeList.getPeer();
-            for (int i = n; --i != 0;) {
-                int_list_push_back.apply(nativeList, i);
-                assertEquals("bad back() at index " + i, i, (int)bridjList.back());
-            }
-        } catch (Throwable th) {
-            th.printStackTrace();
-            assertNull(th);
+        int n = 10;
+        Pointer<?> nativeList = new_int_list.apply();
+        list<Integer> bridjList = new list<Integer>((Pointer)nativeList, Integer.class);
+        assertTrue("bad empty()", bridjList.empty());
+//            assertEquals("bad size()", 0, bridjList.size());
+        int_list_push_back.apply(nativeList, 66);
+        assertFalse("bad empty()", bridjList.empty());
+        assertEquals("first front()", 66, (int)bridjList.front());
+        assertEquals("first back()", 66, (int)bridjList.back());
+        
+        int_list_push_back.apply(nativeList, 65);
+        assertEquals("second front()", 66, (int)bridjList.front());
+        assertEquals("second back()", 65, (int)bridjList.back());
+
+        for (int i = n; --i != 0;) {
+            int_list_push_back.apply(nativeList, i);
+            assertEquals("bad back() at index " + i, i, (int)bridjList.back());
         }
     }
 }
