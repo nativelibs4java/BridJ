@@ -11,7 +11,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.5</maven.compiler.source>
 		<maven.compiler.target>1.5</maven.compiler.target>
-		<bridj.version>0.7-SNAPSHOT</bridj.version>
+		<bridj.version>0.7.0</bridj.version>
 	</properties>
 
 	<dependencies>
@@ -48,7 +48,7 @@
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-jnaerator-plugin</artifactId>
-				<version>0.12-SNAPSHOT</version>
+				<version>0.12</version>
 				<executions>
 					<execution>
 						<goals>
@@ -64,7 +64,7 @@
 			<plugin>
 				<groupId>com.nativelibs4java</groupId>
 				<artifactId>maven-jnaerator-plugin</artifactId>
-				<version>0.12-SNAPSHOT</version>
+				<version>0.12</version>
 				<configuration>
 					<javaOutputDirectory>src/main/java</javaOutputDirectory>
 				</configuration>

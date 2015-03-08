@@ -5,7 +5,7 @@
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>http://code.google.com/p/bridj/</url>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.7.0</version>
 	<packaging>bundle</packaging>
 	
 	<properties>
@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.9-SNAPSHOT</version>
+		<version>1.9</version>
 		<relativePath>..</relativePath>
 	</parent>
 	
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>4.0.0</version>
+			<version>4.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		

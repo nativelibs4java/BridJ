@@ -1,18 +1,21 @@
 Current development version (0.7-SNAPSHOT)
 
+...
+
+BridJ 0.7.0 (20150308)
+
 - Added LRU pointer cache (disable with -Dbridj.cache.pointers=false or BRIDJ_CACHE_POINTERS=0), which helps keep short-lived pointer garbage to a minimum for some use cases (see issue #440)
-- Added support for Raspberry Pi (Linux/armel (soft-float) and Linux/armhf (hard-float)).
+- Added experimental support for Raspberry Pi (Linux/armhf, hard-float ABI).
 - Added a new all-in-one android release zip with classes JAR (now contains no native lib), native libs, sources & javadoc.
 - Added programmatic setting of library dependencies: BridJ.addNativeLibraryDependencies (issue #424),  -Dbridj.Xyz.dependencies=Abc,Def and BRIDJ_XYZ_DEPENDENCIES=Abc,Def (issue #391)
 - Added a very useful BRIDJ_DEBUG_POINTER_RELEASES=1 / -Dbridj.debug.pointer.releases=true mode that helps track double releases (also enabled when BRIDJ_DEBUG_POINTERS=1 / -Dbridj.debug.pointers=true).
-- Added Pointer.pointerToAddress(peer, size, io, release) + fixed COMTest
-- Added fallback to GCC demangler on Windows (issue #356).
+- Added Pointer.pointerToAddress(peer, size, io, release)
+- Added fallback to GCC demangler for mingw32 on Windows (issue #356).
 - Added support for exact library file name (issue #424)
 - Added Pointer.pointerTo(IntValuedEnum<E>) (issue #414)
 - Added support for C++ namespaces (issue #446)
 - Added support for @Name annotations on structs and enums (allows refactoring of such classes, issue #443)
 - Added support for new JNAerator-generated crossed callbacks (one with an object-heavy signature, and one with raw types, each calling the other, one of the two being overridden)
-- Dropped support for Linux soft-float for now (since Raspbian seems to have stopped releasing it)
 - Dropped C# runtime stubs
 - Dropped linux-only and mac-only packages.
 - Improved performance of all operations of Pointers with bounds (~ 25% faster).
