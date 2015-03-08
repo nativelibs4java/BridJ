@@ -4,6 +4,8 @@
 # Usage : patch_dyncall.sh directory
 #
 
+#set -e
+
 function failed() {
 	echo "$@"
 	exit 1
@@ -21,7 +23,7 @@ if [[ -z "$1" ]] ; then
 	failed "No path to the diff"
 fi
 
-PATCH_FILE=`pwd`/$1
+PATCH_FILE=$1
 
 #if [[ ! -d `dirname $DYNCALL_HOME` ]] ; then
 #	mkdir `dirname $DYNCALL_HOME` || failed "Failed to create parent directory for $DYNCALL_HOME"
