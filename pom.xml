@@ -473,7 +473,7 @@
                 <executions>
                   <execution>
                     <id>default-cli</id>
-                    <phase>verify</phase>
+                    <phase>package</phase>
                     <goals>
                       <goal>run</goal>
                     </goals>
@@ -517,11 +517,13 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                             <zipfileset prefix="libs/docs" dir="${project.build.directory}" includes="${project.build.finalName}-javadoc.jar"/>
                             <zipfileset prefix="native-libs" dir="src/main/android-libs" includes="*/*"/>
                         </zip>
+                        <attachartifact file="${project.build.directory}/${project.build.finalName}-android.zip"/>
                       </tasks>
                     </configuration>
                   </execution>
                 </executions>
               </plugin>
+
               <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
