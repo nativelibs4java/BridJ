@@ -55,7 +55,7 @@ import org.bridj.ann.Ptr;
  * std::vector</a> class.
  *
  * @author ochafik
- * @param <T>
+ * @param <T> list component type
  */
 @Template({Type.class})
 @Struct(customizer = STL.class)

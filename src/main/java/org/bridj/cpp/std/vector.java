@@ -51,7 +51,7 @@ import static org.bridj.Pointer.*;
  * std::vector</a> class.
  *
  * @author ochafik
- * @param <T>
+ * @param <T> vector component type
  */
 @Template({Type.class})
 @Struct(customizer = STL.class)

@@ -45,7 +45,7 @@ import static org.bridj.Pointer.*;
  * TODO : smart rewrite by chunks for removeAll and retainAll !
  *
  * @author ochafik
- * @param <T>
+ * @param <T> component type
  */
 class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, RandomAccess {
     /*

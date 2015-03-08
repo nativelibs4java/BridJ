@@ -200,8 +200,8 @@ public class BridJ {
      * overrides for all native methods. Non-default constructors are not
      * currently handled.
      *
-     * @param <T>
-     * @param original
+     * @param <T> original class type
+     * @param original class
      * @throws IOException
      */
     public static <T> Class<? extends T> subclassWithSynchronizedNativeMethods(Class<T> original) throws IOException {
