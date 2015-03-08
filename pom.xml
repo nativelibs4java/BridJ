@@ -541,6 +541,11 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                           <classifier>android</classifier>
                           <type>zip</type>
                         </artifact>
+                        <artifact>
+                          <file>${project.build.directory}/${project.build.finalName}-android.zip.asc</file>
+                          <classifier>android</classifier>
+                          <type>zip.asc</type>
+                        </artifact>
                       </artifacts>
                     </configuration>
                   </execution>
