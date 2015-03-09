@@ -2,7 +2,7 @@
  * BridJ - Dynamic and blazing-fast native interop for Java.
  * http://bridj.googlecode.com/
  *
- * Copyright (c) 2010-2013, Olivier Chafik (http://ochafik.com/)
+ * Copyright (c) 2010-2015, Olivier Chafik (http://ochafik.com/)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
