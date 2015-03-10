@@ -1,5 +1,7 @@
 # BridJ
 
+[![Join the chat at https://gitter.im/ochafik/BridJ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ochafik/BridJ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [BridJ](http://bridj.googlecode.com) is a Java / native interoperability library that focuses on speed and ease of use.
 
 It is similar in spirit to [JNA](https://github.com/twall/jna) (dynamic bindings that don't require any native compilation, unlike JNI), but was designed to support C++, to be blazing fast (thanks to [dyncall](http://dyncall.org) + hand-optimized assembly tweaks) and to use modern Java features.
