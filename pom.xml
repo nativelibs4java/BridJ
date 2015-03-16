@@ -523,7 +523,6 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                   </execution>
                 </executions>
               </plugin>
-
               <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -541,11 +540,6 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
                           <classifier>android</classifier>
                           <type>zip</type>
                         </artifact>
-                        <artifact>
-                          <file>${project.build.directory}/${project.build.finalName}-android.zip.asc</file>
-                          <classifier>android</classifier>
-                          <type>zip.asc</type>
-                        </artifact>
                       </artifacts>
                     </configuration>
                   </execution>
@@ -555,6 +549,38 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 	</build>
 	
 	<profiles>
+    <profile>
+      <id>gpg</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.2</version>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>attach-artifact</goal>
+                </goals>
+                <configuration>
+                  <artifacts>
+                    <artifact>
+                      <file>${project.build.directory}/${project.build.finalName}-android.zip.asc</file>
+                      <classifier>android</classifier>
+                      <type>zip.asc</type>
+                    </artifact>
+                  </artifacts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 		<profile>
 			<id>native</id>
 			<activation>
