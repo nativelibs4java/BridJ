@@ -1,6 +1,6 @@
 # BridJ
 
-[![Join the chat at https://gitter.im/nativelibs4java/BridJ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nativelibs4java/BridJ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Maven Central](https://img.shields.io/maven-central/v/com.nativelibs4java/bridj.svg)]() [![Build Status](https://travis-ci.org/nativelibs4java/BridJ.svg)](https://travis-ci.org/nativelibs4java/BridJ) [![Join the chat at https://gitter.im/nativelibs4java/BridJ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nativelibs4java/BridJ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [BridJ](http://bridj.googlecode.com) is a Java / native interoperability library that focuses on speed and ease of use.
 
