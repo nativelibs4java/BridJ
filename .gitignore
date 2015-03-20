@@ -29,3 +29,6 @@ dyncall/*
 dyncallBefore/*
 *.log
 dalvik
+.classpath
+.project
+.settings
