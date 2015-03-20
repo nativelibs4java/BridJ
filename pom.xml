@@ -7,6 +7,21 @@
 	<url>http://code.google.com/p/bridj/</url>
 	<version>0.7.1-SNAPSHOT</version>
 	<packaging>bundle</packaging>
+	<repositories>
+		<repository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>sonatype</id>
+			<name>Sonatype OSS Snapshots Repository</name>
+			<url>http://oss.sonatype.org/content/groups/public</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<properties>
 		<versionSpecificSubPackage>v0_7_0</versionSpecificSubPackage>
 		<maven.compiler.optimize>true</maven.compiler.optimize>
