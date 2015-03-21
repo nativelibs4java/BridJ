@@ -17,7 +17,7 @@ NDK_PROJECT_PATH="$PWD"
 [[ -n "$ANDROID_NDK_HOME" ]] || fail "ANDROID_NDK_HOME not defined."
 
 if [[ ! -e jni/dyncall ]]; then
-    ln -s "$DYNCALL_HOME/dyncall/" jni/dyncall
+    ln -s "$DYNCALL_HOME/" jni/dyncall
 fi
 
 #ABIS="x86 armeabi mips"
