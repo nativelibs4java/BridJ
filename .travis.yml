@@ -1,3 +1,7 @@
+# Use container-based arch
+# http://docs.travis-ci.com/user/workers/container-based-infrastructure/
+sudo: false
+
 language: java
 jdk:
   - oraclejdk8
@@ -7,8 +11,8 @@ jdk:
 compiler:
   - gcc
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y subversion
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-script: ./RebuildNative
+before_script:
+  - ./RebuildNative
+  
