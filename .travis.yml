@@ -8,11 +8,19 @@ jdk:
   #- oraclejdk7
   #- openjdk7
   - openjdk6
+
 compiler:
   - gcc
+
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
+
 before_script:
   - ./RebuildNative
-  
+
+cache:
+  directories:
+  - $HOME/.m2
+  - $HOME/.ivy2
+
