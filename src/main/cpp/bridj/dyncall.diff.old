@@ -1,0 +1,660 @@
+Index: dyncall/dyncall/dyncall_call_arm32_arm_armhf.S
+===================================================================
+--- dyncall/dyncall/dyncall_call_arm32_arm_armhf.S  (revision 1637)
++++ dyncall/dyncall/dyncall_call_arm32_arm_armhf.S  (working copy)
+@@ -52,22 +52,8 @@
+  mov r5  , r1   /* r5 = 'args' (2nd argument is passed in r1). */
+  
+  /* Load 16 single-precision registers (= 8 double-precision registers). */
+- flds  s0,  [r3,#0 ]
+- flds  s1,  [r3,#4 ]
+- flds  s2,  [r3,#8 ]
+- flds  s3,  [r3,#12]
+- flds  s4,  [r3,#16]
+- flds  s5,  [r3,#20]
+- flds  s6,  [r3,#24]
+- flds  s7,  [r3,#28]
+- flds  s8,  [r3,#32]
+- flds  s9,  [r3,#36]
+- flds  s10, [r3,#40]
+- flds  s11, [r3,#44]
+- flds  s12, [r3,#48]
+- flds  s13, [r3,#52]
+- flds  s14, [r3,#56]
+- flds  s15, [r3,#60]
++ /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0068b/Bcfchhif.html */
++ fldmiad r3, {d0-d7}
+ 
+  sub r2 , r2 , #16 
+  cmp     r2, #0
+Index: dyncall/dyncall/dyncall_call_arm32_thumb_armhf.S
+===================================================================
+--- dyncall/dyncall/dyncall_call_arm32_thumb_armhf.S  (revision 1637)
++++ dyncall/dyncall/dyncall_call_arm32_thumb_armhf.S  (working copy)
+@@ -61,22 +61,8 @@
+  mov r5  , r1   /* r5 = 'args' (2nd argument is passed in r1). */
+  
+  /* Load 16 single-precision registers (= 8 double-precision registers). */
+- flds  s0,  [r3,#0 ]
+- flds  s1,  [r3,#4 ]
+- flds  s2,  [r3,#8 ]
+- flds  s3,  [r3,#12]
+- flds  s4,  [r3,#16]
+- flds  s5,  [r3,#20]
+- flds  s6,  [r3,#24]
+- flds  s7,  [r3,#28]
+- flds  s8,  [r3,#32]
+- flds  s9,  [r3,#36]
+- flds  s10, [r3,#40]
+- flds  s11, [r3,#44]
+- flds  s12, [r3,#48]
+- flds  s13, [r3,#52]
+- flds  s14, [r3,#56]
+- flds  s15, [r3,#60]
++ /* http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0068b/Bcfchhif.html */
++ fldmiad r3, {d0-d7}
+ 
+  sub r2 , #16  
+  cmp     r2, #0
+Index: dyncall/dyncall/dyncall_callvm_arm32_arm_armhf.c
+===================================================================
+--- dyncall/dyncall/dyncall_callvm_arm32_arm_armhf.c  (revision 1637)
++++ dyncall/dyncall/dyncall_callvm_arm32_arm_armhf.c  (working copy)
+@@ -105,7 +105,8 @@
+ static void a_double(DCCallVM* in_p, DCdouble x)
+ {
+   DCCallVM_arm32_armhf* p = (DCCallVM_arm32_armhf*)in_p;
+-  if (p->d < 16) {
++  if (p->d <= 14) {
++  //if (p->d < 16) {
+     * (double*) &p->S[p->d] = x;
+     p->d += 2;
+     if (!(p->s & 1)) {
+Index: dyncall/dyncallback/dyncall_args.c
+===================================================================
+--- dyncall/dyncallback/dyncall_args.c  (revision 1637)
++++ dyncall/dyncallback/dyncall_args.c  (working copy)
+@@ -26,20 +26,24 @@
+ #include "../dyncall/dyncall_macros.h"
+ 
+ #if defined(DC__Arch_Intel_x86)
+-#include "dyncall_args_x86.c"
++#  include "dyncall_args_x86.c"
+ #elif defined (DC__Arch_AMD64)
+-#include "dyncall_args_x64.c"
++#  include "dyncall_args_x64.c"
+ #elif defined (DC__Arch_PowerPC)
+-#include "dyncall_args_ppc32.c"
++#  include "dyncall_args_ppc32.c"
+ #elif defined (DC__Arch_ARM_ARM)
+-#include "dyncall_args_arm32_arm.c"
++#  if defined(DC__ABI_ARM_HF)
++#    include "dyncall_args_arm32_arm_armhf.c"
++#  else
++#    include "dyncall_args_arm32_arm.c"
++#  endif
+ #elif defined (DC__Arch_ARM_THUMB)
+-#include "dyncall_args_arm32_thumb.c"
++#  include "dyncall_args_arm32_thumb.c"
+ #elif defined (DC__Arch_MIPS)
+-#include "dyncall_args_mips.c"
++#  include "dyncall_args_mips.c"
+ #elif defined (DC__Arch_Sparc)
+-#include "dyncall_args_sparc32.c"
++#  include "dyncall_args_sparc32.c"
+ #elif defined (DC__Arch_Sparcv9)
+-#include "dyncall_args_sparc64.c"
++#  include "dyncall_args_sparc64.c"
+ #endif
+ 
+Index: dyncall/dyncallback/dyncall_args_arm32_arm_armhf.c
+===================================================================
+--- dyncall/dyncallback/dyncall_args_arm32_arm_armhf.c  (revision 0)
++++ dyncall/dyncallback/dyncall_args_arm32_arm_armhf.c  (working copy)
+@@ -0,0 +1,140 @@
++/*
++
++ Package: dyncall
++ Library: dyncallback
++ File: dyncallback/dyncall_args_arm32_arm.c
++ Description: Callback's Arguments VM - Implementation for ARM32 (ARM mode)
++ License:
++
++   Copyright (c) 2007-2011 Daniel Adler <dadler@uni-goettingen.de>,
++                           Tassilo Philipp <tphilipp@potion-studios.com>
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++
++#include "dyncall_args_arm32_arm.h"
++
++
++static void arm_align_64(DCArgs* args)
++{
++  /* Look at signature to see if current calling convention needs alignment */
++  /* or not (e.g. EABI has different alignment). If nothing specified, fall */
++  /* back to default behaviour for this platform.                           */
++  /* @@@ check signature string */
++
++  int sig =
++#if defined(DC__ABI_ARM_EABI)
++    0; /* EABI */
++#else
++    1; /* ATPCS */
++#endif
++  if(sig == 0) {
++    if(args->reg_count < 4)
++      args->reg_count = (args->reg_count+1)&~1;
++    if(args->reg_count >= 4 && (int)args->stack_ptr & 4)
++      ++args->stack_ptr;
++  }
++}
++
++
++static void* arm_word(DCArgs* args)
++{
++  if(args->reg_count < 4)
++    return &args->reg_data[args->reg_count++];
++  else
++    return (void*)args->stack_ptr++;
++}
++
++static DCfloat arm_float(DCArgs* p)
++{
++  if (p->s < 16) {
++    DCfloat value = p->S[p->s++];
++    if (p->d < p->s) {
++      p->d = (p->s+1) & ~(1U);
++    } else {
++      p->s = p->d;
++    }
++    return value;
++  } else {
++    return *(DCfloat*)  arm_word(p);
++  }
++}
++
++static DCdouble arm_double(DCArgs* p)
++{
++  if (p->d <= 14) {
++  //if (p->d < 16) {
++    DCdouble value = * (double*) &p->S[p->d];
++    p->d += 2;
++    if (!(p->s & 1)) {
++      /* if s is even it always equals d. 
++  otherwise, s points to an odd float register. 
++       */
++      p->s = p->d;
++    }
++    return value;
++  } else {
++    p->s = 16;
++    union {
++      DCdouble d;
++      DClong   l[2];
++    } d;
++    arm_align_64(p);
++    d.l[0] = *(DClong*)arm_word(p);
++    d.l[1] = *(DClong*)arm_word(p);
++    return d.d;
++  }
++}
++
++
++static DClonglong arm_longlong(DCArgs* args)
++{
++  union {
++    DClonglong ll;
++    DClong     l[2];
++  } ll;
++  arm_align_64(args);
++  ll.l[0] = *(DClong*)arm_word(args);
++  ll.l[1] = *(DClong*)arm_word(args);
++  return ll.ll;
++}
++
++
++
++// ----------------------------------------------------------------------------
++// C API implementation:
++
++
++// base operations:
++
++DClonglong  dcbArgLongLong (DCArgs* p) { return arm_longlong(p); }
++DClong      dcbArgLong     (DCArgs* p) { return *(DClong*)arm_word(p); }
++DCint       dcbArgInt      (DCArgs* p) { return (DCint)   dcbArgLong(p); }
++DCchar      dcbArgChar     (DCArgs* p) { return (DCchar)  dcbArgLong(p); }
++DCshort     dcbArgShort    (DCArgs* p) { return (DCshort) dcbArgLong(p); }
++DCbool      dcbArgBool     (DCArgs* p) { return (dcbArgLong(p) == 0) ? 0 : 1; }
++
++DCuint      dcbArgUInt     (DCArgs* p) { return (DCuint)     dcbArgInt(p);      }
++DCuchar     dcbArgUChar    (DCArgs* p) { return (DCuchar)    dcbArgChar(p);     }
++DCushort    dcbArgUShort   (DCArgs* p) { return (DCushort)   dcbArgShort(p);    }
++DCulong     dcbArgULong    (DCArgs* p) { return (DCulong)    dcbArgLong(p);     }
++DCulonglong dcbArgULongLong(DCArgs* p) { return (DCulonglong)dcbArgLongLong(p); }
++
++
++DCpointer   dcbArgPointer  (DCArgs* p) { return (DCpointer)  dcbArgLong(p); }
++
++DCdouble    dcbArgDouble   (DCArgs* p) { return arm_double(p); }
++DCfloat     dcbArgFloat    (DCArgs* p) { return arm_float(p); }
++
+Index: dyncall/dyncallback/dyncall_args_arm32_arm_armhf.h
+===================================================================
+--- dyncall/dyncallback/dyncall_args_arm32_arm_armhf.h  (revision 0)
++++ dyncall/dyncallback/dyncall_args_arm32_arm_armhf.h  (working copy)
+@@ -0,0 +1,43 @@
++/*
++
++ Package: dyncall
++ Library: dyncallback
++ File: dyncallback/dyncall_args_arm32_arm.h
++ Description: Callback's Arguments VM - Header for ARM32 (ARM mode)
++ License:
++
++   Copyright (c) 2007-2011 Daniel Adler <dadler@uni-goettingen.de>,
++                           Tassilo Philipp <tphilipp@potion-studios.com>
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++#ifndef DYNCALLBACK_ARGS_ARM32_ARM_H
++#define DYNCALLBACK_ARGS_ARM32_ARM_H
++
++#include "dyncall_args.h"
++
++struct DCArgs
++{
++ /* Don't change order! */
++ long  reg_data[4];
++ int   reg_count;
++ long* stack_ptr;
++  unsigned int s;
++  unsigned int d;
++  DCfloat      S[16];
++};
++
++#endif /* DYNCALLBACK_ARGS_ARM32_ARM_H */
++
+Index: dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s
+===================================================================
+--- dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s  (revision 1637)
++++ dyncall/dyncallback/dyncall_callback_arm32_arm_gas.s  (working copy)
+@@ -52,6 +52,11 @@
+  /* Grab arguments. */
+  mov   %r4, #0
+  stmdb %r13!, {%r0-%r4, %r11}      /* Spill first 4 args to DCArgs, along with reg_count and (stack) pointer to remaining args. */
++ sub     %r13, #4                          /* Make room for s */
++ mov     %r13, #0                         /* Initialize s to 0 */
++ sub     %r13, #4                          /* Make room for d */
++ mov     %r13, #0                         /* Initialize d to 0 */
++ fstmdbd %r13!, { d0-d7 }                 /* Copy d0 to d7 to S while decreasing frame pointer */
+ 
+  /* Prepare callback handler call. */
+  mov   %r0, %r12           /* Parameter 0 (r0) = DCCallback pointer (r12, pointer to thunk). */
+Index: dyncall/dynload/dynload_syms_elf.c
+===================================================================
+--- dyncall/dynload/dynload_syms_elf.c  (revision 1637)
++++ dyncall/dynload/dynload_syms_elf.c  (working copy)
+@@ -54,6 +54,7 @@
+ 
+ #include <assert.h>
+ #include <fcntl.h>
++//#include "/Users/ochafik/bin/android-ndk-r8d/platforms/android-14/arch-x86/usr/include/dlfcn.h"
+ #include <dlfcn.h>
+ #include <stdio.h>
+ #include <string.h>
+Index: dyncall/dynload/dynload_syms_mach-o.c
+===================================================================
+--- dyncall/dynload/dynload_syms_mach-o.c (revision 1637)
++++ dyncall/dynload/dynload_syms_mach-o.c (working copy)
+@@ -28,6 +28,7 @@
+  dynamic symbol resolver for Mach-O
+ 
+ */
++#include "../autovar/autovar_ARCH.h"
+ 
+ #include "dynload.h"
+ #include "dynload_alloc.h"
+@@ -39,15 +40,16 @@
+ 
+ #if defined(ARCH_X64)
+ #define MACH_HEADER_TYPE mach_header_64
++#define MACH_MAGIC MH_MAGIC_64
+ #define SEGMENT_COMMAND segment_command_64
+ #define NLIST_TYPE nlist_64
+ #else
+ #define MACH_HEADER_TYPE mach_header
++#define MACH_MAGIC MH_MAGIC
+ #define SEGMENT_COMMAND segment_command
+ #define NLIST_TYPE nlist
+ #endif
+ 
+-
+ struct DLLib_
+ {
+  char* libPath;
+@@ -57,12 +59,140 @@
+ 
+ struct DLSyms_
+ {
++    const char** decompressedSymbols;
+  const char* pStringTable;
+  const struct NLIST_TYPE* pSymbolTable;
+  uint32_t symbolCount;
+ };
+ 
++int isSameMacImageName(const char* libPath, const char* systemLibPath) {
++ if (!libPath || !systemLibPath)
++   return 0;
++ 
++ if (!strcmp(libPath, systemLibPath))
++   return 1;
++ 
++ if (strstr(libPath, "/libc.") && strstr(systemLibPath, "/libSystem."))
++   return 1;
++ 
++ return 0;
++}
+ 
++///
++/// LEB128 DECODING (http://en.wikipedia.org/wiki/LEB128)
++///
++unsigned long long decode_leb128(const unsigned char** ppIn) {
++    const unsigned char* pIn = *ppIn;
++    unsigned char input;
++    unsigned long long decoded = 0;
++    int shift = 0;
++    do {
++        input = *pIn++;
++        decoded |= (((unsigned long long)(input & 0x7f)) << shift);
++        shift += 7;
++    } while (input & 0x80);
++    
++    *ppIn = pIn;
++    return decoded;
++}
++
++///
++/// DUMMY APPENDABLE STRING 
++///
++typedef struct _DCString {
++    char* buffer;
++    size_t capacity;
++} DCString;
++void initString(DCString* s, size_t capacity) {
++    if (!s)
++        return;
++    
++    s->buffer = dlAllocMem((s->capacity = capacity) + 1);
++    s->buffer[0] = '\0';
++}
++void appendString(DCString* s, const char* suffix) {
++    if (!s)
++        return;
++    
++    size_t suffixLen = strlen(suffix), sLen = strlen(s->buffer);
++    if (suffixLen + sLen > s->capacity) {
++        char* old = s->buffer;
++        initString(s, (suffixLen + sLen) * 3 / 2);
++        strcpy(s->buffer, old);
++        dlFreeMem(old);
++    }
++    strcpy(s->buffer + sLen, suffix);
++}
++void freeString(DCString* s) {
++ if (s->buffer) {
++   dlFreeMem(s->buffer);
++   s->buffer = NULL;
++   s->capacity = 0;
++ }
++}
++
++///
++/// MACHO COMPRESSED SYMBOLS TRIE VISITATION
++///
++typedef void (*SymbolOutputFunction)(const char* symbol, size_t index, void* payload);
++
++#define MAX_DEPTH 256
++
++size_t visitTrie(
++ const unsigned char* start, 
++ const unsigned char* current, 
++ const unsigned char* end, 
++ DCString* prefix, 
++ SymbolOutputFunction output, size_t indexOffset, void* payload, int depth) 
++{
++    size_t count = 0;
++ if (current < end && depth < MAX_DEPTH) {
++        unsigned char term_size = *current++;
++        if (term_size != 0) {
++            //const unsigned char* pos = current;
++            //unsigned long long flags = decode_leb128(&pos);
++            //unsigned long long addr = decode_leb128(&pos);
++            {
++       if (prefix && output)
++         output(prefix->buffer, indexOffset, payload);
++       
++       indexOffset++;
++       count++;
++     }
++            
++            current += term_size;
++        }
++
++        unsigned char iSubNode, nSubNodes = *current++;
++        
++        size_t prefixLen = prefix ? strlen(prefix->buffer) : 0;
++        for (iSubNode = 0; iSubNode < nSubNodes; iSubNode++) {
++            unsigned long long subNodeOffset;
++            const char* suffix = (const char*)current;
++            current += strlen(suffix) + 1;
++            if (!(subNodeOffset = decode_leb128(&current)))
++             continue;
++            
++     appendString(prefix, suffix);
++     size_t subCount = visitTrie(start, start + subNodeOffset, end, prefix, output, indexOffset, payload, depth + 1);
++     count += subCount;
++     indexOffset += subCount;
++     if (prefix)
++       prefix->buffer[prefixLen] = '\0';
++        }
++    }
++    return count;
++}
++
++/// Callback to harvest symbols visited in trie
++void CopyToNthString(const char* str, size_t index, void* payload) {
++    const char** pstr = (const char**)payload;
++    size_t len = strlen(str);
++    char* copy = dlAllocMem(len + 1);
++    strcpy(copy, str);
++    pstr[index] = copy;
++}
++
+ DLSyms* dlSymsInit(const char* libPath) 
+ {
+  DLSyms* pSyms = NULL;
+@@ -70,27 +200,59 @@
+  for (iImage = 0, nImages = _dyld_image_count(); iImage < nImages; iImage++)
+  {
+    const char* name = _dyld_get_image_name(iImage);
+-   if (name && !strcmp(name, libPath))
++   if (isSameMacImageName(libPath, name))
+    {
+      const struct MACH_HEADER_TYPE* pHeader = (const struct MACH_HEADER_TYPE*) _dyld_get_image_header(iImage);
+      const char* pBase = ((const char*)pHeader);
++     if (!pHeader)
++       return NULL;
++
++     if (pHeader->magic != MACH_MAGIC)
++       return NULL;
+      if (pHeader->filetype != MH_DYLIB)
+        return NULL;
+-     if (pHeader->flags & MH_SPLIT_SEGS)
++     if (pHeader->flags & MH_SPLIT_SEGS || !(pHeader->flags & MH_DYLDLINK))
+        return NULL;
+-
+-     if (pHeader)
++     
+      {
+        uint32_t iCmd, nCmds = pHeader->ncmds;
+        const struct load_command* cmd = (const struct load_command*)(pBase + sizeof(struct MACH_HEADER_TYPE));
+        
+        for (iCmd = 0; iCmd < nCmds; iCmd++) 
+        {
+-         if (cmd->cmd == LC_SYMTAB) 
+-         {
++         if (cmd->cmd == LC_DYLD_INFO_ONLY || cmd->cmd == LC_DYLD_INFO) {
++                        const struct dyld_info_command* dcmd = (const struct dyld_info_command*)cmd;
++                        const unsigned char* trie = (pBase + dcmd->export_off);
++                        
++                        pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
++                        
++                        // First, get the number of symbols
++                        pSyms->symbolCount = visitTrie(trie, trie, trie + dcmd->export_size, NULL, NULL, 0, NULL, 0);
++                        
++                        if (pSyms->symbolCount) {
++                            // Now revisit and copy symbols to their destination
++                            DCString s;
++                            size_t decompSize = pSyms->symbolCount * sizeof(char*) * 2;
++                            pSyms->decompressedSymbols = dlAllocMem(decompSize);
++                            memset(pSyms->decompressedSymbols, decompSize, 0);
++                            initString(&s, 1024);
++                            visitTrie(trie, trie, trie + dcmd->export_size, &s, CopyToNthString, 0, pSyms->decompressedSymbols, 0);
++                            freeString(&s);
++                        }
++                        
++                        return pSyms;
++                    }
++                    
++                    if (cmd->cmd & LC_REQ_DYLD) {
++                     return NULL; // "unknown load command required for execution";
++                    }
++                    if (cmd->cmd == LC_SYMTAB) 
++                    {
+            const struct symtab_command* scmd = (const struct symtab_command*)cmd;
+          
+            pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
++           //memset(pSyms, sizeof(DLSyms), 0);
++           pSyms->decompressedSymbols = NULL;
+            pSyms->symbolCount = scmd->nsyms;
+            pSyms->pStringTable = pBase + scmd->stroff;
+            pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
+@@ -100,7 +262,6 @@
+          cmd = (const struct load_command*)(((char*)cmd) + cmd->cmdsize);
+        }
+      }
+-     break;
+    }
+  }
+  return NULL;
+@@ -112,6 +273,18 @@
+  if (!pSyms)
+    return;
+  
++    if (pSyms->decompressedSymbols) {
++        size_t i, n = pSyms->symbolCount;
++        for (i = 0; i < n; i++) {
++            const char* str = pSyms->decompressedSymbols[i];
++            if (str) {
++             dlFreeMem(str);
++             pSyms->decompressedSymbols[i] = NULL;
++            }
++        }
++        dlFreeMem(pSyms->decompressedSymbols);
++        pSyms->decompressedSymbols = NULL;
++    }
+  dlFreeMem(pSyms);
+ }
+ 
+@@ -132,6 +305,11 @@
+  if (nl->n_un.n_strx <= 1)
+    return NULL; // would be empty string anyway
+  
++    if (!(nl->n_type & N_EXT) || (nl->n_type & N_PEXT))
++        return NULL; // not a public external symbol
++    if (nl->n_type & N_STAB)
++        return NULL;
++    
+  //TODO skip more symbols based on nl->n_desc and nl->n_type ?
+  return nl;
+ }
+@@ -139,6 +317,12 @@
+ 
+ const char* dlSymsName(DLSyms* pSyms, int index)
+ {
++    if (!pSyms || index >= pSyms->symbolCount)
++        return NULL;
++ 
++    if (pSyms->decompressedSymbols)
++        return pSyms->decompressedSymbols[index];
++            
+  const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
+  if (!nl)
+    return NULL;
+@@ -149,6 +333,12 @@
+ 
+ void* dlSymsValue(DLSyms* pSyms, int index)
+ {
++    if (!pSyms || index >= pSyms->symbolCount)
++        return NULL;
++    
++    if (pSyms->decompressedSymbols)
++        return NULL; // TODO use dlFindSymbol
++            
+  const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
+  if (!nl)
+    return NULL;
+Index: dyncall/dynload/dynload_unix.c
+===================================================================
+--- dyncall/dynload/dynload_unix.c  (revision 1637)
++++ dyncall/dynload/dynload_unix.c  (working copy)
+@@ -40,7 +40,7 @@
+ 
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
+-  return (DLLib*)dlopen(libPath,RTLD_NOW|RTLD_GLOBAL);
++  return (DLLib*)dlopen(libPath,RTLD_LAZY|RTLD_GLOBAL);
+ }
+ 
+ 
+Index: dyncall/dynload/dynload_windows.c
+===================================================================
+--- dyncall/dynload/dynload_windows.c (revision 1637)
++++ dyncall/dynload/dynload_windows.c (working copy)
+@@ -40,7 +40,9 @@
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
+   if (libPath != NULL) {
+-    return (DLLib*) LoadLibraryA(libPath);
++    return (DLLib*) LoadLibraryExW((wchar_t*)(void*)libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
++   // http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
++    // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
+     /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
+   } else {
+     return (DLLib*) GetModuleHandle(NULL);

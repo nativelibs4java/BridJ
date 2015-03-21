@@ -17,7 +17,7 @@ then
 fi
 
 cd $DYNCALL_HOME
-svn diff > $DYNCALL_DIFF
+hg diff > $DYNCALL_DIFF
 cd $BASE_DIR
 
 MAKE_CMD=make
@@ -125,7 +125,7 @@ function build_libraries() {
     for BRIDJ_TARGET in $BRIDJ_TARGETS ; do
 	    case $BRIDJ_TARGET in
 	    default)
-		    cd $DYNCALL_HOME/dyncall
+		    cd $DYNCALL_HOME
 		    local DYNCALL_CONFIGURE_ARGS=""
 		    if [[ "$ARCH" != "$NATIVE_ARCH" ]]; then
 		        DYNCALL_CONFIGURE_ARGS="--target-$ARCH"
