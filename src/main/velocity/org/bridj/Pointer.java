@@ -589,7 +589,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     @Override 
     public String toString() {
-		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ", order = " + order() + ")";
+		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) +
+        ", targetType = " + Utils.toString(getTargetType()) +
+        ", order = " + order() +
+        ", valid bytes = " + getValidBytes() +
+        ")";
     }
     
     protected final void invalidPeer(long peer, long validityCheckLength) {
