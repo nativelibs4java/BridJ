@@ -442,7 +442,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertBridJFaster(bridJFaster, 5); // */
+        assertBridJFaster(bridJFaster, 4); // */
 	}
 	
 	ByteBuffer next(ByteBuffer b, long skip) {
