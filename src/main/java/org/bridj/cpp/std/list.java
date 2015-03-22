@@ -54,9 +54,11 @@ import org.bridj.ann.Ptr;
  * Binding for <a href="http://www.sgi.com/tech/stl/Vector.html">STL's
  * std::vector</a> class.
  *
+ * @deprecated Does not work fine on all platforms yet.
  * @author ochafik
  * @param <T> list component type
  */
+@Deprecated
 @Template({Type.class})
 @Struct(customizer = STL.class)
 public class list<T> extends CPPObject {

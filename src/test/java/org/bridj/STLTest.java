@@ -32,7 +32,7 @@ package org.bridj;
 
 import java.io.IOException;
 import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
-import org.junit.Test;
+import org.junit.*;
 import static org.junit.Assert.*;
 
 import org.bridj.cpp.*;
@@ -93,6 +93,7 @@ public class STLTest {
         assertEquals("bad back", -2, (int)bridjVector.back());
     }
     
+    @Ignore
     @Test
 	public void testList() throws Exception {
         int n = 10;
