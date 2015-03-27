@@ -30,25 +30,16 @@
  */
 package org.bridj.demangling;
 
-import org.bridj.ann.Convention.Style;
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bridj.NativeLibrary;
-import org.bridj.demangling.Demangler.ClassRef;
-import org.bridj.demangling.Demangler.DemanglingException;
-import org.bridj.demangling.Demangler.MemberRef;
-import org.bridj.demangling.Demangler.NamespaceRef;
-import org.bridj.demangling.Demangler.Ident;
-import org.bridj.demangling.Demangler.IdentLike;
-import org.bridj.demangling.Demangler.TypeRef;
-import org.bridj.demangling.Demangler.SpecialName;
 import org.bridj.CLong;
+import org.bridj.NativeLibrary;
 import org.bridj.ann.Convention;
-import java.math.BigInteger;
-import java.util.Collection;
+import org.bridj.ann.Convention.Style;
 
 public class VC9Demangler extends Demangler {
 

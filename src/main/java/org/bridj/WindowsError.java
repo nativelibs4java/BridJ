@@ -30,8 +30,10 @@
  */
 package org.bridj;
 
+import static org.bridj.WinExceptionsConstants.EXCEPTION_ACCESS_VIOLATION;
+import static org.bridj.WinExceptionsConstants.EXCEPTION_IN_PAGE_ERROR;
+
 import java.lang.reflect.Field;
-import static org.bridj.WinExceptionsConstants.*;
 
 /**
  * Native Windows error as caught by a

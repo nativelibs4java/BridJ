@@ -30,18 +30,21 @@
  */
 package org.bridj;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
-import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
-import org.junit.*;
-import static org.junit.Assert.*;
-
-import org.bridj.cpp.*;
-import org.bridj.cpp.std.*;
-import static org.bridj.Pointer.*;
-
 import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.bridj.cpp.CPPRuntime;
+import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
+import org.bridj.cpp.CPPType;
+import org.bridj.cpp.std.list;
+import org.bridj.cpp.std.vector;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class STLTest {
     <T> DynamicFunction<T> getTestFunction(String name, Type ret, Type... args) {

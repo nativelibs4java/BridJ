@@ -30,23 +30,26 @@
  */
 package org.bridj;
 
-import org.bridj.util.ProcessUtils;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.regex.Pattern;
-import java.io.*;
-import java.net.URL;
-
-import java.util.List;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.ArrayList;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import org.bridj.util.ProcessUtils;
 import org.bridj.util.StringUtils;
 
 /**

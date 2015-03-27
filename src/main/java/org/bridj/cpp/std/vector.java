@@ -30,21 +30,18 @@
  */
 package org.bridj.cpp.std;
 
-import org.bridj.ann.Template;
-import org.bridj.cpp.CPPObject;
+import static org.bridj.Pointer.getPeer;
 
+import java.lang.reflect.Type;
+import java.util.NoSuchElementException;
 
 import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.ann.Field;
 import org.bridj.ann.Struct;
+import org.bridj.ann.Template;
+import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPRuntime;
-
-import java.lang.reflect.Type;
-import java.util.NoSuchElementException;
-import org.bridj.BridJRuntime;
-
-import static org.bridj.Pointer.*;
 
 /**
  * Binding for <a href="http://www.sgi.com/tech/stl/Vector.html">STL's

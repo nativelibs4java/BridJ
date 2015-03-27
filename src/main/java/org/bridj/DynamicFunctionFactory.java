@@ -30,12 +30,10 @@
  */
 package org.bridj;
 
-import org.bridj.CRuntime.MethodCallInfoBuilder;
-import org.bridj.ann.Convention;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import static org.bridj.Pointer.*;
+import org.bridj.CRuntime.MethodCallInfoBuilder;
 
 /**
  * Factory that is able to create dynamic functions bindings with a given

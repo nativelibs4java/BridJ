@@ -29,12 +29,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import java.nio.CharBuffer;
-import org.bridj.ann.*;
-import org.junit.Test;
+import static org.bridj.Pointer.allocateBytes;
+import static org.bridj.Pointer.allocateInt;
+import static org.bridj.Pointer.pointerToAddress;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import static org.bridj.Pointer.*;
-import static org.junit.Assert.*;
+import org.bridj.Pointer.Releaser;
+import org.bridj.ann.Array;
+import org.bridj.ann.Field;
+import org.bridj.ann.Library;
+import org.bridj.ann.Optional;
+import org.bridj.ann.Union;
+import org.junit.Test;
 
 public class MiscBugsTest {
   

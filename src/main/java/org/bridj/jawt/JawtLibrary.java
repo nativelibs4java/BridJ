@@ -36,8 +36,6 @@ import org.bridj.Pointer;
 import org.bridj.TypedPointer;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
-import org.bridj.Platform;
-import java.io.File;
 
 /**
  * Wrapper for library <b>jawt</b><br>

@@ -30,31 +30,35 @@
  */
 package org.bridj;
 
-import org.bridj.util.Utils;
+import static org.bridj.BridJ.debug;
+import static org.bridj.BridJ.error;
+import static org.bridj.BridJ.info;
+import static org.bridj.BridJ.verbose;
+import static org.bridj.util.AnnotationUtils.getInheritableAnnotation;
+import static org.bridj.util.AnnotationUtils.isAnnotationPresent;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.ann.JNIBound;
-import org.bridj.util.ConcurrentCache;
-import static org.bridj.BridJ.*;
-import static org.bridj.util.AnnotationUtils.*;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
 import org.bridj.ann.Optional;
+import org.bridj.demangling.Demangler.Symbol;
+import org.bridj.util.ConcurrentCache;
+import org.bridj.util.Utils;
 
 /**
  * C runtime (used by default when no {@link org.bridj.ann.Runtime} annotation

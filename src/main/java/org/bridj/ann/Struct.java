@@ -30,13 +30,13 @@
  */
 package org.bridj.ann;
 
-import org.bridj.StructCustomizer;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import org.bridj.StructCustomizer;
 
 /**
  * Struct details such as explicit fields packing and padding.

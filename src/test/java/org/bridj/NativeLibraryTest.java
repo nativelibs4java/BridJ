@@ -30,13 +30,16 @@
  */
 package org.bridj;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.bridj.objc.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
-import java.io.*;
+import org.bridj.objc.ObjectiveCRuntime;
+import org.junit.Test;
 
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)

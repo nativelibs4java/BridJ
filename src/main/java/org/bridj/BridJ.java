@@ -30,52 +30,54 @@
  */
 package org.bridj;
 
-import org.bridj.ann.Forwardable;
-
-import java.util.Set;
-import java.util.HashSet;
-
-import org.bridj.util.Utils;
-
-import static org.bridj.util.AnnotationUtils.*;
-import static org.bridj.util.Utils.*;
+import static java.lang.System.exit;
+import static java.lang.System.gc;
+import static java.lang.System.getProperty;
+import static java.lang.System.getenv;
+import static org.bridj.Platform.extractEmbeddedLibraryResource;
+import static org.bridj.Platform.getMachine;
+import static org.bridj.Platform.getPossibleFileNames;
+import static org.bridj.Platform.is64Bits;
+import static org.bridj.Platform.isAndroid;
+import static org.bridj.Platform.isArm;
+import static org.bridj.Platform.isLinux;
+import static org.bridj.Platform.isMacOSX;
+import static org.bridj.Platform.isSolaris;
+import static org.bridj.Platform.isUnix;
+import static org.bridj.util.AnnotationUtils.getInheritableAnnotation;
+import static org.bridj.util.Utils.takeRight;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
+import java.io.PrintWriter;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bridj.BridJRuntime.TypeInfo;
-import org.bridj.demangling.Demangler.Symbol;
-import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.ann.Library;
-
-import java.util.Stack;
-import java.io.PrintWriter;
-import java.lang.reflect.Type;
-import java.net.URL;
-
-import org.bridj.util.StringUtils;
-
-import static org.bridj.Platform.*;
-import static java.lang.System.*;
-
-import org.bridj.util.ClassDefiner;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.util.ASMUtils;
+import org.bridj.util.ClassDefiner;
+import org.bridj.util.StringUtils;
+import org.bridj.util.Utils;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 /**

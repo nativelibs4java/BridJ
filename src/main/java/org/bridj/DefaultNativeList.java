@@ -30,16 +30,14 @@
  */
 package org.bridj;
 
+import static org.bridj.Pointer.allocate;
+import static org.bridj.Pointer.allocateArray;
+
 import java.util.AbstractList;
-import java.util.RandomAccess;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import static org.bridj.Pointer.*;
+import java.util.RandomAccess;
+
+import org.bridj.Pointer.ListType;
 
 /**
  * TODO : smart rewrite by chunks for removeAll and retainAll !

@@ -30,16 +30,18 @@
  */
 package org.bridj;
 
-import org.bridj.util.ClassDefiner;
-import android.app.Application;
-import android.content.pm.ApplicationInfo;
-import android.os.Environment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.bridj.util.ClassDefiner;
+
+import android.app.Application;
+import android.content.pm.ApplicationInfo;
+import android.os.Environment;
 
 /**
  *

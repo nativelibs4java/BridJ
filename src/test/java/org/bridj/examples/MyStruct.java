@@ -29,10 +29,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj.examples;
-import org.bridj.ann.*;
-import org.bridj.*;
-import java.nio.*;
-import java.util.*;
+import java.util.Arrays;
+
+import org.bridj.Pointer;
+import org.bridj.StructObject;
+import org.bridj.ann.Array;
+import org.bridj.ann.Bits;
+import org.bridj.ann.Field;
 
 /**
  *

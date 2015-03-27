@@ -30,33 +30,49 @@
  */
 package org.bridj.cpp.com;
 
-import java.lang.reflect.Type;
-import java.lang.reflect.Method;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.cpp.com.OLEAutomationLibrary.VariantChangeType;
+import static org.bridj.cpp.com.OLEAutomationLibrary.VariantClear;
+import static org.bridj.cpp.com.OLEAutomationLibrary.VariantCopy;
+import static org.bridj.cpp.com.OLEAutomationLibrary.VariantInit;
+import static org.bridj.cpp.com.OLELibrary.CoTaskMemAlloc$raw;
+import static org.bridj.cpp.com.OLELibrary.CoTaskMemFree;
+import static org.bridj.cpp.com.VARENUM.VT_BOOL;
+import static org.bridj.cpp.com.VARENUM.VT_BSTR;
+import static org.bridj.cpp.com.VARENUM.VT_BYREF;
+import static org.bridj.cpp.com.VARENUM.VT_EMPTY;
+import static org.bridj.cpp.com.VARENUM.VT_I1;
+import static org.bridj.cpp.com.VARENUM.VT_I2;
+import static org.bridj.cpp.com.VARENUM.VT_I4;
+import static org.bridj.cpp.com.VARENUM.VT_I8;
+import static org.bridj.cpp.com.VARENUM.VT_LPWSTR;
+import static org.bridj.cpp.com.VARENUM.VT_PTR;
+import static org.bridj.cpp.com.VARENUM.VT_R4;
+import static org.bridj.cpp.com.VARENUM.VT_R8;
 
-import org.bridj.ValuedEnum;
-import org.bridj.FlagSet;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+
 import org.bridj.BridJ;
-import org.bridj.Pointer;
 import org.bridj.CRuntime;
+import org.bridj.FlagSet;
 import org.bridj.NativeObject;
 import org.bridj.Platform;
+import org.bridj.Pointer;
 import org.bridj.Pointer.StringType;
+import org.bridj.PointerIO;
+import org.bridj.StructObject;
+import org.bridj.ValuedEnum;
 import org.bridj.ann.Convention;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
+import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPRuntime;
-import static org.bridj.cpp.com.VARENUM.*;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union;
 import org.bridj.util.Utils;
-import static org.bridj.Pointer.*;
-import org.bridj.PointerIO;
-import org.bridj.StructObject;
-import org.bridj.cpp.CPPObject;
-import static org.bridj.cpp.com.OLELibrary.*;
-import static org.bridj.cpp.com.OLEAutomationLibrary.*;
 
 /*
  * Adding Icons, Previews and Shortcut Menus :

@@ -32,12 +32,11 @@ package org.bridj.util;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.regex.Pattern;
+
 import org.bridj.BridJ;
 import org.bridj.Platform;
 import org.bridj.Version;

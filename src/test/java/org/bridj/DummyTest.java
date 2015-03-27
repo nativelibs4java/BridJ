@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
+import org.bridj.ann.Library;
 import org.junit.Test;
-
-import org.bridj.ann.*;
 
 @Library("test")
 @org.bridj.ann.Runtime(CRuntime.class)

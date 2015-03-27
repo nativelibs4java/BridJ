@@ -30,10 +30,7 @@
  */
 package org.bridj;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-
-import static org.bridj.Pointer.*;
 
 /**
  * Generic C function which invocation involves a bit of Java reflection.<br>

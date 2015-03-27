@@ -30,20 +30,13 @@
  */
 package org.bridj.cpp;
 
-import java.util.Stack;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
-import java.lang.reflect.Type;
-import java.lang.reflect.ParameterizedType;
 
-import org.bridj.NativeObject;
-import org.bridj.Pointer;
-import org.bridj.StructObject;
-import org.bridj.ann.Runtime;
 import org.bridj.ann.Template;
-import org.bridj.cpp.mfc.MFCRuntime;
-import org.bridj.BridJ;
 
 /**
  * Representation of a C++ type (including template parameters, which can be

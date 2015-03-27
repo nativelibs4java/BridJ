@@ -30,9 +30,11 @@
  */
 package org.bridj;
 
-import org.bridj.ann.*;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
+
+import org.bridj.ann.Field;
+import org.bridj.ann.Struct;
 
 /**
  * Wraps a value which size is the same as the 'time_t' C type (defined in

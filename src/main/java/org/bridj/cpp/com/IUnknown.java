@@ -30,13 +30,14 @@
  */
 package org.bridj.cpp.com;
 
-import org.bridj.*;
-import org.bridj.ann.*;
-import org.bridj.ann.Runtime;
-import org.bridj.cpp.CPPObject;
-import org.bridj.cpp.mfc.MFCRuntime;
+import static org.bridj.cpp.com.COMRuntime.S_OK;
+import static org.bridj.cpp.com.COMRuntime.getIID;
 
-import static org.bridj.cpp.com.COMRuntime.*;
+import org.bridj.Pointer;
+import org.bridj.ann.Convention;
+import org.bridj.ann.Runtime;
+import org.bridj.ann.Virtual;
+import org.bridj.cpp.CPPObject;
 
 @Convention(Convention.Style.StdCall)
 @IID("00000000-0000-0000-C000-000000000046")

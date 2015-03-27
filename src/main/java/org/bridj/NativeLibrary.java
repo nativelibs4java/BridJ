@@ -33,38 +33,35 @@
  */
 package org.bridj;
 
-import java.io.*;
-import java.util.regex.*;
-import java.lang.annotation.Annotation;
+import static org.bridj.Pointer.pointerToAddress;
+import static org.bridj.util.AnnotationUtils.getAnnotation;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.bridj.ann.Name;
+import org.bridj.demangling.Demangler;
 import org.bridj.demangling.Demangler.DemanglingException;
 import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.demangling.Demangler.Symbol;
-import org.bridj.ann.Virtual;
-import org.bridj.ann.Name;
 import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
-import java.lang.reflect.Type;
-import static org.bridj.Pointer.*;
-import static org.bridj.util.AnnotationUtils.*;
-
-import java.util.Collection;
-import org.bridj.Platform.DeleteFiles;
-import org.bridj.demangling.Demangler;
-import org.bridj.util.ProcessUtils;
-import org.bridj.util.StringUtils;
 
 /**
  * Representation of a native shared library, with symbols retrieval / matching

@@ -30,11 +30,10 @@
  */
 package org.bridj;
 
-import org.junit.Test;
+import static org.bridj.Pointer.pointerToCString;
 
 import org.bridj.ann.Library;
-import static org.bridj.Pointer.*;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 

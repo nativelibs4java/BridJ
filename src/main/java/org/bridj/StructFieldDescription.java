@@ -30,12 +30,27 @@
  */
 package org.bridj;
 
-import java.lang.reflect.*;
-import java.nio.*;
-import java.util.*;
-import static org.bridj.StructUtils.*;
+import static org.bridj.StructUtils.alignmentOf;
+import static org.bridj.StructUtils.primTypeAlignment;
+import static org.bridj.StructUtils.primTypeLength;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bridj.cpp.CPPObject;
-import org.bridj.cpp.CPPRuntime;
 import org.bridj.cpp.CPPType;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;

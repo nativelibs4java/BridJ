@@ -30,7 +30,6 @@
  */
 package org.bridj.jawt;
 
-import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;

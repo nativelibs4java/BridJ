@@ -30,15 +30,12 @@
  */
 package org.bridj;
 
-import org.bridj.dyncall.DyncallLibrary.DCstruct;
+import static org.bridj.util.Utils.getUniqueParameterizedTypeParameter;
+
 import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import static org.bridj.util.Utils.*;
+
+import org.bridj.dyncall.DyncallLibrary.DCstruct;
 
 interface CallIO {
 

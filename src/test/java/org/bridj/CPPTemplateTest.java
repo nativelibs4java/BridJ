@@ -30,15 +30,15 @@
  */
 package org.bridj;
 
-import org.junit.Test;
+import java.lang.reflect.Type;
 
 import org.bridj.ann.Constructor;
-import org.bridj.ann.Template;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
-import org.bridj.cpp.*;
-
-import java.lang.reflect.Type;
+import org.bridj.ann.Template;
+import org.bridj.cpp.CPPObject;
+import org.bridj.cpp.CPPRuntime;
+import org.junit.Test;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")

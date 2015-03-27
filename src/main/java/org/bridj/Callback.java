@@ -34,7 +34,6 @@
  */
 package org.bridj;
 
-import org.bridj.Pointer;
 import org.bridj.ann.Runtime;
 
 /**

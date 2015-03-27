@@ -30,9 +30,9 @@
  */
 package org.bridj;
 
-import org.bridj.*;
-import static org.bridj.Pointer.*;
-import org.bridj.ann.*;
+import static org.bridj.Pointer.pointerToCStrings;
+
+import org.bridj.ann.Ptr;
 
 /**
  *

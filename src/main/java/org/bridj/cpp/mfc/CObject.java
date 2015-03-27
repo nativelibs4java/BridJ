@@ -31,10 +31,9 @@
 package org.bridj.cpp.mfc;
 
 import org.bridj.Pointer;
-
 import org.bridj.ann.Convention;
-import org.bridj.ann.Virtual;
 import org.bridj.ann.Convention.Style;
+import org.bridj.ann.Virtual;
 
 @Convention(Style.StdCall)
 public class CObject extends MFCObject {

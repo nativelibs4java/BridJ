@@ -30,15 +30,12 @@
  */
 package org.bridj.cpp.com;
 
-import org.bridj.CRuntime;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
-import org.bridj.ValuedEnum;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Field;
-import org.bridj.ann.Library;
-import org.bridj.ann.Union;
 import org.bridj.ann.Runtime;
+import org.bridj.ann.Union;
 
 /**
  * Represents an object that can be interpreted as more than one type.

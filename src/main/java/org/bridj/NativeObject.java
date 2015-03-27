@@ -30,7 +30,6 @@
  */
 package org.bridj;
 
-import java.util.Stack;
 
 /**
  * Base class for native objects.

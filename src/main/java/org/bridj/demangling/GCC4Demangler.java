@@ -32,23 +32,14 @@ package org.bridj.demangling;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.bridj.CLong;
 import org.bridj.NativeLibrary;
-import org.bridj.demangling.Demangler.ClassRef;
-import org.bridj.demangling.Demangler.DemanglingException;
-import org.bridj.demangling.Demangler.Ident;
-import org.bridj.demangling.Demangler.MemberRef;
-import org.bridj.demangling.Demangler.NamespaceRef;
-import org.bridj.demangling.Demangler.TypeRef;
-import org.bridj.demangling.Demangler.SpecialName;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import org.bridj.demangling.Demangler.IdentLike;
 
 public class GCC4Demangler extends Demangler {
 

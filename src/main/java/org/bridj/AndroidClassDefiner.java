@@ -30,18 +30,21 @@
  */
 package org.bridj;
 
-import org.bridj.util.ClassDefiner;
-import com.android.dx.dex.cf.CfOptions;
-import com.android.dx.dex.cf.CfTranslator;
-import com.android.dx.dex.file.DexFile;
-import com.android.dx.dex.DexOptions;
-import dalvik.system.DexClassLoader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.bridj.util.ClassDefiner;
+
+import com.android.dx.dex.DexOptions;
+import com.android.dx.dex.cf.CfOptions;
+import com.android.dx.dex.cf.CfTranslator;
+import com.android.dx.dex.file.DexFile;
+
+import dalvik.system.DexClassLoader;
 
 /**
  *

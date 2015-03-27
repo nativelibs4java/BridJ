@@ -30,11 +30,14 @@
  */
 package org.bridj;
 
+import static org.bridj.Pointer.allocateSizeTs;
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
-import static org.bridj.Pointer.*;
+
+import org.bridj.Pointer.Releaser;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class PointerLifeCycleTest {
     @Test

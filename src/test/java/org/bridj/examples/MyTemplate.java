@@ -29,12 +29,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj.examples;
-import org.bridj.ann.*;
-import org.bridj.cpp.*;
-import org.bridj.*;
 import java.lang.reflect.Type;
-import java.nio.*;
-import java.util.*;
+
+import org.bridj.BridJ;
+import org.bridj.ann.Constructor;
+import org.bridj.ann.Template;
+import org.bridj.cpp.CPPObject;
+import org.bridj.cpp.CPPType;
 
 /**
 

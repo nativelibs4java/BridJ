@@ -30,17 +30,12 @@
  */
 package org.bridj.cpp;
 
-import java.util.Collections;
-import java.util.Stack;
+import java.util.Map;
 
-import org.bridj.NativeObject;
+import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Runtime;
-import org.bridj.cpp.mfc.MFCRuntime;
-import org.bridj.BridJ;
-
-import java.util.Map;
 
 /**
  * Base class for C++ structs and classes.

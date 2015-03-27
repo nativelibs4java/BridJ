@@ -6,10 +6,11 @@
 
 package org.bridj.util;
 
+import static org.bridj.util.ReflectionUtils.makeFieldWritable;
+
 import org.bridj.Platform;
 import org.bridj.Pointer;
 import org.bridj.SizeT;
-import static org.bridj.util.ReflectionUtils.makeFieldWritable;
 
 /**
  *

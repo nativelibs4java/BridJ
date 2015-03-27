@@ -31,9 +31,8 @@
 package org.bridj;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import org.bridj.cpp.CPPRuntime;
+
 import org.bridj.util.Utils;
 
 /**

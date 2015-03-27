@@ -30,20 +30,26 @@
  */
 package org.bridj;
 
-import java.io.FileNotFoundException;
+import static org.bridj.Pointer.allocateByte;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.Pointer.pointerToByte;
+import static org.bridj.Pointer.pointerToCString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
-import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import java.util.concurrent.*;
-
-import org.junit.Test;
+import org.bridj.ann.Library;
+import org.bridj.ann.Name;
+import org.bridj.ann.Ptr;
+import org.bridj.ann.SetsLastError;
 import org.junit.Ignore;
-import static org.junit.Assert.*;
-
-import org.bridj.ann.*;
-import org.bridj.*;
-import static org.bridj.BridJ.*;
-import static org.bridj.Pointer.*;
+import org.junit.Test;
 
 @Library("test")
 public class MemoryTest {

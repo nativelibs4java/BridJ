@@ -30,11 +30,11 @@
  */
 package org.bridj;
 
-import java.lang.reflect.Method;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.bridj.ann.Ptr;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class CRuntimeTest {
     

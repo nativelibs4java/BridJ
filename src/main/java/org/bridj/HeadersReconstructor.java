@@ -30,9 +30,15 @@
  */
 package org.bridj;
 
-import java.util.*;
-import java.io.*;
-import static org.bridj.demangling.Demangler.*;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.Symbol;
+import org.bridj.demangling.Demangler.TypeRef;
 
 /**
  * Unfinished experiment to (partially) reconstruct a header out of parsed

@@ -30,27 +30,31 @@
  */
 package org.bridj;
 
-import com.sun.jna.Memory;
+import static org.bridj.BridJ.sizeOf;
+import static org.bridj.Pointer.allocateArray;
+import static org.bridj.Pointer.getPointer;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Arrays;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.bridj.ann.Field;
-import org.bridj.ann.Alignment;
-import org.bridj.ann.Library;
-import org.bridj.ann.Array;
-import org.bridj.ann.Ptr;
-import org.bridj.ann.Struct;
-import org.bridj.ann.Optional;
-import org.bridj.cpp.com.*;
-import static org.bridj.Pointer.*;
-import static org.bridj.BridJ.*;
 import java.util.List;
 
-import javolution.io.*;
+import org.bridj.ann.Alignment;
+import org.bridj.ann.Array;
+import org.bridj.ann.Field;
+import org.bridj.ann.Library;
+import org.bridj.ann.Optional;
+import org.bridj.ann.Ptr;
+import org.bridj.ann.Struct;
+import org.bridj.cpp.com.DECIMAL;
+import org.bridj.cpp.com.GUID;
+import org.bridj.cpp.com.VARIANT;
+import org.junit.Test;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 

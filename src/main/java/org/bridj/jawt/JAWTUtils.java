@@ -30,17 +30,19 @@
  */
 package org.bridj.jawt;
 
-import static org.bridj.jawt.JawtLibrary.*;
-import org.bridj.BridJ;
-import org.bridj.JNI;
-import org.bridj.NativeLibrary;
-import org.bridj.Pointer;
-import static org.bridj.Pointer.*;
-import java.awt.*;
-import java.io.File;
-import org.bridj.Platform;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.jawt.JawtLibrary.JAWT_GetAWT;
+import static org.bridj.jawt.JawtLibrary.JAWT_LOCK_ERROR;
+import static org.bridj.jawt.JawtLibrary.JAWT_VERSION_1_4;
 
-import org.bridj.ann.Convention;
+import java.awt.Component;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+
+import org.bridj.JNI;
+import org.bridj.Platform;
+import org.bridj.Pointer;
+import org.bridj.jawt.JawtLibrary.JNIEnv;
 
 /**
  * Contains a method that returns the native peer handle of an AWT component :

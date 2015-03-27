@@ -30,7 +30,8 @@
  */
 package org.bridj;
 
-import org.bridj.util.*;
+import static org.bridj.Pointer.getPointer;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,9 +39,11 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import static org.bridj.Pointer.*;
+
 import org.bridj.ann.Alignment;
 import org.bridj.ann.Struct;
+import org.bridj.util.Pair;
+import org.bridj.util.Utils;
 
 class StructUtils {
 

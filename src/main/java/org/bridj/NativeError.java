@@ -30,8 +30,6 @@
  */
 package org.bridj;
 
-import static org.bridj.SignalConstants.*;
-import static java.lang.Long.toHexString;
 
 /**
  * Native error encapsulated as a Java error.

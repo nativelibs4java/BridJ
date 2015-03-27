@@ -30,11 +30,13 @@
  */
 package org.bridj.objc;
 
+import static org.bridj.objc.FoundationLibrary.pointerToNSString;
+
+import java.nio.charset.Charset;
+
 import org.bridj.Pointer;
 import org.bridj.Pointer.StringType;
 import org.bridj.ann.Library;
-import java.nio.charset.*;
-import static org.bridj.objc.FoundationLibrary.*;
 
 @Library("Foundation")
 public class NSString extends NSObject {

@@ -32,6 +32,7 @@ package org.bridj;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.bridj.ann.Struct;
 
 /**

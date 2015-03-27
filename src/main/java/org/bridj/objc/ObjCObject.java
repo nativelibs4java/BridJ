@@ -30,10 +30,11 @@
  */
 package org.bridj.objc;
 
+import static org.bridj.Pointer.getPointer;
+
+import org.bridj.BridJ;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
-import static org.bridj.Pointer.*;
-import org.bridj.BridJ;
 
 @org.bridj.ann.Runtime(ObjectiveCRuntime.class)
 public class ObjCObject extends NativeObject {

@@ -32,11 +32,15 @@ package org.bridj;
 
 
 
-import org.junit.Test;
-import java.awt.*;
-import org.bridj.jawt.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import static org.junit.Assert.*;
+import java.awt.Frame;
+
+import org.bridj.jawt.JAWTUtils;
+import org.bridj.jawt.JAWT_DrawingSurface;
+import org.bridj.jawt.JAWT_Rectangle;
+import org.junit.Test;
 
 public class JAWTTest {
 	

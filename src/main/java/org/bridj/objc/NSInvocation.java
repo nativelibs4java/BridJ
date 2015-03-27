@@ -30,12 +30,10 @@
  */
 package org.bridj.objc;
 
-import org.bridj.ann.Ptr;
-import org.bridj.*;
-import org.bridj.Pointer.StringType;
+import org.bridj.BridJ;
+import org.bridj.Pointer;
 import org.bridj.ann.Library;
-import java.nio.charset.*;
-import static org.bridj.objc.FoundationLibrary.*;
+import org.bridj.ann.Ptr;
 
 @Library("Foundation")
 public class NSInvocation extends NSObject {

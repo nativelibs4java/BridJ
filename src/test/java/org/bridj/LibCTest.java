@@ -30,13 +30,15 @@
  */
 package org.bridj;
 
-import java.io.IOException;
-import java.io.FileNotFoundException;
-import org.bridj.ann.*; // annotations such as Library...
+import static org.bridj.Pointer.pointerToCString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import static org.bridj.Pointer.*;
-import org.junit.*;
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import org.bridj.ann.Library; // annotations such as Library...
+import org.bridj.ann.Optional;
+import org.junit.Test;
 
 @Library("c")
 @org.bridj.ann.Runtime(CRuntime.class)

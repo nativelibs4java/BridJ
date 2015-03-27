@@ -30,15 +30,9 @@
  */
 package org.bridj;
 
-import java.util.RandomAccess;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+
 import org.bridj.cpp.std.vector;
-import static org.bridj.Pointer.*;
 
 /**
  * Interface for lists that use a native storage.<br>

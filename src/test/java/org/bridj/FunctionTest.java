@@ -30,13 +30,18 @@
  */
 package org.bridj;
 
-import org.bridj.ann.Name;
-import org.bridj.ann.Library;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 //import com.sun.jna.Native;
 import java.util.Collections;
 import java.util.Iterator;
-import org.junit.*;
-import static org.junit.Assert.*;
+
+import org.bridj.ann.Library;
+import org.bridj.ann.Name;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  *

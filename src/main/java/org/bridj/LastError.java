@@ -30,12 +30,8 @@
  */
 package org.bridj;
 
-import java.io.FileNotFoundException;
-import org.bridj.ann.*;
-
 //import static org.bridj.LastError.Windows.*;
 //import static org.bridj.LastError.Unix.*;
-import static org.bridj.Pointer.*;
 
 /**
  * Native error that correspond to the <a
