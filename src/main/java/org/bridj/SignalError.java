@@ -35,8 +35,8 @@ package org.bridj;
  * Not public yet.
  */
 class SignalError extends NativeError {
-
-    final int signal;
+  private static final long serialVersionUID = 1L;
+		final int signal;
     final int code;
     final long address;
 

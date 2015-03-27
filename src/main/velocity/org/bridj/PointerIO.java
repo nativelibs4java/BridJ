@@ -35,6 +35,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.nio.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.bridj.PointerIO;
 import org.bridj.util.Utils;
 
 /**
@@ -185,8 +187,8 @@ public abstract class PointerIO<T> {
   	}
   	#end #end
 
-  	public static PointerIO<?> getPointerInstance() {
-      return PointerIO;
+  	public static <T> PointerIO<T> getPointerInstance() {
+      return (PointerIO<T>)PointerIO;
   	}
 
   	public static PointerIO<TimeT> getTimeTInstance() {

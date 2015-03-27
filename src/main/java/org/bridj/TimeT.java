@@ -43,8 +43,8 @@ import org.bridj.ann.Struct;
  * @author Olivier
  */
 public final class TimeT extends AbstractIntegral {
-
-    public static final int SIZE = Platform.TIME_T_SIZE;
+  private static final long serialVersionUID = 1L;
+		public static final int SIZE = Platform.TIME_T_SIZE;
 
     public TimeT(long value) {
         super(value);
@@ -116,6 +116,7 @@ public final class TimeT extends AbstractIntegral {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static class timeval_customizer extends StructCustomizer {
 
         @Override

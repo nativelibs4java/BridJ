@@ -41,7 +41,7 @@ import java.lang.reflect.Method;
  * @author ochafik
  * @param R Return type of the function (can be {@link java.lang.Void})
  */
-public abstract class DynamicFunction<R> extends Callback {
+public abstract class DynamicFunction<R> extends Callback<DynamicFunction<R>> {
     /// Don't GC the factory, which holds the native callback handle
 
     DynamicFunctionFactory factory;
@@ -50,6 +50,7 @@ public abstract class DynamicFunction<R> extends Callback {
     protected DynamicFunction() {
     }
 
+    @SuppressWarnings("unchecked")
     public R apply(Object... args) {
         try {
             return (R) method.invoke(this, args);

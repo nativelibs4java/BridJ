@@ -198,7 +198,7 @@ class CommonPointerIOs {
 		}
 	}
 	
-	static class IntValuedEnumPointerIO<E extends Enum<E>> extends PointerIO<IntValuedEnum<E>> {
+	static class IntValuedEnumPointerIO<E extends Enum<E> & ValuedEnum<E>> extends PointerIO<IntValuedEnum<E>> {
 		final Class<E> enumClass;
 
 		public IntValuedEnumPointerIO(Class<E> enumClass) {

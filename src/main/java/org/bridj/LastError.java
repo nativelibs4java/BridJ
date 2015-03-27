@@ -61,8 +61,9 @@ package org.bridj;
  * @author Olivier Chafik
  */
 public class LastError extends NativeError {
-
-    final int code, kind;
+  private static final long serialVersionUID = 1L;
+  
+		final int code, kind;
     String description;
     
     static final int eLastErrorKindWindows = 1, eLastErrorKindCLibrary = 2;

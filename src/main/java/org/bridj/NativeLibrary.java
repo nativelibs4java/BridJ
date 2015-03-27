@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -101,17 +100,15 @@ public class NativeLibrary {
 
     static String followGNULDScript(String path) {
         try {
-            Reader r = new FileReader(path);
+        	  BufferedReader r = new BufferedReader(new FileReader(path));
             try {
                 char c;
                 while ((c = (char) r.read()) == ' ' || c == '\t' || c == '\n') {
                 }
                 if (c == '/' && r.read() == '*') {
-                    BufferedReader br = new BufferedReader(r);
-                    r = br;
                     String line;
                     StringBuilder b = new StringBuilder("/*");
-                    while ((line = br.readLine()) != null) {
+                    while ((line = r.readLine()) != null) {
                         b.append(line).append('\n');
                     }
                     String src = b.toString();
@@ -136,6 +133,7 @@ public class NativeLibrary {
         return path;
     }
 
+    @SuppressWarnings("deprecation")
     public static NativeLibrary load(String path) throws IOException {
         long handle = 0;
         File file = new File(path);
@@ -171,6 +169,7 @@ public class NativeLibrary {
         release();
     }
 
+    @SuppressWarnings("deprecation")
     public synchronized void release() {
         if (handle == 0) {
             return;
@@ -198,10 +197,12 @@ public class NativeLibrary {
 
     }
 
+    @SuppressWarnings("deprecation")
     public Pointer<?> getSymbolPointer(String name) {
         return pointerToAddress(getSymbolAddress(name));
     }
 
+    @SuppressWarnings("deprecation")
     public long getSymbolAddress(String name) {
         if (nameToSym != null) {
             Symbol addr = nameToSym.get(name);
@@ -282,6 +283,7 @@ public class NativeLibrary {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<Demangler.Symbol> getSymbols() {
         try {
             scanSymbols();
@@ -291,6 +293,7 @@ public class NativeLibrary {
         return nameToSym == null ? Collections.EMPTY_LIST : Collections.unmodifiableCollection(nameToSym.values());
     }
 
+    @SuppressWarnings("deprecation")
     public String getSymbolName(long address) {
         if (addrToName == null && getSymbolsHandle() != 0)//Platform.isUnix())
         {
@@ -311,6 +314,7 @@ public class NativeLibrary {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public Symbol getSymbol(String name) {
         try {
             Symbol symbol;
@@ -348,6 +352,7 @@ public class NativeLibrary {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void scanSymbols() throws Exception {
         if (addrToName != null) {
             return;
@@ -369,7 +374,7 @@ public class NativeLibrary {
 
         addrToName = new HashMap<Long, Demangler.Symbol>();
 
-        boolean is32 = !Platform.is64Bits();
+        //boolean is32 = !Platform.is64Bits();
         for (String name : symbs) {
             if (name == null) {
                 continue;

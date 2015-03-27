@@ -60,6 +60,7 @@ public class STLTest {
             throw new RuntimeException("Failed to get test function " + name + ": " + ex, ex);
         }
     }
+    @SuppressWarnings("rawtypes")
     DynamicFunction<Pointer<?>> new_int_vector = getTestFunction("new_int_vector", Pointer.class, int.class);
     DynamicFunction<Integer> int_vector_get = getTestFunction("int_vector_get", int.class, Pointer.class, int.class);
     DynamicFunction<Void> int_vector_push_back = getTestFunction("int_vector_push_back", void.class, Pointer.class, int.class);
@@ -67,6 +68,7 @@ public class STLTest {
     DynamicFunction<Void> int_vector_resize = getTestFunction("int_vector_get", void.class, Pointer.class, int.class);
     DynamicFunction<SizeT> sizeof_int_vector = getTestFunction("sizeof_int_vector", SizeT.class);
 
+    @SuppressWarnings("rawtypes")
     DynamicFunction<Pointer<?>> new_int_list = getTestFunction("new_int_list", Pointer.class);
     DynamicFunction<Void> int_list_push_back = getTestFunction("int_list_push_back", void.class, Pointer.class, int.class);
 

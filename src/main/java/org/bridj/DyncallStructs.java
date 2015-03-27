@@ -65,6 +65,7 @@ class DyncallStructs {
         }
 
         List<StructFieldDescription> aggregatedFields = desc.getAggregatedFields();
+        @SuppressWarnings("deprecation")
         Pointer<DCstruct> struct = dcNewStruct(aggregatedFields.size(), toDCAlignment(desc.getStructAlignment())).withReleaser(new Pointer.Releaser() {
             public void release(Pointer<?> p) {
                 dcFreeStruct(p.as(DCstruct.class));
@@ -90,7 +91,7 @@ class DyncallStructs {
             if (fieldType == null) {
                 fieldType = field.desc.valueType;
             }
-            Class fieldClass = Utils.getClass(fieldType);
+            Class<?> fieldClass = Utils.getClass(fieldType);
 
             int alignment = toDCAlignment(aggregatedField.alignment);
             long arrayLength = field.desc.arrayLength;

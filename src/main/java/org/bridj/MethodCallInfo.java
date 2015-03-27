@@ -181,7 +181,7 @@ public class MethodCallInfo {
 
     }
 
-    protected void init(AnnotatedElement annotatedElement, Class returnType, Type genericReturnType, Annotation[] returnAnnotations, Class[] parameterTypes, Type[] genericParameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers, boolean isVirtual, boolean isDirectModeAllowed) {
+    protected void init(AnnotatedElement annotatedElement, Class<?> returnType, Type genericReturnType, Annotation[] returnAnnotations, Class<?>[] parameterTypes, Type[] genericParameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers, boolean isVirtual, boolean isDirectModeAllowed) {
         assert returnType != null;
         assert genericReturnType != null;
         assert parameterTypes != null;
@@ -301,6 +301,7 @@ public class MethodCallInfo {
             case ThisCall:
                 this.direct = false;
                 setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
+            default:
         }
         if (BridJ.veryVerbose) {
             BridJ.info("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
@@ -349,6 +350,7 @@ public class MethodCallInfo {
         return ann != null;
     }
 
+    @SuppressWarnings("unchecked")
     public ValueType getValueType(int iParam, int nParams, Class<?> c, Type t, AnnotatedElement element, Annotation... directAnnotations) {
         boolean isPtr = isAnnotationPresent(Ptr.class, element, directAnnotations);
         boolean isCLong = isAnnotationPresent(org.bridj.ann.CLong.class, element, directAnnotations);
@@ -435,7 +437,8 @@ public class MethodCallInfo {
         }
         if (ValuedEnum.class.isAssignableFrom(c)) {
             direct = false;
-            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class) Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
+            @SuppressWarnings({ "rawtypes" })
+            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
             if (BridJ.veryVerbose) {
                 BridJ.info("CallIO : " + cio);
             }
@@ -592,7 +595,7 @@ public class MethodCallInfo {
                     t = ((ParameterizedType) t).getRawType();
                 }
                 if (t instanceof Class) {
-                    Class c = (Class) t;
+                    Class<?> c = (Class<?>) t;
                     if (javaChar.endsWith(";")) {
                         asmChar = javaChar.substring(0, javaChar.length() - 1) + "<*L" + c.getName().replace('.', '/') + ";>";
                         //asmChar += ";";

@@ -125,7 +125,7 @@ class StructUtils {
     }
 
     static long alignmentOf(Type tpe) {
-        Class c = PointerIO.getClass(tpe);
+        Class<?> c = PointerIO.getClass(tpe);
         if (StructObject.class.isAssignableFrom(c)) {
             return StructIO.getInstance(c).desc.getStructAlignment();
         }
@@ -141,6 +141,7 @@ class StructUtils {
         long[] offsets = solidRanges.offsets, lengths = solidRanges.lengths;
         for (int i = 0, n = offsets.length; i < n; i++) {
             long offset = offsets[i], length = lengths[i];
+            @SuppressWarnings("deprecation")
             int cmp = pA.compareBytesAtOffset(offset, pB, offset, length);
             if (cmp != 0) {
                 return cmp;
@@ -189,7 +190,7 @@ class StructUtils {
             return "?";
         }
         if (t instanceof Class) {
-            return ((Class) t).getSimpleName();
+            return ((Class<?>) t).getSimpleName();
         }
         return t.toString().
                 replaceAll("\\bjava\\.lang\\.", "").
@@ -198,7 +199,7 @@ class StructUtils {
 
     }
 
-    static Pointer fixIntegralTypeIOToMatchLength(Pointer ptr, long byteLength, long arrayLength) {
+    static Pointer<?> fixIntegralTypeIOToMatchLength(Pointer<?> ptr, long byteLength, long arrayLength) {
         long targetSize = ptr.getTargetSize();
         if (targetSize * arrayLength == byteLength) {
             return ptr;
@@ -224,6 +225,7 @@ class StructUtils {
         }
     }
 
+    @SuppressWarnings("deprecation")
     protected static void computeStructLayout(StructDescription desc, StructCustomizer customizer) {
         List<StructFieldDeclaration> fieldDecls = StructFieldDeclaration.listFields(desc.structClass);
         orderFields(fieldDecls);

@@ -36,8 +36,8 @@ package org.bridj;
  * @author Olivier
  */
 abstract class AbstractIntegral extends Number {
-
-    protected final long value;
+    private static final long serialVersionUID = 1L;
+		protected final long value;
 
     public AbstractIntegral(long value) {
         this.value = value;

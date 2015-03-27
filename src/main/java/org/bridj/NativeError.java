@@ -37,8 +37,9 @@ package org.bridj;
  * @author ochafik
  */
 public abstract class NativeError extends Error {
+  private static final long serialVersionUID = 1L;
 
-    protected NativeError(String message) {
+		protected NativeError(String message) {
         super(message);
     }
 

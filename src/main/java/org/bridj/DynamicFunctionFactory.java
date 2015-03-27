@@ -41,11 +41,12 @@ import org.bridj.CRuntime.MethodCallInfoBuilder;
  */
 public class DynamicFunctionFactory {
 
-    final Constructor<? extends DynamicFunction> constructor;
+    final Constructor<? extends DynamicFunction<?>> constructor;
     final Method method;
     final long callbackHandle;
 
-    DynamicFunctionFactory(Class<? extends DynamicFunction> callbackClass, Method method, /*Convention.Style style,*/ MethodCallInfoBuilder methodCallInfoBuilder) {
+    @SuppressWarnings("deprecation")
+    DynamicFunctionFactory(Class<? extends DynamicFunction<?>> callbackClass, Method method, /*Convention.Style style,*/ MethodCallInfoBuilder methodCallInfoBuilder) {
         try {
             this.constructor = callbackClass.getConstructor();
             this.method = method;
@@ -58,6 +59,7 @@ public class DynamicFunctionFactory {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void finalize() throws Throwable {
         if (BridJ.debugNeverFree) {
@@ -67,14 +69,15 @@ public class DynamicFunctionFactory {
         JNI.freeJavaToCCallbacks(callbackHandle, 1);
     }
 
-    public DynamicFunction newInstance(Pointer<?> functionPointer) {
+    public <R> DynamicFunction<R> newInstance(Pointer<? extends NativeObject> functionPointer) {
         if (functionPointer == null) {
             return null;
         }
 
         try {
-            DynamicFunction dcb = constructor.newInstance();
-            dcb.peer = (Pointer) functionPointer;
+            @SuppressWarnings("unchecked")
+            DynamicFunction<R> dcb = (DynamicFunction<R>) constructor.newInstance();
+            dcb.peer = functionPointer;
             dcb.method = method;
             dcb.factory = this;
 

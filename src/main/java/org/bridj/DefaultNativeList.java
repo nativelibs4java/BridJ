@@ -127,6 +127,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         return old;
     }
 
+    @SuppressWarnings("deprecation")
     void add(long i, T e) {
         checkModifiable();
         if (i > size || i < 0) {
@@ -163,6 +164,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         }
     }
 
+    @SuppressWarnings("deprecation")
     T remove(long i) {
         checkModifiable();
         if (i >= size || i < 0) {
@@ -192,6 +194,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     long indexOf(Object o, boolean last, int offset) {
         Pointer<T> pointer = this.pointer;
         assert offset >= 0 && (last || offset > 0);
@@ -237,6 +240,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         return pointer.validElements(size).toArray();
     }
 
+    @SuppressWarnings("hiding")
     @Override
     public <T> T[] toArray(T[] ts) {
         return pointer.validElements(size).toArray(ts);

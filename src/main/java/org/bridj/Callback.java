@@ -58,7 +58,8 @@ import org.bridj.ann.Runtime;
 @Runtime(CRuntime.class)
 public abstract class Callback<C extends Callback<C>> extends NativeObject implements CallbackInterface {
 
+    @SuppressWarnings("unchecked")
     public Pointer<C> toPointer() {
-        return (Pointer) Pointer.getPointer(this);
+        return Pointer.getPointer((C)this);
     }
 }

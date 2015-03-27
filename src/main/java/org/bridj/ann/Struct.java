@@ -41,6 +41,7 @@ import org.bridj.StructCustomizer;
 /**
  * Struct details such as explicit fields packing and padding.
  */
+@SuppressWarnings("deprecation")
 @Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited

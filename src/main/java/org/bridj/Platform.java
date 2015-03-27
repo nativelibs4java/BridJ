@@ -675,7 +675,7 @@ public class Platform {
             if (firstLibraryResource == null) {
                 firstLibraryResource = libraryResource;
             }
-            int i = libraryResource.lastIndexOf('.');
+            // int i = libraryResource.lastIndexOf('.');
             int len;
             byte[] b = new byte[8196];
             InputStream in = getResourceAsStream(libraryResource);

@@ -51,8 +51,9 @@ interface CallIO {
             return new CallIO.GenericPointerHandler(targetType);
         }
 
-        public static <EE extends Enum<EE>> CallIO createValuedEnumCallIO(final Class<EE> enumClass) {
+        public static <EE extends Enum<EE> & ValuedEnum<EE>> CallIO createValuedEnumCallIO(final Class<EE> enumClass) {
             return new CallIO() {
+                @SuppressWarnings("unchecked")
                 public Object newInstance(long value) {
                     return FlagSet.fromValue(value, enumClass);
                 }
@@ -75,22 +76,23 @@ interface CallIO {
             return createPointerCallIO(org.bridj.util.Utils.getClass(type), type);
         }
 
+        @SuppressWarnings("unchecked")
         public static CallIO createPointerCallIO(Class<?> cl, Type type) {
             if (cl == Pointer.class) {
                 return createPointerCallIOToTargetType(getUniqueParameterizedTypeParameter(type));
             }
 
             assert TypedPointer.class.isAssignableFrom(cl);
-            return new CallIO.TypedPointerIO(((Class<? extends TypedPointer>) cl));
+            return new CallIO.TypedPointerIO(((Class<? extends TypedPointer<?>>) cl));
         }
     }
 
     public static class TypedPointerIO implements CallIO {
 
-        Class<? extends TypedPointer> type;
+        Class<? extends TypedPointer<?>> type;
         Constructor<?> constructor;
 
-        public TypedPointerIO(Class<? extends TypedPointer> type) {
+        public TypedPointerIO(Class<? extends TypedPointer<?>> type) {
             this.type = type;
             try {
                 this.constructor = type.getConstructor(long.class);
@@ -113,7 +115,7 @@ interface CallIO {
         }
 
         public long getPeer(Object o) {
-            return Pointer.getPeer((Pointer) o);
+            return Pointer.getPeer((Pointer<?>) o);
         }
     }
 
@@ -130,6 +132,7 @@ interface CallIO {
         }
         //@Override
 
+        @SuppressWarnings("deprecation")
         public NativeObject newInstance(long address) {
             return Pointer.pointerToAddress(address).getNativeObject(nativeClass);
         }
@@ -144,8 +147,9 @@ interface CallIO {
     }
     public static final class GenericPointerHandler implements CallIO {
 
+        @SuppressWarnings("unused")
         private final Type targetType;
-        private final PointerIO pointerIO;
+        private final PointerIO<?> pointerIO;
         public GenericPointerHandler(Type targetType) {
             this.targetType = targetType;
             this.pointerIO = PointerIO.getInstance(targetType);
@@ -161,7 +165,7 @@ interface CallIO {
         }
 
         public long getPeer(Object o) {
-            return Pointer.getPeer((Pointer) o);
+            return Pointer.getPeer((Pointer<?>) o);
         }
     }
 }

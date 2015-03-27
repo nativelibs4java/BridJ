@@ -53,6 +53,7 @@ import org.bridj.MethodCallInfo;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
+import org.bridj.NativeObjectInterface;
 import org.bridj.Platform;
 import org.bridj.Pointer;
 import org.bridj.Pointer.Releaser;
@@ -350,10 +351,11 @@ public class ObjectiveCRuntime extends CRuntime {
                 }
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            public void initialize(T instance, Pointer peer) {
+            public void initialize(T instance, Pointer<?> peer) {
                 if (instance instanceof ObjCClass) {
-                    setNativeObjectPeer(instance, peer);
+                    setNativeObjectPeer(instance, (Pointer<? extends NativeObjectInterface>) peer);
                 } /*else if (instance instanceof ObjCBlock) {
                  setNativeObjectPeer(instance, peer);
                  ObjCBlock block = (ObjCBlock)instance;

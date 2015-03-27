@@ -304,7 +304,6 @@ public class COMRuntime extends CPPRuntime {
             super(VARIANT.class);
         }
         Pointer.Releaser VARIANTReleaser = new Pointer.Releaser() {
-            @Override
             public void release(Pointer<?> p) {
                 error(VariantClear((Pointer<VARIANT>) p));
             }

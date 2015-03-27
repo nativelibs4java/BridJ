@@ -42,8 +42,8 @@ import java.lang.reflect.Field;
  * @author Olivier
  */
 class WindowsError extends NativeError {
-
-    final int code;
+  private static final long serialVersionUID = 1L;
+		final int code;
     final long info, address;
 
     WindowsError(int code, long info, long address) {

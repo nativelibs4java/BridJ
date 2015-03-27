@@ -95,9 +95,10 @@ public class StructDescription {
             }
         }
     }
+    @SuppressWarnings("deprecation")
     StructCustomizer customizer;
 
-    public StructDescription(Class<?> structClass, Type structType, StructCustomizer customizer) {
+    public StructDescription(Class<?> structClass, Type structType, @SuppressWarnings("deprecation") StructCustomizer customizer) {
         this.structClass = structClass;
         this.structType = structType;
         this.customizer = customizer;
@@ -130,6 +131,7 @@ public class StructDescription {
     }
 
     /// Call whenever an instanceof a struct that depends on that StructIO is created
+    @SuppressWarnings("deprecation")
     void build() {
         if (fields == null) {
             synchronized (this) {

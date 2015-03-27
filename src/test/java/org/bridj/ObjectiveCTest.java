@@ -254,8 +254,8 @@ public class ObjectiveCTest {
         
         assertTrue(called[0]);
    }
-   //*
-   @Library("test")
+   
+   @org.bridj.ann.Library("test")
    public static class TestLib {
        public static interface Delg extends ObjCDelegate {
            int add_to(int a, int b);

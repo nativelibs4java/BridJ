@@ -51,14 +51,14 @@ public class DynamicCallbackTest {
     @Test
     public void testAddDynamicFunction() throws IOException {
         NativeLibrary lib = BridJ.getNativeLibrary("test");
-        DynamicFunction i = lib.getSymbolPointer("testAddDyncall").asDynamicFunction(null, int.class, int.class, int.class);
+        DynamicFunction<?> i = lib.getSymbolPointer("testAddDyncall").asDynamicFunction(null, int.class, int.class, int.class);
         int res = (Integer)i.apply(1, 2);
         assertEquals(3, res);
     }
     
     @Test
     public void testDynamicFunctionCallback() throws FileNotFoundException {
-        Pointer dc = Pointer.allocateDynamicCallback(
+        Pointer<?> dc = Pointer.allocateDynamicCallback(
             new DynamicCallback<Integer>() {
 
                 public Integer apply(Object... args) {

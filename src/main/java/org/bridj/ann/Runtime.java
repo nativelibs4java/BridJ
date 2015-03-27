@@ -40,6 +40,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.bridj.BridJRuntime;
+
 /**
  * Specify the runtime that should be used to bind native methods (default is
  * {@link org.bridj.CRuntime} if no annotation is provided).
@@ -52,6 +54,6 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface Runtime {
 
-    Class //<? extends BridJRuntime>
+    Class<? extends BridJRuntime>
             value();
 }
