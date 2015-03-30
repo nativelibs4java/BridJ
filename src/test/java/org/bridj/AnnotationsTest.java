@@ -29,11 +29,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import org.bridj.util.AnnotationUtils;
-import org.bridj.ann.Ptr;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.bridj.ann.Field;
+import org.bridj.ann.Ptr;
+import org.bridj.util.AnnotationUtils;
 import org.junit.Test;
-import static org.junit.Assert.*;
 /**
  *
  * @author ochafik

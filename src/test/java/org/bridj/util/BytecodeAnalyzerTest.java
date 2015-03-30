@@ -30,12 +30,13 @@
  */
 package org.bridj.util;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import org.bridj.util.BytecodeAnalyzer;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

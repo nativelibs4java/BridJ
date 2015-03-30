@@ -30,15 +30,14 @@
  */
 package org.bridj;
 
-import java.io.FileNotFoundException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
-
+import org.bridj.ann.Field;
+import org.bridj.ann.Library;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.bridj.ann.*;
-import org.bridj.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class TypedPointersTest {

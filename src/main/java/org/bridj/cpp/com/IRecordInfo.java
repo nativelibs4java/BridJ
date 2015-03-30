@@ -31,8 +31,6 @@
 package org.bridj.cpp.com;
 
 import org.bridj.Pointer;
-import org.bridj.ann.Library;
-import org.bridj.ann.Runtime;
 import org.bridj.ann.Virtual;
 
 /**

@@ -29,18 +29,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.Test;
 
-import org.bridj.ann.*;
-import static org.junit.Assert.*;
+import org.bridj.ann.Virtual;
+import org.bridj.cpp.com.CLSID;
 import org.bridj.cpp.com.COMRuntime;
+import org.bridj.cpp.com.IID;
 import org.bridj.cpp.com.IUnknown;
 import org.bridj.cpp.com.VARIANT;
-import org.bridj.cpp.com.CLSID;
-import org.bridj.cpp.com.IID;
 import org.bridj.cpp.com.shell.IShellWindows;
+import org.junit.Test;
 
 public class COMTest {
 

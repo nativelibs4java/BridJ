@@ -30,32 +30,35 @@
  */
 package org.bridj;
 
-import org.bridj.util.ClassDefiner;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.*;
-import java.io.FileNotFoundException;
-import java.util.concurrent.*;
-
+import static org.bridj.util.JNIUtils.getNativeSignature;
+import static org.objectweb.asm.Opcodes.ACC_NATIVE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.RETURN;
 //import org.objectweb.asm.*;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.V1_5;
 
-import static org.bridj.util.JNIUtils.*;
-import org.bridj.*;
+import java.io.FileNotFoundException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.bridj.CRuntime.MethodCallInfoBuilder;
-import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.util.ASMUtils;
+import org.bridj.util.ClassDefiner;
 import org.bridj.util.Pair;
 import org.bridj.util.Utils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.signature.SignatureWriter;
 
 //import org.objectweb.asm.attrs.*;
 class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
@@ -84,8 +87,9 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
      *
      * @param callbackType
      */
+    @SuppressWarnings("unchecked")
     public <T extends CallbackInterface> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
-        Class<?> callbackImplType = implClasses.get(callbackType);
+        Class<? extends T> callbackImplType = (Class<? extends T>) implClasses.get(callbackType);
         if (callbackImplType == null) {
             try {
                 String callbackTypeName = callbackType.getName().replace('.', '/');
@@ -94,17 +98,18 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 
                 Method callbackMethod = runtime.getFastestCallbackMethod(callbackType);
 
-                Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
+                // Never used.  Side effects?
+                //Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
                 MethodCallInfo mci = new MethodCallInfo(callbackMethod);
                 String methodName = callbackMethod.getName();
                 String methodSignature = mci.getJavaSignature();//mci.getASMSignature();
 
                 byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
-                callbackImplType = getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
+                callbackImplType = (Class<? extends T>) getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
 
-                Class<?> existingCallbackImplType = implClasses.putIfAbsent(callbackType, callbackImplType);
+                Class<? extends T> existingCallbackImplType = (Class<? extends T>) implClasses.putIfAbsent(callbackType, callbackImplType);
                 if (existingCallbackImplType != null) {
-                    return (Class) existingCallbackImplType;
+                    return existingCallbackImplType;
                 }
 
                 runtime.register(callbackImplType, forcedLibrary, null);
@@ -112,7 +117,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
                 throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName() + " : " + ex, ex);
             }
         }
-        return (Class) callbackImplType;
+        return (Class<? extends T>) callbackImplType;
     }
     protected Map<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory>();
     private static volatile long nextDynamicCallbackId = 0;
@@ -142,7 +147,8 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
                 String methodName = "apply";
 
                 byte[] byteArray = emitBytes("<anonymous>", DynamicFunction.class.getName().replace(".", "/"), callbackTypeImplName, methodName, javaSig.toString());
-                Class<? extends DynamicFunction> callbackImplType = (Class) getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
+                @SuppressWarnings("unchecked")
+                Class<? extends DynamicFunction<?>> callbackImplType = (Class<? extends DynamicFunction<?>>) getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
 
                 Class<?>[] paramClasses = new Class[paramTypes.length];
                 for (int i = 0, n = paramTypes.length; i < n; i++) {
@@ -169,6 +175,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
         return cb;
     }
 
+    @SuppressWarnings("deprecation")
     private byte[] emitBytes(String sourceFile, String callbackTypeName,
             String callbackTypeImplName, String methodName,
             String methodSignature) {

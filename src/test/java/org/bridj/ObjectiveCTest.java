@@ -30,20 +30,38 @@
  */
 package org.bridj;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
-import static org.junit.Assert.*;
+import static org.bridj.ObjectiveCTest.TestLib.forwardBlockCallIntIntInt;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.Pointer.pointerToInt;
+import static org.bridj.objc.FoundationLibrary.pointerToNSString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import org.bridj.objc.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bridj.ObjectiveCTest.TestLib.Delg;
+import org.bridj.ObjectiveCTest.TestLib.DelgHolder;
+import org.bridj.ObjectiveCTest.TestLib.DelgImpl;
+import org.bridj.ObjectiveCTest.TestLib.FwdBlock;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
-import org.bridj.ann.Ptr;
-import static org.bridj.Pointer.*;
-import static org.bridj.objc.FoundationLibrary.*;
-import java.util.*;
-import static org.bridj.ObjectiveCTest.TestLib.*;
+import org.bridj.objc.NSAutoreleasePool;
+import org.bridj.objc.NSDictionary;
+import org.bridj.objc.NSNumber;
+import org.bridj.objc.NSObject;
+import org.bridj.objc.NSString;
+import org.bridj.objc.ObjCBlock;
+import org.bridj.objc.ObjCDelegate;
+import org.bridj.objc.ObjCObject;
+import org.bridj.objc.ObjCProxy;
+import org.bridj.objc.ObjectiveCRuntime;
+import org.bridj.objc.SEL;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)
@@ -236,8 +254,8 @@ public class ObjectiveCTest {
         
         assertTrue(called[0]);
    }
-   //*
-   @Library("test")
+   
+   @org.bridj.ann.Library("test")
    public static class TestLib {
        public static interface Delg extends ObjCDelegate {
            int add_to(int a, int b);

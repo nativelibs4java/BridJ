@@ -30,12 +30,16 @@
  */
 package org.bridj;
 
+import static org.bridj.Pointer.pointerToEnum;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collections;
 import java.util.Iterator;
-import org.bridj.ann.*;
-import static org.bridj.Pointer.*;
+
+import org.bridj.ann.Library;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 @Library("test")
 public class ValuedEnumTest {

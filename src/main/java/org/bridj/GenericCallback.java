@@ -30,10 +30,6 @@
  */
 package org.bridj;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
-import static org.bridj.Pointer.*;
 
 /**
  * Generic Java callback to be called from C.

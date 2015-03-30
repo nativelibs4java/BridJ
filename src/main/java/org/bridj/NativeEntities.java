@@ -106,6 +106,7 @@ public class NativeEntities {
      * Called automatically by {@link NativeEntities#finalize()} upon garbage
      * collection.
      */
+    @SuppressWarnings("deprecation")
     public void release() {
         if (BridJ.debugNeverFree) {
             return;
@@ -140,6 +141,7 @@ public class NativeEntities {
         release();
     }
 
+    @SuppressWarnings("deprecation")
     public void addDefinitions(Class<?> type, Builder builder) {
         int n;
         try {

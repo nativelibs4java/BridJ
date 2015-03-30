@@ -30,7 +30,7 @@
  */
 package org.bridj.objc;
 
-import org.bridj.*;
+import org.bridj.Pointer;
 
 public class ObjCJNI {
 

@@ -30,10 +30,7 @@
  */
 package org.bridj;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-
-import static org.bridj.Pointer.*;
 
 /**
  * Generic C function which invocation involves a bit of Java reflection.<br>
@@ -44,7 +41,7 @@ import static org.bridj.Pointer.*;
  * @author ochafik
  * @param R Return type of the function (can be {@link java.lang.Void})
  */
-public abstract class DynamicFunction<R> extends Callback {
+public abstract class DynamicFunction<R> extends Callback<DynamicFunction<R>> {
     /// Don't GC the factory, which holds the native callback handle
 
     DynamicFunctionFactory factory;
@@ -53,6 +50,7 @@ public abstract class DynamicFunction<R> extends Callback {
     protected DynamicFunction() {
     }
 
+    @SuppressWarnings("unchecked")
     public R apply(Object... args) {
         try {
             return (R) method.invoke(this, args);

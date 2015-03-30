@@ -30,8 +30,6 @@
  */
 package org.bridj;
 
-import static org.bridj.SignalConstants.*;
-import static java.lang.Long.toHexString;
 
 /**
  * Native error encapsulated as a Java error.
@@ -39,8 +37,9 @@ import static java.lang.Long.toHexString;
  * @author ochafik
  */
 public abstract class NativeError extends Error {
+  private static final long serialVersionUID = 1L;
 
-    protected NativeError(String message) {
+		protected NativeError(String message) {
         super(message);
     }
 

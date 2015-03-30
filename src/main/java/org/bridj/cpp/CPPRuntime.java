@@ -30,62 +30,64 @@
  */
 package org.bridj.cpp;
 
-import org.bridj.SizeT;
-import java.util.Set;
-import org.bridj.ann.Template;
-import org.bridj.DynamicFunction;
-import org.bridj.demangling.Demangler.IdentLike;
-import org.bridj.demangling.Demangler.MemberRef;
-import org.bridj.util.Pair;
-import java.lang.reflect.Constructor;
-import org.bridj.DynamicFunctionFactory;
-import org.bridj.ann.Convention;
-import org.bridj.Callback;
-import org.bridj.Platform;
-import static org.bridj.util.Utils.*;
-import java.io.FileNotFoundException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.GenericDeclaration;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.TypeVariable;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.bridj.BridJ;
-import static org.bridj.BridJ.*;
-import org.bridj.JNI;
-import org.bridj.MethodCallInfo;
-import org.bridj.NativeLibrary;
-import org.bridj.NativeObject;
-import org.bridj.Pointer;
-import org.bridj.PointerIO;
+import static org.bridj.BridJ.debug;
+import static org.bridj.BridJ.error;
+import static org.bridj.BridJ.info;
+import static org.bridj.BridJ.warning;
+import static org.bridj.Pointer.allocatePointers;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.Pointer.pointerToAddress;
 import static org.bridj.demangling.Demangler.getClassName;
 import static org.bridj.demangling.Demangler.getMethodName;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_DEFAULT;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_X86_WIN32_THIS_MS;
+import static org.bridj.util.Utils.takeLeft;
 
-import static org.bridj.dyncall.DyncallLibrary.*;
-
-import org.bridj.demangling.Demangler.Symbol;
-import org.bridj.NativeEntities.Builder;
-import org.bridj.ann.Virtual;
-import org.bridj.CRuntime;
-import org.bridj.NativeLibrary.SymbolAccepter;
-import org.bridj.util.Utils;
+import java.io.FileNotFoundException;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+
+import org.bridj.BridJ;
+import org.bridj.CRuntime;
+import org.bridj.Callback;
+import org.bridj.DynamicFunction;
+import org.bridj.DynamicFunctionFactory;
+import org.bridj.MethodCallInfo;
+import org.bridj.NativeEntities.Builder;
+import org.bridj.NativeLibrary;
+import org.bridj.NativeLibrary.SymbolAccepter;
+import org.bridj.NativeObject;
+import org.bridj.Platform;
+import org.bridj.Pointer;
+import org.bridj.PointerIO;
+import org.bridj.SizeT;
+import org.bridj.ann.Convention;
 import org.bridj.ann.Convention.Style;
-import org.bridj.demangling.Demangler.SpecialName;
-import static org.bridj.Pointer.*;
-import org.bridj.StructObject;
-import org.bridj.ann.Name;
+import org.bridj.ann.Template;
+import org.bridj.ann.Virtual;
 import org.bridj.demangling.Demangler;
+import org.bridj.demangling.Demangler.IdentLike;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.SpecialName;
+import org.bridj.demangling.Demangler.Symbol;
+import org.bridj.util.Pair;
+import org.bridj.util.Utils;
 
 /**
  * C++ runtime (derives from the C runtime).<br>
@@ -440,6 +442,7 @@ public class CPPRuntime extends CRuntime {
         protected MemoryOperators() {
         }
 
+        @SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
         public MemoryOperators(NativeLibrary library) {
             for (Symbol sym : library.getSymbols()) {
                 try {
@@ -462,11 +465,11 @@ public class CPPRuntime extends CRuntime {
         }
 
         public Pointer<?> cppNew(long size) {
-            return newFct.apply(new SizeT(size));
+            return (Pointer<?>)newFct.apply(new SizeT(size));
         }
 
         public Pointer<?> cppNewArray(long size) {
-            return newArrayFct.apply(new SizeT(size));
+            return (Pointer<?>)newArrayFct.apply(new SizeT(size));
         }
 
         public void cppDelete(Pointer<?> ptr) {
@@ -493,7 +496,8 @@ public class CPPRuntime extends CRuntime {
 
     int getPositionInVirtualTable(Method method, NativeLibrary library) {
         Class<?> type = method.getDeclaringClass();
-        Pointer<Pointer<?>> pVirtualTable = (Pointer) pointerToAddress(getVirtualTable(type, library), Pointer.class);
+        @SuppressWarnings({ "unchecked", "deprecation" })
+        Pointer<Pointer<?>> pVirtualTable = (Pointer)pointerToAddress(getVirtualTable(type, library), Pointer.class);
         return getPositionInVirtualTable(pVirtualTable, method, library);
     }
 
@@ -546,13 +550,14 @@ public class CPPRuntime extends CRuntime {
     }
 
     @Convention(Style.ThisCall)
-    public abstract static class CPPDestructor extends Callback {
+    public abstract static class CPPDestructor<C extends CPPDestructor<C>> extends Callback<C> {
 
         public abstract void destroy(long peer);
     }
     Set<Type> typesThatDontNeedASyntheticVirtualTable = new HashSet<Type>();
     Map<Type, VTable> syntheticVirtualTables = new HashMap<Type, VTable>();
 
+    @SuppressWarnings("deprecation")
     protected boolean installRegularVTablePtr(Type type, NativeLibrary library, Pointer<?> peer) {
         long vtablePtr = getVirtualTable(type, library);
         if (vtablePtr != 0) {
@@ -581,6 +586,7 @@ public class CPPRuntime extends CRuntime {
                     }
                     if (needsASyntheticVirtualTable) {
                         Type parentType = Utils.getParent(type);
+                        @SuppressWarnings("rawtypes")
                         Pointer<Pointer> parentVTablePtr = null;
                         if (CPPObject.class.isAssignableFrom(Utils.getClass(parentType))) {
                             parentVTablePtr = peer.getPointer(Pointer.class);
@@ -618,6 +624,7 @@ public class CPPRuntime extends CRuntime {
         Map<Method, Pointer<?>> callbacks = new HashMap<Method, Pointer<?>>();
     }
 
+    @SuppressWarnings("rawtypes")
     protected VTable synthetizeVirtualTable(Type type, Pointer<Pointer> parentVTablePtr, List<VirtMeth> methods, NativeLibrary library) {
         int nMethods = methods.size();
         //Pointer<Pointer> parentVTablePtr = pointerToAddress(getVirtualTable(Utils.getParent(type), library), Pointer.class);
@@ -652,11 +659,12 @@ public class CPPRuntime extends CRuntime {
         int templateParametersCount = t == null ? 0 : t.value().length;
         return templateParametersCount;
     }
-    Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
+    Map<Pair<Type, Integer>, DynamicFunction<?>> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction<?>>();
 
-    DynamicFunction getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
+    @SuppressWarnings({ "deprecation", "unchecked" })
+    <R> DynamicFunction<R> getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
         Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
-        DynamicFunction constructor = constructors.get(key);
+        DynamicFunction<R> constructor = (DynamicFunction<R>) constructors.get(key);
         if (constructor == null) {
             try {
                 final Constructor<?> constr;
@@ -700,7 +708,7 @@ public class CPPRuntime extends CRuntime {
 
                 DynamicFunctionFactory constructorFactory = getDynamicFunctionFactory(lib, Style.ThisCall, void.class, consThisParamTypes);
 
-                constructor = constructorFactory.newInstance(pointerToAddress(symbol.getAddress()));
+                constructor = (DynamicFunction<R>) constructorFactory.newInstance((Pointer<? extends NativeObject>)pointerToAddress(symbol.getAddress()));
                 constructors.put(key, constructor);
             } catch (Throwable th) {
                 th.printStackTrace();
@@ -709,10 +717,11 @@ public class CPPRuntime extends CRuntime {
         }
         return constructor;
     }
-    Map<Type, CPPDestructor> destructors = new HashMap<Type, CPPDestructor>();
+    Map<Type, CPPDestructor<?>> destructors = new HashMap<Type, CPPDestructor<?>>();
 
-    CPPDestructor getDestructor(final Class<?> typeClass, Type type, NativeLibrary lib) {
-        CPPDestructor destructor = destructors.get(type);
+    @SuppressWarnings("deprecation")
+    CPPDestructor<?> getDestructor(final Class<?> typeClass, Type type, NativeLibrary lib) {
+        CPPDestructor<?> destructor = destructors.get(type);
         if (destructor == null) {
             Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() {
                 public boolean accept(Symbol symbol) {
@@ -745,7 +754,7 @@ public class CPPRuntime extends CRuntime {
         //final Class<?> typeClass = Utils.getClass(type);
         //NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
         if (lib != null && BridJ.enableDestructors) {
-            final CPPDestructor destructor = getDestructor(typeClass, type, lib);
+            final CPPDestructor<?> destructor = getDestructor(typeClass, type, lib);
             if (destructor != null) {
                 releaser = new Pointer.Releaser() { //@Override 
                     public void release(Pointer<?> p) {
@@ -778,7 +787,7 @@ public class CPPRuntime extends CRuntime {
             long size = sizeOf(type, null);
             peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).as(type);
 
-            DynamicFunction constructor = constructorId == SKIP_CONSTRUCTOR ? null : getConstructor(typeClass, type, lib, constructorId);
+            DynamicFunction<?> constructor = constructorId == SKIP_CONSTRUCTOR ? null : getConstructor(typeClass, type, lib, constructorId);
 
             if (lib != null && CPPObject.class.isAssignableFrom(typeClass)) {
                 installRegularVTablePtr(type, lib, peer);
@@ -995,7 +1004,7 @@ public class CPPRuntime extends CRuntime {
         }
 
         @Override
-        public void initialize(T instance, Pointer peer) {
+        public void initialize(T instance, Pointer<?> peer) {
             setTemplateParameters(instance, typeClass, templateParameters);
             super.initialize(instance, peer);
         }

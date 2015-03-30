@@ -32,6 +32,7 @@ package org.bridj;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.bridj.ann.Struct;
 
 /**
@@ -76,7 +77,7 @@ public class StructCustomizer {
     public void afterBuild(StructDescription desc) {
     }
     private static StructCustomizer dummyCustomizer = new StructCustomizer();
-    private static ConcurrentHashMap<Class, StructCustomizer> customizers = new ConcurrentHashMap<Class, StructCustomizer>();
+    private static ConcurrentHashMap<Class<?>, StructCustomizer> customizers = new ConcurrentHashMap<Class<?>, StructCustomizer>();
 
     static StructCustomizer getInstance(Class<?> structClass) {
         StructCustomizer c = customizers.get(structClass);

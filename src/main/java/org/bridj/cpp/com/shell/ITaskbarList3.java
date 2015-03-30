@@ -32,11 +32,12 @@ package org.bridj.cpp.com.shell;
 
 import java.util.Collections;
 import java.util.Iterator;
-import org.bridj.ValuedEnum;
+
 import org.bridj.FlagSet;
 import org.bridj.IntValuedEnum;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
+import org.bridj.ValuedEnum;
 import org.bridj.ann.Array;
 import org.bridj.ann.Field;
 import org.bridj.ann.Virtual;

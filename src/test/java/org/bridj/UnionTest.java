@@ -30,14 +30,13 @@
  */
 package org.bridj;
 
+import static org.junit.Assert.assertEquals;
+
 import java.nio.ByteOrder;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
 import org.bridj.ann.Union;
+import org.junit.Test;
 
 /**
  *

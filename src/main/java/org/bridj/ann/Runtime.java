@@ -54,6 +54,6 @@ import org.bridj.BridJRuntime;
 @Inherited
 public @interface Runtime {
 
-    Class //<? extends BridJRuntime>
+    Class<? extends BridJRuntime>
             value();
 }

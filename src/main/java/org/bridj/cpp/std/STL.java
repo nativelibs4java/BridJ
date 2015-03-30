@@ -30,7 +30,10 @@
  */
 package org.bridj.cpp.std;
 
-import org.bridj.*;
+import org.bridj.Platform;
+import org.bridj.Pointer;
+import org.bridj.StructCustomizer;
+import org.bridj.StructDescription;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 /**

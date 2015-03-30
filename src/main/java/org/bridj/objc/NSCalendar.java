@@ -31,7 +31,6 @@
 package org.bridj.objc;
 
 import org.bridj.BridJ;
-import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.ann.Library;
 

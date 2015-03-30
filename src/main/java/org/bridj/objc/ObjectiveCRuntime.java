@@ -30,23 +30,37 @@
  */
 package org.bridj.objc;
 
+import static org.bridj.Pointer.pointerToAddress;
+import static org.bridj.Pointer.pointerToCString;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.bridj.*;
-import static org.bridj.Pointer.*;
+import org.bridj.BridJ;
+import org.bridj.CLong;
+import org.bridj.CRuntime;
+import org.bridj.CallbackInterface;
+import org.bridj.MethodCallInfo;
 import org.bridj.NativeEntities.Builder;
-import org.bridj.util.Utils;
+import org.bridj.NativeLibrary;
+import org.bridj.NativeObject;
+import org.bridj.NativeObjectInterface;
+import org.bridj.Platform;
+import org.bridj.Pointer;
+import org.bridj.Pointer.Releaser;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import org.bridj.Platform;
 import org.bridj.demangling.Demangler;
+import org.bridj.util.Utils;
 
 /// http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html
 @Library("/usr/lib/libobjc.A.dylib")
@@ -337,10 +351,11 @@ public class ObjectiveCRuntime extends CRuntime {
                 }
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            public void initialize(T instance, Pointer peer) {
+            public void initialize(T instance, Pointer<?> peer) {
                 if (instance instanceof ObjCClass) {
-                    setNativeObjectPeer(instance, peer);
+                    setNativeObjectPeer(instance, (Pointer<? extends NativeObjectInterface>) peer);
                 } /*else if (instance instanceof ObjCBlock) {
                  setNativeObjectPeer(instance, peer);
                  ObjCBlock block = (ObjCBlock)instance;

@@ -30,12 +30,26 @@
  */
 package org.bridj;
 
-import org.bridj.StructFieldDeclaration;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CHAR;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_DOUBLE;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_FLOAT;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_INT;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_LONGLONG;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_POINTER;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_SHORT;
+import static org.bridj.dyncall.DyncallLibrary.DEFAULT_ALIGNMENT;
+import static org.bridj.dyncall.DyncallLibrary.dcCloseStruct;
+import static org.bridj.dyncall.DyncallLibrary.dcFreeStruct;
+import static org.bridj.dyncall.DyncallLibrary.dcNewStruct;
+import static org.bridj.dyncall.DyncallLibrary.dcStructField;
+import static org.bridj.dyncall.DyncallLibrary.dcStructSize;
+import static org.bridj.dyncall.DyncallLibrary.dcSubStruct;
+
 import java.lang.reflect.Type;
 import java.util.List;
-import org.bridj.StructFieldDescription;
+
+import org.bridj.dyncall.DyncallLibrary.DCstruct;
 import org.bridj.util.Utils;
-import static org.bridj.dyncall.DyncallLibrary.*;
 
 class DyncallStructs {
 
@@ -51,6 +65,7 @@ class DyncallStructs {
         }
 
         List<StructFieldDescription> aggregatedFields = desc.getAggregatedFields();
+        @SuppressWarnings("deprecation")
         Pointer<DCstruct> struct = dcNewStruct(aggregatedFields.size(), toDCAlignment(desc.getStructAlignment())).withReleaser(new Pointer.Releaser() {
             public void release(Pointer<?> p) {
                 dcFreeStruct(p.as(DCstruct.class));
@@ -76,7 +91,7 @@ class DyncallStructs {
             if (fieldType == null) {
                 fieldType = field.desc.valueType;
             }
-            Class fieldClass = Utils.getClass(fieldType);
+            Class<?> fieldClass = Utils.getClass(fieldType);
 
             int alignment = toDCAlignment(aggregatedField.alignment);
             long arrayLength = field.desc.arrayLength;

@@ -29,10 +29,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import static org.bridj.Platform.*;
-import org.junit.*;
-import static org.junit.Assert.*;
-import java.io.*;
+import static org.bridj.Platform.is64Bits;
+import static org.bridj.Platform.isUnix;
+import static org.bridj.Platform.isWindows;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import org.junit.Test;
 
 public class PlatformTest {
 	@Test

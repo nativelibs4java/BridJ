@@ -904,7 +904,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @param parameterTypes parameter types of the function
      */
     public <R> DynamicFunction<R> asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
-    		return CRuntime.getInstance().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance(this);
+    		return CRuntime.getInstance().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance((Pointer<? extends NativeObject>)this);
     }
     
     /**

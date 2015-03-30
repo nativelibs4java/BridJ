@@ -30,16 +30,14 @@
  */
 package org.bridj;
 
+import static org.bridj.Pointer.allocate;
+import static org.bridj.Pointer.allocateArray;
+
 import java.util.AbstractList;
-import java.util.RandomAccess;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import static org.bridj.Pointer.*;
+import java.util.RandomAccess;
+
+import org.bridj.Pointer.ListType;
 
 /**
  * TODO : smart rewrite by chunks for removeAll and retainAll !
@@ -129,6 +127,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         return old;
     }
 
+    @SuppressWarnings("deprecation")
     void add(long i, T e) {
         checkModifiable();
         if (i > size || i < 0) {
@@ -165,6 +164,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         }
     }
 
+    @SuppressWarnings("deprecation")
     T remove(long i) {
         checkModifiable();
         if (i >= size || i < 0) {
@@ -194,6 +194,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     long indexOf(Object o, boolean last, int offset) {
         Pointer<T> pointer = this.pointer;
         assert offset >= 0 && (last || offset > 0);
@@ -239,6 +240,7 @@ class DefaultNativeList<T> extends AbstractList<T> implements NativeList<T>, Ran
         return pointer.validElements(size).toArray();
     }
 
+    @SuppressWarnings("hiding")
     @Override
     public <T> T[] toArray(T[] ts) {
         return pointer.validElements(size).toArray(ts);

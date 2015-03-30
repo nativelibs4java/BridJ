@@ -29,17 +29,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import static org.bridj.Pointer.*;
-
-import org.bridj.ann.*;
-import org.bridj.cpp.CPPRuntime;
-import static org.junit.Assert.*;
+import static org.bridj.Pointer.allocateArray;
+import static org.bridj.Pointer.allocateBytes;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bridj.ann.Array;
+import org.bridj.ann.Library;
+import org.bridj.cpp.CPPRuntime;
 import org.junit.Test;
 /**
  * mvn -o compile test-compile && MAVEN_OPTS="-Xmx2g -Xrunhprof:cpu=samples,doe=y,depth=15" mvn -o -DforkMode=never surefire:test -DenableAssertions=false -Dtest=ComparisonTest && jProfBeautifier

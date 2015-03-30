@@ -29,9 +29,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import org.bridj.ann.*;
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import org.bridj.ann.Library;
+import org.junit.Test;
 
 @Library(value = "dependsOnTest", dependencies = { "test" })
 public class DependencyTest {

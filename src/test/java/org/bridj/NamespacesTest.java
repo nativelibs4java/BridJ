@@ -29,40 +29,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import org.bridj.FunctionTest.ETest;
-import static org.bridj.util.DefaultParameterizedType.*;
-import static org.bridj.DemanglingTest.*;
-import org.bridj.demangling.Demangler;
-import org.bridj.demangling.Demangler.TypeRef;
-import org.bridj.demangling.Demangler.Ident;
-import org.bridj.demangling.Demangler.IdentLike;
-import org.bridj.demangling.Demangler.DemanglingException;
-import org.bridj.demangling.Demangler.MemberRef;
-import org.bridj.demangling.GCC4Demangler;
-import org.bridj.demangling.VC9Demangler;
-import org.bridj.cpp.CPPType;
-import org.bridj.demangling.Demangler.SpecialName;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Type;
-import java.lang.annotation.Annotation;
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collections;
 import java.util.Iterator;
-import org.bridj.CPPTest3.Constructed;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
-import org.bridj.BridJ;
-import org.bridj.Pointer;
 import org.bridj.ann.Constructor;
-import org.bridj.ann.Namespace;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 import org.bridj.ann.Name;
+import org.bridj.ann.Namespace;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPRuntime;
+import org.junit.Test;
 
 @Library("test") 
 @Runtime(CPPRuntime.class) 

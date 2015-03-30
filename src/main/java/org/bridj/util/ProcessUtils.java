@@ -30,7 +30,8 @@
  */
 package org.bridj.util;
 
-import org.bridj.ann.Library;
+import static java.lang.System.getProperty;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import java.util.List;
 import org.bridj.BridJ;
 import org.bridj.Platform;
 import org.bridj.ann.Convention;
-import static java.lang.System.getProperty;
+import org.bridj.ann.Library;
 
 /**
  * Util methods to : query the process id from the current process, launch

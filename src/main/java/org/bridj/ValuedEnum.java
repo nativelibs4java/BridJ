@@ -30,8 +30,6 @@
  */
 package org.bridj;
 
-import java.util.Collections;
-import java.util.Iterator;
 
 /**
  * Interface for Java enumerations that have an integral value associated

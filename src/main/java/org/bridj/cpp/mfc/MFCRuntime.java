@@ -30,18 +30,17 @@
  */
 package org.bridj.cpp.mfc;
 
-import org.bridj.BridJ;
-import org.bridj.Callback;
-import org.bridj.NativeObject;
-import org.bridj.Pointer;
-import org.bridj.util.Utils;
-import org.bridj.cpp.CPPRuntime;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.bridj.Callback;
+import org.bridj.NativeObject;
+import org.bridj.Pointer;
+import org.bridj.cpp.CPPRuntime;
+import org.bridj.util.Utils;
 
 /**
  *

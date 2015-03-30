@@ -30,18 +30,20 @@
  */
 package org.bridj;
 
+import static org.bridj.util.AnnotationUtils.isAnnotationPresent;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bridj.ann.Alignment;
 import org.bridj.ann.Array;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
 import org.bridj.ann.Union;
-import static org.bridj.util.AnnotationUtils.*;
 
 class StructFieldDeclaration {
 

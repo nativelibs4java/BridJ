@@ -30,7 +30,8 @@
  */
 package org.bridj;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 final class SolidRanges {
 

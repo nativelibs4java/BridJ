@@ -30,7 +30,6 @@
  */
 package org.bridj.examples;
 
-import org.bridj.Pointer;
 import org.bridj.CRuntime;
 
 @org.bridj.ann.Runtime(CRuntime.class)

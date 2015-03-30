@@ -30,9 +30,8 @@
  */
 package org.bridj.objc;
 
-import org.bridj.*;
-import static org.bridj.Pointer.*;
-import static org.bridj.objc.ObjectiveCRuntime.*;
+import org.bridj.Pointer;
+import org.bridj.TypedPointer;
 
 public class IMP extends TypedPointer {
 

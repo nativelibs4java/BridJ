@@ -219,7 +219,7 @@ public class StructIO {
 		struct.peer.offset(fd.byteOffset).setNativeObject(value, fd.nativeTypeOrPointerTargetType);
 	}
 	
-	public final <E extends Enum<E>> IntValuedEnum<E> getEnumField(StructObject struct, int fieldIndex) {
+	public final <E extends Enum<E> & ValuedEnum<E>> IntValuedEnum<E> getEnumField(StructObject struct, int fieldIndex) {
         StructFieldDescription fd = desc.fields[fieldIndex];
 		return FlagSet.fromValue(struct.peer.getIntAtOffset(fd.byteOffset), (Class<E>)fd.nativeTypeOrPointerTargetType);
 	}

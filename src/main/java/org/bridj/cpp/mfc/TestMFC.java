@@ -30,10 +30,12 @@
  */
 package org.bridj.cpp.mfc;
 
-import org.bridj.Pointer;
+import static org.bridj.cpp.mfc.OnMessage.Type.WM_KEYDOWN;
+import static org.bridj.cpp.mfc.StandardAfxCommands.ID_FILE_NEW;
+import static org.bridj.cpp.mfc.StandardAfxCommands.ID_FILE_PRINT;
+import static org.bridj.cpp.mfc.StandardAfxCommands.ID_FILE_SAVE;
 
-import static org.bridj.cpp.mfc.OnMessage.Type.*;
-import static org.bridj.cpp.mfc.StandardAfxCommands.*;
+import org.bridj.Pointer;
 
 /**
  *

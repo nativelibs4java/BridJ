@@ -30,31 +30,35 @@
  */
 package org.bridj;
 
-import org.bridj.util.Utils;
+import static org.bridj.BridJ.debug;
+import static org.bridj.BridJ.error;
+import static org.bridj.BridJ.info;
+import static org.bridj.BridJ.verbose;
+import static org.bridj.util.AnnotationUtils.getInheritableAnnotation;
+import static org.bridj.util.AnnotationUtils.isAnnotationPresent;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.ann.JNIBound;
-import org.bridj.util.ConcurrentCache;
-import static org.bridj.BridJ.*;
-import static org.bridj.util.AnnotationUtils.*;
-import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
 import org.bridj.ann.Optional;
+import org.bridj.demangling.Demangler.Symbol;
+import org.bridj.util.ConcurrentCache;
+import org.bridj.util.Utils;
 
 /**
  * C runtime (used by default when no {@link org.bridj.ann.Runtime} annotation
@@ -109,6 +113,7 @@ public class CRuntime extends AbstractBridJRuntime {
 
     public class CTypeInfo<T extends NativeObject> implements TypeInfo<T> {
 
+        @SuppressWarnings("unchecked")
         public CTypeInfo(Type type) {
             this.type = type;
             this.typeClass = Utils.getClass(type);
@@ -180,15 +185,16 @@ public class CRuntime extends AbstractBridJRuntime {
             return type;
         }
 
+        @SuppressWarnings("unchecked")
         protected Class<T> getCastClass() {
             if (castClass == null) {
-                castClass = (Class<T>) getTypeForCast(typeClass);
+                castClass = (Class<T>)getTypeForCast(typeClass);
             }
             return castClass;
         }
 
         protected T newCastInstance() throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-            Class<?> cc = getCastClass();
+            Class<T> cc = getCastClass();
             try {
                 return (T) cc.newInstance();
             } catch (IllegalAccessException ex) {
@@ -199,7 +205,7 @@ public class CRuntime extends AbstractBridJRuntime {
         }
 
         //@Override
-        public T cast(Pointer peer) {
+        public T cast(Pointer<?> peer) {
             try {
                 T instance = newCastInstance();
                 // TODO template parameters here !!!
@@ -235,6 +241,7 @@ public class CRuntime extends AbstractBridJRuntime {
             }
         }
 
+        @SuppressWarnings("deprecation")
         public void copyNativeObjectToAddress(T instance, Pointer<T> ptr) {
             if (instance instanceof StructObject) {
                 // TODO override in C++ to call operator=
@@ -261,6 +268,7 @@ public class CRuntime extends AbstractBridJRuntime {
         }
 
         //@Override
+        @SuppressWarnings("deprecation")
         public void initialize(T instance) {
             if (!BridJ.isCastingNativeObjectInCurrentThread()) {
                 if (instance instanceof CallbackInterface) {
@@ -280,8 +288,9 @@ public class CRuntime extends AbstractBridJRuntime {
         }
         //@Override
 
-        public void initialize(T instance, Pointer peer) {
-            instance.peer = peer;
+        @SuppressWarnings("unchecked")
+        public void initialize(T instance, Pointer<?> peer) {
+            instance.peer = (Pointer<? extends NativeObject>) peer;
             if (instance instanceof StructObject) {
                 ((StructObject) instance).io = structIO;
                 structIO.readFieldsFromNative((StructObject) instance);
@@ -328,12 +337,13 @@ public class CRuntime extends AbstractBridJRuntime {
                 return;
             }
         }
+
     }
     /// Needs not be fast : TypeInfo will be cached in BridJ anyway !
     //@Override
 
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
-        return new CTypeInfo(type);
+        return new CTypeInfo<T>(type);
     }
 
     public Type getType(Class<?> cls, Object[] targs, int[] typeParamCount) {
@@ -354,12 +364,13 @@ public class CRuntime extends AbstractBridJRuntime {
 
     @Override
     public void unregister(Type type) {
-        Class typeClass = Utils.getClass(type);
+        Class<?> typeClass = Utils.getClass(type);
         registeredTypes.remove(typeClass);
     }
 
+    @SuppressWarnings("unchecked")
     synchronized void register(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
-        Class typeClass = Utils.getClass(type);
+        Class<?> typeClass = Utils.getClass(type);
         if (!BridJ.getRuntimeClass(typeClass).isInstance(this)) {
             BridJ.register(typeClass);
             return;
@@ -423,7 +434,7 @@ public class CRuntime extends AbstractBridJRuntime {
                 }
 
                 if (Modifier.isAbstract(typeModifiers)) {
-                    getCallbackNativeImplementer().getCallbackImplType((Class) type, forcedLibrary);
+                    getCallbackNativeImplementer().getCallbackImplType((Class<? extends CallbackInterface>) type, forcedLibrary);
                 }
             }
 
@@ -472,7 +483,7 @@ public class CRuntime extends AbstractBridJRuntime {
     }
 
     protected void registerFamily(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
-        Class typeClass = Utils.getClass(type);
+        Class<?> typeClass = Utils.getClass(type);
 
         for (Class<?> child : typeClass.getClasses()) {
             register(child, forcedLibrary, methodCallInfoBuilder);
@@ -580,16 +591,17 @@ public class CRuntime extends AbstractBridJRuntime {
         }
         return size;
     }
-    protected Set<Class> rootCallbackClasses = new HashSet<Class>(Arrays.asList(Callback.class, DynamicFunction.class));
+    @SuppressWarnings({ "unchecked" })
+    protected Set<Class<?>> rootCallbackClasses = new HashSet<Class<?>>(Arrays.asList(Callback.class, DynamicFunction.class));
 
-    public Method getUniqueCallbackMethod(Class type) {
+    public Method getUniqueCallbackMethod(Class<?> type) {
         return getCallbackMethod(type, true);
     }
-    public Method getFastestCallbackMethod(Class type) {
+    public Method getFastestCallbackMethod(Class<?> type) {
         return getCallbackMethod(type, false);
     }
 
-    private Method getSingleAbstractMethodMethod(Class type) {
+    private Method getSingleAbstractMethodMethod(Class<?> type) {
         assert Modifier.isAbstract(type.getModifiers());
         Method method = null;
         Method[] declaredMethods = type.getDeclaredMethods();
@@ -616,7 +628,7 @@ public class CRuntime extends AbstractBridJRuntime {
             return false;
         }
         for (int i = 0; i < params1.length; i++) {
-            Class p1 = params1[i], p2 = params2[i];
+            Class<?> p1 = params1[i], p2 = params2[i];
             if (!sameBindings(p1, p2)) {
                 return false;
             }
@@ -624,7 +636,7 @@ public class CRuntime extends AbstractBridJRuntime {
         return true;
     }
     
-    private static int getSignatureObjectCount(Class t) {
+    private static int getSignatureObjectCount(Class<?> t) {
         return t.isPrimitive() ? 0 : 1;
     }
     private int getSignatureObjectCount(Method m) {
@@ -635,7 +647,7 @@ public class CRuntime extends AbstractBridJRuntime {
         return count;
     }
 
-    public List<Method> getApplyMethods(Class type) {
+    public List<Method> getApplyMethods(Class<?> type) {
         List<Method> ret = new ArrayList<Method>();
         for (Method method : type.getDeclaredMethods()) {
             if (method.getName().equals("apply")) {
@@ -645,7 +657,7 @@ public class CRuntime extends AbstractBridJRuntime {
         return ret;
     }
     
-    public Class<?> getAbstractCallback(Class type) {
+    public Class<?> getAbstractCallback(Class<?> type) {
         Class<?> parent = null;
         while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
             type = parent;
@@ -697,7 +709,7 @@ public class CRuntime extends AbstractBridJRuntime {
             return best;
         }
     }
-    private static boolean sameBindings(Class t1, Class t2) {
+    private static boolean sameBindings(Class<?> t1, Class<?> t2) {
         return t1.equals(t2) ||
             t1 == long.class && Pointer.class.isAssignableFrom(t2) ||
             t2 == long.class && Pointer.class.isAssignableFrom(t1) ||
@@ -705,10 +717,11 @@ public class CRuntime extends AbstractBridJRuntime {
             t2 == int.class && IntValuedEnum.class.isAssignableFrom(t1);
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends NativeObject> Class<? extends T> getTypeForCast(Type type) {
         Class<?> typeClass = Utils.getClass(type);
         if (CallbackInterface.class.isAssignableFrom(typeClass)) {
-            return getCallbackNativeImplementer().getCallbackImplType((Class) typeClass, null);
+            return (Class<? extends T>)getCallbackNativeImplementer().getCallbackImplType((Class<? extends CallbackInterface>)typeClass, null);
         } else {
             return (Class<? extends T>) typeClass;
         }
@@ -732,15 +745,17 @@ public class CRuntime extends AbstractBridJRuntime {
         return getCallbackNativeImplementer().getDynamicCallback(library, callingConvention, returnType, parameterTypes);
     }
 
+    @SuppressWarnings("deprecation")
     public static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
         mci.prependCallbackCC();
         final long handle = JNI.createCToJavaCallback(mci);
         long peer = JNI.getActualCToJavaCallback(handle);
 
+        @SuppressWarnings("unused")
         final Throwable stackTrace = BridJ.debugPointers
                 ? new RuntimeException().fillInStackTrace() : null;
 
-        return (Pointer) Pointer.pointerToAddress(peer, t, new Pointer.Releaser() {
+        return Pointer.<T>pointerToAddress(peer, t, new Pointer.Releaser() {
             //@Override
             public void release(Pointer<?> p) {
                 if (BridJ.debugPointers) {
@@ -768,6 +783,7 @@ public class CRuntime extends AbstractBridJRuntime {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected void setNativeObjectPeer(NativeObjectInterface instance, Pointer<? extends NativeObjectInterface> peer) {
         ((NativeObject) instance).peer = (Pointer<NativeObject>) peer;
     }

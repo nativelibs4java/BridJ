@@ -30,7 +30,8 @@
  */
 package org.bridj.objc;
 
-import org.bridj.*;
+import org.bridj.CallbackInterface;
+import org.bridj.Pointer;
 
 public abstract class ObjCBlock/*<C extends Callback>*/ extends ObjCObject implements CallbackInterface {
 

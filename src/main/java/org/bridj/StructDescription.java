@@ -30,37 +30,14 @@
  */
 package org.bridj;
 
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
-import org.bridj.CallIO.NativeObjectHandler;
-import org.bridj.util.*;
-import java.lang.reflect.ParameterizedType;
+import static org.bridj.StructUtils.computeStructLayout;
+
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Member;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
-import java.nio.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Set;
-import java.util.concurrent.*;
+
 import org.bridj.ann.Virtual;
-import org.bridj.ann.Array;
-import org.bridj.ann.Union;
-import org.bridj.ann.Bits;
-import org.bridj.ann.Field;
-import org.bridj.ann.Struct;
-import org.bridj.ann.Alignment;
-import static org.bridj.Pointer.*;
-import static org.bridj.StructUtils.*;
+import org.bridj.util.Utils;
 
 /**
  * Representation of a C struct's memory layout, built thanks to the annotations
@@ -118,9 +95,10 @@ public class StructDescription {
             }
         }
     }
+    @SuppressWarnings("deprecation")
     StructCustomizer customizer;
 
-    public StructDescription(Class<?> structClass, Type structType, StructCustomizer customizer) {
+    public StructDescription(Class<?> structClass, Type structType, @SuppressWarnings("deprecation") StructCustomizer customizer) {
         this.structClass = structClass;
         this.structType = structType;
         this.customizer = customizer;
@@ -153,6 +131,7 @@ public class StructDescription {
     }
 
     /// Call whenever an instanceof a struct that depends on that StructIO is created
+    @SuppressWarnings("deprecation")
     void build() {
         if (fields == null) {
             synchronized (this) {

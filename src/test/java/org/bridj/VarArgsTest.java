@@ -30,13 +30,13 @@
  */
 package org.bridj;
 
-import org.bridj.ann.*; // annotations such as Library...
+import static org.bridj.LibCTest.sprintf;
+import static org.bridj.Pointer.allocateBytes;
+import static org.bridj.Pointer.pointerToCString;
+import static org.junit.Assert.assertEquals;
 
-import static org.bridj.Pointer.*;
-import org.junit.*;
-import static org.junit.Assert.*;
-
-import static org.bridj.LibCTest.*;
+import org.bridj.ann.Library; // annotations such as Library...
+import org.junit.Test;
 
 @Library("test")
 @org.bridj.ann.Runtime(CRuntime.class)

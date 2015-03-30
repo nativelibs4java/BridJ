@@ -30,7 +30,6 @@
  */
 package org.bridj;
 
-import java.util.Stack;
 
 /**
  * Base class for native objects.
@@ -40,7 +39,7 @@ import java.util.Stack;
 public abstract class NativeObject implements NativeObjectInterface {
 
     protected Pointer<? extends NativeObject> peer;
-    protected BridJRuntime.TypeInfo typeInfo;
+    protected BridJRuntime.TypeInfo<NativeObject> typeInfo;
 
     protected NativeObject(Pointer<? extends NativeObject> peer, Object... targs) {
         BridJ.initialize(this, peer, targs);

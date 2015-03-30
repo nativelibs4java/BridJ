@@ -30,52 +30,54 @@
  */
 package org.bridj;
 
-import org.bridj.ann.Forwardable;
-
-import java.util.Set;
-import java.util.HashSet;
-
-import org.bridj.util.Utils;
-
-import static org.bridj.util.AnnotationUtils.*;
-import static org.bridj.util.Utils.*;
+import static java.lang.System.exit;
+import static java.lang.System.gc;
+import static java.lang.System.getProperty;
+import static java.lang.System.getenv;
+import static org.bridj.Platform.extractEmbeddedLibraryResource;
+import static org.bridj.Platform.getMachine;
+import static org.bridj.Platform.getPossibleFileNames;
+import static org.bridj.Platform.is64Bits;
+import static org.bridj.Platform.isAndroid;
+import static org.bridj.Platform.isArm;
+import static org.bridj.Platform.isLinux;
+import static org.bridj.Platform.isMacOSX;
+import static org.bridj.Platform.isSolaris;
+import static org.bridj.Platform.isUnix;
+import static org.bridj.util.AnnotationUtils.getInheritableAnnotation;
+import static org.bridj.util.Utils.takeRight;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
+import java.io.PrintWriter;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bridj.BridJRuntime.TypeInfo;
-import org.bridj.demangling.Demangler.Symbol;
-import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.ann.Library;
-
-import java.util.Stack;
-import java.io.PrintWriter;
-import java.lang.reflect.Type;
-import java.net.URL;
-
-import org.bridj.util.StringUtils;
-
-import static org.bridj.Platform.*;
-import static java.lang.System.*;
-
-import org.bridj.util.ClassDefiner;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.util.ASMUtils;
+import org.bridj.util.ClassDefiner;
+import org.bridj.util.StringUtils;
+import org.bridj.util.Utils;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 /**
@@ -108,7 +110,7 @@ public class BridJ {
     static final Map<Long, NativeObject> strongNativeObjects = new HashMap<Long, NativeObject>();
 
     public static long sizeOf(Type type) {
-        Class c = Utils.getClass(type);
+        Class<?> c = Utils.getClass(type);
         if (c.isPrimitive()) {
             return StructUtils.primTypeLength(c);
         } else if (Pointer.class.isAssignableFrom(c)) {
@@ -268,9 +270,10 @@ public class BridJ {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <O extends NativeObject> void copyNativeObjectToAddress(O value, Type type, Pointer<O> ptr) {
         BridJRuntime runtime = getRuntime(Utils.getClass(type));
-        getTypeInfo(runtime, type).copyNativeObjectToAddress(value, (Pointer) ptr);
+        ((TypeInfo<O>)getTypeInfo(runtime, type)).copyNativeObjectToAddress(value, ptr);
     }
 
     public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
@@ -283,6 +286,7 @@ public class BridJ {
     private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
 
     public static synchronized <R extends BridJRuntime> R getRuntimeByRuntimeClass(Class<R> runtimeClass) {
+        @SuppressWarnings("unchecked")
         R r = (R) runtimes.get(runtimeClass);
         if (r == null) {
             try {
@@ -300,6 +304,7 @@ public class BridJ {
      * {@link org.bridj.ann.Runtime} annotation, if any, looking up parents and
      * defaulting to {@link org.bridj.CRuntime}).
      */
+    @SuppressWarnings("unchecked")
     public static Class<? extends BridJRuntime> getRuntimeClass(Class<?> type) {
         org.bridj.ann.Runtime runtimeAnn = getInheritableAnnotation(org.bridj.ann.Runtime.class, type);
         Class<? extends BridJRuntime> runtimeClass = null;
@@ -367,11 +372,12 @@ public class BridJ {
             runtime.unregister(type);
         }
     }
-    static Map<Type, TypeInfo<?>> typeInfos = new HashMap<Type, TypeInfo<?>>();
+    static Map<Type, TypeInfo<? extends NativeObject>> typeInfos = new HashMap<Type, TypeInfo<? extends NativeObject>>();
 
     static <T extends NativeObject> TypeInfo<T> getTypeInfo(BridJRuntime runtime, Type t) {
         synchronized (typeInfos) {
-            TypeInfo info = typeInfos.get(t);
+            @SuppressWarnings("unchecked")
+            TypeInfo<T> info = (TypeInfo<T>)typeInfos.get(t);
             if (info == null) {
                 // getRuntime(Utils.getClass(t))
                 info = runtime.getTypeInfo(t);
@@ -466,7 +472,8 @@ public class BridJ {
             hasUnknown = true;
         }
 
-        for (Enumeration<String> e = (Enumeration) System.getProperties().propertyNames(); e.hasMoreElements();) {
+        for (@SuppressWarnings("unchecked")
+        Enumeration<String> e = (Enumeration<String>) System.getProperties().propertyNames(); e.hasMoreElements();) {
             String n = e.nextElement();
             if (!n.startsWith("bridj.") || props.contains(n)) {
                 continue;
@@ -1123,16 +1130,16 @@ public class BridJ {
         Class<?> instanceClass = instance.getClass();
         BridJRuntime runtime = getRuntime(instanceClass);
         Type type = runtime.getType(instance);
-        TypeInfo typeInfo = getTypeInfo(runtime, type);
+        TypeInfo<NativeObject> typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
         typeInfo.initialize(instance);
     }
 
-    static void initialize(NativeObject instance, Pointer peer, Object... targs) {
+    static void initialize(NativeObject instance, Pointer<?> peer, Object... targs) {
         Class<?> instanceClass = instance.getClass();
         BridJRuntime runtime = getRuntime(instanceClass);
         Type type = runtime.getType(instanceClass, targs, null);
-        TypeInfo typeInfo = getTypeInfo(runtime, type);
+        TypeInfo<NativeObject> typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
         typeInfo.initialize(instance, peer);
     }
@@ -1145,13 +1152,14 @@ public class BridJ {
         int targsCount = typeParamCount[0];
         Object[] args = takeRight(targsAndArgs, targsAndArgs.length - targsCount);
         // TODO handle template arguments here (or above), with class => ((class, args) => Type) caching
-        TypeInfo typeInfo = getTypeInfo(runtime, type);
+        TypeInfo<NativeObject> typeInfo = getTypeInfo(runtime, type);
         instance.typeInfo = typeInfo;
         typeInfo.initialize(instance, constructorId, args);
     }
 
+    @SuppressWarnings("unchecked")
     static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
-        return ((TypeInfo<T>) instance.typeInfo).clone(instance);
+        return (T)instance.typeInfo.clone(instance);
     }
 
     /**
@@ -1160,7 +1168,7 @@ public class BridJ {
      * An example is JNA-style structures.
      */
     public static <T extends NativeObject> T readFromNative(T instance) {
-        ((TypeInfo<T>) instance.typeInfo).readFromNative(instance);
+        instance.typeInfo.readFromNative(instance);
         return instance;
     }
 
@@ -1170,7 +1178,7 @@ public class BridJ {
      * An example is JNA-style structures.
      */
     public static <T extends NativeObject> T writeToNative(T instance) {
-        ((TypeInfo<T>) instance.typeInfo).writeToNative(instance);
+        instance.typeInfo.writeToNative(instance);
         return instance;
     }
 
@@ -1181,7 +1189,7 @@ public class BridJ {
      * This is primarily useful for debugging purposes.
      */
     public static String describe(NativeObject instance) {
-        return ((TypeInfo) instance.typeInfo).describe(instance);
+        return instance.typeInfo.describe(instance);
     }
 
     /**
@@ -1192,7 +1200,7 @@ public class BridJ {
      */
     public static String describe(Type nativeObjectType) {
         BridJRuntime runtime = getRuntime(Utils.getClass(nativeObjectType));
-        TypeInfo typeInfo = getTypeInfo(runtime, nativeObjectType);
+        TypeInfo<NativeObject> typeInfo = getTypeInfo(runtime, nativeObjectType);
         return typeInfo == null ? Utils.toString(nativeObjectType) : typeInfo.describe();
     }
 

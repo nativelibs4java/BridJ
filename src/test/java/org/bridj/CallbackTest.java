@@ -29,12 +29,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import static org.bridj.Pointer.*;
-import org.junit.Test;
-import org.bridj.ann.Runtime;
-import static org.junit.Assert.*;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.Pointer.pointerToAddress;
+import static org.bridj.Pointer.pointerToInt;
+import static org.junit.Assert.assertEquals;
 
 import org.bridj.ann.Library;
+import org.bridj.ann.Runtime;
+import org.junit.Test;
 
 @Library("test")
 @Runtime(CRuntime.class)

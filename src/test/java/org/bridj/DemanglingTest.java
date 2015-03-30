@@ -29,13 +29,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
+import static org.bridj.util.DefaultParameterizedType.paramType;
+import static org.bridj.util.PlatformTestUtils.force32Bits;
+import static org.bridj.util.PlatformTestUtils.force64Bits;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.bridj.CPPTest3.Constructed;
 import org.bridj.FunctionTest.ETest;
 import org.bridj.ann.Ptr;
@@ -49,12 +56,6 @@ import org.bridj.demangling.Demangler.SpecialName;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
-import static org.bridj.util.DefaultParameterizedType.*;
-import static org.bridj.util.PlatformTestUtils.force32Bits;
-import static org.bridj.util.PlatformTestUtils.force64Bits;
-import static org.bridj.util.ReflectionUtils.makeFieldWritable;
-
-import static org.junit.Assert.*;
 import org.junit.Test;
 public class DemanglingTest {
 

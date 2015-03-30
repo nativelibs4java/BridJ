@@ -31,11 +31,10 @@
 package org.bridj.objc;
 
 import java.nio.charset.Charset;
-import java.util.Map;
+
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
 import org.bridj.Pointer;
-import static org.bridj.Pointer.*;
 import org.bridj.Pointer.StringType;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;

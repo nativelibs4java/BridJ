@@ -29,11 +29,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import org.junit.Test;
-import org.junit.BeforeClass;
-
 import org.bridj.ann.Library;
 import org.bridj.ann.Optional;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 @org.bridj.ann.Runtime(CRuntime.class)
 public class WindowsTest {

@@ -6,15 +6,12 @@
 
 package org.bridj;
 
-import org.bridj.BridJ;
-import org.bridj.Pointer;
-import org.bridj.StructObject;
+import static org.junit.Assert.assertEquals;
+
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
-import org.bridj.ann.Library;
 import org.bridj.ann.Name;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class BitFieldTest {
     static {

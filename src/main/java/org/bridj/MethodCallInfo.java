@@ -30,24 +30,52 @@
  */
 package org.bridj;
 
-import java.lang.annotation.Annotation;
-import static org.bridj.NativeConstants.*;
-import static org.bridj.dyncall.DyncallLibrary.*;
-import org.bridj.ann.Constructor;
-//import org.bridj.cpp.CPPObject;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_DEFAULT;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_X86_WIN32_FAST_GNU;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_X86_WIN32_FAST_MS;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_X86_WIN32_STD;
+import static org.bridj.dyncall.DyncallLibrary.DC_CALL_C_X86_WIN32_THIS_MS;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_BOOL;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CC_FASTCALL_GNU;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CC_FASTCALL_MS;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CC_PREFIX;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CC_STDCALL;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CC_THISCALL_MS;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_CHAR;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_DOUBLE;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_FLOAT;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_INT;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_LONG;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_LONGLONG;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_POINTER;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_SHORT;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_STRUCT;
+import static org.bridj.dyncall.DyncallLibrary.DC_SIGCHAR_VOID;
+import static org.bridj.util.AnnotationUtils.getAnnotation;
+import static org.bridj.util.AnnotationUtils.getInheritableAnnotation;
+import static org.bridj.util.AnnotationUtils.isAnnotationPresent;
 
-import java.lang.reflect.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import org.bridj.NativeConstants.ValueType;
+import org.bridj.ann.Constructor;
+//import org.bridj.cpp.CPPObject;
 import org.bridj.ann.Convention;
-import org.bridj.ann.SetsLastError;
 import org.bridj.ann.DisableDirect;
 import org.bridj.ann.Ptr;
+import org.bridj.ann.SetsLastError;
 import org.bridj.ann.Virtual;
+import org.bridj.dyncall.DyncallLibrary.DCstruct;
 import org.bridj.util.Utils;
-import static org.bridj.util.AnnotationUtils.*;
 
 /**
  * Internal class that encapsulate all the knowledge about a native method call
@@ -153,7 +181,7 @@ public class MethodCallInfo {
 
     }
 
-    protected void init(AnnotatedElement annotatedElement, Class returnType, Type genericReturnType, Annotation[] returnAnnotations, Class[] parameterTypes, Type[] genericParameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers, boolean isVirtual, boolean isDirectModeAllowed) {
+    protected void init(AnnotatedElement annotatedElement, Class<?> returnType, Type genericReturnType, Annotation[] returnAnnotations, Class<?>[] parameterTypes, Type[] genericParameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers, boolean isVirtual, boolean isDirectModeAllowed) {
         assert returnType != null;
         assert genericReturnType != null;
         assert parameterTypes != null;
@@ -273,6 +301,7 @@ public class MethodCallInfo {
             case ThisCall:
                 this.direct = false;
                 setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
+            default:
         }
         if (BridJ.veryVerbose) {
             BridJ.info("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
@@ -321,6 +350,7 @@ public class MethodCallInfo {
         return ann != null;
     }
 
+    @SuppressWarnings("unchecked")
     public ValueType getValueType(int iParam, int nParams, Class<?> c, Type t, AnnotatedElement element, Annotation... directAnnotations) {
         boolean isPtr = isAnnotationPresent(Ptr.class, element, directAnnotations);
         boolean isCLong = isAnnotationPresent(org.bridj.ann.CLong.class, element, directAnnotations);
@@ -407,7 +437,8 @@ public class MethodCallInfo {
         }
         if (ValuedEnum.class.isAssignableFrom(c)) {
             direct = false;
-            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class) Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
+            @SuppressWarnings({ "rawtypes" })
+            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
             if (BridJ.veryVerbose) {
                 BridJ.info("CallIO : " + cio);
             }
@@ -564,7 +595,7 @@ public class MethodCallInfo {
                     t = ((ParameterizedType) t).getRawType();
                 }
                 if (t instanceof Class) {
-                    Class c = (Class) t;
+                    Class<?> c = (Class<?>) t;
                     if (javaChar.endsWith(";")) {
                         asmChar = javaChar.substring(0, javaChar.length() - 1) + "<*L" + c.getName().replace('.', '/') + ";>";
                         //asmChar += ";";

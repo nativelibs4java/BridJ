@@ -30,10 +30,15 @@
  */
 package org.bridj;
 
-import java.io.*;
+import static org.junit.Assert.assertNotNull;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.junit.Ignore;
+import org.junit.Test;
 
 @Ignore
 public class TestDylibs {

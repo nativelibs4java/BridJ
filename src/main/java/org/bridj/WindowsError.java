@@ -30,8 +30,10 @@
  */
 package org.bridj;
 
+import static org.bridj.WinExceptionsConstants.EXCEPTION_ACCESS_VIOLATION;
+import static org.bridj.WinExceptionsConstants.EXCEPTION_IN_PAGE_ERROR;
+
 import java.lang.reflect.Field;
-import static org.bridj.WinExceptionsConstants.*;
 
 /**
  * Native Windows error as caught by a
@@ -40,8 +42,8 @@ import static org.bridj.WinExceptionsConstants.*;
  * @author Olivier
  */
 class WindowsError extends NativeError {
-
-    final int code;
+  private static final long serialVersionUID = 1L;
+		final int code;
     final long info, address;
 
     WindowsError(int code, long info, long address) {

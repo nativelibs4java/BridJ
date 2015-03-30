@@ -29,18 +29,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import java.io.File;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.Pointer.pointerToInt;
+import static org.junit.Assert.assertEquals;
+
 import org.bridj.ann.Constructor;
+import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPObject;
-
-import org.bridj.*;
-import static org.bridj.Pointer.*;
-import org.bridj.ann.Field;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Ignore;
+import org.junit.Test;
 
 @Library("test") 
 public class CPPTest2 {

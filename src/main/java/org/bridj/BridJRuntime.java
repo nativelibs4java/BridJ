@@ -50,13 +50,13 @@ public interface BridJRuntime {
      */
     public interface TypeInfo<T extends NativeObject> {
 
-        T cast(Pointer peer);
+        T cast(Pointer<?> peer);
 
         void initialize(T instance);
 
-        void initialize(T instance, Pointer peer);
+        void initialize(T instance, Pointer<?> peer);
 
-        void initialize(T instance, int constructorId, Object[] args);
+        void initialize(T instance, int constructorId, Object... args);
 
         void destroy(T instance);
 

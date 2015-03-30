@@ -30,7 +30,8 @@
  */
 package org.bridj.objc;
 
-import org.bridj.*;
+import org.bridj.BridJ;
+import org.bridj.Pointer;
 
 public class ObjCClass extends ObjCObject {
 

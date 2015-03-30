@@ -29,22 +29,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.bridj;
-import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import org.bridj.ann.*;
+import java.lang.reflect.Type;
+
+import org.bridj.ann.Template;
 import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPRuntime;
 import org.bridj.cpp.CPPType;
-import static org.junit.Assert.*;
-import org.bridj.cpp.com.COMRuntime;
-import org.bridj.cpp.com.IUnknown;
-import org.bridj.cpp.com.VARIANT;
-import org.bridj.cpp.com.CLSID;
-import org.bridj.cpp.com.IID;
-import org.bridj.cpp.com.shell.IShellWindows;
+import org.junit.Test;
 
 public class CPPRuntimeTest {
     CPPRuntime runtime;

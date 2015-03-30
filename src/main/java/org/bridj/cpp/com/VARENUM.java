@@ -32,7 +32,7 @@ package org.bridj.cpp.com;
 
 import java.util.Collections;
 import java.util.Iterator;
-import org.bridj.BridJ;
+
 import org.bridj.FlagSet;
 import org.bridj.IntValuedEnum;
 import org.bridj.ValuedEnum;

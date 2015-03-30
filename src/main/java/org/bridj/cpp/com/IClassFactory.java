@@ -30,16 +30,11 @@
  */
 package org.bridj.cpp.com;
 
+import static org.bridj.cpp.com.COMRuntime.S_OK;
+import static org.bridj.cpp.com.COMRuntime.getIID;
+
 import org.bridj.Pointer;
-
-import org.bridj.ann.Convention;
 import org.bridj.ann.Virtual;
-import org.bridj.ann.Convention.Style;
-
-import org.bridj.*;
-import org.bridj.ann.*;
-import org.bridj.ann.Runtime;
-import static org.bridj.cpp.com.COMRuntime.*;
 
 @IID("00000001-0000-0000-C000-000000000046")
 public class IClassFactory extends IUnknown {

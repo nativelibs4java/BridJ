@@ -34,15 +34,10 @@
  */
 package org.bridj.cpp.com;
 
-import org.bridj.FlagSet;
-import org.bridj.IntValuedEnum;
-import org.bridj.ValuedEnum;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Field;
 import org.bridj.ann.Virtual;
-import java.util.Collections;
-import java.util.Iterator;
 
 /**
  *

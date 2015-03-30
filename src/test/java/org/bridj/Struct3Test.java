@@ -30,14 +30,14 @@
  */
 package org.bridj;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
+import org.bridj.ann.Array;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
-import org.bridj.ann.Array;
-import org.bridj.ann.Ptr;
 import org.bridj.ann.Optional;
+import org.bridj.ann.Ptr;
+import org.junit.Test;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 

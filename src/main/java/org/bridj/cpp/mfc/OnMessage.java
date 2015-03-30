@@ -30,7 +30,8 @@
  */
 package org.bridj.cpp.mfc;
 
-import static org.bridj.cpp.mfc.AFXSignature.*;
+import static org.bridj.cpp.mfc.AFXSignature.AfxSig_vwp;
+import static org.bridj.cpp.mfc.AFXSignature.AfxSig_vwww;
 
 /**
  * http://msdn.microsoft.com/en-us/library/0812b0wa(VS.80).aspx C:\Program

@@ -30,7 +30,7 @@
  */
 package org.bridj;
 
-import org.bridj.ann.*;
+import org.bridj.ann.Field;
 
 public class ComplexDouble extends StructObject {
 

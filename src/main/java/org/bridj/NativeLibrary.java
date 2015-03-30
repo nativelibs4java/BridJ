@@ -33,38 +33,34 @@
  */
 package org.bridj;
 
-import java.io.*;
-import java.util.regex.*;
-import java.lang.annotation.Annotation;
+import static org.bridj.Pointer.pointerToAddress;
+import static org.bridj.util.AnnotationUtils.getAnnotation;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.bridj.ann.Name;
+import org.bridj.demangling.Demangler;
 import org.bridj.demangling.Demangler.DemanglingException;
 import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.demangling.Demangler.Symbol;
-import org.bridj.ann.Virtual;
-import org.bridj.ann.Name;
 import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
-import java.lang.reflect.Type;
-import static org.bridj.Pointer.*;
-import static org.bridj.util.AnnotationUtils.*;
-
-import java.util.Collection;
-import org.bridj.Platform.DeleteFiles;
-import org.bridj.demangling.Demangler;
-import org.bridj.util.ProcessUtils;
-import org.bridj.util.StringUtils;
 
 /**
  * Representation of a native shared library, with symbols retrieval / matching
@@ -104,17 +100,15 @@ public class NativeLibrary {
 
     static String followGNULDScript(String path) {
         try {
-            Reader r = new FileReader(path);
+        	  BufferedReader r = new BufferedReader(new FileReader(path));
             try {
                 char c;
                 while ((c = (char) r.read()) == ' ' || c == '\t' || c == '\n') {
                 }
                 if (c == '/' && r.read() == '*') {
-                    BufferedReader br = new BufferedReader(r);
-                    r = br;
                     String line;
                     StringBuilder b = new StringBuilder("/*");
-                    while ((line = br.readLine()) != null) {
+                    while ((line = r.readLine()) != null) {
                         b.append(line).append('\n');
                     }
                     String src = b.toString();
@@ -139,6 +133,7 @@ public class NativeLibrary {
         return path;
     }
 
+    @SuppressWarnings("deprecation")
     public static NativeLibrary load(String path) throws IOException {
         long handle = 0;
         File file = new File(path);
@@ -174,6 +169,7 @@ public class NativeLibrary {
         release();
     }
 
+    @SuppressWarnings("deprecation")
     public synchronized void release() {
         if (handle == 0) {
             return;
@@ -201,10 +197,12 @@ public class NativeLibrary {
 
     }
 
+    @SuppressWarnings("deprecation")
     public Pointer<?> getSymbolPointer(String name) {
         return pointerToAddress(getSymbolAddress(name));
     }
 
+    @SuppressWarnings("deprecation")
     public long getSymbolAddress(String name) {
         if (nameToSym != null) {
             Symbol addr = nameToSym.get(name);
@@ -285,6 +283,7 @@ public class NativeLibrary {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     public Collection<Demangler.Symbol> getSymbols() {
         try {
             scanSymbols();
@@ -294,6 +293,7 @@ public class NativeLibrary {
         return nameToSym == null ? Collections.EMPTY_LIST : Collections.unmodifiableCollection(nameToSym.values());
     }
 
+    @SuppressWarnings("deprecation")
     public String getSymbolName(long address) {
         if (addrToName == null && getSymbolsHandle() != 0)//Platform.isUnix())
         {
@@ -314,6 +314,7 @@ public class NativeLibrary {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public Symbol getSymbol(String name) {
         try {
             Symbol symbol;
@@ -351,6 +352,7 @@ public class NativeLibrary {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void scanSymbols() throws Exception {
         if (addrToName != null) {
             return;
@@ -372,7 +374,7 @@ public class NativeLibrary {
 
         addrToName = new HashMap<Long, Demangler.Symbol>();
 
-        boolean is32 = !Platform.is64Bits();
+        //boolean is32 = !Platform.is64Bits();
         for (String name : symbs) {
             if (name == null) {
                 continue;

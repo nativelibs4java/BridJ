@@ -48,7 +48,7 @@ import java.util.WeakHashMap;
  *
  * @author ochafik
  */
-public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
+public class FlagSet<E extends Enum<E> & ValuedEnum<E>> implements ValuedEnum<E> {
 
     private final long value;
     private final Class<E> enumClass;
@@ -84,7 +84,7 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         if (!(o instanceof ValuedEnum)) {
             return false;
         }
-        return value() == ((ValuedEnum) o).value();
+        return value() == ((ValuedEnum<?>) o).value();
     }
 
     @Override
@@ -101,7 +101,7 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         E nullMatch = null;
         E match = null;
         for (E e : getMatchingEnums()) {
-            if (((ValuedEnum) e).value() == 0) {
+            if (((ValuedEnum<?>) e).value() == 0) {
                 nullMatch = e;
             } else if (match == null) {
                 match = e;
@@ -141,22 +141,23 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return b.toString();
     }
 
-    public static <EE extends Enum<EE>> FlagSet<EE> createFlagSet(long value, Class<EE> enumClass) {
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> FlagSet<EE> createFlagSet(long value, Class<EE> enumClass) {
         return new FlagSet<EE>(value, enumClass, null);
     }
 
-    public static class IntFlagSet<E extends Enum<E>> extends FlagSet<E> implements IntValuedEnum<E> {
+    public static class IntFlagSet<E extends Enum<E> & ValuedEnum<E>> extends FlagSet<E> implements IntValuedEnum<E> {
 
         protected IntFlagSet(long value, Class<E> enumClass, E[] enumClassValues) {
             super(value, enumClass, enumClassValues);
         }
     }
 
-    public static <EE extends Enum<EE>> IntFlagSet<EE> createFlagSet(int value, Class<EE> enumClass) {
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> IntFlagSet<EE> createFlagSet(int value, Class<EE> enumClass) {
         return new IntFlagSet<EE>(value, enumClass, null);
     }
 
-    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(ValuedEnum<EE> value) {
+    @SuppressWarnings("unchecked")
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> FlagSet<EE> fromValue(ValuedEnum<EE> value) {
         if (value instanceof Enum) {
             return FlagSet.createFlagSet(value.value(), (EE) value);
         } else {
@@ -164,11 +165,12 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         }
     }
 
-    public static <EE extends Enum<EE>> FlagSet<EE> createFlagSet(long value, EE... enumValue) {
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> FlagSet<EE> createFlagSet(long value, EE... enumValue) {
         if (enumValue == null) {
             throw new IllegalArgumentException("Expected at least one enum value");
         }
-        Class<EE> enumClass = (Class) enumValue[0].getClass();
+        @SuppressWarnings("unchecked")
+        Class<EE> enumClass = (Class<EE>)enumValue[0].getClass();
         if (IntValuedEnum.class.isAssignableFrom(enumClass)) {
             return new IntFlagSet<EE>(value, enumClass, enumValue);
         } else {
@@ -179,23 +181,25 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
 //        return (IntFlagSet<EE>)createFlagSet((long)value, enumValue);
 //    }
 
-    public static <EE extends Enum<EE>> IntValuedEnum<EE> fromValue(int value, Class<EE> enumClass) {
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> IntValuedEnum<EE> fromValue(int value, Class<EE> enumClass) {
         return (IntValuedEnum<EE>) fromValue((long) value, enumClass, enumClass.getEnumConstants());
     }
 
-    public static <EE extends Enum<EE>> IntValuedEnum<EE> fromValue(int value, EE... enumValues) {
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> IntValuedEnum<EE> fromValue(int value, EE... enumValues) {
         return (IntValuedEnum<EE>) fromValue((long) value, enumValues);
     }
 
-    public static <EE extends Enum<EE>> ValuedEnum<EE> fromValue(long value, EE... enumValues) {
+    public static <EE extends Enum<EE> & ValuedEnum<EE>> ValuedEnum<EE> fromValue(long value, EE... enumValues) {
         if (enumValues == null || enumValues.length == 0) {
             throw new IllegalArgumentException("Expected at least one enum value");
         }
-        Class<EE> enumClass = (Class) enumValues[0].getClass();
+        @SuppressWarnings("unchecked")
+        Class<EE> enumClass = (Class<EE>) enumValues[0].getClass();
         return fromValue(value, enumClass, enumValues);
     }
 
-    protected static <EE extends Enum<EE>> ValuedEnum<EE> fromValue(long value, Class<EE> enumClass, EE... enumValue) {
+    @SuppressWarnings("unchecked")
+    protected static <EE extends Enum<EE> & ValuedEnum<EE>> ValuedEnum<EE> fromValue(long value, Class<EE> enumClass, EE... enumValue) {
         List<EE> enums = getMatchingEnums(value, enumClass.getEnumConstants());
         if (enums.size() == 1) {
             return (ValuedEnum<EE>) enums.get(0);
@@ -278,30 +282,31 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     }
 
     public FlagSet<E> or(E... valuesToBeCombinedWithOR) {
-        return new FlagSet(value() | orValue(valuesToBeCombinedWithOR), enumClass, null);
+        return new FlagSet<E>(value() | orValue(valuesToBeCombinedWithOR), enumClass, null);
     }
 
-    static <E extends Enum<E>> long orValue(E... valuesToBeCombinedWithOR) {
+    static <E extends Enum<E> & ValuedEnum<E>> long orValue(E... valuesToBeCombinedWithOR) {
         long value = 0;
         for (E v : valuesToBeCombinedWithOR) {
-            value |= ((ValuedEnum) v).value();
+            value |= v.value();
         }
         return value;
     }
 
     public FlagSet<E> without(E... valuesToBeCombinedWithOR) {
-        return new FlagSet(value() & ~orValue(valuesToBeCombinedWithOR), enumClass, null);
+        return new FlagSet<E>(value() & ~orValue(valuesToBeCombinedWithOR), enumClass, null);
     }
 
     public FlagSet<E> and(E... valuesToBeCombinedWithOR) {
-        return new FlagSet(value() & orValue(valuesToBeCombinedWithOR), enumClass, null);
+        return new FlagSet<E>(value() & orValue(valuesToBeCombinedWithOR), enumClass, null);
     }
 
+    @SuppressWarnings("unchecked")
     protected List<E> getMatchingEnums() {
-        return enumClass == null ? Collections.EMPTY_LIST : getMatchingEnums(value, getEnumClassValues());
+        return (List<E>)(enumClass == null ? Collections.emptyList() : getMatchingEnums(value, getEnumClassValues()));
     }
 
-    protected static <EE extends Enum<EE>> List<EE> getMatchingEnums(long value, EE[] enums) {
+    protected static <EE extends Enum<EE> & ValuedEnum<EE>> List<EE> getMatchingEnums(long value, EE[] enums) {
         List<EE> ret = new ArrayList<EE>();
         for (EE e : enums) {
             long eMask = ((ValuedEnum<?>) e).value();
@@ -312,17 +317,18 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return ret;
     }
 
-    public static <E extends Enum<E>> FlagSet<E> fromValues(E... enumValues) {
+    @SuppressWarnings("unchecked")
+    public static <E extends Enum<E> & ValuedEnum<E>> FlagSet<E> fromValues(E... enumValues) {
         long value = 0;
-        Class cl = null;
+        Class<E> cl = null;
         for (E enumValue : enumValues) {
             if (enumValue == null) {
                 continue;
             }
             if (cl == null) {
-                cl = enumValue.getClass();
+                cl = (Class<E>)enumValue.getClass();
             }
-            value |= ((ValuedEnum) enumValue).value();
+            value |= enumValue.value();
         }
         return new FlagSet<E>(value, cl, enumValues);
     }

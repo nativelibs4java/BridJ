@@ -30,18 +30,21 @@
  */
 package org.bridj;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
-import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
-import org.junit.*;
-import static org.junit.Assert.*;
-
-import org.bridj.cpp.*;
-import org.bridj.cpp.std.*;
-import static org.bridj.Pointer.*;
-
 import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.bridj.cpp.CPPRuntime;
+import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
+import org.bridj.cpp.CPPType;
+import org.bridj.cpp.std.list;
+import org.bridj.cpp.std.vector;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class STLTest {
     <T> DynamicFunction<T> getTestFunction(String name, Type ret, Type... args) {
@@ -57,6 +60,7 @@ public class STLTest {
             throw new RuntimeException("Failed to get test function " + name + ": " + ex, ex);
         }
     }
+    @SuppressWarnings("rawtypes")
     DynamicFunction<Pointer<?>> new_int_vector = getTestFunction("new_int_vector", Pointer.class, int.class);
     DynamicFunction<Integer> int_vector_get = getTestFunction("int_vector_get", int.class, Pointer.class, int.class);
     DynamicFunction<Void> int_vector_push_back = getTestFunction("int_vector_push_back", void.class, Pointer.class, int.class);
@@ -64,6 +68,7 @@ public class STLTest {
     DynamicFunction<Void> int_vector_resize = getTestFunction("int_vector_get", void.class, Pointer.class, int.class);
     DynamicFunction<SizeT> sizeof_int_vector = getTestFunction("sizeof_int_vector", SizeT.class);
 
+    @SuppressWarnings("rawtypes")
     DynamicFunction<Pointer<?>> new_int_list = getTestFunction("new_int_list", Pointer.class);
     DynamicFunction<Void> int_list_push_back = getTestFunction("int_list_push_back", void.class, Pointer.class, int.class);
 

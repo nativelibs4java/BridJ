@@ -30,35 +30,37 @@
  */
 package org.bridj.demangling;
 
-import java.io.EOFException;
-import org.bridj.ann.Convention.Style;
-import java.lang.reflect.*;
-import java.lang.annotation.*;
+import static org.bridj.util.AnnotationUtils.isAnnotationPresent;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.regex.Pattern;
-import org.bridj.AbstractBridJRuntime;
+
 import org.bridj.BridJ;
+import org.bridj.CLong;
 import org.bridj.CRuntime;
+import org.bridj.Callback;
 import org.bridj.FlagSet;
-import org.bridj.JNI;
 import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
 import org.bridj.Platform;
-
 import org.bridj.Pointer;
-import org.bridj.TimeT;
 import org.bridj.SizeT;
-import org.bridj.CLong;
-import org.bridj.Callback;
+import org.bridj.TimeT;
 import org.bridj.ValuedEnum;
-import org.bridj.ann.Constructor;
-import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
+import org.bridj.ann.Convention.Style;
 import org.bridj.ann.Name;
 import org.bridj.ann.Namespace;
+import org.bridj.ann.Ptr;
 import org.bridj.ann.Template;
 import org.bridj.util.AnnotationUtils;
-import static org.bridj.util.AnnotationUtils.*;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 

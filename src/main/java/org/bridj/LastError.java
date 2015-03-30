@@ -30,12 +30,8 @@
  */
 package org.bridj;
 
-import java.io.FileNotFoundException;
-import org.bridj.ann.*;
-
 //import static org.bridj.LastError.Windows.*;
 //import static org.bridj.LastError.Unix.*;
-import static org.bridj.Pointer.*;
 
 /**
  * Native error that correspond to the <a
@@ -65,8 +61,9 @@ import static org.bridj.Pointer.*;
  * @author Olivier Chafik
  */
 public class LastError extends NativeError {
-
-    final int code, kind;
+  private static final long serialVersionUID = 1L;
+  
+		final int code, kind;
     String description;
     
     static final int eLastErrorKindWindows = 1, eLastErrorKindCLibrary = 2;

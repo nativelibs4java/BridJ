@@ -30,14 +30,22 @@
  */
 package org.bridj.objc;
 
+import static org.bridj.Pointer.allocate;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.Pointer.pointerToCString;
+import static org.bridj.objc.ObjCJNI.createObjCProxyPeer;
+import static org.bridj.objc.ObjectiveCRuntime.class_addProtocol;
+import static org.bridj.objc.ObjectiveCRuntime.getObjCClass;
+import static org.bridj.objc.ObjectiveCRuntime.objc_getProtocol;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import org.bridj.*;
-import static org.bridj.Pointer.*;
-import static org.bridj.objc.ObjCJNI.*;
-import static org.bridj.Platform.*;
-import static org.bridj.objc.ObjectiveCRuntime.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bridj.BridJ;
+import org.bridj.Pointer;
+import org.bridj.PointerIO;
 import org.bridj.util.Pair;
 import org.bridj.util.Utils;
 

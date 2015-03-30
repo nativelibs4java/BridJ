@@ -30,26 +30,13 @@
  */
 package org.bridj;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import org.bridj.ann.Constructor;
-import org.bridj.ann.Convention;
-import org.bridj.ann.Ptr;
-import org.bridj.cpp.CPPObject;
-
-
-import org.bridj.BridJ;
-import org.bridj.Pointer;
-import org.bridj.ann.Field;
 import org.bridj.ann.Library;
-import org.bridj.ann.Name;
 import org.bridj.ann.Runtime;
-import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPRuntime;
-
-import org.junit.After;
-import static org.bridj.Pointer.*;
+import org.junit.Test;
 
 @Library("test")
 @Runtime(CPPRuntime.class)

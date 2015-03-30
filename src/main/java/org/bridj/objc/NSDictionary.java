@@ -30,12 +30,15 @@
  */
 package org.bridj.objc;
 
+import static org.bridj.Pointer.allocatePointers;
+import static org.bridj.Pointer.getPointer;
+import static org.bridj.objc.FoundationLibrary.pointerToNSString;
+
 import java.util.HashMap;
-import org.bridj.Pointer;
 import java.util.Map;
+
 import org.bridj.BridJ;
-import static org.bridj.objc.FoundationLibrary.*;
-import static org.bridj.Pointer.*;
+import org.bridj.Pointer;
 
 /**
  *

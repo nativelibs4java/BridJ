@@ -30,12 +30,27 @@
  */
 package org.bridj;
 
-import java.lang.reflect.*;
-import java.nio.*;
-import java.util.*;
-import static org.bridj.StructUtils.*;
+import static org.bridj.StructUtils.alignmentOf;
+import static org.bridj.StructUtils.primTypeAlignment;
+import static org.bridj.StructUtils.primTypeLength;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.bridj.cpp.CPPObject;
-import org.bridj.cpp.CPPRuntime;
 import org.bridj.cpp.CPPType;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
@@ -86,14 +101,14 @@ public class StructFieldDescription {
             Type rawType = pt.getRawType();
             if ((tpe instanceof CPPType) || CPPObject.class.isAssignableFrom(Utils.getClass(rawType))) // TODO args
             {
-                ret = new CPPType(resolvedOwnerType, rawType, resolvedActualTypeArguments);
+                ret = new CPPType(resolvedOwnerType, rawType, (Object[])resolvedActualTypeArguments);
             } else {
                 ret = new DefaultParameterizedType(resolvedOwnerType, rawType, resolvedActualTypeArguments);
             }
         } else if (tpe instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) tpe;
+            TypeVariable<?> tv = (TypeVariable<?>) tpe;
             Class<?> structClass = Utils.getClass(structType);
-            TypeVariable[] typeParameters = structClass.getTypeParameters();
+            TypeVariable<?>[] typeParameters = structClass.getTypeParameters();
             int i = Arrays.asList(typeParameters).indexOf(tv);
             // TODO recurse on pt.getOwnerType() if i < 0.
             if (i >= 0) {
@@ -148,7 +163,7 @@ public class StructFieldDescription {
                 field.desc.isNativeObject = true;
             } else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
                 field.desc.nativeTypeOrPointerTargetType = resolveType((field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType) field.desc.valueType).getActualTypeArguments()[0]) : null, structType);
-                Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
+                Class<?> c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
                 if (IntValuedEnum.class.isAssignableFrom(c)) {
                     field.desc.byteLength = 4;
                 } else {
