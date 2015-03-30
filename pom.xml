@@ -79,6 +79,13 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<extensions>
+			<extension>
+				<groupId>com.xiantrimble.maven</groupId>
+				<artifactId>maven-format-lifecycle</artifactId>
+				<version>1.0.0</version>
+			</extension>
+		</extensions>
 		<plugins>
 			<!--plugin>
 			<groupId>org.codehaus.mojo</groupId>
@@ -485,6 +492,39 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 					</execution>
 				</executions>
 			</plugin>
+        <plugin>
+          <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+          <artifactId>maven-java-formatter-plugin</artifactId>
+          <version>0.4</version>
+          <configuration>
+            <configFile>eclipse-formatter-config.xml</configFile>
+            <overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
+            <directories>
+              <directory>${project.build.sourceDirectory}</directory>
+              <directory>${project.build.testSourceDirectory}</directory>
+            </directories>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.text</groupId>
+              <artifactId>org.eclipse.text</artifactId>
+              <version>3.5.101</version>
+            </dependency>
+            <dependency>
+              <groupId>org.eclipse.tycho</groupId>
+              <artifactId>org.eclipse.jdt.core</artifactId>
+              <version>3.10.0.v20140604-1726</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <phase>format</phase>
+              <goals>
+                <goal>format</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
 		</plugins>
 	</build>
 	<profiles>
