@@ -43,7 +43,7 @@ public class JAWTTest {
 	@Test
 	public void testWindowPeer() throws Exception {
     if (Platform.isMacOSX() ||
-        System.getProperty("java.version)").matches("1\\.6\\..*")) {
+        System.getProperty("java.version").matches("1\\.6\\..*")) {
       // Oracle Java and jawt: it's complicated.
       // See http://forum.lwjgl.org/index.php?topic=4326.0
       // OpenJDK 6 + Linux seem problematic too.
