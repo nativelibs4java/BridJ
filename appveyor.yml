@@ -26,7 +26,8 @@ build_script:
   # TODO(ochafik): Build native libs here (need to convert .vcproj to MSBuild script)
 test_script:
   - mvn test -B
-  - BRIDJ_PROTECTED=1 mvn test -o -Dtest=ExceptionsTest
+  - SET BRIDJ_PROTECTED=1
+  - mvn test -o -Dtest=ExceptionsTest
 cache:
   - C:\bin\apache-maven-3.2.5\
   - C:\Users\appveyor\.m2
