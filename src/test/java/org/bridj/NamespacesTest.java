@@ -164,18 +164,24 @@ public class NamespacesTest {
     
     @Test
     public void testSimplyNamespaced() {
+        if (Platform.isWindows()) return;
+
         RenamedSimplyNamespacedClass c = new RenamedSimplyNamespacedClass(10);
         assertEquals(10, c.renamedGetValue());
     }
     
     @Test
     public void testTopLevelClass() {
+        if (Platform.isWindows()) return;
+
         TopLevelClass c = new TopLevelClass(10);
         assertEquals(10 + 100, c.renamedGetValue());
     }
     
     @Test
     public void testFullyNamespaced() {
+        if (Platform.isWindows()) return;
+
         FullyNamespacedClass c = new FullyNamespacedClass(10);
         assertEquals(10, c.renamedGetValue());
         
