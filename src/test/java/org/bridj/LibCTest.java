@@ -88,6 +88,8 @@ public class LibCTest {
 	
 	@Test(expected = LastError.class)
 	public void testLastError() {
+        if (Platform.isWindows()) return;
+
         strtol(pointerToCString("18446744073709551616"), null, 10);
 	}
 	
