@@ -666,7 +666,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-    double speedupExpectation = Platform.isLinux() ? 0.5 : 1.3;
+    double speedupExpectation = Platform.isLinux() ? 0.5 : 1.1;
         assertBridJFaster(bridJFaster, speedupExpectation);
 	}
 	static void assertBridJFaster(double factor, double minExpectedFactor) {
