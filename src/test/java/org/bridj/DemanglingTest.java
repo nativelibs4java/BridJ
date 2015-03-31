@@ -56,6 +56,7 @@ import org.bridj.demangling.Demangler.SpecialName;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
+import org.junit.Ignore;
 import org.junit.Test;
 public class DemanglingTest {
 
