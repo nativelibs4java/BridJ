@@ -114,6 +114,7 @@ public class DemanglingTest {
 	}
 
     static Type clongType = CLong.class;//CPPType.getCPPType(new Object[] { CLong.class });
+    @Ignore
     @Test
     public void testLongLongBackReference() {
         demangle(
