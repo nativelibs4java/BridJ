@@ -68,8 +68,7 @@ public class LibCTest {
 	}
 	@Test(expected=LastError.class)
 	public void testLastWindowsError() {
-        if (!Platform.isWindows())
-            throw new LastError(0, 0);
+        if (!Platform.isWindows()) throw new LastError(0, 0);
         
         setLastWindowsError();
 	}
@@ -88,6 +87,8 @@ public class LibCTest {
 	
 	@Test(expected = LastError.class)
 	public void testLastError() {
+        if (Platform.isWindows()) throw new LastError(0, 0);
+
         strtol(pointerToCString("18446744073709551616"), null, 10);
 	}
 	
