@@ -21,6 +21,7 @@ It was previously hosted on [ochafik/nativelibs4java](http://github.com/ochafik/
 # Building
   ```
   git clone http://github.com/nativelibs4java/BridJ.git
+  cd BridJ
   mvn clean install
   ```
 
