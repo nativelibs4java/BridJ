@@ -6,7 +6,7 @@
 
 It is similar in spirit to [JNA](https://github.com/twall/jna) (dynamic bindings that don't require any native compilation, unlike JNI), but was designed to support C++, to be blazing fast (thanks to [dyncall](http://dyncall.org) + hand-optimized assembly tweaks) and to use modern Java features.
 
-A comprehensive documentation is available on its [Wiki](https://code.google.com/p/bridj/wiki/FAQ?tm=6).
+A comprehensive documentation is available on its [Wiki](https://code.google.com/p/bridj/wiki/FAQ?tm=6) (needs migration to GitHub Pages!).
 
 It was previously hosted on [ochafik/nativelibs4java](http://github.com/ochafik/nativelibs4java).
 
