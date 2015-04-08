@@ -1,6 +1,6 @@
 # BridJ
 
-[![Join the chat at https://gitter.im/nativelibs4java/BridJ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nativelibs4java/BridJ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Maven Central](https://img.shields.io/maven-central/v/com.nativelibs4java/bridj.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.nativelibs4java%22%20AND%20a%3A%22bridj%22) [![Build Status (Travis: Linux)](https://travis-ci.org/nativelibs4java/BridJ.svg)](https://travis-ci.org/nativelibs4java/BridJ) <sup>on Linux,</sup> [![Build Status (AppVeyor: Windows)](https://img.shields.io/appveyor/ci/ochafik/bridj/master.svg)](https://ci.appveyor.com/project/ochafik/bridj/) <sup>on Windows</sup>
+[![Maven Central](https://img.shields.io/maven-central/v/com.nativelibs4java/bridj.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.nativelibs4java%22%20AND%20a%3A%22bridj%22) [![Build Status (Travis: Linux)](https://travis-ci.org/nativelibs4java/BridJ.svg?label=linux build)](https://travis-ci.org/nativelibs4java/BridJ) [![Build Status (AppVeyor: Windows)](https://img.shields.io/appveyor/ci/ochafik/bridj/master.svg?label=windows build)](https://ci.appveyor.com/project/ochafik/bridj/) [![Join the chat at https://gitter.im/nativelibs4java/BridJ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nativelibs4java/BridJ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
 [BridJ](http://bridj.googlecode.com) is a Java / native interoperability library that focuses on speed and ease of use.
 
