@@ -118,7 +118,7 @@ public class GCC4Demangler extends Demangler {
     public TypeRef parseType() throws DemanglingException {
         if (Character.isDigit(peekChar())) {
             Ident name = ensureOfType(parseNonCompoundIdent(), Ident.class);
-            String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
+            String id = nextShortcutId();
             TypeRef res = simpleType(name);
             typeShortcuts.put(id, res);
             return res;
@@ -152,8 +152,9 @@ public class GCC4Demangler extends Demangler {
                                 return typeShortcuts.get(templatedId);
                             }
                         }
+                    } else {
+                        position -= delta;
                     }
-                    position -= delta;
                 }
             }
             // WARNING/INFO/NB: we intentionally continue to the N case
