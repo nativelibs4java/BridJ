@@ -311,6 +311,10 @@ public class DemanglingTest {
             pointerType(pointerType(Byte.class))
         );
 	}
+    @Test
+	public void twiceConstCharPointerFromBugRequests() {
+        demangle(null, "_ZN16cmd_create_event6createEPKcS1_PS1_", "null cmd_create_event.create(const byte*, const byte*, const byte**)");
+	}
 	@Test
     public void methods() {
     	demangle(
