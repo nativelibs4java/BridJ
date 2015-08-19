@@ -88,10 +88,11 @@ public class GCC4Demangler extends Demangler {
     }
 
     private TypeRef parsePointerType(boolean memorizePointed, boolean isConst, boolean isReference) throws DemanglingException {
-        String subId = memorizePointed ? nextShortcutId() : null;
         TypeRef pointed = parseType();
-        if (memorizePointed)
+        if (memorizePointed) { // force-save the pointed type (used for the case of "const" that is erased (ignored) in bridj internal representation
+            String subId = memorizePointed ? nextShortcutId() : null;
             typeShortcuts.put(subId, pointed);
+        }
         TypeRef res = pointerType(pointed, isConst, isReference);
         String id = nextShortcutId();
         typeShortcuts.put(id, res);
@@ -177,7 +178,7 @@ public class GCC4Demangler extends Demangler {
                 char nextChar = peekChar();
                 boolean isReference = c == 'R';
                 boolean isConst = nextChar == 'K';
-                return parsePointerType(isConst || nextChar == 'N', isConst, isReference);
+                return parsePointerType(isConst, isConst, isReference);
             }
             case 'F': {
                 // TODO parse function type correctly !!!
@@ -263,7 +264,6 @@ public class GCC4Demangler extends Demangler {
             }
         }
         if (shouldContinue) {
-            int initialNextShortcutId = nextShortcutId;
             do {
                 String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
                 newlyAddedShortcutForThisType = id;
@@ -273,8 +273,8 @@ public class GCC4Demangler extends Demangler {
                 parsePossibleTemplateArguments(res);
             } while (Character.isDigit(peekChar()) || peekChar() == 'C' || peekChar() == 'D');
             if (isParsingNonShortcutableElement) {
-                //prefixShortcuts.remove(previousShortcutId()); // correct the fact that we parsed one too much
-                nextShortcutId = initialNextShortcutId;
+                nextShortcutId--;
+                newlyAddedShortcutForThisType = null;
             }
         }
         parsePossibleTemplateArguments(res);
@@ -434,9 +434,6 @@ public class GCC4Demangler extends Demangler {
             mr.setMemberName(ns.remove(ns.size() - 1));
             if (!ns.isEmpty()) {
                 ClassRef parent = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
-                if (mr.getMemberName() == SpecialName.Constructor || mr.getMemberName() == SpecialName.SpecialConstructor) {
-                    typeShortcuts.put(nextShortcutId(), parent);
-                }
                 if (!ns.isEmpty()) {
                     parent.setEnclosingType(new NamespaceRef(ns.toArray()));
                 }
