@@ -62,7 +62,7 @@ public class GCC4Demangler extends Demangler {
             // Ss == std::string == std::basic_string<char, std::char_traits<char>, std::allocator<char> >        
             put("s", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_string", new TemplateArg[]{classType(Byte.TYPE), charTraitsOfChar, allocatorOfChar})));
 
-            // used, as an helper: for i in a b c d e f g h i j k l m o p q r s t u v w x y z; do c++filt _Z1_S$i; done
+            // used, as an helper: for i in {a..z}; do echo $i $(c++filt _Z1_S$i); done
         }
 
         private ClassRef enclosed(String ns, ClassRef classRef) {
