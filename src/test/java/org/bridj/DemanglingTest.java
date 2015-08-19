@@ -466,7 +466,7 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
         demangle(null, "_ZN3bla5inputEPSt6vectorISsSaISsEEPS0_IPN7Helping4HandESaIS6_EE",
                 // bla::input(std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char> > > >*, std::vector<Helping::Hand*, std::allocator<Helping::Hand*> >*)
                 // bla::input(vectorof(string)*, vectorof(Helping::Hand*)*)
-                "null bla.input(std.vector<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>, std.allocator<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>>>*, std.allocator<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>><Helping.Hand*, std.allocator<Helping.Hand*>>*)");
+                "null bla.input(std.vector<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>, std.allocator<std.basic_string<byte, std.char_traits<byte>, std.allocator<byte>>>>*, std.vector<Helping.Hand*, std.allocator<Helping.Hand*>>*)");
                 //"null bla.input(" + vectorOfXYZ.replaceAll("XYZ", str) + "*, " + vectorOfXYZ.replaceAll("XYZ", "Helping.Hand*") + "*)");
     }
 
