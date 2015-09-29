@@ -62,7 +62,7 @@ public class GCC4Demangler extends Demangler {
             // Ss == std::string == std::basic_string<char, std::char_traits<char>, std::allocator<char> >        
             put("s", Arrays.asList((IdentLike) new Ident("std"), new Ident("basic_string", new TemplateArg[]{classType(Byte.TYPE), charTraitsOfChar, allocatorOfChar})));
 
-            // used, as an helper: for i in a b c d e f g h i j k l m o p q r s t u v w x y z; do c++filt _Z1_S$i; done
+            // used, as an helper: for i in {a..z}; do echo $i $(c++filt _Z1_S$i); done
         }
 
         private ClassRef enclosed(String ns, ClassRef classRef) {
@@ -88,10 +88,11 @@ public class GCC4Demangler extends Demangler {
     }
 
     private TypeRef parsePointerType(boolean memorizePointed, boolean isConst, boolean isReference) throws DemanglingException {
-        String subId = memorizePointed ? nextShortcutId() : null;
         TypeRef pointed = parseType();
-        if (memorizePointed)
+        if (memorizePointed) { // force-save the pointed type (used for the case of "const" that is erased (ignored) in bridj internal representation
+            String subId = memorizePointed ? nextShortcutId() : null;
             typeShortcuts.put(subId, pointed);
+        }
         TypeRef res = pointerType(pointed, isConst, isReference);
         String id = nextShortcutId();
         typeShortcuts.put(id, res);
@@ -118,7 +119,7 @@ public class GCC4Demangler extends Demangler {
     public TypeRef parseType() throws DemanglingException {
         if (Character.isDigit(peekChar())) {
             Ident name = ensureOfType(parseNonCompoundIdent(), Ident.class);
-            String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
+            String id = nextShortcutId();
             TypeRef res = simpleType(name);
             typeShortcuts.put(id, res);
             return res;
@@ -152,8 +153,9 @@ public class GCC4Demangler extends Demangler {
                                 return typeShortcuts.get(templatedId);
                             }
                         }
+                    } else {
+                        position -= delta;
                     }
-                    position -= delta;
                 }
             }
             // WARNING/INFO/NB: we intentionally continue to the N case
@@ -176,7 +178,7 @@ public class GCC4Demangler extends Demangler {
                 char nextChar = peekChar();
                 boolean isReference = c == 'R';
                 boolean isConst = nextChar == 'K';
-                return parsePointerType(isConst || nextChar == 'N', isConst, isReference);
+                return parsePointerType(isConst, isConst, isReference);
             }
             case 'F': {
                 // TODO parse function type correctly !!!
@@ -262,7 +264,6 @@ public class GCC4Demangler extends Demangler {
             }
         }
         if (shouldContinue) {
-            int initialNextShortcutId = nextShortcutId;
             do {
                 String id = nextShortcutId(); // we get the id before parsing the part (might be template parameters and we need to get the ids in the right order)
                 newlyAddedShortcutForThisType = id;
@@ -272,8 +273,8 @@ public class GCC4Demangler extends Demangler {
                 parsePossibleTemplateArguments(res);
             } while (Character.isDigit(peekChar()) || peekChar() == 'C' || peekChar() == 'D');
             if (isParsingNonShortcutableElement) {
-                //prefixShortcuts.remove(previousShortcutId()); // correct the fact that we parsed one too much
-                nextShortcutId = initialNextShortcutId;
+                nextShortcutId--;
+                newlyAddedShortcutForThisType = null;
             }
         }
         parsePossibleTemplateArguments(res);
@@ -433,9 +434,6 @@ public class GCC4Demangler extends Demangler {
             mr.setMemberName(ns.remove(ns.size() - 1));
             if (!ns.isEmpty()) {
                 ClassRef parent = new ClassRef(ensureOfType(ns.remove(ns.size() - 1), Ident.class));
-                if (mr.getMemberName() == SpecialName.Constructor || mr.getMemberName() == SpecialName.SpecialConstructor) {
-                    typeShortcuts.put(nextShortcutId(), parent);
-                }
                 if (!ns.isEmpty()) {
                     parent.setEnclosingType(new NamespaceRef(ns.toArray()));
                 }
