@@ -798,6 +798,19 @@ public class BridJ {
             }
         }
     }
+    
+    /**
+     * Reset native library dependency for a given library
+     * Useful to test multiple dependent libraries until one works.
+     * @param name
+     */
+    public static synchronized void resetNativeLibraryDependencies(String name) {
+        List<String> list = libraryDependencies.get(name);
+        if (list != null) {
+            libraryDependencies.put(name, list = new ArrayList<String>());
+        }
+        
+    }
     private static final Pattern numPat = Pattern.compile("\\b(\\d+)\\b");
 
     /**
