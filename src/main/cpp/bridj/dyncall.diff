@@ -1,6 +1,6 @@
-diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
---- a/dynload/dynload_syms_mach-o.c	Thu Mar 19 22:24:28 2015 +0100
-+++ b/dynload/dynload_syms_mach-o.c	Sat Mar 21 11:08:07 2015 +0000
+diff -r bbefb8b8e74c dynload/dynload_syms_mach-o.c
+--- a/dynload/dynload_syms_mach-o.c	Thu Nov 24 23:47:31 2016 +0000
++++ b/dynload/dynload_syms_mach-o.c	Sun Dec 25 20:36:56 2016 +0100
 @@ -29,6 +29,7 @@
   dynamic symbol resolver for Mach-O
  
@@ -167,7 +167,7 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  
  DLSyms* dlSymsInit(const char* libPath) 
  {
-@@ -71,27 +201,59 @@
+@@ -71,27 +201,61 @@
  	for (iImage = 0, nImages = _dyld_image_count(); iImage < nImages; iImage++)
  	{
  		const char* name = _dyld_get_image_name(iImage);
@@ -197,6 +197,8 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  				{
 -					if (cmd->cmd == LC_SYMTAB) 
 -					{
++          if (!cmd) continue;
++
 +					if (cmd->cmd == LC_DYLD_INFO_ONLY || cmd->cmd == LC_DYLD_INFO) {
 +                        const struct dyld_info_command* dcmd = (const struct dyld_info_command*)cmd;
 +                        const unsigned char* trie = (pBase + dcmd->export_off);
@@ -233,7 +235,7 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  						pSyms->symbolCount = scmd->nsyms;
  						pSyms->pStringTable = pBase + scmd->stroff;
  						pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
-@@ -101,7 +263,6 @@
+@@ -101,7 +265,6 @@
  					cmd = (const struct load_command*)(((char*)cmd) + cmd->cmdsize);
  				}
  			}
@@ -241,7 +243,7 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  		}
  	}
  	return NULL;
-@@ -113,6 +274,18 @@
+@@ -113,6 +276,18 @@
  	if (!pSyms)
  		return;
  	
@@ -260,7 +262,7 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  	dlFreeMem(pSyms);
  }
  
-@@ -133,6 +306,11 @@
+@@ -133,6 +308,11 @@
  	if (nl->n_un.n_strx <= 1)
  		return NULL; // would be empty string anyway
  	
@@ -272,7 +274,7 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  	//TODO skip more symbols based on nl->n_desc and nl->n_type ?
  	return nl;
  }
-@@ -140,6 +318,12 @@
+@@ -140,6 +320,12 @@
  
  const char* dlSymsName(DLSyms* pSyms, int index)
  {
@@ -285,7 +287,7 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
  	if (!nl)
  		return NULL;
-@@ -150,6 +334,12 @@
+@@ -150,6 +336,12 @@
  
  void* dlSymsValue(DLSyms* pSyms, int index)
  {
@@ -298,9 +300,9 @@ diff -r 3e629dc19168 dynload/dynload_syms_mach-o.c
  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
  	if (!nl)
  		return NULL;
-diff -r 3e629dc19168 dynload/dynload_unix.c
---- a/dynload/dynload_unix.c	Thu Mar 19 22:24:28 2015 +0100
-+++ b/dynload/dynload_unix.c	Sat Mar 21 11:08:07 2015 +0000
+diff -r bbefb8b8e74c dynload/dynload_unix.c
+--- a/dynload/dynload_unix.c	Thu Nov 24 23:47:31 2016 +0000
++++ b/dynload/dynload_unix.c	Sun Dec 25 20:36:56 2016 +0100
 @@ -41,7 +41,7 @@
  
  DLLib* dlLoadLibrary(const char* libPath)
@@ -310,9 +312,9 @@ diff -r 3e629dc19168 dynload/dynload_unix.c
  }
  
  
-diff -r 3e629dc19168 dynload/dynload_windows.c
---- a/dynload/dynload_windows.c	Thu Mar 19 22:24:28 2015 +0100
-+++ b/dynload/dynload_windows.c	Sat Mar 21 11:08:07 2015 +0000
+diff -r bbefb8b8e74c dynload/dynload_windows.c
+--- a/dynload/dynload_windows.c	Thu Nov 24 23:47:31 2016 +0000
++++ b/dynload/dynload_windows.c	Sun Dec 25 20:36:56 2016 +0100
 @@ -41,7 +41,9 @@
  DLLib* dlLoadLibrary(const char* libPath)
  {

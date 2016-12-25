@@ -129,7 +129,7 @@ function build_libraries() {
 		    local DYNCALL_CONFIGURE_ARGS=""
 		    if [[ "$ARCH" != "$NATIVE_ARCH" ]]; then
 		        DYNCALL_CONFIGURE_ARGS="--target-$ARCH"
-	        fi
+        fi
 		    sh ./configure $DYNCALL_CONFIGURE_ARGS
 		    $MAKE_CMD $@ || failed "Failed building dyncall"
 
@@ -171,5 +171,9 @@ if [[ $OS =~ sunos ]]; then
     ARCH=x86 build_libraries $@
     ARCH=x64 build_libraries $@
 else
+    if [[ $OS =~ darwin ]]; then
+      export AS=llvm-as
+      export CC=llvm-gcc
+    fi
     build_libraries $@
 fi
