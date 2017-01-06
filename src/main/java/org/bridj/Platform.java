@@ -710,7 +710,11 @@ public class Platform {
     static File createTempDir(String prefix) throws IOException {
         File dir;
         for (int i = 0; i < maxTempFileAttempts; i++) {
-            dir = File.createTempFile(prefix, "");
+            if (Platform.isAndroid()) {
+                dir = AndroidWorkaround.getApplication().getDir(prefix, 0);
+            } else {
+                dir = File.createTempFile(prefix, "");
+            }
             if (dir.delete() && dir.mkdirs()) {
                 return dir;
             }

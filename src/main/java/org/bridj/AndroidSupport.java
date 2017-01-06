@@ -49,32 +49,20 @@ import android.os.Environment;
  */
 public class AndroidSupport extends PlatformSupport {
 
-    private volatile Application app;
-
-    AndroidSupport() {
-    }
-
-    synchronized void setApp(Application application) {
-        if (this.app != null && application != null && this.app != application) {
-            throw new IllegalArgumentException("Android Application has already been set to a different value : " + this.app);
-        }
-
-        this.app = application;
-    }
-
-    public static void setApplication(Application application) {
-        ((AndroidSupport) PlatformSupport.getInstance()).setApp(application);
+    Application app()
+    {
+        return AndroidWorkaround.getApplication();
     }
 
     String adviseToSetApp() {
-        return app == null ? "" : "Please use AndroidSupport.setApplication(Application). ";
+        return app() == null ? "" : "Please use AndroidSupport.setApplication(Application). ";
     }
     volatile AndroidClassDefiner classDefiner;
 
     synchronized File getCacheDir() throws FileNotFoundException {
         File cacheDir = null;
-        if (app != null) {
-            cacheDir = app.getCacheDir();
+        if (app() != null) {
+            cacheDir = app().getCacheDir();
         }
 
         if (cacheDir == null || !cacheDir.isDirectory() || !cacheDir.canWrite()) {
@@ -103,11 +91,11 @@ public class AndroidSupport extends PlatformSupport {
     synchronized File getNativeLibraryDir(String someBundledNativeLibraryName) throws FileNotFoundException {
         //String someKnownResource = 
         File f = null;
-        if (app != null) {
+        if (app() != null) {
             try {
                 // ApplicationInfo.nativeLibraryDir is only available from API level 9 and later
                 // http://developer.android.com/reference/android/content/pm/ApplicationInfo.html#nativeLibraryDir
-                f = (File) ApplicationInfo.class.getField("nativeLibraryDir").get(app.getApplicationInfo());
+                f = (File) ApplicationInfo.class.getField("nativeLibraryDir").get(app().getApplicationInfo());
             } catch (Throwable th) {
             }
         }
@@ -124,8 +112,8 @@ public class AndroidSupport extends PlatformSupport {
     }
 
     synchronized File getApplicationDataDir(String someKnownResource) throws FileNotFoundException {
-        if (app != null) {
-            return new File(app.getApplicationInfo().dataDir);
+        if (app() != null) {
+            return new File(app().getApplicationInfo().dataDir);
         } else {
             return new File(new File(Environment.getDataDirectory(), "data"), getPackageName(someKnownResource));
         }
@@ -142,8 +130,8 @@ public class AndroidSupport extends PlatformSupport {
     }
 
     synchronized String getPackageName(String someKnownResource) throws FileNotFoundException {
-        if (app != null) {
-            return app.getPackageName();
+        if (app() != null) {
+            return app().getPackageName();
         } else {
             URL resource = Platform.getResource(someKnownResource);
             if (resource == null) {
