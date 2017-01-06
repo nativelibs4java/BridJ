@@ -46,7 +46,7 @@ public class JAWTTest {
 	
 	@Test
 	public void testWindowPeer() throws Exception {
-    if (Platform.isMacOSX() ||
+    if (Platform.isMacOSX() || Platform.isLinux() ||
         System.getProperty("java.version").matches("1\\.6\\..*")) {
       // Oracle Java and jawt: it's complicated.
       // See http://forum.lwjgl.org/index.php?topic=4326.0
