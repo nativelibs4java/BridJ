@@ -5,7 +5,7 @@
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>http://code.google.com/p/bridj/</url>
-	<version>0.7.1-SNAPSHOT</version>
+	<version>0.8.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<repositories>
 		<repository>
@@ -25,6 +25,11 @@
 	<properties>
 		<versionSpecificSubPackage>v0_7_0</versionSpecificSubPackage>
 		<maven.compiler.optimize>true</maven.compiler.optimize>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.testSource>1.8</maven.compiler.testSource>
+		<maven.compiler.testTarget>1.8</maven.compiler.testTarget>
+                <retrolambdaTarget>1.6</retrolambdaTarget>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:nativelibs4java/BridJ.git</connection>
@@ -47,6 +52,11 @@
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
 			<version>5.0.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml</groupId>
+			<artifactId>classmate</artifactId>
+			<version>1.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -109,6 +119,53 @@
 			  </javahClassNames>
 			</configuration>
 		</plugin-->
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+                                <version>3.6.0</version>
+                                <configuration>
+                                  <source>${maven.compiler.source}</source>
+                                  <target>${maven.compiler.target}</target>
+                                  <testSource>${maven.compiler.testSource}</testSource>
+                                  <testTarget>${maven.compiler.testTarget}</testTarget>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<source>${maven.compiler.source}</source>
+							<target>${maven.compiler.target}</target>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-testCompile</id>
+						<phase>test-compile</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+						<configuration>
+							<testSource>${maven.compiler.testSource}</testSource>
+							<testTarget>${maven.compiler.testTarget}</testTarget>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+                        <plugin>
+                            <groupId>net.orfjackal.retrolambda</groupId>
+                            <artifactId>retrolambda-maven-plugin</artifactId>
+                            <version>2.4.0</version>
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>process-main</goal>
+                                        <goal>process-test</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
