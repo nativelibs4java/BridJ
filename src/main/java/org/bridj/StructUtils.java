@@ -227,7 +227,7 @@ class StructUtils {
 
     @SuppressWarnings("deprecation")
     protected static void computeStructLayout(StructDescription desc, StructCustomizer customizer) {
-        List<StructFieldDeclaration> fieldDecls = StructFieldDeclaration.listFields(desc.structClass);
+        List<StructFieldDeclaration> fieldDecls = StructFieldDeclaration.listFields2(desc.structClass);
         orderFields(fieldDecls);
 
         customizer.beforeAggregation(desc, fieldDecls);

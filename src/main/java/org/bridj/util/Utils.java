@@ -48,6 +48,8 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 
+import com.fasterxml.classmate.ResolvedType;
+
 /**
  * Miscellaneous utility methods.
  *
@@ -161,6 +163,9 @@ public class Utils {
         }
         if (type instanceof Class<?>) {
             return (Class<T>) type;
+        }
+        if (type instanceof ResolvedType ) {
+          return (Class<T>)((ResolvedType) type).getErasedType();
         }
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
