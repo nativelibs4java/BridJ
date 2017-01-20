@@ -56,6 +56,8 @@ import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
 import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.fasterxml.classmate.members.ResolvedMethod;
 
 /**
  * Internal metadata on a struct field
@@ -71,9 +73,9 @@ public class StructFieldDescription {
     public long bitMask = -1;
     public boolean isArray, isNativeObject;
     public Type nativeTypeOrPointerTargetType;
-    public java.lang.reflect.Field field;
+    public ResolvedField field;
     Type valueType;
-    Method getter;
+    ResolvedMethod getter;
     String name;
     boolean isCLong, isSizeT;
 

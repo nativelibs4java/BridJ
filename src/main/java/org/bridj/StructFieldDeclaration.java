@@ -39,13 +39,10 @@ import org.bridj.ann.Array;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
 import org.bridj.ann.Union;
+import org.bridj.util.Methods;
+import org.bridj.util.Types;
 
-import com.fasterxml.classmate.AnnotationConfiguration;
-import com.fasterxml.classmate.AnnotationInclusion;
-import com.fasterxml.classmate.MemberResolver;
-import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.ResolvedTypeWithMembers;
-import com.fasterxml.classmate.TypeResolver;
 import com.fasterxml.classmate.members.ResolvedField;
 import com.fasterxml.classmate.members.ResolvedMember;
 import com.fasterxml.classmate.members.ResolvedMethod;
@@ -53,7 +50,7 @@ import com.fasterxml.classmate.members.ResolvedMethod;
 class StructFieldDeclaration {
 
     final StructFieldDescription desc = new StructFieldDescription();
-    Method setter;
+    ResolvedMethod setter;
     long index = -1, unionWith = -1;//, byteOffset = -1;
     Class<?> valueClass;
     Class<?> declaringClass;
@@ -77,15 +74,15 @@ class StructFieldDeclaration {
     
     protected static List<StructFieldDeclaration> listFields(Class<?> structClass) {
       List<StructFieldDeclaration> list = new ArrayList<StructFieldDeclaration>();
-      ResolvedTypeWithMembers resolvedStruct = resolveType(structClass);
+      ResolvedTypeWithMembers resolvedStruct = Types.resolveTypeWithInstanceMethods(structClass);
       for (ResolvedMethod method : resolvedStruct.getMemberMethods()) {
         if (acceptFieldGetter(method, true)) {
             StructFieldDeclaration io = fromGetter(method);
             try {
                 // this only works when the names are equal, does not support setXXX methods.
-                ResolvedMethod setter = getMethod( resolvedStruct.getMemberMethods(), method.getName(), io.valueClass);
+                ResolvedMethod setter = Methods.getMethod( resolvedStruct.getMemberMethods(), method.getName(), io.valueClass);
                 if (acceptFieldGetter(setter, false)) {
-                    io.setter = setter.getRawMember();
+                    io.setter = setter;
                 }
             } catch (Exception ex) {
                 //assert BridJ.info("No setter for getter " + method);
@@ -113,18 +110,6 @@ class StructFieldDeclaration {
     return list;
     }
     
-    public static ResolvedMethod getMethod( ResolvedMethod[] methods, String name, Class<?>... params ) {
-      METHODS: for( ResolvedMethod method : methods ) {
-        if( !name.equals(method.getName()) ) continue METHODS;
-        if( params.length != method.getArgumentCount()) continue METHODS;
-        for( int i = 0; i < params.length; i++ ) {
-          if( !method.getArgumentType(i).isInstanceOf(params[i])) continue METHODS;
-        }
-        return method;
-      }
-      return null;
-    }
-    
     protected static String nameForMember( ResolvedMember<?> member ) {
       String name = member.getName();
       if (name.matches("get[A-Z].*")) {
@@ -136,21 +121,9 @@ class StructFieldDeclaration {
       }
     }
     
-    protected static ResolvedTypeWithMembers resolveType( Class<?> structClass ) {
-      TypeResolver resolver = new TypeResolver();
-      ResolvedType classType = resolver.resolve(structClass);
-      MemberResolver mr = new MemberResolver(resolver);
-      mr.setMethodFilter(method->
-            method.getRawMember().getParameterTypes().length < 2 &&
-            !method.isStatic());
-      mr.setFieldFilter(field->!field.isStatic());
-      AnnotationConfiguration annConfig = new AnnotationConfiguration.StdConfiguration(AnnotationInclusion.INCLUDE_BUT_DONT_INHERIT);
-      return mr.resolve(classType, annConfig, null);
-    }
-
     protected static StructFieldDeclaration fromField(ResolvedField getter) {
         StructFieldDeclaration field = fromMember(getter);
-        field.desc.field = getter.getRawMember();
+        field.desc.field = getter;
         field.desc.valueType = getter.getType();
         field.valueClass = getter.getType().getErasedType();
         return field;
@@ -158,7 +131,7 @@ class StructFieldDeclaration {
 
     protected static StructFieldDeclaration fromGetter(ResolvedMethod getter) {
       StructFieldDeclaration field = fromMember(getter);
-      field.desc.getter = getter.getRawMember();
+      field.desc.getter = getter;
       field.desc.valueType = getter.getReturnType();
       field.valueClass = getter.getReturnType().getErasedType();
       return field;
