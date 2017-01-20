@@ -675,10 +675,15 @@ public class PointerTest {
 		assertTrue(!it.hasNext());
 	}
 	
+#if ($prim.Name == "Pointer")
+#set ($rawTypeRef = "?")
+#else
+#set ($rawTypeRef = $prim.rawTypeRef)
+#end
 	@Test 
     public void testPointerTo_${prim.Name}_Values() {
 		// Test pointerToInts(int...)
-		Pointer<${prim.rawTypeRef}> p = Pointer.pointerTo${prim.CapName}s(${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)});
+		Pointer<${rawTypeRef}> p = Pointer.pointerTo${prim.CapName}s(${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)});
 		assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
 		assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
 		assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
@@ -699,7 +704,7 @@ public class PointerTest {
 	}
 	@Test 
     public void testPointerTo_${prim.Name}_Value() {
-		Pointer<${prim.rawTypeRef}> p = Pointer.pointerTo${prim.CapName}(${prim.value($v1)});
+		Pointer<${rawTypeRef}> p = Pointer.pointerTo${prim.CapName}(${prim.value($v1)});
 		assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
 		
 		p = Pointer.pointerTo${prim.CapName}(${prim.rawValue($v1)});

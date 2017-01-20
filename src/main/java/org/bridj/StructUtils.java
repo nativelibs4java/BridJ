@@ -158,9 +158,9 @@ class StructUtils {
             try {
                 Object value;
                 if (fd.getter != null) {
-                    value = fd.getter.invoke(struct);
+                    value = fd.getter.getRawMember().invoke(struct);
                 } else {
-                    value = fd.field.get(struct);
+                    value = fd.field.getRawMember().get(struct);
                 }
 
                 if (value instanceof String) {

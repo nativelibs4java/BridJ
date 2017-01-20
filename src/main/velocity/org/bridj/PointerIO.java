@@ -30,6 +30,8 @@
  */
 package org.bridj;
 
+import com.fasterxml.classmate.ResolvedType;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -94,6 +96,8 @@ public abstract class PointerIO<T> {
 	static Class<?> getClass(Type type) {
 		if (type instanceof Class<?>)
 			return (Class<?>)type;
+		if (type instanceof ResolvedType)
+		  return ((ResolvedType)type).getErasedType();
 		if (type instanceof ParameterizedType)
 			return getClass(((ParameterizedType)type).getRawType());
 		return null;
@@ -149,12 +153,24 @@ public abstract class PointerIO<T> {
 		if (type == null)
 			return null;
 
-		PointerIO io = ios.get(type);
+        PointerIO io = null;
+
+        if( type instanceof ResolvedType ) {
+          io = ios.get(((ResolvedType) type).getErasedType());
+        }
+        if( io == null ) {
+          io = ios.get(type);
+        }
 		if (io == null) {
 			final Class<?> cl = Utils.getClass(type);
 			if (cl != null) {
-				if (cl == Pointer.class)
-					io = getPointerInstance(((ParameterizedType)type).getActualTypeArguments()[0]);
+				if (cl == Pointer.class) {
+				    if( type instanceof ResolvedType ) {
+				      io = getPointerInstance(((ResolvedType)type).getTypeParameters().get(0));
+				    } else {
+				      io = getPointerInstance(((ParameterizedType)type).getActualTypeArguments()[0]);
+				    }
+				}
 				else if (StructObject.class.isAssignableFrom(cl))
 					io = getInstance(StructIO.getInstance((Class)cl, type));
 				else if (Callback.class.isAssignableFrom(cl))
@@ -162,7 +178,11 @@ public abstract class PointerIO<T> {
 				else if (NativeObject.class.isAssignableFrom(cl))
 					io = new CommonPointerIOs.NativeObjectPointerIO(type);
 				else if (IntValuedEnum.class.isAssignableFrom(cl)) {
-					if (type instanceof ParameterizedType) {
+                    if (type instanceof ResolvedType) {
+                        ResolvedType enumType = ((ResolvedType)type).getTypeParameters().get(0);
+                        io = new CommonPointerIOs.IntValuedEnumPointerIO(enumType.getErasedType());
+                    }
+                    else if (type instanceof ParameterizedType) {
 						Type enumType = ((ParameterizedType)type).getActualTypeArguments()[0];
 						if (enumType instanceof Class)
 							io = new CommonPointerIOs.IntValuedEnumPointerIO((Class)enumType);

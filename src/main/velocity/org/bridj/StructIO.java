@@ -131,14 +131,14 @@ public class StructIO {
 				if (fd.isArray)
 					continue;
 
-				Object value = fd.field.get(struct);
+				Object value = fd.field.getRawMember().get(struct);
 				if (value instanceof NativeObject) {//fd.isNativeObject) {
 						if (value != null) 
 							BridJ.writeToNative((NativeObject)value);
 						continue;
 				}
 				Pointer ptr = struct.peer.offset(fd.byteOffset);
-				Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
+				Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getType();
 				ptr = ptr.as(tpe);
 				ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength, fd.arrayLength);
 				
@@ -166,7 +166,7 @@ public class StructIO {
 					continue;
 
 				Pointer ptr = struct.peer.offset(fd.byteOffset);
-				Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
+				Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getType();
 				ptr = ptr.as(tpe);
 				ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength, fd.arrayLength);
 				Object value;
@@ -176,7 +176,7 @@ public class StructIO {
 				} else {
 					value = ptr.get();
 				}
-				fd.field.set(struct, value);
+				fd.field.getRawMember().set(struct, value);
 				
 				if (value instanceof NativeObject) {//if (fd.isNativeObject) {
 						if (value != null)
