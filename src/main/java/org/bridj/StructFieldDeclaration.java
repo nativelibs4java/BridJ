@@ -75,7 +75,7 @@ class StructFieldDeclaration {
       return !member.isStatic();
   }
     
-    protected static List<StructFieldDeclaration> listFields2(Class<?> structClass) {
+    protected static List<StructFieldDeclaration> listFields(Class<?> structClass) {
       List<StructFieldDeclaration> list = new ArrayList<StructFieldDeclaration>();
       ResolvedTypeWithMembers resolvedStruct = resolveType(structClass);
       for (ResolvedMethod method : resolvedStruct.getMemberMethods()) {
@@ -149,7 +149,7 @@ class StructFieldDeclaration {
     }
 
     protected static StructFieldDeclaration fromField(ResolvedField getter) {
-        StructFieldDeclaration field = fromMember((ResolvedField) getter);
+        StructFieldDeclaration field = fromMember(getter);
         field.desc.field = getter.getRawMember();
         field.desc.valueType = getter.getType();
         field.valueClass = getter.getType().getErasedType();
@@ -157,12 +157,12 @@ class StructFieldDeclaration {
     }
 
     protected static StructFieldDeclaration fromGetter(ResolvedMethod getter) {
-      StructFieldDeclaration field = fromMember((ResolvedMember) getter);
+      StructFieldDeclaration field = fromMember(getter);
       field.desc.getter = getter.getRawMember();
       field.desc.valueType = getter.getReturnType();
       field.valueClass = getter.getReturnType().getErasedType();
       return field;
-  }
+    }
 
     private static StructFieldDeclaration fromMember(ResolvedMember<?> member) {
         StructFieldDeclaration field = new StructFieldDeclaration();

@@ -30,7 +30,7 @@ public class StructFieldDeclarationTest {
   @Test
   public void testDifferences() {
     List<StructFieldDeclaration> legacy = StructFieldDeclaration.listFields(BasicFieldStruct.class);
-    List<StructFieldDeclaration> resolved = StructFieldDeclaration.listFields2(BasicFieldStruct.class);
+    List<StructFieldDeclaration> resolved = StructFieldDeclaration.listFields(BasicFieldStruct.class);
     
     assertThat(resolved.size(), equalTo(legacy.size()));
   }
@@ -38,7 +38,7 @@ public class StructFieldDeclarationTest {
   @Test
   public void testStaticNestedStruct() {
     List<StructFieldDeclaration> legacy = StructFieldDeclaration.listFields(StaticNestedStruct.class);
-    List<StructFieldDeclaration> resolved = StructFieldDeclaration.listFields2(StaticNestedStruct.class);
+    List<StructFieldDeclaration> resolved = StructFieldDeclaration.listFields(StaticNestedStruct.class);
     
     assertThat(resolved.size(), equalTo(legacy.size()));
     
@@ -51,7 +51,7 @@ public class StructFieldDeclarationTest {
   @Test
   public void testGenericNestedStruct() {
     List<StructFieldDeclaration> legacy = StructFieldDeclaration.listFields(NestedStructOfBasicFieldStruct.class);
-    List<StructFieldDeclaration> resolved = StructFieldDeclaration.listFields2(NestedStructOfBasicFieldStruct.class);
+    List<StructFieldDeclaration> resolved = StructFieldDeclaration.listFields(NestedStructOfBasicFieldStruct.class);
     
     assertThat(resolved.size(), equalTo(legacy.size()));
     
