@@ -371,6 +371,7 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+							<source>${maven.compiler.source}</source>
 							<groups>
 								<group>
 									<title>Core Packages</title>
