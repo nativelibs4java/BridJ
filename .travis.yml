@@ -16,11 +16,11 @@ before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
 
-install:
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -P asciidoctor
-
 before_script:
   - ./RebuildNative
+
+script:
+  - mvn compile -P asciidoctor
 
 cache:
   directories:
