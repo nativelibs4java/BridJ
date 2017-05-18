@@ -1,0 +1,78 @@
+= Who's using BridJ
+
+Please keep in mind that <<Credits and License>> BridJ is licensed under the BSD license, so anyone using it must state it appropriately in the documentation and/or other distributed materials (but there's no need to publish any modified sources, although it is good practice ;-)).
+
+Here are some of the projects known to use BridJ internally (please post http://groups.google.com/group/nativelibs4java[on the mailing list] if you'd like your project to be listed here):
+
+== StormMQ Myxi
+
+http://stormmq.com/[StormMQ Myxi] is the world's first Message Queue as a Service using AMQP 1-0.
+
+We decided to use BridJ as it is the only professionally-supported, efficient product available today to seamlessly integrate essential C functionality with Java. Olivier Chafik, the main developer, provides first-class support and deep technical understanding. 
+
+We've successfully mapped gnu libc and libpthread to allow us more fidelity and functionality on linux and work round Java's limitations with memory mapped files. "
+
+== directx4java
+
+http://code.google.com/p/directx4java/[DirectX4Java] is a port of DirectX 10 and 11 for Java (MIT-licensed) written by https://www.masterbranch.com/developer/evandro.millian[Evandro Millian].
+
+It recently switched from JNA to BridJ to power its low-level COM interoperability.
+
+== jlibav
+
+http://code.google.com/p/jlibav/[Java wrapper for Libav].
+
+This library provides an access to a big part of the Libav functions via BridJ. It is compatible with all Libav binaries since version 0.7. The goal of this project is to cover complete functionality of the Libav.
+
+NOTE: the Libav binaries are not a part of this library
+
+== OpenIMAJ
+
+http://www.openimaj.org/[Open Intelligent Multimedia Analysis toolkit for Java] (OpenIMAJ, BSD-licensed) is a collection
+of libraries for multimedia analysis, focusing on state of the art and highly scalable (multithreaded + distributed)
+image analysis and feature extraction. It was written by mailto:jsh2@ecs.soton.ac.uk[Jon Hare],
+mailto:ss@ecs.soton.ac.uk[Sina Samangooei] and mailto:dpd@ecs.soton.ac.uk[David Dupplaw].
+
+It uses BridJ in its 'openimaj-serial-driver' and 'core-video-capture' modules.
+
+== webcam-capture
+
+http://webcam-capture.sarxos.pl/[sarxos/webcam-capture] is a generic Webcam capture utility (cross-platform, multi-drivers).
+
+It uses BridJ for its built-in drivers.
+
+== hunspell-bridj
+
+https://github.com/thomas-joiner/HunspellBridJ[HunspellBridJ]: bindings for the Hunspell library for Java, using BridJ.
+
+== BridJ PCap
+
+http://os.smaxe.com/bridj-pcap.html[BridJ PCap] (LGPL-licensed) is a library written by http://andreisochirca.blogspot.com/[Andrei Sochirca] that provides network packet capture functionality.
+
+It uses BridJ to leverage the native install of http://www.tcpdump.org/[libpcap] or http://www.winpcap.org/[WinPCap].
+
+== `GeoTools`
+
+http://www.geotools.org/[GeoTools] is an open source Java library that provides tools for geospatial data.
+
+It uses BridJ to bind the http://www.gdal.org/ogr/[OGR] library.
+
+== falplayer-android-j
+
+https://github.com/atsushieno/falplayer-android-j[falplayer-android-j] (MIT-licensed) is the Java version of https://github.com/atsushieno[Atsushi Eno]'s Ogg Vorbis music player for Android (see original version : https://github.com/atsushieno/falplayer-android[falplayer]).
+
+It features BridJ-powered libvorbisidec / http://wss.co.uk/pinknoise/tremolo/[Tremolo] bindings.
+
+== JavaCL
+
+http://code.google.com/p/javacl/[JavaCL] (BSD-licensed) is an http://www.khronos.org/opencl/[OpenCL] bindings library for Java.
+
+It switched to BridJ for its low-level bindings (legacy JNA version is still available for download).
+
+http://code.google.com/p/javacl/wiki/WhoUsesJavaCL[JavaCL is also used by other projects], which hence make indirect use of BridJ.
+
+== ScalaCL
+
+http://code.google.com/p/scalacl/[ScalaCL] (BSD-licensed) is an optimizing Scala compiler plugin + GPU-backed collections.
+
+It uses the BridJ port of JavaCL.

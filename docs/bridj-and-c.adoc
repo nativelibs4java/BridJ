@@ -1,0 +1,7 @@
+= BridJ & C
+
+Please see <<Current State>>.
+
+BridJ supports functions, callbacks (Java to native, native to java), enums, pointers, structs, globals...
+
+See <<BridJ & Type Mapping>> for more information.

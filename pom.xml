@@ -450,6 +450,62 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 	</build>
 	<profiles>
 		<profile>
+			<id>asciidoctor</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+
+			<properties>
+				<asciidoctorj.version>1.5.4</asciidoctorj.version>
+				<jruby.version>1.7.21</jruby.version>
+			</properties>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.asciidoctor</groupId>
+						<artifactId>asciidoctor-maven-plugin</artifactId>
+						<version>1.5.3</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.jruby</groupId>
+								<artifactId>jruby-complete</artifactId>
+								<version>${jruby.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>org.asciidoctor</groupId>
+								<artifactId>asciidoctorj</artifactId>
+								<version>${asciidoctorj.version}</version>
+							</dependency>
+						</dependencies>
+						<configuration>
+							<sourceDirectory> ${project.basedir}/docs</sourceDirectory>
+							<sourceDocumentName>index.adoc</sourceDocumentName>
+							<sourceHighlighter>coderay</sourceHighlighter>
+							<imagesDir>.</imagesDir>
+							<attributes>
+								<bridjVersion>${project.version}</bridjVersion>
+								<icons>font</icons>
+							</attributes>
+						</configuration>
+						<executions>
+							<execution>
+								<id>output-html</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>process-asciidoc</goal>
+								</goals>
+								<configuration>
+									<backend>html</backend>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
 			<id>gpg</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>

@@ -1,0 +1,68 @@
+= Design
+
+http://jna.dev.java.net/[JNA] made it trivial to access to native libraries from Java.
+Together with http://code.google.com/p/jnaerator/[JNAerator], it effectively lowered the entry cost of native developments,
+when compared to http://en.wikipedia.org/wiki/Java_Native_Interface[JNI].
+
+However, JNA was designed in the pre-Java 1.5 era and has made some design choices that hinder both performance and usability.
+
+BridJ was written from scratch to replace JNA with both performance and usability as golden objectives (as well as support for C++ and ease of conversion from C++ to Java).
+
+Performance:
+
+* Lightweight structs : no data duplication nor synchronization issues
+* Pervasive "direct" mode (heavy use of "native" Java methods)
+* Assembler-optimized calls in some simple cases on select plaforms (see details below)
+
+Usability :
+
+* <<BridJ & Pointers>> class behaves pretty much like C pointers (automatic translation is trivial)
+* <<BridJ & Type Mapping>>#Enums are typed while letting users combine them as flags
+* <<BridJ & CPP>>: Create a C++ object with `new MyCPPObject()`, subclass it with `new MyCPPObject() { public void myOverriddenMethod() {} }`...
+* <<BridJ & Type Mapping>>#Structs have chainable setters : `new MyStruct().a(10).b(12)`
+
+== Assembler optimizations
+
+These optimization are turned on when all conditions are met, which might be rarely or never (please read http://code.google.com/p/jnaerator/wiki/Reification][for how to generate optimizable and OO-looking methods out of plain old C functions).
+
+Without these optimizations, BridJ's performance is about the same as JNA in direct mode (without structs, where BridJ is much faster). With the optimizations, BridJ is about 10% slower than pure JNI, that is 5x faster than JNA in direct mode.
+
+=== Supported cases
+
+Concerns only the native C functions with primitive arguments that match the platform's size.
+
+Supports calls with a maximum number of arguments that depends on the platform (typically, 4).
+
+Supported platforms :
+  * MacOS X 64 bits
+  * Linux 64 bits
+  * Windows 32 bits
+  * Windows 64 bits (currently disabled)
+
+=== Examples
+
+Example of optimizable functions :
+
+[source,java]
+----
+public static native int f(long a, short b, int c);
+
+// long primitive tagged as a pointer : optimized on 64 bits platforms only
+public static native int fWithPointer(@Ptr long p); 
+----
+
+Examples of non-optimizable function :
+[source,java]
+----
+// p is not a primitive :
+public static native int fWithPointer(Pointer<?> p);
+
+// most supported platforms support optimization of up to 4 arguments :
+public static native int fTooManyArgs(long a, short b, int c, int d, int e, int f, int g, int h, int i);
+----
+
+=== Disabling raw optimizations
+
+Set the environment variable `BRIDJ_DIRECT=0` or set the Java property `bridj.direct=false`.
+
+Raw assembly optimizations are also disabled when protected mode is turned on.

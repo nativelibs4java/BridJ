@@ -1,0 +1,143 @@
+= Build
+
+BridJ is built as part of the NativeLibs4Java sub-projects.
+
+== Build BridJ only
+
+This section will guide you through the build of BridJ. 
+
+If you start hacking it (wanna fix https://github.com/ochafik/nativelibs4java/issues?labels=BridJ[some bugs]?), you might also want to read the next sections about how to build other NativeLibs4Java projects that depend on BridJ, and how to rebuild BridJ's native libraries.
+
+  * First, http://maven.apache.org/download.html[install Maven 3.x]
+  * Please make sure you've set the git http://help.github.com/line-endings/[autocrlf option] to true :
+
+        git config --global core.autocrlf true
+
+  * Fork and/or clone the https://github.com/ochafik/nativelibs4java[NativeLibs4Java Github repository]
+
+        git clone git://github.com/ochafik/nativelibs4java.git
+
+  * Go to the libraries/BridJ folder :
+
+        cd nativelibs4java
+        cd libraries
+        cd BridJ
+
+  * Run the following Maven command :
+
+    mvn clean install -DskipTests
+
+  * _Optional_: You can also rebuild BridJ's native libraries (libbridj.so / .dylib / .dll and libtest.so / .dylib / .dll) : see instructions below
+
+BridJ's JARs are in `Bridj/target` (pick `bridj-x.x-SNAPSHOT.jar` if you don't have specific size needs).
+
+|===
+| JAR File | C | C++ | Objective-C | COM | MFC | .NET | Windows (x86, x64) | MacOS X (universal) | Linux (x86, x64) | Solaris (x86) | Android (arm)
+| `bridj-x.x-SNAPSHOT.jar` | x | x | x | x | x | x | x | x | x | x | -
+| `bridj-x.x-SNAPSHOT-c-only.jar` | x | - | - | - | - | - | x | x | x | x | -
+| `bridj-x.x-SNAPSHOT-windows-only.jar` | x | x | - | x | x | x | x | - | - | - | -
+| `bridj-x.x-SNAPSHOT-unix-only.jar` | x | x | x | - | - | - | - | x | x | x | -
+| `bridj-x.x-SNAPSHOT-linux-only.jar` | x | x | - | - | - | - | - | - | x | - | -
+| `bridj-x.x-SNAPSHOT-macosx-only.jar` | x | x | x | - | - | - | - | x | - | - | -
+| `bridj-x.x-SNAPSHOT-android.jar` | x | x | - | - | - | - | - | - | - | - | x
+|===
+
+== Build all NativeLibs4Java projects
+
+BridJ is a key part of the NativeLibs4Java ecosystem, so if you start modifying it you might cause regressions in various other projects.
+
+The good news is that some of these projects are in the same source tree as BridJ itself and you can build them and run all of their tests at the same time, so you'll have much better confidence in your changes.
+
+If it is the first time you ever build all of NativeLibs4Java's projects (including JNAerator, JavaCL, ScalaCL...), this might take can take up to 15 minutes (enough time to dring a coffee or two), since Maven has to download (and cache) lots of stuff (subsequent builds will be much quicker).
+
+  * First, http://maven.apache.org/download.html[install Maven 3.x]
+  * Install JOGL on your system as http://code.google.com/p/javacl/wiki/Usage#Jogamp_JOGL[described on JavaCL's wiki]
+  * Please make sure you've set the git http://help.github.com/line-endings/[autocrlf option] to true :
+
+        git config --global core.autocrlf true
+
+  * Fork and/or clone the https://github.com/ochafik/nativelibs4java[NativeLibs4Java Github repository]
+
+        git clone git://github.com/ochafik/nativelibs4java.git
+
+  * Go to the libraries folder :
+
+        cd nativelibs4java/libraries
+
+  * Run the following Maven command :
+
+        mvn install -DskipTests
+
+== Rebuilding BridJ's native library
+
+You'll need to rebuild BridJ's native libraries if :
+
+  * You changed any source file in `BridJ/src/main/cpp/bridj` or `BridJ/src/test/cpp/test`
+  * You're trying to run BridJ on an unsupported platform
+
+In the latter case, be brave but things should go fine in _most_ cases, thanks to the extreme portability of the http://dyncall.org/[Dyncall] library (which BridJ uses for it's low-level FFI and for its pretty cool build scripts).
+
+=== Patch dyncall
+
+BridJ depends on http://dyncall.org[Dyncall], so you'll need to check it out and apply some BridJ-specific patches (beware: `DYNCALL_HOME` must point to the dyncall directory inside the dyncall directory the following command checks out) :
+
+    cd BridJ
+    admin/checkout_and_patch_dyncall.sh dyncall
+    export DYNCALL_HOME=dyncall
+
+
+Alternatively, you can do things more manually if the `checkout_and_patch_dyncall.sh` script doesn't work for you :
+
+    svn co https://dyncall.org/svn/dyncall/trunk dyncall
+    export DYNCALL_HOME=pathToDyncall/dyncall
+    cd dyncall
+    patch < pathToBridJ/src/main/cpp/bridj/dyncall.diff
+
+You may need to clean the patch up for it to apply correctly. Also note that during some build process below dyncall.diff might be overwritten. To get the original patch in the source tree, run this :
+
+    git checkout pathToBridJ/src/main/cpp/bridj/dyncall.diff
+
+
+=== Build the library
+
+Then you can build BridJ's shared library (and its test library) :
+
+  * On Unix/Linux/MacOS X :
+
+    cd BridJ
+    sh CleanNative ; sh BuildNative
+
+(to build the native library in debug mode, use : `DEBUG=1 ./CleanNative ; DEBUG=1 ./BuildNative`)
+
+  * On Windows (you can double-click on both scripts from Windows explorer instead of using the command line) :
+
+    cd BridJ
+    CleanNative
+    BuildNative
+
+(to build the native library in debug mode, use : `BuildNative_Debug`)
+
+If it's not a platform already supported by BridJ, you must :
+
+  * update BridJ's Java machinery so it can find your binary at runtime (search for `getEmbeddedLibraryResource` in https://github.com/ochafik/nativelibs4java/blob/master/libraries/BridJ/src/main/java/org/bridj/Platform.java[Platform.java])
+  * in case the build fails : update dyncall's configure script and/or update BridJ's https://github.com/ochafik/nativelibs4java/blob/master/libraries/BridJ/src/main/cpp/bridj/Make.sh[Make.sh] script
+
+To run the tests on your new binary :
+
+    mvn test
+
+
+And finally you can install the updated BridJ library locally to use it from depending projects :
+
+    mvn install
+
+
+== About BridJ's source code
+
+BridJ contains Java and C code.
+
+Some of its sources are autogenerated from Velocity templates. For instance, all the Pointer.getInt, .setInt, getFloat, .setFloat... are generated automatically from a template.
+
+So if you look for Pointer.java and JNI.java, they're not directly in the source control : they're created during the Maven build from their template located in `src/main/velocity`.
+
+Likewise, some test classes are autogenerated, which helps cover more cases with less code (there's even autogenerated C functions in the test library, that are matched by the corresponding autogenerated test cases on the Java side).

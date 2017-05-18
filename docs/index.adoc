@@ -1,0 +1,46 @@
+= Selenoid UI. Reference Guide
+:revdate: {docdate}
+:toc: left
+:toclevels: 3
+:sectnums:
+:sectanchors:
+:revnumber: latest
+:icons: font
+:source-highlighter: coderay
+
+BridJ's source code is currently hosted at the http://code.google.com/p/nativelibs4java/[NativeLibs4Java] project.
+
+== Links
+
+* https://github.com/ochafik/nativelibs4java/tree/master/libraries/BridJ[You can browse BridJ's sources from here]
+* https://github.com/ochafik/nativelibs4java/tree/master/libraries/BridJ/CHANGELOG[Direct link to BridJ's CHANGELOG]
+* Javadoc : http://nativelibs4java.sourceforge.net/bridj/api/development/org/bridj/Pointer.html[Pointer] | http://nativelibs4java.sourceforge.net/bridj/api/development/[Full]
+* http://groups.google.com/group/nativelibs4java/[Forum / Support]
+
+include::download.adoc[leveloffset=+1]
+include::current-state.adoc[leveloffset=+1]
+
+== Project
+include::design.adoc[leveloffset=+2]
+include::pointers.adoc[leveloffset=+2]
+include::callbacks.adoc[leveloffset=+2]
+include::libraries-lookup.adoc[leveloffset=+2]
+include::type-mapping.adoc[leveloffset=+2]
+include::backwards-compatibility.adoc[leveloffset=+2]
+
+== Language Specific
+include::bridj-and-cpp.adoc[leveloffset=+2]
+include::bridj-and-c.adoc[leveloffset=+2]
+include::bridj-and-scala.adoc[leveloffset=+2]
+include::com.adoc[leveloffset=+2]
+
+include::who-uses-bridj.adoc[leveloffset=+1]
+include::contributing.adoc[leveloffset=+1]
+include::google-summer-of-code.adoc[leveloffset=+1]
+include::build.adoc[leveloffset=+1]
+include::automated-tests.adoc[leveloffset=+1]
+
+[appendix]
+include::faq.adoc[leveloffset=+1]
+[appendix]
+include::credits-and-license.adoc[leveloffset=+1]

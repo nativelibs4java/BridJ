@@ -19,8 +19,18 @@ before_install:
 before_script:
   - ./RebuildNative
 
+script:
+  - mvn compile -P asciidoctor
+
 cache:
   directories:
   - $HOME/.m2
   - $HOME/.ivy2
 
+deploy:
+  - provider: pages
+    local_dir: target/generated-docs
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+    on:
+      branch: master
