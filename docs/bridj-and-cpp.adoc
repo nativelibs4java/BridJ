@@ -1,0 +1,85 @@
+= BridJ & CPP
+Also read <<Current State>> and <<BridJ & Type Mapping>> for more details.
+
+== Example of C++ class
+
+Let's use the following C++ class throughout this page :
+
+[source,c++]
+----
+#ifdef _WIN32
+#    ifdef TEST_EXPORTS
+#        define TEST_API __declspec(dllexport)
+#    else
+#        define TEST_API __declspec(dllimport)
+#    endif
+#elseif
+#    define TEST_API
+#endif
+
+class TEST_API TestClass {
+public:
+    virtual ~TestClass();
+    virtual int testVirtualAdd(int a, int b);
+};
+----
+
+Its BridJ bindings are easy to write, but it is advised to use http://code.google.com/p/jnaerator/[JNAerator] to create them, nevertheless :
+
+[source,java]
+----
+import org.bridj.*;
+import static org.bridj.Pointer.*;
+
+public static class TestClass extends CPPObject {
+	@Virtual(0) 
+	public native int testVirtualAdd(int a, int b);
+};
+----
+
+== Runtime support
+
+=== Supported compilers
+
+  * GCC 4.x (& Intel C++ Compiler)
+  * Visual C++ 9.0
+
+=== Supported platforms
+
+All of BridJ's supported platforms (see [CurrentState]).
+
+== Language support
+
+=== Supported features
+
+  * Creating C++ class instances :
+
+    TestClass test = new TestClass();
+    Pointer<TestClass> pTest = pointerTo(test);
+
+  * Calling C++ methods (including virtual and static ones, varargs) :
+
+    int result = test.testVirtualAdd(1, 2);
+
+  * Experimental support for C++ class templates (JNAerator is not yet compatible with this feature, so you'll have to write the template bindings by hand for now ; see https://github.com/ochafik/nativelibs4java/tree/master/libraries/Runtime/BridJ/src/test/java/org/bridj/CPPTemplateTest.java[CPPTemplateTest])
+  * Subclassing C++ classes from Java, with virtual methods overrides :
+  And you can now derive from `TestClass` in Java very naturally :
+
+[source, java]
+----
+TestClass test = new TestClass() {
+	@Override
+	public int testVirtualAdd(int a, int b) {
+		return a + b;
+	}
+};
+----
+
+The only known limitation so far is that you cannot call super.testVirtualAdd from the overridden method yet (but this is worked on and should be possible in the next release).
+
+=== Features not supported
+
+  * Exceptions !
+  * Multiple inheritance
+  * Virtual inheritance (not to be confused with virtual methods, which *are* supported)
+  * Function and method templates (only class templates are (partially) supported for now)

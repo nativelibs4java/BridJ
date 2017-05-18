@@ -1,0 +1,111 @@
+= Binaries lookup
+
+== External binaries
+
+=== Lookup paths
+
+BridJ needs to know where to find binaries. 
+
+Depending on the platform, the following environment variables are used as lookup paths :
+
+  * `PATH` (Windows)
+  * `LD_LIBRARY_PATH` (Unix / Linux)
+  * `DYLD_LIBRARY_PATH` (Darwin / MacOS X)
+
+The following Java properties are also used :
+
+  * `java.library.path`
+  * `gnu.classpath.boot.library.path`
+
+Finally, the following paths are used :
+
+  * `.`
+  * `${java.home}/bin`
+  * `${java.home}/../Libraries` on MacOS X
+
+Additional paths can be added programmatically with http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/BridJ.html#addLibraryPath(java.lang.String)[BridJ.addLibraryPath].
+
+=== Explicit paths
+
+For a given library with name `Xyz`, BridJ uses the environment variable `BRIDJ_XYZ_LIBRARY` or the property `bridj.Xyz.library` for explicit full path of the library binary file (beware : _case-sensitive_ names !)
+
+An explicit library file can also be set programmatically with http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/BridJ.html#setNativeLibraryFile(java.lang.String, java.io.File)[BridJ.setNativeLibraryFile].
+
+=== Library aliases and actual name
+
+The actual name of a library might be platform-dependent.
+
+For instance the "C" library is actually named `mscvrt.dll` on Windows. This is supported by BridJ through <a href="http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/BridJ.html#setNativeLibraryActualName(java.lang.String, java.lang.String)">BridJ.setNativeLibraryActualName</a>.
+
+Likewise, you can define aliases for libraries with http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/BridJ.html#addNativeLibraryAlias(java.lang.String, java.lang.String)[BridJ.addNativeLibraryAlias].
+
+== Binaries embedded in JARs
+
+Embedded resources are extracted from paths of the form :
+
+`embeddedResourceRoot` / `platformName` / `binaryName`
+
+Details on each part of this path are in the following sub-sections :
+
+=== Embedded resource roots
+
+Predefined embedded resource roots are `lib` and `org/bridj/lib`.
+
+Additional resource roots can be added with http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/Platform.html#addEmbeddedLibraryResourceRoot(java.lang.String)[Platform.addEmbeddedLibraryResourceRoot].
+
+=== Binary names
+
+Binary name for library `Xyz` will be `libXyz.so`, `libXyz.dylib`, `Xyz.so` or `Xyz.dll` depending on the platform.
+
+=== Platform names and example resource paths
+
+Platform names are as follows :
+|===
+| Platform name | Platform description | Example resource path for library `Xyz`
+| `win32` | Window x86 (32 bits) | `lib/win32/Xyz.dll`
+| `win64` | Window x64 (64 bits) | `lib/win64/Xyz.dll`
+| `linux_x86` | Linux x86 (32 bits) | `lib/linux_x86/libXyz.so`
+| `linux_x64` | Linux amd64 (64 bits) | `lib/linux_x64/libXyz.so`
+| `linux_armhf` | Linux arm32 hard-float | `lib/linux_armhf/libXyz.so`
+| `sunos_x86` | Solaris x86 (32 bits) | `lib/sunos_x86/Xyz.so`
+| `darwin_universal` | MacOS X (x86 / x64 / ppc) | `lib/darwin_universal/libXyz.dylib`
+|===
+
+Please see https://github.com/ochafik/nativelibs4java/tree/master/libraries/BridJ/src/main/resources/org/bridj/lib[BridJ's sources] for an up-to-date list of platform names.
+
+The exception is Android, where the only embedded resource root is 'lib' :
+|===
+| Platform name | Plarform description | Example resource path for library `Xyz`
+| `armeabi` | Android arm | `lib/armeabi/libXyz.so`
+|===
+
+== Dependent libraries
+
+If a shared library depends on another one, it may be useful to declare the dependencies upfront so that BridJ is able to extract and load them before your library:
+
+[source,java]
+----
+@Library(value = "MainLib", dependencies = { "Dependency1", "Dependency2"... })
+----
+
+You can also declare these dependencies dynamically with http://nativelibs4java.sourceforge.net/bridj/api/development/org/bridj/BridJ.html[BridJ].addNativeLibraryDependencies:
+
+[source,java]
+----
+// "MainLib.dll" / "libMainLib.so" / "libMainLib.dylib"...
+@Library("MainLib")
+class MainLib
+    static {
+        // Ensure "Dependency1/2.dll" / "libDependency1/2.so" are loaded before "MainLib.dll" / "libMainLib.so".
+        BridJ.addNativeLibraryDependencies("MainLib", "Dependency1", "Dependency2");
+        BridJ.register();
+    }
+    ...
+}
+----
+
+== JNAerator support
+
+JNAerator can bundle embedded binaries for all architectures (with repeated `-arch` command-line flags) and even deal with dependent libraries (with `-dependencies` flags). See https://code.google.com/p/jnaerator/wiki/CommandLineOptionsAndEnvironmentVariables[JNAerator flags help].
+
+Also see this http://stackoverflow.com/questions/29530261/how-to-use-jnaerator-with-multiple-dynamic-libraries-under-one-header/29549769#29549769[Stack Overflow question] for an example of bundling cross-platform binaries (TODO expand some doc here)

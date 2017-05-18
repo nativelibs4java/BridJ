@@ -1,0 +1,158 @@
+= BridJ & Pointers
+
+== Anatomy of a pointer
+
+Please read through the http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/Pointer.html[Pointer class's Javadoc].
+
+In BridJ, each pointer exposes the following data:
+
+  * a peer, which is the long value of the memory address it points to. It is never equal to zero (the NULL pointer is represented with the Java null value).
+  * a target type, which is null for `Pointer<?>` instances and Integer.class for `Pointer<Integer>` instances.
+  * a byte order (as for http://download.oracle.com/docs/cd/E17409_01/javase/6/docs/api/java/nio/ByteBuffer.html[NIO buffers]), which states whether data will be read from this pointer in http://en.wikipedia.org/wiki/Endianness[big endian or little endian] mode
+
+== Reading / Writing data
+
+[source,java]
+----
+Pointer<Integer> pInt = ...;
+int v = pInt.get(); // generic way of getting the pointed element
+v = pInt.getInt();
+----
+
+TODO
+
+== Allocating memory
+
+TODO
+
+== Wrapping memory
+
+Wrapping a direct NIO buffer:
+[source,java]
+----
+ByteBuffer b = ByteBuffer.allocateDirect(10);
+Pointer<Byte> p = pointerToBytes(b); // will keep a reference to b so it's not garbage-collected before p.
+----
+
+Wrapping a raw native address (when you have no other choice):
+[source,java]
+----
+long someAddress = ...;
+Pointer<?> p = pointerToAddress(someAddress);
+Pointer<Integer> pInts = pointerToAddress(someAddress, Integer.class); // if you known the memory location contains integers
+Pointer<MyStruct> pInts = pointerToAddress(someAddress, MyStruct.class); // if you known the memory location contains one or more structs
+----
+
+== Memory bounds, offsets, iteration
+
+=== Offsets
+
+In C, one can increment a pointer with `ptr++`. The expression `ptr + x`, where `x` is an integer, gives a pointer to the same memory location as `ptr` shifted by `x` elements.
+
+If `ptr` is an int pointer, the address pointed by `ptr + 1` is the address pointed by `ptr` plus 4 bytes.
+
+With BridJ, given a pointer `ptr`, one can get `ptr + 1` with `ptr.next(1)`.
+
+The method `ptr.offset(1)` shifts the pointer by 1 byte, whereas `ptr.next(1)` shifts the pointer by 1 element (4 bytes if the target type of the pointer is Integer).
+
+Take the following C++ code fragment:
+[source,java]
+----
+int* array = new int[10];
+int* ptr = array;
+for (int index = 0; index < 10; index++, ptr++) 
+  printf("%i\n", *ptr);
+delete[] array;
+----
+  
+Here is an equivalent in Java:
+
+[source,java]
+----
+import static org.bridj.Pointer.*;
+...
+Pointer<Integer> array = allocateInts(10);
+Pointer<Integer> ptr = array;
+for (int index = 0; index < 10; index++) { 
+  System.out.println("%i\n".format(ptr.get()));
+  ptr = ptr.next();
+}
+array.release(); // optional
+----
+
+Note that we could iterate directly on the pointer:
+[source,java]
+----
+for (int value : array)
+   System.out.println("%i\n".format(value));
+----
+
+=== Bounds
+
+Memory allocated from Java using `Pointer.allocateXXX` and `Pointer.pointerToXXX` methods has known valid bounds.
+Pointers that wrap direct NIO buffers also have known valid bounds that they take from the buffer.
+
+Read/write operations on such "bounded" pointers are bounds-checked and throw exceptions when indexes are out of bounds:
+
+[source,java]
+----
+import static org.bridj.Pointer.*;
+...
+allocateInt().getLong(); // will throw: allocated an int = 4 bytes, reading a long = 8 bytes
+allocateShort(3).get(3); // will throw: allocated 3 shorts, reading short at index 3
+allocateInts(2).next(1).get(-1); // will not throw: allocated 2 ints, offsetting a pointer by 1 element and reading the element before (nulling the offset)
+----
+
+It is possible to ask a pointer how many valid bytes are available from its pointed location:
+
+[source,java]
+----
+Pointer<Short> p = allocateShorts(4); // allocate 4 * 2 bytes = 8 bytes
+System.out.println(p.getRemainingBytes()); // 8
+Pointer<Short> p2 = p.next(); // shift pointer by 1 short = 2 bytes.
+System.out.println(p2.getRemainingBytes()); // 6
+----
+
+=== Iteration
+
+One can iterate over a pointer:
+[source,java]
+----
+Pointer<Integer> pInts = pointerToInts(1, 2, 3, 4, 5);
+for (int v : pInts)
+  System.out.println(v);
+----
+
+If the pointer's bounds are unknown, iteration will be infinite (until illegal memory access is attempted, which will most likely crash the JVM).
+
+One case where we don't know bounds yet want to iterate, though, is for C string length computation:
+[source,java]
+----
+long length = 0;
+Pointer<Byte> pString = ...;
+for (byte c : pString) {
+    if (c == 0)
+        break;
+    else
+        length++;
+----
+(note that you can read a C string from a pointer with the method http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/Pointer.html#getCString()[Pointer.getCString()])
+
+== Typed pointers
+
+A typed pointer is a subclass of the `Pointer<?>` class that corresponds in C to some void pointer or opaque pointer typedef:
+[source,java]
+----
+typedef void* HWND;
+typedef struct _S* S;
+----
+
+TODO
+
+== Endianness
+
+With the method http://nativelibs4java.sourceforge.net/bridj/api/stable/org/bridj/Pointer.html#order(java.nio.ByteOrder)[Pointer.order(ByteOrder)], it is possible to create a clone of a pointer that uses a different byte order to read and write to / from memory.
+
+== Casting
+
+TODO

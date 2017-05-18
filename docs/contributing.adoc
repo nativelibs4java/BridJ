@@ -1,0 +1,92 @@
+= Contributing to BridJ
+
+BridJ now has <<Credits and License,some contributors>> as well as https://github.com/ochafik/nativelibs4java/issues[many bug reporters].
+
+Any further help will be highly welcome !
+
+You can help in many ways :
+
+  * report bugs
+  * suggest / write documentation
+  * investigate https://github.com/ochafik/nativelibs4java/issues[open bugs]
+  * submit patches / pull requests for fixes or new features
+  * help users on the http://groups.google.com/group/nativelibs4java[mailing list] or on StackOverflow
+ 
+If you wish to contribute code, you'll want to have a look at the <<Build>> page.
+
+In any case if you don't know where to start, please ask on the http://groups.google.com/group/nativelibs4java[mailing list].
+
+= How to help
+
+BridJ is an ambitious project that aims at becoming the ultimate free interop library for Java (free as in freedom and beer : [CreditsAndLicense BSD-licensed]).
+
+BridJ and JNAerator are mainly developed by a http://ochafik.com[single individual] but they also have a handful of occasional committers and received [CreditsAndLicense many contributions] in the form of bug reports and suggestions.
+
+Even if you're not a programmer you're welcome to contribute to these projects, and we'll be happy to help you with your contribution.
+
+This page details some ways you can help us.
+
+If any item rings a bell,
+http://groups.google.fr/group/nativelibs4java[let's discuss it].
+
+== New projects
+
+See <<Google Summer of Code>> for details on some ambitious sub-project that will likely not see the light of day without your help.
+
+== Bug Fixes and Enhancements
+
+There are <<Submitting Bugs,many issues>>, just waiting for you.
+
+== Graphics
+
+BridJ has no icon, JNAerator neither.
+
+Feel like changing that ?
+
+== Money or Hardware donations
+
+BridJ is developped, debugged and built on different CPU architectures and different operating systems (Windows 32/64, Linux x86/x64, MacOS x86/x64/ppc).
+
+What refrains me from porting it to Solaris (sparcv8, sparcv9) or FreeBSD is I don't have the appropriate hardware and / or system administration knowledge. If you do, please help by sending me hardware and / or advice.
+
+In the case of hardware lending, I can guarantee return of the hardware if we negociate the associated costs.
+
+[link=http://sourceforge.net/donate/index.php?group_id=266856]
+image::http://images.sourceforge.net/images/project-support.jpg[donate,88,32]
+
+
+= Submitting Bugs
+
+If you face what appears to be a bug in BridJ, [CreditsAndLicense we]'d be very grateful if you could try and report it on the bug tracker :
+  https://github.com/ochafik/nativelibs4java/issues?labels=BridJ[NativeLibs4Java's BridJ Bug Tracker]
+
+Of course, <<Credits and License,we>>'d recommend that you first look at the open bugs (and if you're not using the latest snapshot version of BridJ, that you also look at the bugs recently closed) to see if an issue similar to yours has already been reported.
+
+Please use https://github.com/ochafik/nativelibs4java/issues?sort=created&direction=desc&state=open[NativeLibs4Java's GitHub Issues] to report bugs and request enhancements with a title starting by `BridJ: ...`
+
+== What should go in an ideal report
+
+To maximise the chances <<Credits and License,we>> can fix the issue and/or help you quickly, please make sure to provide all of the following items in the report :
+
+  * Minimum-sized working code that exhibits the issue : *any of the following* :
+    - a class with a static main method that compiles directly against BridJ's JAR (you might want to <<Build>> and just drop your `.java` file to `src/main/java`, to have it compiled an run with `mvn compile exec:java -Dexec.mainClass=yourClass`)
+    - a JUnit test class that can just be dropped into https://github.com/ochafik/nativelibs4java/tree/master/libraries/Runtime/BridJ/src/test/java/org/bridj[BridJ's test sources]
+    - an archive of a project that compiles *easily* with Maven or Ant
+  _In particular, please make sure to include the source code of your BridJ bindings._ If you've used http://code.google.com/p/jnaerator/[JNAerator] without the http://code.google.com/p/jnaerator/wiki/CommandLineOptionsAndEnvironmentVariables[-noComp and -noJar options], the sources of the generated bindings are located in the generated JAR, alongside the .class files.
+  * Instructions on how to run your code :
+    - full command-line
+    - prequisites :
+      ** native library to install manually ?
+      ** specific hardware ?
+      ** other dependencies (direct links and/or exact version numbers, please !)
+  * The full error log of BridJ :
+    ** Set the `BRIDJ_VERY_VERBOSE=1` environment variable prior to running your program / test class
+    ** Any `hs_err_pidXXX.log` files
+    ** In case the program never ends (hangs with no normal reason), run `jconsole` and include a dump of the execution trace of the main thread (or of all of them)
+  * A direct link to the native library targeted by your bindings, if possible and if needed to reproduce the issue
+  * The full C/C++/Objective-C headers of the native library
+  * The exact http://code.google.com/p/jnaerator/[JNAerator] arguments you've used to generate your bindings, if you've used that tool (which is highly advised !)
+
+Also, please do not use fancy archive formats (stick to plain old `.zip`), and if you have only a handful of files without particular directory hierarchy, you can even attach these files separately (this way they'll be readable separately from an iPhone).
+
+Anyway if you're in doubt, please come and ask on http://groups.google.com/group/nativelibs4java[the mailing-list] :-)

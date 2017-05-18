@@ -1,0 +1,137 @@
+= Credits and License
+
+== Main author
+
+Olivier Chafik (author of http://code.google.com/p/bridj/[BridJ], http://code.google.com/p/jnaerator/[JNAerator], http://code.google.com/p/javacl/[JavaCL] and http://code.google.com/p/scalacl/[ScalaCL])
+
+  * http://ochafik.free.fr/blog/[Blog : Ché zOlive]
+  * http://twitter.com/ochafik[Twitter : @ochafik]
+
+== Contributors
+  
+  * http://twitter.com/remiemonet[Rémi Emonet] : many enhancements in BridJ's GCC demangler
+  * http://kazocsaba.blogspot.com/[Kazó Csaba] : bug reports + patches for JavaCL (kernel binaries, reduction utilities...)
+  * Andrei Sochirca : intense bug reporting and many suggestions that drove https://github.com/ochafik/nativelibs4java/tree/master/libraries/BridJ/CHANGELOG#[release 0.4.1] of BridJ
+  * https://github.com/atsushieno[Atsushi Eno] : testing and many patch proposals that helped support BridJ on Android
+  * http://bbboblog.blogspot.com/[Bob Boothby] : Mandelbrot demo in JavaCL
+  * Jeff Palmer : moderation of http://groups.google.com/group/nativelibs4java[the mailing list] and support to JavaCL users
+  * http://www.ok.ctrl.titech.ac.jp/~saudet/[Samuel Audet] : support to JavaCL users
+  * Countless http://github.com/ochafik/nativelibs4java/issues[bug reporters], whose energy and patience are a great motivation !
+
+[HowToHelp Wonder how to help ? Read this page !]
+
+== Generous donors
+
+  * Matthew S. (Paypal donation)
+  * http://freeldssheetmusic.org/[Roger Pack] (Paypal donation)
+  * Tishampati Dhar (Paypal donation)
+  * NeZetiC (donation of a Sun Ultra 5 computer so I can work on the BridJ+dyncall Sparc port)
+
+While I'm working on these projects for the fun of it on my free time, I still don't own any sports car... Any donation will be greatly appreciated :
+  <a href="http://sourceforge.net/donate/index.php?group_id=266856"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" border="0" alt="Become a sponsor" /></a>
+
+== Projects Used
+
+BridJ uses the following libraries :
+  * http://dyncall.org[dyncall], an excellent lightweight FFI library distributed under http://dyncall.org/license.shtml[an ISC-style license] (reproduced below).
+  Daniel Adler and Tassilo Philipp (authors of http://dyncall.org/[dyncall]) have been very supportive and kindly accepted and/or adapted most if not all of the patches I submitted to them, many thanks !
+  To patch dyncall with BridJ's modifications, type :
+{{{
+wget http://nativelibs4java.googlecode.com/svn/trunk/libraries/BridJ/admin/patch_dyncall.sh
+bash patch_dyncall.sh dyncall
+}}}
+  * http://asm.ow2.org/[ASM], a Java code generation library distributed under http://asm.ow2.org/license.html[a 3-clauses BSD-style license] (reproduced below).
+
+Note that BridJ ships with these libraries, so you don't need to put them in the path or install them to your system : *BridJ's JAR file is self-contained.*
+
+== Projects that use BridJ
+
+See [WhoUsesBridJ]
+
+== Licenses
+
+=== BridJ, JavaCL & ScalaCL License (3-clauses BSD-like)
+
+----
+Copyright (c) 2010-2013, Olivier Chafik
+All rights reserved.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  * Neither the name of Olivier Chafik nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+----
+
+=== dyncall License (2-clauses BSD-like)
+
+http://dyncall.org[dyncall] is redistributed in binary form in BridJ's binary downloads an in its source tree, and in source form in its source tree.
+
+It is originally distributed under an http://dyncall.org/license.shtml[an ISC-style license] (see http://en.wikipedia.org/wiki/ISC_license[Wikipedia's page about the ISC license]) :
+
+----
+Copyright (c) 2007-2010 
+                        Daniel Adler <dadler AT uni-goettingen DOT de>, 
+                        Tassilo Philipp <tphilipp AT potion-studios DOT com>
+
+Permission to use, copy, modify, and distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+----
+
+=== ASM License (3-clauses BSD-like)
+
+http://asm.ow2.org/[ASM] is redistributed in binary form in BridJ's binary downloads.
+
+It is originally distributed under a http://asm.ow2.org/license.html[3-clauses BSD-style license] (see http://en.wikipedia.org/wiki/BSD_Licence[Wikipedia's page about the BSD license]) :
+
+----
+Copyright (c) 2000-2005 INRIA, France Telecom
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holders nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+THE POSSIBILITY OF SUCH DAMAGE.
+----

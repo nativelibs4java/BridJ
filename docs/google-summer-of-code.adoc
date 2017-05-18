@@ -1,0 +1,126 @@
+= Google Summer of Code
+
+BridJ is a young project that opens many doors in the Java interop world, but exploring all these doors will require a lot of help.
+
+We describe here some of the projects on which we would love to mentor students or passionate individuals,
+should they be sponsored through the http://code.google.com/intl/fr/soc/[Google Summer of Code] program or not.
+
+Please also see the [CurrentState] page for a list of features either in progress or planned, and the [HowToHelp] for
+more general ideas on how to help the BridJ / NativeLibs4Java / JNAerator projects.
+
+== Objective-C support
+
+BridJ currently does not have any working Objective-C support.
+
+The http://code.google.com/p/rococoa/[Rococoa] project did an awesome job of binding the Objective-C runtime, building on JNA.
+
+It would be feasible to do the same with BridJ (i.e. do a port of Rococoa from JNA to BridJ), but BridJ itself will need
+some work (it might not be dynamic enough).
+
+== Library interceptor generator
+
+Library calls interception is a (hacking) technique that consists in hooking to all the calls to a existing function from a shared library.
+This allows for logging, behaviour altering, etc...
+
+There are some system-dependent dynamic approaches, but here we could provide a static approach : we could generate a shared
+library (or generate the code to compile and link such a library) that would "shadow" the actual library (would appear first on the path),
+would expose the same public symbols and would actually call Java callbacks for each function, letting the function decide to call the actual
+library or just handle the call the way it wants.
+
+This internship would require writing a code generator based on JNAerator.
+
+Possible steps :
+
+  * test this technique using a test library and a test hand-written shadow library.
+  Forward the calls to Java using JNI and validate the approach
+  * get used to JNAerator's internals, write code generation engine to create the shadow definitions
+  * use the excellent http://dyncall.org[Dyncall] native cross-platform build scripts (used by BridJ) to make the compilation of generated shadow
+  libraries very easy (or even automatic, provided that the necessary build tools are detected locally)
+
+Final result :
+
+    java -jar shadow.jar mydll.dll
+
+Will output `shadow\mydll.dll` and `shadow\mydll.jar` : the JAR contains the hook interfaces and structure definitions in the `org.bridj.shadow.mydll` package, and the DLL should be put in the path before the actual DLL (but the actuall DLL must also be present in the path, so the shadow DLL can call it).
+
+Setting the `-Dorg.bridj.shadow=log` Java property will install a logging hooks that will output logging data with function name, argument values (including dump of structures if applicable), return values, timestamp... 
+
+== JNA to BridJ Converter
+
+Using the http://www.jarvana.com/jarvana/view/org/eclipse/jdt/doc/isv/3.2.1-r321_v20060907/isv-3.2.1-r321_v20060907.jar!/reference/api/org/eclipse/jdt/core/dom/AST.html[Eclipse compiler API]
+(also see http://publib.boulder.ibm.com/infocenter/iadthelp/v6r0/index.jsp?topic=/org.eclipse.jdt.doc.isv/guide/jdt_api_manip.htm[here]), one could create a Java code converter between JNA and BridJ client code to *convert existing JNA bindings to BridJ bindings* (please note that with JNAerator it is trivial to create BridJ bindings from scratch, though).
+
+As JNA does not use generics and BridJ does, some amount of type inference will be needed,
+and in general pattern matching on the Java DOM will be used.
+
+The code rewrite logic could be generalized, maybe using a Scala DSL or some sort of rewrite template matching / replacement grammar.
+
+== BridJ / .NET
+
+A Java to Mono proof-of-concept binding http://ochafik.free.fr/blog/?p=165[was done some while ago, using the Mono C API].
+
+Here, we're targetting the Microsoft .NET runtime, which does not have such a clean C API. Hence, we need to write one :-)
+
+Using the BridJ modular architecture, the ultimate goal is to have C# / CLR classes that look and behave like Java classes, including with respect to subclassing.
+
+Dark points are around mixed GC interaction (GC from the JVM vs. .NET GC), crossed inheritance and bridge performance.
+
+The http://asm.ow2.org/[Java ASM] and http://msdn.microsoft.com/en-us/library/system.reflection.emit.aspx[.NET Emit] frameworks will also be put to high use.
+
+== C++ to Java Converter (STARTED)
+
+JNAerator converts C / C++ signatures to Java bindings.
+
+The next step is to also convert the code (not only the signatures), so that one can bind a whole
+library and convert all of its samples and demos directly to Java / BridJ.
+
+The JNAerator parser will require fixes to support the C / C++ syntax completely, and some pattern matching on its DOM will be needed to convert to proper Java / BridJ constructs.
+
+*WORK HAS BEGUN, WITH AMAZING RESULTS... STAY TUNED !*
+
+== New C++ / JVM Language
+
+This is a other approach to the C++ / Java interoperability problem.
+
+On the model of Microsoft's http://en.wikipedia.org/wiki/C%2B%2B/CLI[C++/CLI language], which retains full
+C++ compatibility while adding support for .NET/CLR objects manipulation, one could add JVM objects creation to C++.
+
+This is a big project that can be split in more than one internships.
+
+Here are its milestones :
+
+  * Add support for the C++/CLI syntax subset needed to manipulate JVM objects (for instance, supporting the out or ref C++/CLI keywords makes no sense) to JNAerator or LLVM (one could even JNAerate bindings for LLVM so as to pilot it from Java)
+  * Create a code generator that will read the C++/JVM code and output two files : one with pure C++ code (to be then compiled with GCC or Microsoft Visual C++ using dyncall's build scripts) and one with pure Java code. The pure C++ code will call the Java code using JNI.
+  * Create line mappings between the original code and the generated code (both in Java and in C++), use ASM to alter the Java code and insert "fake" line information that traces back to the original C++ / JVM files, so that debuggers can follow the code execution in the original files.
+  * Plug into Visual C++'s debugger API and into GDB to provide a Java Debugging API implementation that will allow mixt debugging : stepping into both native and Java code, as what Microsoft provides with C++/CLI.
+
+As Java has no value types (besides primitives), we could even allow the dot notation to be used instead of the arrow notation when calling methods or referencing fields of Java references.
+
+Using some or all of the http://en.wikipedia.org/wiki/C%2B%2B0x[C++0x's new syntaxes] (such as the http://en.wikipedia.org/wiki/C%2B%2B0x#Type_inference[new auto keyword] :
+
+[source,c++]
+----
+using namespace java::util;
+using namespace java::io;
+using namespace java::lang;
+
+List<String^>^ GetNames() {
+    List<String^>^ list = gcnew List<String^>();
+    list->add(gcnew String("First"));
+    list->add(gcnew String("Second"));
+    list->add(gcnew String("Third"));
+    for each (String^ s in list) {
+        System::out->println(s);
+    }
+}
+----
+
+== Add Fortran support
+
+Fortran has different official versions (F77, F90...) many compilers (each supporting its own Fortran feature set) and presumably different calling conventions.
+
+Calling Fortran to Java might hence not be trivial.
+
+As for C++, one should restrict the scope of the project to the most common compiler(s), say GNU Fortran (gfortran).
+
+Support for the most common Fortran types is also important, and an excellent deliverable would be a fully functional binding to a Fortran LAPACK library from Java (there are already tons of such libraries, but I believe they're either translated to C or have C wrappers).

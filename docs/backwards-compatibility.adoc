@@ -1,0 +1,68 @@
+= Backwards compatibility
+
+BridJ is still a young project and its API is bound to evolve still a lot before version 1.0 is out.
+
+However, most of its features are already usable (and used) in production, so backwards compatibility is a growing concern for our users.
+
+== Note on dependencies
+
+BridJ has very few dependencies.
+
+Amongst them, ASM was https://github.com/ochafik/nativelibs4java/issues/272[reported not to be backwards-compatible], so in BridJ its packages have been relocated from `org.objectweb.asm.*` to `org.bridj.relocated.org.objectweb.asm.*`.
+
+If the same issue was ever to come up with another dependency of BridJ, please https://github.com/ochafik/nativelibs4java/issues/new[let us know] and we'll sort it out ASAP !
+
+== BridJ's pre-1.0 API: a moving target
+
+In order to improve the usability of BridJ's API (and sometimes to support new features), some backwards-incompatible changes have been made in past versions and might be done in future ones.
+
+=== Example of past API breaking change
+
+An example of such breaking change is the methods `Pointer.getInt(long)` (respectively `getLong`, `getShort`...) that were renamed to `Pointer.getIntAtOffset(long)` (resp. `getLongAtOffset`, `getShortAtOffset`...). 
+
+This change was done to avoid inevitable confusion between `Pointer<Integer>.get(long)` which argument is expressed in number of integers, and `Pointer<Integer>.getInt(long)` which argument was expressed in number of bytes : this behaviour is now explicit in the name of the new `Pointer<Integer>.getIntAtOffset(long)`, avoiding lots of head-scratching from future users and cutting support costs down.
+
+== What if you need backwards-compatibility from BridJ ?
+
+These backwards-incompatible changes can however become a huge issue for users whose libraries are likely to coexist in the same applications with other BridJ-dependent libraries that use different versions of BridJ.
+
+=== BridJ's version-specific repackaged artifact
+
+*This is a feature still in development, should be stable by the release of 0.7*.
+
+BridJ now has an experimental version-specific packaged artifact available with the "version-specific-packages" classifier :
+[source,xml]
+----
+  <dependency>
+        <groupId>com.nativelibs4java</groupId>
+        <artifactId>bridj</artifactId>
+        <version>0.7-SNAPSHOT</version>
+        <classifier>version-specific-packages</classifier>
+  </dependency>
+----
+In this artifact, the `org.bridj` package is renamed to `org.bridj.v0_7` : this requires an update of all the import clauses in client source code but guarantees there won't be any version collision with other versions of BridJ in the classpath.
+
+=== Maven-based workaround
+
+If you need a different classifier from BridJ (say, "c-only"), we advise you to relocate BridJ's packages yourself with the http://maven.apache.org/plugins/maven-shade-plugin/index.html[Maven Shade Plugin] using a configuration such as the following :
+
+[source,xml]
+----
+<build>
+    <plugins>
+	    <plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.4</version>
+			<configuration>
+				<relocations>
+					<relocation>
+						<pattern>org.bridj</pattern>
+						<shadedPattern>org.bridj.v0_7</shadedPattern>
+					</relocation>
+				</relocations>
+			</configuration>
+		</plugin>
+	</plugins>
+</build>
+----
