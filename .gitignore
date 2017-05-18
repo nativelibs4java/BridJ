@@ -13,6 +13,7 @@ bug*.txt
 *.lib
 *.htm
 *.ilk
+*.iml
 *.manifest
 *.manifest.res
 *.pch
@@ -32,3 +33,4 @@ dalvik
 .classpath
 .project
 .settings
+.idea
