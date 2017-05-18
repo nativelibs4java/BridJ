@@ -24,3 +24,15 @@ cache:
   - $HOME/.m2
   - $HOME/.ivy2
 
+deploy:
+  - provider: script
+    script: travis/docs.sh
+    skip_cleanup: true
+    on:
+      branch: master
+  - provider: pages
+    local_dir: target/generated-docs
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+    on:
+      branch: master
