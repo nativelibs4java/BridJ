@@ -68,7 +68,8 @@ import org.bridj.util.StringUtils;
  */
 public class Platform {
 
-    static final String osName = System.getProperty("os.name", "");
+    private static final String BRID_J_EXTRACTED_LIBRARIES = "BridJExtractedLibraries";
+	static final String osName = System.getProperty("os.name", "");
     private static boolean inited;
     static final String BridJLibraryName = "bridj";
     public static final int POINTER_SIZE,
@@ -227,7 +228,7 @@ public class Platform {
         }
 
         try {
-            extractedLibrariesTempDir = createTempDir("BridJExtractedLibraries");
+            extractedLibrariesTempDir = createTempDir(BRID_J_EXTRACTED_LIBRARIES);
             initLibrary();
         } catch (Throwable th) {
             th.printStackTrace();
@@ -692,7 +693,7 @@ public class Platform {
             String fileName = new File(libraryResource).getName();
             
             if (!extractedLibrariesTempDir.exists()) {
-                extractedLibrariesTempDir = createTempDir("BridJExtractedLibraries");
+                extractedLibrariesTempDir = createTempDir(BRID_J_EXTRACTED_LIBRARIES);
             }
             
             File libFile = new File(extractedLibrariesTempDir, fileName);
