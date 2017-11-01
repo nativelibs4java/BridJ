@@ -690,6 +690,11 @@ public class Platform {
                 continue;
             }
             String fileName = new File(libraryResource).getName();
+            
+            if (!extractedLibrariesTempDir.exists()) {
+                extractedLibrariesTempDir = createTempDir("BridJExtractedLibraries");
+            }
+            
             File libFile = new File(extractedLibrariesTempDir, fileName);
             OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
             while ((len = in.read(b)) > 0) {
