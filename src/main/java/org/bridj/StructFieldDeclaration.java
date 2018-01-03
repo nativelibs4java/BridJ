@@ -43,6 +43,7 @@ import org.bridj.ann.Alignment;
 import org.bridj.ann.Array;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
+import org.bridj.ann.Static;
 import org.bridj.ann.Union;
 
 class StructFieldDeclaration {
@@ -69,7 +70,8 @@ class StructFieldDeclaration {
 
         int modifiers = member.getModifiers();
 
-        return !Modifier.isStatic(modifiers);
+        return !(((AnnotatedElement) member).getAnnotation(Static.class) != null
+            || Modifier.isStatic(modifiers));
     }
 
     /**

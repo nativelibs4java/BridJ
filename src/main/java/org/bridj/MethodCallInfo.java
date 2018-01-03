@@ -73,6 +73,7 @@ import org.bridj.ann.Convention;
 import org.bridj.ann.DisableDirect;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.SetsLastError;
+import org.bridj.ann.Static;
 import org.bridj.ann.Virtual;
 import org.bridj.dyncall.DyncallLibrary.DCstruct;
 import org.bridj.util.Utils;
@@ -143,7 +144,8 @@ public class MethodCallInfo {
         symbolName = methodName;
 
         int modifiers = method.getModifiers();
-        isStatic = Modifier.isStatic(modifiers);
+        isStatic = method.getAnnotation(Static.class) != null 
+            || Modifier.isStatic(modifiers);
         isVarArgs = method.isVarArgs();
         boolean isNative = Modifier.isNative(modifiers);
         boolean isVirtual = isAnnotationPresent(Virtual.class, definition);

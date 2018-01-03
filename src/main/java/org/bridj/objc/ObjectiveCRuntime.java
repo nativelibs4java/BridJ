@@ -58,7 +58,9 @@ import org.bridj.Platform;
 import org.bridj.Pointer;
 import org.bridj.Pointer.Releaser;
 import org.bridj.ann.Library;
+import org.bridj.ann.Name;
 import org.bridj.ann.Ptr;
+import org.bridj.ann.Static;
 import org.bridj.demangling.Demangler;
 import org.bridj.util.Utils;
 
@@ -283,7 +285,7 @@ public class ObjectiveCRuntime extends CRuntime {
 
         try {
             MethodCallInfo mci = methodCallInfoBuilder.apply(method);
-            boolean isStatic = Modifier.isStatic(method.getModifiers());
+            boolean isStatic = method.getAnnotation(Static.class) != null || Modifier.isStatic(method.getModifiers());
 
             if (isStatic) {
                 Pointer<ObjCClass> pObjcClass = getObjCClass((Class) type).as(ObjCClass.class);
@@ -416,6 +418,7 @@ public class ObjectiveCRuntime extends CRuntime {
             return getObjCClass("NSObject", false);
         }
 
-        return getObjCClass(cls.getSimpleName(), false);
+        Name name = cls.getAnnotation(Name.class);
+        return getObjCClass(name == null ? cls.getSimpleName() : name.value(), false);
     }
 }
