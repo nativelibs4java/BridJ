@@ -40,6 +40,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -710,8 +711,8 @@ public class Platform {
     static File createTempDir(String prefix) throws IOException {
         File dir;
         for (int i = 0; i < maxTempFileAttempts; i++) {
-            dir = File.createTempFile(prefix, "");
-            if (dir.delete() && dir.mkdirs()) {
+            dir = Files.createTempDirectory(prefix).toFile();
+            if (true) {
                 return dir;
             }
         }

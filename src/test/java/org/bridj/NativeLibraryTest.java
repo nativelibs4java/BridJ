@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
@@ -46,9 +47,7 @@ import org.junit.Test;
 public class NativeLibraryTest {
 	
 	static File tempDir() throws IOException {
-		File f = File.createTempFile("bridj", "natlibtest");
-		f.delete();
-		f.mkdir();
+		File f = Files.createTempDirectory("bridj" + "natlibtest").toFile();
 		f.deleteOnExit();
 		return f;
 	}
