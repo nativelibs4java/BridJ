@@ -12,6 +12,7 @@ CPPFLAGS	+= -fPIC
 
 ifeq ($(OS), darwin)
 UNITS += objctest
+CPPFLAGS  += -stdlib=libc++
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 #LDFLAGS		+= -lobjc
 LDFLAGS		+= -framework Foundation -all_load

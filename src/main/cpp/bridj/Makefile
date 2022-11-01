@@ -35,8 +35,8 @@ ifeq ($(OS), darwin)
 # CPPFLAGS  += -no-integrated-as
 CPPFLAGS  += -D_DARWIN_C_SOURCE
 CPPFLAGS  += -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-CPPFLAGS  += -mmacosx-version-min=10.4
-LDFLAGS   += -mmacosx-version-min=10.4
+CPPFLAGS  += -mmacosx-version-min=10.9
+LDFLAGS   += -mmacosx-version-min=10.9
 LDFLAGS	  += -ldl -framework Foundation -all_load
 else
 ifneq ($(OS), sunos)
@@ -50,7 +50,7 @@ CPPFLAGS  += -U_FORTIFY_SOURCE
 #CPPFLAGS += -Werror
 CPPFLAGS  += -std=c99
 ifeq ($(OS), darwin)
-CPPFLAGS  += -stdlib=libstdc++
+CPPFLAGS  += -stdlib=libc++
 endif
 
 ifeq ($(ARCH), x64)

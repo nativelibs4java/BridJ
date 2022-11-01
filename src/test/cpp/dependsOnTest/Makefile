@@ -9,8 +9,9 @@ CPPFLAGS	+=	-I../test
 CPPFLAGS	+= -fPIC
 
 ifeq ($(OS), darwin)
-CPPFLAGS  += -mmacosx-version-min=10.5
-LDFLAGS   += -mmacosx-version-min=10.5
+CPPFLAGS  += -stdlib=libc++
+CPPFLAGS  += -mmacosx-version-min=10.9
+LDFLAGS   += -mmacosx-version-min=10.9
 # LDFLAGS		+= -rpath
 else
 ifeq ($(OS), sunos)
