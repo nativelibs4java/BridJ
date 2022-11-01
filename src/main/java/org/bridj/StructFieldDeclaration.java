@@ -30,12 +30,7 @@
  */
 package org.bridj;
 
-import static org.bridj.util.AnnotationUtils.isAnnotationPresent;
-
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +39,18 @@ import org.bridj.ann.Array;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
 import org.bridj.ann.Union;
+import org.bridj.util.Methods;
+import org.bridj.util.Types;
+
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.fasterxml.classmate.members.ResolvedMember;
+import com.fasterxml.classmate.members.ResolvedMethod;
 
 class StructFieldDeclaration {
 
     final StructFieldDescription desc = new StructFieldDescription();
-    Method setter;
+    ResolvedMethod setter;
     long index = -1, unionWith = -1;//, byteOffset = -1;
     Class<?> valueClass;
     Class<?> declaringClass;
@@ -57,79 +59,87 @@ class StructFieldDeclaration {
     public String toString() {
         return desc.name + " (index = " + index + (unionWith < 0 ? "" : ", unionWith = " + unionWith) + ", desc = " + desc + ")";
     }
+    
+    protected static boolean acceptFieldGetter(ResolvedMember<?> member, boolean getter) {
+      if ((member instanceof ResolvedMethod) && ((ResolvedMethod) member).getRawMember().getParameterTypes().length != (getter ? 0 : 1)) {
+          return false;
+      }
 
-    protected static boolean acceptFieldGetter(Member member, boolean getter) {
-        if ((member instanceof Method) && ((Method) member).getParameterTypes().length != (getter ? 0 : 1)) {
-            return false;
-        }
+      if (member.get(Field.class) == null) {
+          return false;
+      }
 
-        if (((AnnotatedElement) member).getAnnotation(Field.class) == null) {
-            return false;
-        }
-
-        int modifiers = member.getModifiers();
-
-        return !Modifier.isStatic(modifiers);
-    }
-
-    /**
-     * Creates a list of structure fields
-     */
+      return !member.isStatic();
+  }
+    
     protected static List<StructFieldDeclaration> listFields(Class<?> structClass) {
-        List<StructFieldDeclaration> list = new ArrayList<StructFieldDeclaration>();
-        for (Method method : structClass.getMethods()) {
-            if (acceptFieldGetter(method, true)) {
-                StructFieldDeclaration io = fromGetter(method);
-                try {
-                    Method setter = structClass.getMethod(method.getName(), io.valueClass);
-                    if (acceptFieldGetter(setter, false)) {
-                        io.setter = setter;
-                    }
-                } catch (Exception ex) {
-                    //assert BridJ.info("No setter for getter " + method);
+      List<StructFieldDeclaration> list = new ArrayList<StructFieldDeclaration>();
+      ResolvedTypeWithMembers resolvedStruct = Types.resolveTypeWithInstanceMethods(structClass);
+      for (ResolvedMethod method : resolvedStruct.getMemberMethods()) {
+        if (acceptFieldGetter(method, true)) {
+            StructFieldDeclaration io = fromGetter(method);
+            try {
+                // this only works when the names are equal, does not support setXXX methods.
+                ResolvedMethod setter = Methods.getMethod( resolvedStruct.getMemberMethods(), method.getName(), io.valueClass);
+                if (acceptFieldGetter(setter, false)) {
+                    io.setter = setter;
                 }
-                if (io != null) {
-                    list.add(io);
-                }
+            } catch (Exception ex) {
+                //assert BridJ.info("No setter for getter " + method);
+            }
+            if (io != null) {
+                list.add(io);
             }
         }
-
-        int nFieldFields = 0;
-        for (java.lang.reflect.Field field : structClass.getFields()) {
-            if (acceptFieldGetter(field, true)) {
-                StructFieldDeclaration io = StructFieldDeclaration.fromField(field);
-                if (io != null) {
-                    list.add(io);
-                    nFieldFields++;
-                }
-            }
-        }
-        if (nFieldFields > 0 && BridJ.warnStructFields) {
-            BridJ.warning("Struct " + structClass.getName() + " has " + nFieldFields + " struct fields implemented as Java fields, which won't give the best performance and might require counter-intuitive calls to BridJ.readFromNative / .writeToNative. Please consider using JNAerator to generate your struct instead, or use BRIDJ_WARN_STRUCT_FIELDS=0 or -Dbridj.warnStructFields=false to mute this warning.");
-        }
-
-        return list;
     }
 
-    protected static StructFieldDeclaration fromField(java.lang.reflect.Field getter) {
-        StructFieldDeclaration field = fromMember((Member) getter);
+    int nFieldFields = 0;
+    for ( ResolvedField field : resolvedStruct.getMemberFields()) {
+        if (acceptFieldGetter(field, true)) {
+            StructFieldDeclaration io = StructFieldDeclaration.fromField(field);
+            if (io != null) {
+                list.add(io);
+                nFieldFields++;
+            }
+        }
+    }
+    if (nFieldFields > 0 && BridJ.warnStructFields) {
+        BridJ.warning("Struct " + structClass.getName() + " has " + nFieldFields + " struct fields implemented as Java fields, which won't give the best performance and might require counter-intuitive calls to BridJ.readFromNative / .writeToNative. Please consider using JNAerator to generate your struct instead, or use BRIDJ_WARN_STRUCT_FIELDS=0 or -Dbridj.warnStructFields=false to mute this warning.");
+    }
+
+    return list;
+    }
+    
+    protected static String nameForMember( ResolvedMember<?> member ) {
+      String name = member.getName();
+      if (name.matches("get[A-Z].*")) {
+          return Character.toLowerCase(name.charAt(3)) + name.substring(4);
+      } else if ( name.matches("set[A-Z].*")) {
+          return Character.toLowerCase(name.charAt(3)) + name.substring(4);
+      } else {
+          return name;
+      }
+    }
+    
+    protected static StructFieldDeclaration fromField(ResolvedField getter) {
+        StructFieldDeclaration field = fromMember(getter);
         field.desc.field = getter;
-        field.desc.valueType = getter.getGenericType();
-        field.valueClass = getter.getType();
+        field.desc.valueType = getter.getType();
+        field.valueClass = getter.getType().getErasedType();
         return field;
     }
 
-    protected static StructFieldDeclaration fromGetter(Method getter) {
-        StructFieldDeclaration field = fromMember((Member) getter);
-        field.desc.getter = getter;
-        field.desc.valueType = getter.getGenericReturnType();
-        field.valueClass = getter.getReturnType();
-        return field;
+    protected static StructFieldDeclaration fromGetter(ResolvedMethod getter) {
+      StructFieldDeclaration field = fromMember(getter);
+      field.desc.getter = getter;
+      field.desc.valueType = getter.getReturnType();
+      field.valueClass = getter.getReturnType().getErasedType();
+      return field;
     }
 
-    private static StructFieldDeclaration fromMember(Member member) {
+    private static StructFieldDeclaration fromMember(ResolvedMember<?> member) {
         StructFieldDeclaration field = new StructFieldDeclaration();
-        field.declaringClass = member.getDeclaringClass();
+        field.declaringClass = member.getRawMember().getDeclaringClass();
 
         String name = member.getName();
         if (name.matches("get[A-Z].*")) {
@@ -138,11 +148,10 @@ class StructFieldDeclaration {
 
         field.desc.name = name;
 
-        AnnotatedElement getter = (AnnotatedElement) member;
-        Field fil = getter.getAnnotation(Field.class);
-        Bits bits = getter.getAnnotation(Bits.class);
-        Alignment alignment = getter.getAnnotation(Alignment.class);
-        Array arr = getter.getAnnotation(Array.class);
+        Field fil = member.get(Field.class);
+        Bits bits = member.get(Bits.class);
+        Alignment alignment = member.get(Alignment.class);
+        Array arr = member.get(Array.class);
         if (fil != null) {
             field.index = fil.value();
             //field.byteOffset = fil.offset();
@@ -166,8 +175,8 @@ class StructFieldDeclaration {
             field.desc.arrayLength = length;
             field.desc.isArray = true;
         }
-        field.desc.isCLong = isAnnotationPresent(org.bridj.ann.CLong.class, getter);
-        field.desc.isSizeT = isAnnotationPresent(org.bridj.ann.Ptr.class, getter);
+        field.desc.isCLong = member.get(org.bridj.ann.CLong.class) != null;
+        field.desc.isSizeT = member.get(org.bridj.ann.Ptr.class) != null;
         return field;
     }
 }

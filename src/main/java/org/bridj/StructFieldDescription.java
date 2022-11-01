@@ -55,6 +55,10 @@ import org.bridj.cpp.CPPType;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 /**
  * Internal metadata on a struct field
  */
@@ -69,9 +73,9 @@ public class StructFieldDescription {
     public long bitMask = -1;
     public boolean isArray, isNativeObject;
     public Type nativeTypeOrPointerTargetType;
-    public java.lang.reflect.Field field;
+    public ResolvedField field;
     Type valueType;
-    Method getter;
+    ResolvedMethod getter;
     String name;
     boolean isCLong, isSizeT;
 
@@ -90,7 +94,12 @@ public class StructFieldDescription {
         }
 
         Type ret;
-        if (tpe instanceof ParameterizedType) {
+        if (tpe instanceof ResolvedType ) {
+          ResolvedType rt = (ResolvedType)tpe;
+          // TODO: what do we do here?
+          ret = tpe;
+        }
+        else if (tpe instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) tpe;
             Type[] actualTypeArguments = pt.getActualTypeArguments();
             Type[] resolvedActualTypeArguments = new Type[actualTypeArguments.length];
@@ -178,8 +187,18 @@ public class StructFieldDescription {
                 field.desc.byteLength = Pointer.SIZE;
                 //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
             } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
-                Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType) field.desc.valueType).getActualTypeArguments()[0] : null;
-                field.desc.nativeTypeOrPointerTargetType = resolveType(tpe, structType);
+                Type tpe = null;
+                if( field.desc.valueType instanceof ResolvedType ) {
+                  ResolvedType rt = (ResolvedType)field.desc.valueType;
+                  if( !rt.getTypeParameters().isEmpty() ) {
+                    tpe = rt.getTypeParameters().get(0);
+                    field.desc.nativeTypeOrPointerTargetType = tpe;
+                  }
+                }
+                else if(field.desc.valueType instanceof ParameterizedType) {
+                  tpe = ((ParameterizedType) field.desc.valueType).getActualTypeArguments()[0];
+                  field.desc.nativeTypeOrPointerTargetType = resolveType(tpe, structType);
+                }
                 if (field.desc.isArray) {
                     field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
                     if (field.desc.alignment < 0)
