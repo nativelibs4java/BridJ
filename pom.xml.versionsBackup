@@ -4,14 +4,14 @@
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
-	<url>https://code.google.com/p/bridj/</url>
+	<url>http://code.google.com/p/bridj/</url>
 	<version>0.7.1-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<repositories>
 		<repository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
-			<url>https://oss.sonatype.org/content/groups/public</url>
+			<url>http://oss.sonatype.org/content/groups/public</url>
 		</repository>
 	</repositories>
 
@@ -19,7 +19,7 @@
 		<pluginRepository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
-			<url>https://oss.sonatype.org/content/groups/public</url>
+			<url>http://oss.sonatype.org/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
 	<properties>
@@ -29,7 +29,7 @@
 	<scm>
 		<connection>scm:git:git@github.com:nativelibs4java/BridJ.git</connection>
 		<developerConnection>scm:git:git@github.com:nativelibs4java/BridJ.git</developerConnection>
-		<url>https://github.com/nativelibs4java/BridJ</url>
+		<url>http://github.com/nativelibs4java/BridJ</url>
 	</scm>
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
@@ -40,13 +40,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
-			<version>9.4</version>
+			<version>5.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.12.1</version>
+			<version>4.1.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -434,7 +434,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
             <dependency>
               <groupId>org.eclipse.tycho</groupId>
               <artifactId>org.eclipse.jdt.core</artifactId>
-              <version>3.14.0.v20171206-0802</version>
+              <version>3.10.0.v20140604-1726</version>
             </dependency>
           </dependencies>
           <executions>
