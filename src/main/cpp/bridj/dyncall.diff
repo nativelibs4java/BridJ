@@ -1,7 +1,7 @@
-diff -r bbefb8b8e74c dynload/dynload_syms_mach-o.c
---- a/dynload/dynload_syms_mach-o.c	Thu Nov 24 23:47:31 2016 +0000
-+++ b/dynload/dynload_syms_mach-o.c	Thu Jan 05 09:36:39 2017 +0000
-@@ -29,6 +29,7 @@
+diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c
+--- a/dynload/dynload_syms_mach-o.c	Fri Oct 28 20:51:45 2022 +0200
++++ b/dynload/dynload_syms_mach-o.c	Tue Nov 01 04:06:19 2022 +0000
+@@ -31,6 +31,7 @@
   dynamic symbol resolver for Mach-O
  
  */
@@ -9,32 +9,11 @@ diff -r bbefb8b8e74c dynload/dynload_syms_mach-o.c
  
  #include "dynload.h"
  #include "dynload_alloc.h"
-@@ -40,15 +41,16 @@
- 
- #if defined(ARCH_X64) //@@@ use dyncall_macros.h
- #define MACH_HEADER_TYPE mach_header_64
-+#define MACH_MAGIC MH_MAGIC_64
- #define SEGMENT_COMMAND segment_command_64
- #define NLIST_TYPE nlist_64
- #else
- #define MACH_HEADER_TYPE mach_header
-+#define MACH_MAGIC MH_MAGIC
- #define SEGMENT_COMMAND segment_command
- #define NLIST_TYPE nlist
- #endif
- 
--
- struct DLLib_
- {
- 	char* libPath;
-@@ -58,11 +60,143 @@
- 
- struct DLSyms_
- {
-+    const char** decompressedSymbols;
- 	const char* pStringTable;
+@@ -64,8 +65,141 @@
  	const struct NLIST_TYPE* pSymbolTable;
- 	uint32_t symbolCount;
+ 	uint32_t                 symbolCount;
+ 	uintptr_t                symOffset;
++  const char** decompressedSymbols;
  };
  
 +const struct load_command* get_next_command(const struct load_command* cmd) {
@@ -168,102 +147,60 @@ diff -r bbefb8b8e74c dynload/dynload_syms_mach-o.c
 +    strcpy(copy, str);
 +    pstr[index] = copy;
 +}
++
  
- DLSyms* dlSymsInit(const char* libPath) 
+ DLSyms* dlSymsInit(const char* libPath)
  {
-@@ -71,37 +205,71 @@
- 	for (iImage = 0, nImages = _dyld_image_count(); iImage < nImages; iImage++)
- 	{
- 		const char* name = _dyld_get_image_name(iImage);
--		if (name && !strcmp(name, libPath))
-+		if (isSameMacImageName(libPath, name))
- 		{
- 			const struct MACH_HEADER_TYPE* pHeader = (const struct MACH_HEADER_TYPE*) _dyld_get_image_header(iImage);
- 			const char* pBase = ((const char*)pHeader);
-+			if (!pHeader)
-+				return NULL;
-+
-+			if (pHeader->magic != MACH_MAGIC)
-+				return NULL;
- 			if (pHeader->filetype != MH_DYLIB)
- 				return NULL;
--			if (pHeader->flags & MH_SPLIT_SEGS)
-+			if (pHeader->flags & MH_SPLIT_SEGS || !(pHeader->flags & MH_DYLDLINK))
- 				return NULL;
--
--			if (pHeader)
-+			
- 			{
- 				uint32_t iCmd, nCmds = pHeader->ncmds;
- 				const struct load_command* cmd = (const struct load_command*)(pBase + sizeof(struct MACH_HEADER_TYPE));
- 				
-+        // First, try and find a LC_SYMTAB
-+        for (iCmd = 0; iCmd < nCmds; iCmd++)
-+        {
-+          if (cmd->cmd == LC_SYMTAB)
-+          {
-+            const struct symtab_command* scmd = (const struct symtab_command*)cmd;
-+            
-+            pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
-+            //memset(pSyms, sizeof(DLSyms), 0);
-+            pSyms->decompressedSymbols = NULL;
-+            pSyms->symbolCount = scmd->nsyms;
-+            pSyms->pStringTable = pBase + scmd->stroff;
-+            pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
-+            
-+            return pSyms;
-+          }
-+          cmd = get_next_command(cmd);
-+        }
-+
-+        // Then, try and use LC_DYLD_INFO_ONLY or LC_DYLD_INFO and parse their trie.
- 				for (iCmd = 0; iCmd < nCmds; iCmd++) 
+@@ -96,7 +230,7 @@
+ 				/* free / refcount-- */
+ 				dlFreeLibrary(pLib_);
+ 
+-				if(pLib == pLib_)
++				if(pLib == pLib_ || isSameMacImageName(libPath, name))
  				{
--					if (cmd->cmd == LC_SYMTAB) 
--					{
--						const struct symtab_command* scmd = (const struct symtab_command*)cmd;
--					
--						pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
--						pSyms->symbolCount = scmd->nsyms;
--						pSyms->pStringTable = pBase + scmd->stroff;
--						pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
--						
--						return pSyms;
--					}
--					cmd = (const struct load_command*)(((char*)cmd) + cmd->cmdsize);
-+					if (cmd->cmd == LC_DYLD_INFO_ONLY || cmd->cmd == LC_DYLD_INFO) {
-+            const struct dyld_info_command* dcmd = (const struct dyld_info_command*)cmd;
-+            const unsigned char* trie = (pBase + dcmd->export_off);
-+            
-+            pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
-+            
-+            // First, get the number of symbols
-+            pSyms->symbolCount = visitTrie(trie, trie, trie + dcmd->export_size, NULL, NULL, 0, NULL, 0);
-+            
-+            if (pSyms->symbolCount) {
-+                // Now revisit and copy symbols to their destination
-+                DCString s;
-+                size_t decompSize = pSyms->symbolCount * sizeof(char*) * 2;
-+                pSyms->decompressedSymbols = dlAllocMem(decompSize);
-+                memset(pSyms->decompressedSymbols, decompSize, 0);
-+                initString(&s, 1024);
-+                visitTrie(trie, trie, trie + dcmd->export_size, &s, CopyToNthString, 0, pSyms->decompressedSymbols, 0);
-+                freeString(&s);
-+            }
-+            
-+            return pSyms;
-+          }
-+          cmd = get_next_command(cmd);
- 				}
+ 					pHeader = (const struct MACH_HEADER_TYPE*) _dyld_get_image_header(i);
+ /*@@@ slide = _dyld_get_image_vmaddr_slide(i);*/
+@@ -145,10 +279,35 @@
+ 				pSyms = (DLSyms*)dlAllocMem(sizeof(DLSyms));
+ 				pSyms->symbolCount  = scmd->nsyms;
+ 				pSyms->pStringTable = pBase + scmd->stroff;
++				pSyms->decompressedSymbols = NULL;
+ 				pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
+ 				pSyms->symOffset    = symOffset;
+ 				pSyms->pLib         = pLib;
  			}
--			break;
- 		}
- 	}
- 	return NULL;
-@@ -113,6 +281,18 @@
- 	if (!pSyms)
- 		return;
- 	
++			else if ((cmd->cmd == LC_DYLD_INFO_ONLY || cmd->cmd == LC_DYLD_INFO) && !pSyms) {
++        const struct dyld_info_command* dcmd = (const struct dyld_info_command*)cmd;
++        const unsigned char* trie = (pBase + dcmd->export_off);
++        
++        pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
++        
++        // First, get the number of symbols
++        pSyms->symbolCount = visitTrie(trie, trie, trie + dcmd->export_size, NULL, NULL, 0, NULL, 0);
++				pSyms->symOffset = symOffset;
++				pSyms->pLib         = pLib;
++        
++        if (pSyms->symbolCount) {
++            // Now revisit and copy symbols to their destination
++            DCString s;
++            size_t decompSize = pSyms->symbolCount * sizeof(char*) * 2;
++            pSyms->decompressedSymbols = dlAllocMem(decompSize);
++            memset(pSyms->decompressedSymbols, decompSize, 0);
++            initString(&s, 1024);
++            visitTrie(trie, trie, trie + dcmd->export_size, &s, CopyToNthString, 0, pSyms->decompressedSymbols, 0);
++            freeString(&s);
++        }
++        
++        // return pSyms;
++      }
+ 			else if(cmd->cmd == LC_DYSYMTAB && !dysymtab_cmd/* only init once - just safety check */)
+ 			{
+ 				/* @@@ unused, we'll always run over all symbols, and not check locals, globals, etc.
+@@ -183,6 +342,19 @@
+ {
+ 	if(pSyms) {
+ 		dlFreeLibrary(pSyms->pLib);
++
 +    if (pSyms->decompressedSymbols) {
 +        size_t i, n = pSyms->symbolCount;
 +        for (i = 0; i < n; i++) {
@@ -276,70 +213,1127 @@ diff -r bbefb8b8e74c dynload/dynload_syms_mach-o.c
 +        dlFreeMem(pSyms->decompressedSymbols);
 +        pSyms->decompressedSymbols = NULL;
 +    }
- 	dlFreeMem(pSyms);
+ 		dlFreeMem(pSyms);
+ 	}
  }
- 
-@@ -133,6 +313,11 @@
- 	if (nl->n_un.n_strx <= 1)
- 		return NULL; // would be empty string anyway
- 	
-+    if (!(nl->n_type & N_EXT) || (nl->n_type & N_PEXT))
-+        return NULL; // not a public external symbol
-+    if (nl->n_type & N_STAB)
-+        return NULL;
-+    
- 	//TODO skip more symbols based on nl->n_desc and nl->n_type ?
- 	return nl;
- }
-@@ -140,6 +325,12 @@
+@@ -195,6 +367,11 @@
  
  const char* dlSymsName(DLSyms* pSyms, int index)
  {
-+    if (!pSyms || index >= pSyms->symbolCount)
-+        return NULL;
-+ 
-+    if (pSyms->decompressedSymbols)
-+        return pSyms->decompressedSymbols[index];
-+            
- 	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
- 	if (!nl)
- 		return NULL;
-@@ -150,6 +341,12 @@
++  if (!pSyms || index >= pSyms->symbolCount)
++      return NULL;
++  if (pSyms->decompressedSymbols)
++      return pSyms->decompressedSymbols[index];
++          
+ 	const struct NLIST_TYPE* nl;
+ 	unsigned char t;
  
- void* dlSymsValue(DLSyms* pSyms, int index)
- {
-+    if (!pSyms || index >= pSyms->symbolCount)
-+        return NULL;
-+    
-+    if (pSyms->decompressedSymbols)
-+        return NULL; // TODO use dlFindSymbol
-+            
- 	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
- 	if (!nl)
- 		return NULL;
-diff -r bbefb8b8e74c dynload/dynload_unix.c
---- a/dynload/dynload_unix.c	Thu Nov 24 23:47:31 2016 +0000
-+++ b/dynload/dynload_unix.c	Thu Jan 05 09:36:39 2017 +0000
-@@ -41,7 +41,7 @@
+diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c.orig
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dynload/dynload_syms_mach-o.c.orig	Tue Nov 01 04:06:19 2022 +0000
+@@ -0,0 +1,247 @@
++/*
++
++ Package: dyncall
++ Library: dynload
++ File: dynload/dynload_syms_mach-o.c
++ Description:
++ License:
++
++   Copyright (c) 2007-2015 Olivier Chafik <olivier.chafik@gmail.com>,
++                 2017-2021 refactored completely for stability, API
++                           consistency and portability by Tassilo Philipp.
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++
++
++/*
++
++ dynamic symbol resolver for Mach-O
++
++*/
++
++#include "dynload.h"
++#include "dynload_alloc.h"
++#include "../autovar/autovar_ARCH.h"
++#include "../autovar/autovar_OS.h"
++
++#include <mach-o/dyld.h>
++#include <mach-o/nlist.h>
++#include <dlfcn.h>
++#include <string.h>
++
++#if defined(ARCH_X64) || defined(ARCH_PPC64) || defined(ARCH_ARM64) /*@@@ use dyncall_macros.h*/
++#define MACH_HEADER_TYPE mach_header_64
++#define MACH_HEADER_MAGIC_NR MH_MAGIC_64
++#define SEGMEND_COMMAND_ID LC_SEGMENT_64
++#define SEGMENT_COMMAND segment_command_64
++#define NLIST_TYPE nlist_64
++#else
++#define MACH_HEADER_TYPE mach_header
++#define MACH_HEADER_MAGIC_NR MH_MAGIC
++#define SEGMEND_COMMAND_ID LC_SEGMENT
++#define SEGMENT_COMMAND segment_command
++#define NLIST_TYPE nlist
++#endif
++
++
++struct DLSyms_
++{
++	DLLib*                   pLib;
++	const char*              pStringTable;
++	const struct NLIST_TYPE* pSymbolTable;
++	uint32_t                 symbolCount;
++	uintptr_t                symOffset;
++};
++
++
++DLSyms* dlSymsInit(const char* libPath)
++{
++	DLLib* pLib;
++	DLSyms* pSyms = NULL;
++	uint32_t i, n;
++	const struct MACH_HEADER_TYPE* pHeader = NULL;
++	const struct dysymtab_command* dysymtab_cmd = NULL;
++
++	pLib = dlLoadLibrary(libPath);
++	if(!pLib)
++		return NULL;
++
++	/* Loop over all dynamically linked images to find ours. */
++	for(i = 0, n = _dyld_image_count(); i < n; ++i)
++	{
++		const char* name = _dyld_get_image_name(i);
++
++		if(name)
++		{
++			/* Don't rely on name comparison alone, as libPath might be relative, symlink, differently */
++			/* cased, use weird osx path placeholders, etc., but compare inode number with the one of the mapped dyld image. */
++
++			/* reload already loaded lib to get handle to compare with, should be lightweight and only increase ref count */
++			DLLib* pLib_ = dlLoadLibrary(name);
++			if(pLib_)
++			{
++				/* free / refcount-- */
++				dlFreeLibrary(pLib_);
++
++				if(pLib == pLib_)
++				{
++					pHeader = (const struct MACH_HEADER_TYPE*) _dyld_get_image_header(i);
++/*@@@ slide = _dyld_get_image_vmaddr_slide(i);*/
++					break; /* found header */
++				}
++			}
++		}
++	}
++
++	if(pHeader && (pHeader->magic == MACH_HEADER_MAGIC_NR) && (pHeader->filetype == MH_DYLIB)/*@@@ ignore for now, seems to work without it on El Capitan && !(pHeader->flags & MH_SPLIT_SEGS)*/)
++	{
++		const char* pBase = (const char*)pHeader;
++		uintptr_t slide = 0, symOffset = 0;
++		const struct load_command* cmd = (const struct load_command*)(pBase + sizeof(struct MACH_HEADER_TYPE));
++
++		for(i = 0, n = pHeader->ncmds; i < n; ++i, cmd = (const struct load_command*)((const char*)cmd + cmd->cmdsize))
++		{
++			if(cmd->cmd == SEGMEND_COMMAND_ID)
++			{
++				const struct SEGMENT_COMMAND* seg = (struct SEGMENT_COMMAND*)cmd;
++				/*@@@ unsure why I used this instead of checking __TEXT: if((seg->fileoff == 0) && (seg->filesize != 0))*/
++				if(strcmp(seg->segname, "__TEXT") == 0)
++					slide = (uintptr_t)pHeader - seg->vmaddr; /* effective offset of segment from header */
++
++				/* If we have __LINKEDIT segment (= raw data for dynamic linkers), use that one to find symbal table address. */
++				if(strcmp(seg->segname, "__LINKEDIT") == 0) {
++					/* Recompute pBase relative to where __LINKEDIT segment is in memory. */
++					pBase = (const char*)(seg->vmaddr - seg->fileoff) + slide;
++
++					/*@@@ we might want to also check maxprot and initprot here:
++						VM_PROT_READ    ((vm_prot_t) 0x01)
++						VM_PROT_WRITE   ((vm_prot_t) 0x02)
++						VM_PROT_EXECUTE ((vm_prot_t) 0x04)*/
++
++					symOffset = slide; /* this is also offset of symbols */
++				}
++			}
++			else if(cmd->cmd == LC_SYMTAB && !pSyms/* only init once - just safety check */)
++			{
++				const struct symtab_command* scmd = (const struct symtab_command*)cmd;
++
++				/* cmd->cmdsize must be size of struct, otherwise something is off; abort */
++				if(cmd->cmdsize != sizeof(struct symtab_command))
++					break;
++
++				pSyms = (DLSyms*)dlAllocMem(sizeof(DLSyms));
++				pSyms->symbolCount  = scmd->nsyms;
++				pSyms->pStringTable = pBase + scmd->stroff;
++				pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
++				pSyms->symOffset    = symOffset;
++				pSyms->pLib         = pLib;
++			}
++			else if(cmd->cmd == LC_DYSYMTAB && !dysymtab_cmd/* only init once - just safety check */)
++			{
++				/* @@@ unused, we'll always run over all symbols, and not check locals, globals, etc.
++				if(cmd->cmdsize != sizeof(struct symtab_command)) {
++					dlSymsCleanup(pSyms);
++					break;
++				}
++
++				dysymtab_cmd = (const struct dysymtab_command*)cmd;*/
++			}
++		}
++	}
++
++	/* Got symbol table? */
++	if(pSyms) {
++		/* Alter symtable info if we got symbols organized in local/defined/undefined groups. */
++		/* Only use local ones in that case. */
++		/*@@@ don't restrict to only local symbols if(dysymtab_cmd) {
++			pSyms->pSymbolTable += dysymtab_cmd->ilocalsym;
++			pSyms->symbolCount = dysymtab_cmd->nlocalsym;
++		}*/
++		return pSyms;
++	}
++
++	/* Couldn't init syms, so free lib and return error. */
++	dlFreeLibrary(pLib);
++	return NULL;
++}
++
++
++void dlSymsCleanup(DLSyms* pSyms)
++{
++	if(pSyms) {
++		dlFreeLibrary(pSyms->pLib);
++		dlFreeMem(pSyms);
++	}
++}
++
++int dlSymsCount(DLSyms* pSyms)
++{
++	return pSyms ? pSyms->symbolCount : 0;
++}
++
++
++const char* dlSymsName(DLSyms* pSyms, int index)
++{
++	const struct NLIST_TYPE* nl;
++	unsigned char t;
++
++	if(!pSyms)
++		return NULL;
++
++	nl = pSyms->pSymbolTable + index;
++	t = nl->n_type & N_TYPE;
++
++	/* Return name by lookup through it's address. This guarantees to be consistent with dlsym and dladdr */
++	/* calls as used in dlFindAddress and dlSymsNameFromValue - the "#if 0"-ed code below returns the */
++	/* name directly, but assumes wrongly that everything is prefixed with an underscore on Darwin. */
++
++	/* only handle symbols that are in a section and aren't symbolic debug entries */
++	if((t == N_SECT) && (nl->n_type & N_STAB) == 0)
++		return dlSymsNameFromValue(pSyms, (void*)(nl->n_value + pSyms->symOffset));
++
++	return NULL; /* @@@ handle N_INDR, etc.? */
++
++#if 0
++	/* Mach-O manual: Symbols with an index into the string table of zero */
++	/* (n_un.n_strx == 0) are defined to have a null ("") name. */
++	if(nl->n_un.n_strx == 0)
++		return NULL; /*@@@ have return pointer to some static "" string? */
++
++	/* Skip undefined symbols. @@@ should we? */
++	if(t == N_UNDF || t == N_PBUD) /* @@@ check if N_PBUD is defined, it's not in the NeXT manual, but on Darwin 8.0.1 */
++		return NULL;
++
++	/*TODO skip more symbols based on nl->n_desc and nl->n_type ? */
++
++	/* Return name - handles lookup of indirect names. */
++	return &pSyms->pStringTable[(t == N_INDR ? nl->n_value : nl->n_un.n_strx)
++#if defined(OS_Darwin)
++		+ 1 /* Skip '_'-prefix */
++#endif
++	];
++#endif
++}
++
++
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++	Dl_info info;
++	if (!dladdr(value, &info) || (value != info.dli_saddr))
++		return NULL;
++
++	return info.dli_sname;
++}
++
+diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c.rej
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dynload/dynload_syms_mach-o.c.rej	Tue Nov 01 04:06:19 2022 +0000
+@@ -0,0 +1,391 @@
++***************
++*** 42,56 ****
++  
++  #if defined(ARCH_X64) //@@@ use dyncall_macros.h
++  #define MACH_HEADER_TYPE mach_header_64
++  #define SEGMENT_COMMAND segment_command_64
++  #define NLIST_TYPE nlist_64
++  #else
++  #define MACH_HEADER_TYPE mach_header
++  #define SEGMENT_COMMAND segment_command
++  #define NLIST_TYPE nlist
++  #endif
++  
++- 
++  struct DLLib_
++  {
++  	char* libPath;
++--- 43,58 ----
++  
++  #if defined(ARCH_X64) //@@@ use dyncall_macros.h
++  #define MACH_HEADER_TYPE mach_header_64
+++ #define MACH_MAGIC MH_MAGIC_64
++  #define SEGMENT_COMMAND segment_command_64
++  #define NLIST_TYPE nlist_64
++  #else
++  #define MACH_HEADER_TYPE mach_header
+++ #define MACH_MAGIC MH_MAGIC
++  #define SEGMENT_COMMAND segment_command
++  #define NLIST_TYPE nlist
++  #endif
++  
++  struct DLLib_
++  {
++  	char* libPath;
++***************
++*** 60,70 ****
++  
++  struct DLSyms_
++  {
++  	const char* pStringTable;
++  	const struct NLIST_TYPE* pSymbolTable;
++  	uint32_t symbolCount;
++  };
++  
++  
++  DLSyms* dlSymsInit(const char* libPath) 
++  {
++--- 62,204 ----
++  
++  struct DLSyms_
++  {
+++     const char** decompressedSymbols;
++  	const char* pStringTable;
++  	const struct NLIST_TYPE* pSymbolTable;
++  	uint32_t symbolCount;
++  };
++  
+++ const struct load_command* get_next_command(const struct load_command* cmd) {
+++   return (const struct load_command*)(((char*)cmd) + cmd->cmdsize);
+++ }
+++ 
+++ int isSameMacImageName(const char* libPath, const char* systemLibPath) {
+++ 	if (!libPath || !systemLibPath)
+++ 		return 0;
+++ 	
+++ 	if (!strcmp(libPath, systemLibPath))
+++ 		return 1;
+++ 	
+++ 	if (strstr(libPath, "/libc.") && strstr(systemLibPath, "/libSystem."))
+++ 		return 1;
+++ 	
+++ 	return 0;
+++ }
+++ 
+++ ///
+++ /// LEB128 DECODING (http://en.wikipedia.org/wiki/LEB128)
+++ ///
+++ unsigned long long decode_leb128(const unsigned char** ppIn) {
+++     const unsigned char* pIn = *ppIn;
+++     unsigned char input;
+++     unsigned long long decoded = 0;
+++     int shift = 0;
+++     do {
+++         input = *pIn++;
+++         decoded |= (((unsigned long long)(input & 0x7f)) << shift);
+++         shift += 7;
+++     } while (input & 0x80);
+++     
+++     *ppIn = pIn;
+++     return decoded;
+++ }
+++ 
+++ ///
+++ /// DUMMY APPENDABLE STRING 
+++ ///
+++ typedef struct _DCString {
+++     char* buffer;
+++     size_t capacity;
+++ } DCString;
+++ void initString(DCString* s, size_t capacity) {
+++     if (!s)
+++         return;
+++     
+++     s->buffer = dlAllocMem((s->capacity = capacity) + 1);
+++     s->buffer[0] = '\0';
+++ }
+++ void appendString(DCString* s, const char* suffix) {
+++     if (!s)
+++         return;
+++     
+++     size_t suffixLen = strlen(suffix), sLen = strlen(s->buffer);
+++     if (suffixLen + sLen > s->capacity) {
+++         char* old = s->buffer;
+++         initString(s, (suffixLen + sLen) * 3 / 2);
+++         strcpy(s->buffer, old);
+++         dlFreeMem(old);
+++     }
+++     strcpy(s->buffer + sLen, suffix);
+++ }
+++ void freeString(DCString* s) {
+++ 	if (s->buffer) {
+++ 		dlFreeMem(s->buffer);
+++ 		s->buffer = NULL;
+++ 		s->capacity = 0;
+++ 	}
+++ }
+++ 
+++ ///
+++ /// MACHO COMPRESSED SYMBOLS TRIE VISITATION
+++ ///
+++ typedef void (*SymbolOutputFunction)(const char* symbol, size_t index, void* payload);
+++ 
+++ #define MAX_DEPTH 256
+++ 
+++ size_t visitTrie(
+++ 	const unsigned char* start, 
+++ 	const unsigned char* current, 
+++ 	const unsigned char* end, 
+++ 	DCString* prefix, 
+++ 	SymbolOutputFunction output, size_t indexOffset, void* payload, int depth) 
+++ {
+++     size_t count = 0;
+++ 	if (current < end && depth < MAX_DEPTH) {
+++         unsigned char term_size = *current++;
+++         if (term_size != 0) {
+++             //const unsigned char* pos = current;
+++             //unsigned long long flags = decode_leb128(&pos);
+++             //unsigned long long addr = decode_leb128(&pos);
+++             {
+++ 				if (prefix && output)
+++ 					output(prefix->buffer, indexOffset, payload);
+++ 				
+++ 				indexOffset++;
+++ 				count++;
+++ 			}
+++             
+++             current += term_size;
+++         }
+++ 
+++         unsigned char iSubNode, nSubNodes = *current++;
+++         
+++         size_t prefixLen = prefix ? strlen(prefix->buffer) : 0;
+++         for (iSubNode = 0; iSubNode < nSubNodes; iSubNode++) {
+++             unsigned long long subNodeOffset;
+++             const char* suffix = (const char*)current;
+++             current += strlen(suffix) + 1;
+++             if (!(subNodeOffset = decode_leb128(&current)))
+++             	continue;
+++             
+++ 			appendString(prefix, suffix);
+++ 			size_t subCount = visitTrie(start, start + subNodeOffset, end, prefix, output, indexOffset, payload, depth + 1);
+++ 			count += subCount;
+++ 			indexOffset += subCount;
+++ 			if (prefix)
+++ 				prefix->buffer[prefixLen] = '\0';
+++         }
+++     }
+++     return count;
+++ }
+++ 
+++ /// Callback to harvest symbols visited in trie
+++ void CopyToNthString(const char* str, size_t index, void* payload) {
+++     const char** pstr = (const char**)payload;
+++     size_t len = strlen(str);
+++     char* copy = dlAllocMem(len + 1);
+++     strcpy(copy, str);
+++     pstr[index] = copy;
+++ }
++  
++  DLSyms* dlSymsInit(const char* libPath) 
++  {
++***************
++*** 73,109 ****
++  	for (iImage = 0, nImages = _dyld_image_count(); iImage < nImages; iImage++)
++  	{
++  		const char* name = _dyld_get_image_name(iImage);
++- 		if (name && !strcmp(name, libPath))
++  		{
++  			const struct MACH_HEADER_TYPE* pHeader = (const struct MACH_HEADER_TYPE*) _dyld_get_image_header(iImage);
++  			const char* pBase = ((const char*)pHeader);
++  			if (pHeader->filetype != MH_DYLIB)
++  				return NULL;
++- 			if (pHeader->flags & MH_SPLIT_SEGS)
++  				return NULL;
++- 
++- 			if (pHeader)
++  			{
++  				uint32_t iCmd, nCmds = pHeader->ncmds;
++  				const struct load_command* cmd = (const struct load_command*)(pBase + sizeof(struct MACH_HEADER_TYPE));
++  				
++  				for (iCmd = 0; iCmd < nCmds; iCmd++) 
++  				{
++- 					if (cmd->cmd == LC_SYMTAB) 
++- 					{
++- 						const struct symtab_command* scmd = (const struct symtab_command*)cmd;
++- 					
++- 						pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
++- 						pSyms->symbolCount = scmd->nsyms;
++- 						pSyms->pStringTable = pBase + scmd->stroff;
++- 						pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
++- 						
++- 						return pSyms;
++- 					}
++- 					cmd = (const struct load_command*)(((char*)cmd) + cmd->cmdsize);
++  				}
++  			}
++- 			break;
++  		}
++  	}
++  	return NULL;
++--- 207,277 ----
++  	for (iImage = 0, nImages = _dyld_image_count(); iImage < nImages; iImage++)
++  	{
++  		const char* name = _dyld_get_image_name(iImage);
+++ 		if (isSameMacImageName(libPath, name))
++  		{
++  			const struct MACH_HEADER_TYPE* pHeader = (const struct MACH_HEADER_TYPE*) _dyld_get_image_header(iImage);
++  			const char* pBase = ((const char*)pHeader);
+++ 			if (!pHeader)
+++ 				return NULL;
+++ 
+++ 			if (pHeader->magic != MACH_MAGIC)
+++ 				return NULL;
++  			if (pHeader->filetype != MH_DYLIB)
++  				return NULL;
+++ 			if (pHeader->flags & MH_SPLIT_SEGS || !(pHeader->flags & MH_DYLDLINK))
++  				return NULL;
+++ 			
++  			{
++  				uint32_t iCmd, nCmds = pHeader->ncmds;
++  				const struct load_command* cmd = (const struct load_command*)(pBase + sizeof(struct MACH_HEADER_TYPE));
++  				
+++         // First, try and find a LC_SYMTAB
+++         for (iCmd = 0; iCmd < nCmds; iCmd++)
+++         {
+++           if (cmd->cmd == LC_SYMTAB)
+++           {
+++             const struct symtab_command* scmd = (const struct symtab_command*)cmd;
+++             
+++             pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
+++             //memset(pSyms, sizeof(DLSyms), 0);
+++             pSyms->decompressedSymbols = NULL;
+++             pSyms->symbolCount = scmd->nsyms;
+++             pSyms->pStringTable = pBase + scmd->stroff;
+++             pSyms->pSymbolTable = (struct NLIST_TYPE*)(pBase + scmd->symoff);
+++             
+++             return pSyms;
+++           }
+++           cmd = get_next_command(cmd);
+++         }
+++ 
+++         // Then, try and use LC_DYLD_INFO_ONLY or LC_DYLD_INFO and parse their trie.
++  				for (iCmd = 0; iCmd < nCmds; iCmd++) 
++  				{
+++ 					if (cmd->cmd == LC_DYLD_INFO_ONLY || cmd->cmd == LC_DYLD_INFO) {
+++             const struct dyld_info_command* dcmd = (const struct dyld_info_command*)cmd;
+++             const unsigned char* trie = (pBase + dcmd->export_off);
+++             
+++             pSyms = (DLSyms*)( dlAllocMem(sizeof(DLSyms)) );
+++             
+++             // First, get the number of symbols
+++             pSyms->symbolCount = visitTrie(trie, trie, trie + dcmd->export_size, NULL, NULL, 0, NULL, 0);
+++             
+++             if (pSyms->symbolCount) {
+++                 // Now revisit and copy symbols to their destination
+++                 DCString s;
+++                 size_t decompSize = pSyms->symbolCount * sizeof(char*) * 2;
+++                 pSyms->decompressedSymbols = dlAllocMem(decompSize);
+++                 memset(pSyms->decompressedSymbols, decompSize, 0);
+++                 initString(&s, 1024);
+++                 visitTrie(trie, trie, trie + dcmd->export_size, &s, CopyToNthString, 0, pSyms->decompressedSymbols, 0);
+++                 freeString(&s);
+++             }
+++             
+++             return pSyms;
+++           }
+++           cmd = get_next_command(cmd);
++  				}
++  			}
++  		}
++  	}
++  	return NULL;
++***************
++*** 115,120 ****
++  	if (!pSyms)
++  		return;
++  	
++  	dlFreeMem(pSyms);
++  }
++  
++--- 283,300 ----
++  	if (!pSyms)
++  		return;
++  	
+++     if (pSyms->decompressedSymbols) {
+++         size_t i, n = pSyms->symbolCount;
+++         for (i = 0; i < n; i++) {
+++             const char* str = pSyms->decompressedSymbols[i];
+++             if (str) {
+++             	dlFreeMem(str);
+++             	pSyms->decompressedSymbols[i] = NULL;
+++             }
+++         }
+++         dlFreeMem(pSyms->decompressedSymbols);
+++         pSyms->decompressedSymbols = NULL;
+++     }
++  	dlFreeMem(pSyms);
++  }
++  
++***************
++*** 135,140 ****
++  	if (nl->n_un.n_strx <= 1)
++  		return NULL; // would be empty string anyway
++  	
++  	//TODO skip more symbols based on nl->n_desc and nl->n_type ?
++  	return nl;
++  }
++--- 315,325 ----
++  	if (nl->n_un.n_strx <= 1)
++  		return NULL; // would be empty string anyway
++  	
+++     if (!(nl->n_type & N_EXT) || (nl->n_type & N_PEXT))
+++         return NULL; // not a public external symbol
+++     if (nl->n_type & N_STAB)
+++         return NULL;
+++     
++  	//TODO skip more symbols based on nl->n_desc and nl->n_type ?
++  	return nl;
++  }
++***************
++*** 142,147 ****
++  
++  const char* dlSymsName(DLSyms* pSyms, int index)
++  {
++  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
++  	if (!nl)
++  		return NULL;
++--- 327,338 ----
++  
++  const char* dlSymsName(DLSyms* pSyms, int index)
++  {
+++     if (!pSyms || index >= pSyms->symbolCount)
+++         return NULL;
+++  
+++     if (pSyms->decompressedSymbols)
+++         return pSyms->decompressedSymbols[index];
+++             
++  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
++  	if (!nl)
++  		return NULL;
++***************
++*** 152,157 ****
++  
++  void* dlSymsValue(DLSyms* pSyms, int index)
++  {
++  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
++  	if (!nl)
++  		return NULL;
++--- 343,354 ----
++  
++  void* dlSymsValue(DLSyms* pSyms, int index)
++  {
+++     if (!pSyms || index >= pSyms->symbolCount)
+++         return NULL;
+++     
+++     if (pSyms->decompressedSymbols)
+++         return NULL; // TODO use dlFindSymbol
+++             
++  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
++  	if (!nl)
++  		return NULL;
+diff -r 97e7d9490752 dynload/dynload_unix.c
+--- a/dynload/dynload_unix.c	Fri Oct 28 20:51:45 2022 +0200
++++ b/dynload/dynload_unix.c	Tue Nov 01 04:06:19 2022 +0000
+@@ -53,7 +53,8 @@
  
  DLLib* dlLoadLibrary(const char* libPath)
  {
--  return (DLLib*)dlopen(libPath,RTLD_NOW|RTLD_GLOBAL);
+-  return (DLLib*)dlopen(libPath, RTLD_NOW|RTLD_GLOBAL); /*@@@ should use RTLD_LAZY, maybe?*/
++  //return (DLLib*)dlopen(libPath, RTLD_NOW|RTLD_GLOBAL); /*@@@ should use RTLD_LAZY, maybe?*/
 +  return (DLLib*)dlopen(libPath,RTLD_LAZY|RTLD_GLOBAL);
  }
  
  
-diff -r bbefb8b8e74c dynload/dynload_windows.c
---- a/dynload/dynload_windows.c	Thu Nov 24 23:47:31 2016 +0000
-+++ b/dynload/dynload_windows.c	Thu Jan 05 09:36:39 2017 +0000
-@@ -41,7 +41,9 @@
- DLLib* dlLoadLibrary(const char* libPath)
- {
-   if (libPath != NULL) {
--    return (DLLib*) LoadLibraryA(libPath);
-+    return (DLLib*) LoadLibraryExW((wchar_t*)(void*)libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-+  	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
-+    // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
-     /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
-   } else {
-     return (DLLib*) GetModuleHandle(NULL);
+diff -r 97e7d9490752 dynload/dynload_unix.c.orig
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dynload/dynload_unix.c.orig	Tue Nov 01 04:06:19 2022 +0000
+@@ -0,0 +1,261 @@
++/*
++
++ Package: dyncall
++ Library: dynload
++ File: dynload/dynload_unix.c
++ Description: 
++ License:
++
++   Copyright (c) 2007-2018 Daniel Adler <dadler@uni-goettingen.de>, 
++                           Tassilo Philipp <tphilipp@potion-studios.com>
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++
++/*
++
++  dynload_unix.c
++
++  dynload module for .so (unix) and .dylib (mach-o darwin/OS X) files
++
++*/
++
++
++#include "dynload.h"
++#include "../autovar/autovar_OS.h"
++
++#include <string.h>
++
++#if defined(__GLIBC__)
++/* @@@ version check glibc more precisely... dl_iterate_phdr(): glibc ver >= 2.2.4*/
++#  if (__GLIBC__ >= 2) && (__GLIBC_MINOR__ >= 3)
++#    define DL_USE_GLIBC_ITER_PHDR
++#  endif
++/* to access dl_iterate_phdr(), and related w/ glibc */
++#  define _GNU_SOURCE
++#  define __USE_GNU
++#endif
++
++#include <dlfcn.h>
++
++
++DLLib* dlLoadLibrary(const char* libPath)
++{
++  return (DLLib*)dlopen(libPath, RTLD_NOW|RTLD_GLOBAL); /*@@@ should use RTLD_LAZY, maybe?*/
++}
++
++
++void* dlFindSymbol(DLLib* pLib, const char* pSymbolName)
++{
++  return dlsym((void*)pLib, pSymbolName);
++}
++
++
++void dlFreeLibrary(DLLib* pLib)
++{
++  /* Check for NULL for cross-platform consistency. *BSD seems to do that in
++  dlclose, Linux does not. POSIX states "if handle does not refer to an open
++  object, dlclose() returns a non-zero value", which unfortunately sounds
++  like it's not explicitly specified. */
++  if(pLib)
++    dlclose((void*)pLib);
++}
++
++
++
++/* for dlopen-based dlGetLibraryPath impls below, prefer RTLD_NOLOAD that
++ * merely checks lib names */
++#if defined(RTLD_NOLOAD)
++#  define RTLD_LIGHTEST RTLD_LAZY|RTLD_NOLOAD
++#else
++#  define RTLD_LIGHTEST RTLD_LAZY
++#endif
++
++
++/* helper copying string if buffer big enough, returning length (without \0) */
++static int dl_strlen_strcpy(char* dst, const char* src, int dstSize)
++{
++  int l = strlen(src);
++  if(l < dstSize) /* l+'\0' <= bufSize */
++    strcpy(dst, src);
++  return l;
++}
++
++/* code for dlGetLibraryPath() is platform specific */
++
++/* if dlinfo() exists use it (except on glibc, where it exists since version
++ * 2.3.3, but its implementation is dangerous, as no checks are done whether
++ * the handle is valid, thus rendering the returned values useless) check for
++ * RTLD_DI_LINKMAP and RTLD_SELF, which are #defines used by dlinfo() on most
++ * supported targets, or specifically check the OS (e.g. dlinfo() is originally
++ * from Solaris) */
++#if ((defined(RTLD_DI_LINKMAP) && defined(RTLD_SELF)) || defined(OS_SunOS)) && !defined(DL_USE_GLIBC_ITER_PHDR)
++
++#include <link.h>
++
++int dlGetLibraryPath(DLLib* pLib, char* sOut, int bufSize)
++{
++  struct link_map* p = NULL;
++  int l = -1;
++  if(dlinfo(pLib ? pLib : RTLD_SELF, RTLD_DI_LINKMAP, &p) == 0)
++    l = dl_strlen_strcpy(sOut, p->l_name, bufSize);
++
++  return l+1; /* strlen + '\0' */
++}
++
++
++/* specific implementation needed on Darwin -----> */
++#elif defined(OS_Darwin)
++
++#include <stdint.h>
++#include <mach-o/dyld.h>
++
++int dlGetLibraryPath(DLLib* pLib, char* sOut, int bufSize)
++{
++  uint32_t i;
++  int l = -1;
++
++  /* request info about own process? lookup first loaded image */
++  if(pLib == NULL) {
++    const char* libPath = _dyld_get_image_name(0); /*@@@ consider using _NSGetExecutablePath()*/
++    if(libPath)
++      l = dl_strlen_strcpy(sOut, libPath, bufSize);
++  }
++  else {
++    /* Darwin's code doesn't come with (non-standard) dlinfo(), so use dyld(1)
++     * code. There doesn't seem to be a direct way to query the library path,
++     * so "double-load" temporarily all already loaded images (just increases
++     * ref count) and compare handles until we found ours. Return the name. */
++    for(i=_dyld_image_count(); i>0;) /* backwards, ours is more likely at end */
++    {
++      const char* libPath = _dyld_get_image_name(--i);
++      void* lib = dlopen(libPath, RTLD_LIGHTEST);
++      if(lib) {
++        dlclose(lib);
++
++        /* compare handle pointers' high bits (in low 2 bits some flags might */
++        /* be stored - should be safe b/c address needs alignment, anyways) */
++        if(((uintptr_t)pLib ^ (uintptr_t)lib) < 4) {
++          l = dl_strlen_strcpy(sOut, libPath, bufSize);
++          break;
++        }
++      }
++    }
++  }
++
++  return l+1; /* strlen + '\0' */
++}
++
++
++/* - OpenBSD >= 3.7 has dl_iterate_phdr(), as well as glibc >= 2.2.4
++   - also some libc impls (like musl) provide dlinfo(), but not RTLD_SELF (see above), however they might come
++     with dl_iterate_phdr (which comes from ELF program header iteration), so base it on that
++   - skip and use dladdr()-based guessing (see below) if explicitly requested, e.g. by ./configure
++   - Haiku/BeOS does have the headers but no implementation of dl_iterate_phdr() (at least as of 2021) */
++#elif !defined(DL_DLADDR_TO_LIBPATH) && (defined(OS_OpenBSD) || defined(DL_USE_GLIBC_ITER_PHDR) || (!defined(RTLD_SELF) && defined(__ELF__))) && !defined(OS_BeOS)
++
++#include <sys/types.h>
++#include <link.h>
++
++typedef struct {
++  DLLib* pLib;
++  char*  sOut;
++  int    bufSize;
++} iter_phdr_data;
++
++static int iter_phdr_cb(struct dl_phdr_info* info, size_t size, void* data)
++{
++  int l = -1;
++  iter_phdr_data* d = (iter_phdr_data*)data;
++  void* lib = NULL;
++
++  /* get loaded object's handle if not requesting info about process itself */
++  if(d->pLib != NULL) {
++    /* unable to relate info->dlpi_addr directly to our dlopen handle, let's
++     * do what we do on macOS above, re-dlopen the already loaded lib (just
++     * increases ref count) and compare handles */
++    /* @@@ might be b/c it's the reloc addr... see below */
++    lib = dlopen(info->dlpi_name, RTLD_LIGHTEST);
++    if(lib)
++      dlclose(lib);
++  }
++
++  /* compare handles and get name if found; if d->pLib == NULL this will
++     enter info on first iterated object, which is the process itself */
++  if(lib == (void*)d->pLib) {
++    l = dl_strlen_strcpy(d->sOut, info->dlpi_name, d->bufSize);
++
++    /* dlpi_name might be empty for the own process (d->pLib == NULL), so */
++    /* try lookup via dladdr(proc_load_addr, ...) */
++    if(l == 0 && d->pLib == NULL) {
++      /* dlpi_addr is the reloc base (0 if PIE), find real virtual load addr */
++      void* vladdr = (void*)info->dlpi_addr;
++      int i = 0;
++      for(; i < info->dlpi_phnum; ++i) {
++        if(info->dlpi_phdr[i].p_type == PT_LOAD) {
++          vladdr = (void*)(info->dlpi_addr + info->dlpi_phdr[i].p_vaddr);
++          break;
++        }
++      }
++      Dl_info di;
++      if(dladdr(vladdr, &di) != 0)
++        l = dl_strlen_strcpy(d->sOut, di.dli_fname, d->bufSize);
++    }
++  }
++
++  return l+1; /* strlen + '\0'; is 0 if lib not found, which continues iter */
++}
++
++int dlGetLibraryPath(DLLib* pLib, char* sOut, int bufSize)
++{
++  iter_phdr_data d = { pLib, sOut, bufSize };
++  return dl_iterate_phdr(iter_phdr_cb, &d);
++}
++
++
++/* glibc with neither dl_iterate_phdr() nor dlinfo() (latter introduced after former) @@@
++#elif defined(__GLIBC__) && !defined(DL_USE_GLIBC_ITER_PHDR)
++
++@@@impl */
++
++/* fallback to dladdr() hack */
++#else
++
++#warning "Using non-optimal code for dlGetLibraryPath() b/c of platform limitations."
++
++/* if nothing else is available, fall back to guessing using dladdr() - this */
++/* might not always work, as it's trying to getit via the _fini() symbol,    */
++/* which is usually defined in ELF files, but not guaranteed                 */
++
++/* @@@Note: On some platforms this might be improved, e.g. on BeOS we have */
++/* lt_dlgetinfo, which requires iterating over ltdl stuff, but was unable  */
++/* to get that to work (would also introduce a link dependency on libltdl) */
++
++int dlGetLibraryPath(DLLib* pLib, char* sOut, int bufSize)
++{
++/*@@@ missing handler for pLib == NULL*/
++  /* cross fingers that shared object is standard ELF and look for _fini */
++  int l = -1;
++  void* s = dlsym((void*)pLib, "_fini");
++  if(s) {
++    Dl_info i;
++    if(dladdr(s, &i) != 0)
++      l = dl_strlen_strcpy(sOut, i.dli_fname, bufSize);
++  }
++  return l+1; /* strlen + '\0' */
++}
++
++#endif
++
+diff -r 97e7d9490752 dynload/dynload_unix.c.rej
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dynload/dynload_unix.c.rej	Tue Nov 01 04:06:19 2022 +0000
+@@ -0,0 +1,17 @@
++***************
++*** 41,47 ****
++  
++  DLLib* dlLoadLibrary(const char* libPath)
++  {
++-   return (DLLib*)dlopen(libPath,RTLD_NOW|RTLD_GLOBAL);
++  }
++  
++  
++--- 41,47 ----
++  
++  DLLib* dlLoadLibrary(const char* libPath)
++  {
+++   return (DLLib*)dlopen(libPath,RTLD_LAZY|RTLD_GLOBAL);
++  }
++  
++  
+diff -r 97e7d9490752 dynload/dynload_windows.c.orig
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dynload/dynload_windows.c.orig	Tue Nov 01 04:06:19 2022 +0000
+@@ -0,0 +1,137 @@
++/*
++
++ Package: dyncall
++ Library: dynload
++ File: dynload/dynload_windows.c
++ Description: 
++ License:
++
++   Copyright (c) 2007-2020 Daniel Adler <dadler@uni-goettingen.de>,
++                           Tassilo Philipp <tphilipp@potion-studios.com>
++
++   Permission to use, copy, modify, and distribute this software for any
++   purpose with or without fee is hereby granted, provided that the above
++   copyright notice and this permission notice appear in all copies.
++
++   THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++   WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++   MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++   ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++   WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++
++
++/*
++
++  dynload_windows.c
++
++  dynload module for .dll files
++
++*/
++
++
++#include "dynload.h"
++#include "dynload_alloc.h"
++
++#include <windows.h>
++
++
++DLLib* dlLoadLibrary(const char* libPath)
++{
++  if(libPath == NULL)
++    return (DLLib*)GetModuleHandle(NULL);
++  else {
++    /* convert from UTF-8 to wide chars, so count required size */
++    DLLib* pLib;
++    wchar_t* ws;
++    int r = MultiByteToWideChar(CP_UTF8, 0, libPath, -1, NULL, 0);
++    if(!r) {
++      return NULL;
++    }
++
++    /* Reserve temp space with room for extra '.' suffix (see below) */
++    ws = (wchar_t*)dlAllocMem((r+1) * sizeof(wchar_t));
++    if(!ws)
++      return NULL;
++
++    /* Convert path and add a '.' suffix, needed to tell windows not to add
++       .dll to any path that doesn't have it (see MS doc for LoadLibraryW).
++       This is to get same behaviour as on other platforms which don't  do any
++       magic like this. Library search path behaviour stays unaffected, though */
++    pLib = NULL;
++    if(MultiByteToWideChar(CP_UTF8, 0, libPath, -1, ws, r) == r) {
++        ws[r-1] = '.';
++        ws[r] = 0;
++        pLib = (DLLib*)LoadLibraryW(ws);
++    }
++
++    /* ... free temp space and return handle */
++    dlFreeMem(ws);
++    return pLib;
++  }
++}
++
++
++void* dlFindSymbol(DLLib* pLib, const char* pSymbolName)
++{
++  return (void*)GetProcAddress((HINSTANCE)pLib, pSymbolName);
++}
++
++
++void dlFreeLibrary(DLLib* pLib)
++{
++  FreeLibrary((HINSTANCE)pLib);
++}
++
++
++int dlGetLibraryPath(DLLib* pLib, char* sOut, int bufSize)
++{
++  /* get the path name as wide chars, then convert to UTF-8; we need   */
++  /* some trial and error to figure out needed wide char string length */
++
++  wchar_t* ws;
++  int r;
++
++  /* num chars to alloc temp space for, and upper limit, must be both power */
++  /* of 2s for loop to be precise and to test allow testing up to 32768 chars */
++  /* (including \0), which is the extended path ("\\?\...") maximum */
++  static const int MAX_EXT_PATH = 1<<15; /* max extended path length (32768) */
++  int nc = 1<<6;                         /* guess start buffer size, */
++
++  while(nc <= MAX_EXT_PATH)/*@@@ add testcode for super long paths*/
++  {
++    ws = (wchar_t*)dlAllocMem(nc * sizeof(wchar_t));
++    if(!ws)
++      break;
++
++    r = GetModuleFileNameW((HMODULE)pLib, ws, nc);
++
++    /* r == nc if string was truncated, double temp buffer size */
++    if(r == nc) {
++      nc <<= 1;
++      dlFreeMem(ws);
++      continue;
++    }
++    /* error if r is 0 */
++    else if(!r) {
++      dlFreeMem(ws);
++      break;
++    }
++
++    /* check if output buffer is big enough */
++    r = WideCharToMultiByte(CP_UTF8, 0, ws, -1, NULL, 0, NULL, NULL);
++    if(r <= bufSize)
++      r = WideCharToMultiByte(CP_UTF8, 0, ws, -1, sOut, bufSize, NULL, NULL);
++
++    /* cleanup and return either size of copied bytes or needed buffer size */
++    dlFreeMem(ws);
++    return r;
++  }
++
++  return 0;
++}
++
+diff -r 97e7d9490752 dynload/dynload_windows.c.rej
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/dynload/dynload_windows.c.rej	Tue Nov 01 04:06:19 2022 +0000
+@@ -0,0 +1,19 @@
++***************
++*** 41,47 ****
++  DLLib* dlLoadLibrary(const char* libPath)
++  {
++    if (libPath != NULL) {
++-     return (DLLib*) LoadLibraryA(libPath);
++      /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
++    } else {
++      return (DLLib*) GetModuleHandle(NULL);
++--- 41,49 ----
++  DLLib* dlLoadLibrary(const char* libPath)
++  {
++    if (libPath != NULL) {
+++     return (DLLib*) LoadLibraryExW((wchar_t*)(void*)libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+++   	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms684179(v=vs.85).aspx
+++     // return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_DEFAULT_DIRS);
++      /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
++    } else {
++      return (DLLib*) GetModuleHandle(NULL);

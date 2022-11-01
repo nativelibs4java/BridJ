@@ -18,7 +18,7 @@ CC := gcc
 
 $(TARGET): $(OBJS)
 	mkdir -p $(OUT_DIR)
-	${CC} -shared -o $@ $? ${LDFLAGS} ${CPPFLAGS}
+	${CC} -shared -o $@ $? ${LDFLAGS}
 
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p $(OBJ_DIR)
@@ -32,7 +32,7 @@ $(OBJ_DIR)/%.o: %.m
 	mkdir -p $(OBJ_DIR)
 	$(CC) -c $(CPPFLAGS) $< -o $@
 
-$(OBJ_DIR)/%.o: %.S
+$(OBJ_DIR)/%.o: %.s
 	mkdir -p $(OBJ_DIR)
 	$(CC) -c $(CPPFLAGS) $< -o $@
 

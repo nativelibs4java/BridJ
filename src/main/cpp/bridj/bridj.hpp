@@ -44,6 +44,12 @@
 
 #include "dyncall_macros.h"
 
+#ifdef DISABLE_DCSTRUCT
+// TEMPORARY HACK: disable struct-by-value support until we migrate from legacy DCstruct (dyncall ~0.7?) to DCaggr.
+#define DCstruct void
+inline void dcArgStruct(void* vm, void* a, void* s) {}
+#endif
+
 #ifdef DC__OS_Darwin
 #define BRIDJ_OBJC_SUPPORT
 #endif

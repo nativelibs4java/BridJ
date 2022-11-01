@@ -31,12 +31,14 @@ ifneq ($(ARCH), armhf)
 CPPFLAGS  += -mtune=generic
 endif
 
+CPPFLAGS  += -DDISABLE_DCSTRUCT
+
 ifeq ($(OS), darwin)
 # CPPFLAGS  += -no-integrated-as
 CPPFLAGS  += -D_DARWIN_C_SOURCE
 CPPFLAGS  += -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-CPPFLAGS  += -mmacosx-version-min=10.9
-LDFLAGS   += -mmacosx-version-min=10.9
+CPPFLAGS  += -mmacosx-version-min=11.0
+LDFLAGS   += -mmacosx-version-min=11.0
 LDFLAGS	  += -ldl -framework Foundation -all_load
 else
 ifneq ($(OS), sunos)
@@ -62,6 +64,7 @@ CPPFLAGS  += -fno-stack-protector
 
 LDFLAGS		+= -lpthread
 CPPFLAGS	+= -fPIC
+LDFLAGS   += -fPIC
 
 ifeq ($(OS), sunos)
 # http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
