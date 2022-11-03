@@ -484,7 +484,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 		<profile>
 			<id>native</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 				<property>
 					<name>native</name>
 				</property>
@@ -505,20 +505,6 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 								<configuration>
 									<executable>${basedir}/BuildNative</executable>
 									<workingDirectory>${basedir}</workingDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>CleanBinaries</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${basedir}/BuildNative</executable>
-									<workingDirectory>${basedir}</workingDirectory>
-									<arguments>
-										<argument>clean</argument>
-									</arguments>
 								</configuration>
 							</execution>
 						</executions>

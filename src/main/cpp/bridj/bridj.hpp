@@ -66,7 +66,7 @@ inline void dcArgStruct(void* vm, void* a, void* s) {}
 //#define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
 #endif
 
-#include "dyncallback/dyncall_callback.h"
+#include "dyncall_callback.h"
 #include <jni.h>
 #include <time.h>
 

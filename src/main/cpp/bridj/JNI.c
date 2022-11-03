@@ -32,8 +32,8 @@
 #include "org_bridj_JNI.h"
 #include "JNI.h"
 
-#include "dyncallback/dyncall_callback.h"
-#include "dynload/dynload.h"
+#include "dyncall_callback.h"
+#include "dynload.h"
 #include "RawNativeForwardCallback.h"
 
 #include "bridj.hpp"

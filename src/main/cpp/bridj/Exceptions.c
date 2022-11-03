@@ -31,7 +31,7 @@
 #define _GNU_SOURCE
 
 #include "bridj.hpp"
-#include "jni.h"
+#include <jni.h>
 #include "JNI.h"
 
 #include "Exceptions.h"
