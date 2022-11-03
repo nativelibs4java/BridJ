@@ -46,9 +46,11 @@ function get_arch() {
         arm*)
 			    if [[ -d /lib/arm-linux-gnueabihf ]] ; then
 	        	# echo "armhf"
+						# echo "arm32v7"
 						echo "arm"
 	        elif [[ -d /lib/arm-linux-gnueabi ]] ; then
 	        	echo "armel"
+						# echo "arm32v5"
     	    else
     		    failed "Unknown Linux arm flavour: please edit $0 and Platform.java"
 	        fi

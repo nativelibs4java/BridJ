@@ -23,7 +23,10 @@ if (NOT ${DIRECT_CALLS})
 endif()
 
 # No funky business of overoptimizing for the build machine.
-add_compile_options(-mtune=generic)
+
+if (NOT ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+  add_compile_options(-mtune=generic)
+endif()
 
 list(APPEND BRIDJ_SOURCES
   CallbackHandler.c
