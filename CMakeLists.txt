@@ -1,5 +1,10 @@
-cmake_minimum_required (VERSION 3.24.0)
-project(BridJ C CXX OBJC)
+cmake_minimum_required(VERSION 3.18.0)
+project(BridJ C CXX)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  enable_language(OBJC)
+  set(CMAKE_OSX_ARCHITECTURES arm64 x86_64)
+endif()
 
 # INTERPROCEDURAL_OPTIMIZATION
 cmake_policy(SET CMP0069 NEW) 

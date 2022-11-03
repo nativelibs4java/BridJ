@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24.0)
+cmake_minimum_required(VERSION 3.18.0)
 project(BridJ)
 
 option(DIRECT_CALLS "Enable raw native forward assembler on supported platform" OFF)
@@ -20,7 +20,10 @@ include_directories(
 add_compile_definitions(DISABLE_DCSTRUCT=1)
 if (NOT ${DIRECT_CALLS})
   add_compile_definitions(NO_DIRECT_CALLS=1)
-endif()  
+endif()
+
+# No funky business of overoptimizing for the build machine.
+add_compile_options(-mtune=generic)
 
 list(APPEND BRIDJ_SOURCES
   CallbackHandler.c

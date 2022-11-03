@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24.0)
+cmake_minimum_required(VERSION 3.18.0)
 project(BridJ-Test)
 
 find_package(JNI REQUIRED)
@@ -17,7 +17,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   list(APPEND TEST_SOURCES objctest.m)
 endif()
 
-add_compile_options( -fPIC -stdlib=libc++)
+add_compile_options( -fPIC )
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  add_compile_options( -stdlib=libc++ )
+endif()
 add_link_options(-l stdc++)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

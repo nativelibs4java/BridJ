@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eu
+# set -x
 
 cd `dirname $0`
 BASE_DIR=$PWD
@@ -13,7 +14,7 @@ then
 fi
 
 cd $DYNCALL_HOME
-if [[ "${SKIP_DIFF:-0}" == "0" ]]; then
+if which hg 2>/dev/null ; then
 	hg diff > $DYNCALL_DIFF
 fi
 cd $BASE_DIR
@@ -132,7 +133,7 @@ function build_libraries() {
 			RESOURCES+=( libbridj.dylib )
 			TEST_RESOURCES+=( libtest.dylib libdependsOnTest.dylib )
 			;;
-		*§)
+		*)
 			RESOURCES+=( libbridj.so )
 			TEST_RESOURCES+=( libtest.so libdependsOnTest.so )
 			;;
@@ -148,12 +149,12 @@ function build_libraries() {
 	make -j10
 
 	echo "Copying resources for $OS_ARCH"
-	RESOURCES_DEST=$BASE_DIR/target/classes/org/bridj/lib/$OS_ARCH
-	TEST_RESOURCES_DEST=$BASE_DIR/target/test-classes/org/bridj/lib/$OS_ARCH
+	# RESOURCES_DEST=$BASE_DIR/target/classes/org/bridj/lib/$OS_ARCH
+	# TEST_RESOURCES_DEST=$BASE_DIR/target/test-classes/org/bridj/lib/$OS_ARCH
 	# RESOURCES_DEST=$BASE_DIR/target/generated-resources/org/bridj/lib/$OS_ARCH
 	# TEST_RESOURCES_DEST=$BASE_DIR/target/generated-test-resources/org/bridj/lib/$OS_ARCH
-	# RESOURCES_DEST=$BASE_DIR/src/main/resources/org/bridj/lib/$OS_ARCH
-	# TEST_RESOURCES_DEST=$BASE_DIR/src/test/resources/org/bridj/lib/$OS_ARCH
+	RESOURCES_DEST=$BASE_DIR/src/main/resources/org/bridj/lib/$OS_ARCH
+	TEST_RESOURCES_DEST=$BASE_DIR/src/test/resources/org/bridj/lib/$OS_ARCH
 
 	mkdir -p "$RESOURCES_DEST"
 	mkdir -p "$TEST_RESOURCES_DEST"
