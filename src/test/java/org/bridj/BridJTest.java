@@ -53,7 +53,7 @@ public class BridJTest {
 		if (!Platform.isUnix())
 			return;
 		
-		assertNotNull(BridJ.getNativeLibrary("pthread"));
+		assertNotNull(BridJ.getNativeLibrary(Platform.isMacOSX() ? "/usr/lib/system/libsystem_pthread.dylib" : "pthread"));
 	}
 	@Test
 	public void symbolsTest() throws Exception {
