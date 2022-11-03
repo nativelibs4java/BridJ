@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24.0)
+cmake_minimum_required(VERSION 3.18.0)
 project(BridJ-dependsOnTest)
 
 include_directories(${PROJECT_SOURCE_DIR}/../test)
