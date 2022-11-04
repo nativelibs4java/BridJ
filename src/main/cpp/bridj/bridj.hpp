@@ -70,7 +70,8 @@ inline void dcArgStruct(void* vm, void* a, void* s) {}
 #include <jni.h>
 #include <time.h>
 
-#if defined(__GNUC__)
+// #if defined(__GNUC__)
+#ifndef _WIN32
 #include <setjmp.h>
 #endif
 
@@ -153,7 +154,8 @@ typedef struct CallTempStruct {
 	jobject* pCallIOs;
 	LastError lastError;
 	PointerVector localRefsToCleanup;
-#if defined(__GNUC__)
+#ifndef _WIN32
+// #if defined(__GNUC__)
 	jmp_buf exceptionContext;
 	Signals signals;
 	int signal, signalCode;
