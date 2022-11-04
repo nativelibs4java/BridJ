@@ -1,4 +1,8 @@
-## Current development version (0.7.1-SNAPSHOT)
+## Current development version (0.8.0-SNAPSHOT)
+
+- Upgraded from dyncall 0.7 to 1.3
+- Revamped native build process (cmake), introduce cross-compilation w/ Docker + QEMU & MinGW-w64.
+- Fixed MacOS X resolution with recent OS versions (for Frameworks & dyld-cached libraries such as "c" and "m")
 
 ...
 

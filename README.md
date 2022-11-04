@@ -37,6 +37,10 @@ Please use the [mailing-list](https://groups.google.com/forum/#!forum/nativelibs
 
 # TODO
 
+* Rebuild for Android, cmake-style
+* Factor some cruft into cmake helpers
+* CI w/ all the cross builds (use upload / download artefact github actions)
+* ~~Separate ARM / x86_64 builds on Darwin (link w/ ARM JDK https://jdk.java.net/archive/), or scripting to create fat libjvm.dylib and libjawt.dylib~~
 * Update pom to make it independent from nativelibs4java-parent
 * Update deps: ASM 5.x, JUnit 4.11
 * Fix BridJ's armhf support
