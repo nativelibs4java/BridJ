@@ -90,8 +90,6 @@ function build_libraries() {
 	local ARCH="$2"
 	shift 2
 
-	echo "# Building for $OS on $ARCH"
-
 	local CMAKE_FLAGS=( "$@" )
 	local RESOURCES=()
 	local TEST_RESOURCES=()
@@ -113,24 +111,24 @@ function build_libraries() {
 
 	case "$OS" in
 		windows)
-			CMAKE_FLAGS+=( -G "Visual Studio 17 2022" )
-			case "$ARCH" in
-				x86)
-					CMAKE_FLAGS+=( -A Win32 )
-					;;
-				x64)
-					CMAKE_FLAGS+=( -A x64 )
-					;;
-				arm)
-					CMAKE_FLAGS+=( -A ARM )
-					;;
-				arm64)
-					CMAKE_FLAGS+=( -A ARM64 )
-					;;
-				*)
-					echo "Unknown arch: $ARCH" >&2
-					exit 1
-			esac
+			# CMAKE_FLAGS+=( -G "Visual Studio 17 2022" )
+			# case "$ARCH" in
+			# 	x86)
+			# 		CMAKE_FLAGS+=( -A Win32 )
+			# 		;;
+			# 	x64)
+			# 		CMAKE_FLAGS+=( -A x64 )
+			# 		;;
+			# 	arm)
+			# 		CMAKE_FLAGS+=( -A ARM )
+			# 		;;
+			# 	arm64)
+			# 		CMAKE_FLAGS+=( -A ARM64 )
+			# 		;;
+			# 	*)
+			# 		echo "Unknown arch: $ARCH" >&2
+			# 		exit 1
+			# esac
 			RESOURCES+=( bridj.dll )
 			TEST_RESOURCES+=( test.dll dependsOnTest.dll )
 			;;
@@ -162,6 +160,8 @@ function build_libraries() {
 		OUT="${OUT}_debug"
 	fi
 
+	echo "# Building for $OS on $ARCH into $OUT with cmake flags ${CMAKE_FLAGS[*]}"
+
 	mkdir -p $OUT
 	cd $OUT
 	if [[ "${CMAKE:-1}" != "0" ]]; then
@@ -189,9 +189,7 @@ if [[ -z "${OS:-}" ]]; then
 	OS="$(get_os)"
 fi
 
-if [[ -n "${ARCH:-}" ]]; then
-	build_libraries $OS $ARCH "$@"
-else
+if [[ "${ARCH:-}" == "all" ]]; then
 	case $OS in
 		sunos)
 			build_libraries sunos x86 "$@"
@@ -201,16 +199,16 @@ else
 			# See README.md on how to download the JDKs needed here
 			build_libraries windows x64 -DFORCE_JAVA_HOME=${JAVA_HOME_X64} "$@"
 			build_libraries windows arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
-			# build_libraries windows x86 -DFORCE_JAVA_HOME=${JAVA_HOME_X86} "$@"
-			# build_libraries windows arm32 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM32} "$@"
 			;;
 		darwin)
-			# See README.md on how to download the JDKs needed here
-			build_libraries darwin arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
 			build_libraries darwin x64 -DFORCE_JAVA_HOME=${JAVA_HOME_X64} "$@"
+			build_libraries darwin arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
 			;;
 		*)
 			ARCH="$(get_arch)"
 			build_libraries $OS $ARCH "$@"
 	esac
+else
+	ARCH=${ARCH:-$(get_arch)}
+	build_libraries $OS $ARCH "$@"
 fi

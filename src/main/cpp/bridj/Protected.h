@@ -34,7 +34,8 @@
 
 #include <jni.h>
 
-#if defined(__GNUC__)
+// #if defined(__GNUC__)
+#ifndef _WIN32
 
 #include <signal.h>
 #include <setjmp.h>

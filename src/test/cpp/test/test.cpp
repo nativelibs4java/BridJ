@@ -35,7 +35,7 @@
 #include "math.h"
 #include <time.h>
 
-#ifdef _WIN32
+#if !defined(__GNUC__)
 struct timeval {
 	long a;
 	long b;

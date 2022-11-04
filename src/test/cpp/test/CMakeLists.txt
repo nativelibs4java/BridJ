@@ -9,14 +9,21 @@ else()
       ${FORCE_JAVA_HOME}/include/linux
       ${FORCE_JAVA_HOME}/include/solaris
       ${FORCE_JAVA_HOME}/include/windows
+      ${FORCE_JAVA_HOME}/include/win32
       ${FORCE_JAVA_HOME}/include/darwin
   )
-  set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/jvm.lib)
+  elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)
+  else()
+    set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.so)
+  endif()
 endif()
 
 include_directories(${JNI_INCLUDE_DIRS})
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  include_directories("C:\Program Files\Microsoft SDKs\Windows\v6.0A\Include")
+  include_directories("C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0A\\Include")
 endif()
 
 list(APPEND TEST_SOURCES
@@ -28,6 +35,8 @@ list(APPEND TEST_SOURCES
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   list(APPEND TEST_SOURCES objctest.m)
 endif()
+
+add_compile_definitions(TEST_EXPORTS=1)
 
 add_compile_options( -fPIC )
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

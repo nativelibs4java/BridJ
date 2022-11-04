@@ -33,33 +33,58 @@ mvn native:javah
 ```
 
 Build M1 (ARM) binary from Intel Mac (and vice versa)
-```
+```bash
 # Get both ARM and Intel JDKs
 ( \
   cd .. && \
     wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_macos-{x64,aarch64}_bin.tar.gz && \
-    tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-19.jdk{,-arm64} && \
-    tar zxvf openjdk-19_macos-x64_bin.tar.gz && mv jdk-19.jdk{,-x64} \
+    tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-19.jdk{,-darwin_arm64} && \
+    tar zxvf openjdk-19_macos-x64_bin.tar.gz && mv jdk-19.jdk{,-darwin_x64} \
 )
 
-export JAVA_HOME_X64=$PWD/../jdk-19.jdk-x64/Contents/Home
-export JAVA_HOME_ARM64=$PWD/../jdk-19.jdk-arm64/Contents/Home
+# Built both in one go:
+export JAVA_HOME_X64=$PWD/../jdk-19.jdk-darwin_x64/Contents/Home
+export JAVA_HOME_ARM64=$PWD/../jdk-19.jdk-darwin_arm64/Contents/Home
+ARCH=all ./BuildNative
 
-./BuildNative
+# Or separately:
+ARCH=x64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-darwin_x64/Contents/Home
+ARCH=arm64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-darwin_arm64/Contents/Home
 ```
 
 Build ARM64 binary on Windows X86:
-```
+```bash
 ( \
   cd .. && \
     wget https://github.com/microsoft/openjdk-aarch64/releases/download/jdk-16.0.2-ga/microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && \
-    tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-arm64}
+    tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-windows_arm64}
 )
 
+# Built both in one go:
 export JAVA_HOME_X64=$JAVA_HOME
-export JAVA_HOME_ARM64=$PWD/../jdk-16.0.2+7
+export JAVA_HOME_ARM64=$PWD/../jdk-16.0.2+7-windows_arm64
+ARCH=all ./BuildNative
 
-./BuildNative
+# Or separately:
+ARCH=x64 ./BuildNative
+ARCH=arm64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-16.0.2+7-windows_arm64
+```
+
+Build Windows w/ mingw-64 on Ubuntu/Debian/Mac:
+```bash
+# First, install the compiler:
+#   sudo apt install mingw-w64
+#   brew install mingw-w64
+
+( \
+  cd .. && \
+    wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_windows-x64_bin.zip && \
+    unzip openjdk-19_windows-x64_bin.zip && mv jdk-19{,-windows_x64}
+)
+
+OS=windows ARCH=x64 ./BuildNative \
+  -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-x86_64.cmake \
+  -DFORCE_JAVA_HOME=$PWD/../jdk-19-windows_x64
 ```
 
 # Debugging

@@ -11,9 +11,16 @@ else()
       ${FORCE_JAVA_HOME}/include/linux
       ${FORCE_JAVA_HOME}/include/solaris
       ${FORCE_JAVA_HOME}/include/windows
+      ${FORCE_JAVA_HOME}/include/win32
       ${FORCE_JAVA_HOME}/include/darwin
   )
-  set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)
+  if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/jvm.lib)
+  elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)
+  else()
+    set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.so)
+  endif()
 endif()
 
 include_directories(${JNI_INCLUDE_DIRS})
@@ -70,7 +77,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   add_link_options(-ldl -framework Foundation -all_load)
 endif()
 
-if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin|SunOS")
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin|SunOS|Windows")
   add_link_options(-Wl,--hash-style=both)
 endif()
 

@@ -1,4 +1,5 @@
-#ifdef __GNUC__
+// #ifdef __GNUC__
+#ifndef _WIN32
 	#define DEPENDSONTEST_API
 	#define __cdecl
 	#define __stdcall

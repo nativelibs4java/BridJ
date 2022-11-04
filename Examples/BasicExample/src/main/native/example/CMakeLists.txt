@@ -9,6 +9,7 @@ project(BridJ-example)
 #       ${FORCE_JAVA_HOME}/include/linux
 #       ${FORCE_JAVA_HOME}/include/solaris
 #       ${FORCE_JAVA_HOME}/include/windows
+#       ${FORCE_JAVA_HOME}/include/win32
 #       ${FORCE_JAVA_HOME}/include/darwin
 #   )
 #   set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)

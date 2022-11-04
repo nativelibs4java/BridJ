@@ -61,15 +61,16 @@ void throwException(JNIEnv* env, const char* message) {
 	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message ? message : "No message (TODO)");
 }
 
-#ifdef __GNUC__
-void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
-	initMethods(env);
-	(*env)->CallStaticVoidMethod(env, gSignalErrorClass, gSignalErrorThrowMethod, signal, signalCode, address);
-}
-#else
+// #ifdef __GNUC__
+#ifdef _WIN32
 void throwWindowsError(JNIEnv* env, int code, jlong info, jlong address) {
 	initMethods(env);
 	(*env)->CallStaticVoidMethod(env, gWindowsErrorClass, gWindowsErrorThrowMethod, code, info, address);
+}
+#else
+void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
+	initMethods(env);
+	(*env)->CallStaticVoidMethod(env, gSignalErrorClass, gSignalErrorThrowMethod, signal, signalCode, address);
 }
 #endif
 
@@ -81,7 +82,8 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 
 //#if defined(ENABLE_PROTECTED_MODE)
 
-#ifdef __GNUC__
+// #ifdef __GNUC__
+#ifndef _WIN32
 
 //Signals gSignals;
 

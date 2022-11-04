@@ -100,12 +100,13 @@ jfieldID 	gFieldId_methodName			 = NULL;
 jfieldID 	gFieldId_method    			 = NULL;
 jfieldID 	gFieldId_declaringClass		 = NULL;
 
-#ifdef __GNUC__
-jclass gSignalErrorClass = NULL;
-jmethodID gSignalErrorThrowMethod = NULL;
-#else
+// #ifdef __GNUC__
+#ifdef _WIN32
 jclass gWindowsErrorClass = NULL;
 jmethodID gWindowsErrorThrowMethod = NULL;
+#else
+jclass gSignalErrorClass = NULL;
+jmethodID gSignalErrorThrowMethod = NULL;
 #endif
 
 /*jclass gCLongClass = NULL;
@@ -237,12 +238,13 @@ void initMethods(JNIEnv* env) {
 		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
 		gProtectedModeField = (*env)->GetStaticFieldID(env, gBridJClass, "protectedMode", "Z");
 		
-#ifdef __GNUC__
-		gSignalErrorClass = FIND_GLOBAL_CLASS("org/bridj/SignalError");
-		gSignalErrorThrowMethod = (*env)->GetStaticMethodID(env, gSignalErrorClass, "throwNew", "(IIJ)V");
-#else
+// #ifdef __GNUC__
+#ifdef _WIN32
 		gWindowsErrorClass = FIND_GLOBAL_CLASS("org/bridj/WindowsError");
 		gWindowsErrorThrowMethod = (*env)->GetStaticMethodID(env, gWindowsErrorClass, "throwNew", "(IJJ)V");
+#else
+		gSignalErrorClass = FIND_GLOBAL_CLASS("org/bridj/SignalError");
+		gSignalErrorThrowMethod = (*env)->GetStaticMethodID(env, gSignalErrorClass, "throwNew", "(IIJ)V");
 #endif
 
 #define GETFIELD_ID(out, name, sig) \
@@ -1305,6 +1307,19 @@ jlong JNICALL Java_org_bridj_JNI_memmem(JNIEnv *env, jclass clazz, jlong haystac
 	return memmem(pHaystack, (size_t)haystackLength, pNeedle, (size_t)needleLength);
 #endif
 }
+
+#if ENABLE_TRAMPOLINES
+void *newJNINativeTrampoline(const char* signature, void* fptr);
+
+jlong JNICALL Java_org_bridj_JNI_newJNINativeTrampoline(JNIEnv *env, jclass clz, jstring signatureString, jlong fptr) {
+	// auto signature = signatureString ? env->GetStringUTFChars(signatureString, nullptr) : nullptr;
+  const char* signature = GET_CHARS(signatureString);
+  void *tramp = newJNINativeTrampoline(signature, JLONG_TO_PTR(fptr));
+  // if (signature) env->ReleaseStringUTFChars(signatureString, signature);
+  RELEASE_CHARS(signatureString, signature);
+  return PTR_TO_JLONG(tramp);
+}
+#endif // ENABLE_TRAMPOLINES
 
 jboolean JNICALL Java_org_bridj_JNI_registerNatives(
   JNIEnv *env,
