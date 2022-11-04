@@ -46,33 +46,41 @@ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credent
 # sudo apt install mingw-w64
 brew install mingw-w64
 
-# Mac ARM64 & X64
+# https://jdk.java.net/archive/
+
+# Get JDK for Mac ARM64 & X64
 wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_macos-{x64,aarch64}_bin.tar.gz && \
   tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-19.jdk{,-darwin_arm64} && \
   tar zxvf openjdk-19_macos-x64_bin.tar.gz && mv jdk-19.jdk{,-darwin_x64} \
 
-# Windows ARM64
-wget https://github.com/microsoft/openjdk-aarch64/releases/download/jdk-16.0.2-ga/microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && \
-  tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-windows_arm64}
-# Windows X64
+# Get JDK for Windows X64
 wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_windows-x64_bin.zip && \
     unzip openjdk-19_windows-x64_bin.zip && mv jdk-19{,-windows_x64}
+
+# Get JDK for Windows ARM64
+wget https://github.com/microsoft/openjdk-aarch64/releases/download/jdk-16.0.2-ga/microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && \
+  tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-windows_arm64}
+
+wget https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u352-b08/openlogic-openjdk-8u352-b08-windows-x32.zip && \
+    unzip openlogic-openjdk-8u352-b08-windows-x32.zip
 ```
 
 ## Cross-build commands
 
 ```bash
-# Mac host: build M1 & Intel binaries
+# Mac host: build Mac M1 & Intel binaries
 ARCH=x64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-darwin_x64/Contents/Home
 ARCH=arm64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-darwin_arm64/Contents/Home
 
-# Mac or Linux host: build Windows X64 binaries w/ MinGW-w64
-# TODO: -m32 mode for X86 binaries
+# Mac or Linux host: build Windows X64 & X86 binaries w/ MinGW-w64
 OS=windows ARCH=x64 ./BuildNative \
   -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-x86_64.cmake \
   -DFORCE_JAVA_HOME=$PWD/../jdk-19-windows_x64
+OS=windows ARCH=x86 ./BuildNative \
+  -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-i686.cmake \
+  -DFORCE_JAVA_HOME=$PWD/../openlogic-openjdk-8u352-b08-windows-32
 
-# Mac or Linux host: build & test Linux binaries inside Docker + QEMU:
+# Mac or Linux host: build & test Linux x86, x64, arm64, arm, armel binaries inside Docker + QEMU:
          ./scripts/build-docker-qemu.sh linux/x86_64 debian:bullseye-slim            bridj-linux-x64
 ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386   i386/debian:bullseye-slim       bridj-linux-x86
          ./scripts/build-docker-qemu.sh linux/arm64  arm64v8/debian:bullseye-slim    bridj-linux-arm64
