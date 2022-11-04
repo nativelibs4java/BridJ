@@ -1306,6 +1306,34 @@ jlong JNICALL Java_org_bridj_JNI_memmem(JNIEnv *env, jclass clazz, jlong haystac
 #endif
 }
 
+jboolean JNICALL Java_org_bridj_JNI_registerNatives(
+  JNIEnv *env,
+  jclass cls,
+  jstring declaringClassName,
+  jstring methodSignature,
+  jstring methodName,
+  jlong fptr)
+{
+  const char* declaringClassNameStr = (char*)GET_CHARS(declaringClassName);
+  jclass declaringClass = (*env)->FindClass(env, declaringClassNameStr);
+  if (!declaringClass) return JNI_FALSE;
+
+  JNINativeMethod meth;
+	memset(&meth, 0, sizeof(JNINativeMethod));
+
+	meth.fnPtr = (void*)(size_t)fptr;
+	meth.name = (char*)GET_CHARS(methodName);
+  meth.signature = (char*)GET_CHARS(methodSignature);
+					
+  //printf("INFO: Registering %s.%s with signature %s as %s\n", declaringClassNameStr, meth.name, meth.signature, symbolName);
+  (*env)->RegisterNatives(env, declaringClass, &meth, 1);
+					
+  RELEASE_CHARS(methodName, meth.name);
+  RELEASE_CHARS(methodSignature, meth.signature);
+  RELEASE_CHARS(declaringClassName, declaringClassNameStr);
+
+	return JNI_TRUE;
+}
 
 jlong JNICALL Java_org_bridj_JNI_memmem_1last(JNIEnv *env, jclass clazz, jlong haystack, jlong haystackLength, jlong needle, jlong needleLength) 
 {

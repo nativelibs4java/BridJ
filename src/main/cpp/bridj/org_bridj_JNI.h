@@ -721,6 +721,14 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_set_1boolean_1array
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    registerNatives
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_bridj_JNI_registerNatives
+  (JNIEnv *, jclass, jstring, jstring, jstring, jlong);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    callSinglePointerArgVoidFunction
  * Signature: (JJI)V
  */

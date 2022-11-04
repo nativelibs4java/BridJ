@@ -136,6 +136,8 @@ public class JNI {
 	#end
 #end
 
+    static native boolean registerNatives(String declaringClassName, String methodSignature, String methodName, long fptr);
+
 	public static native void callSinglePointerArgVoidFunction(long functionPointer, long pointerArg, int callMode);
 	
 	static native long createCToJavaCallback(MethodCallInfo info);
