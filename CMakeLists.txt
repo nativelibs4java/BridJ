@@ -20,3 +20,4 @@ add_subdirectory(src/main/cpp/bridj)
 
 add_subdirectory(src/test/cpp/test) #  EXCLUDE_FROM_ALL
 add_subdirectory(src/test/cpp/dependsOnTest)
+add_subdirectory(Examples/BasicExample/src/main/native/example)
