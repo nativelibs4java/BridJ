@@ -30,8 +30,8 @@ function get_arch() {
 	    else
 		    echo "x86"
 	    fi
-    elif [[ "$UNAME_OS" == "Darwin" ]]; then
-	    echo "universal"
+    # elif [[ "$UNAME_OS" == "Darwin" ]]; then
+	  #   echo "universal"
     else
         case $UNAME_ARCH in
         i86pc|i386|i486|i586|i686|x86)
@@ -88,8 +88,9 @@ function get_os() {
 function build_libraries() {
 	local OS="$1"
 	local ARCH="$2"
+	shift 2
 
-	local CMAKE_FLAGS=()
+	local CMAKE_FLAGS=( "$@" )
 	local RESOURCES=()
 	local TEST_RESOURCES=()
 
@@ -132,6 +133,18 @@ function build_libraries() {
 			TEST_RESOURCES+=( test.dll dependsOnTest.dll )
 			;;
 		darwin)
+			case "$ARCH" in
+				x64)
+					CMAKE_FLAGS+=( -DCMAKE_OSX_ARCHITECTURES=x86_64 )
+					;;
+				arm64)
+					CMAKE_FLAGS+=( -DCMAKE_OSX_ARCHITECTURES=arm64 )
+					;;
+				universal)
+					echo "WARNING: Universal builds don't work yet as JDK does not have fat binaries"
+					CMAKE_FLAGS+=( -DCMAKE_OSX_ARCHITECTURES="x86_64 arm64" )
+					;;
+			esac
 			RESOURCES+=( libbridj.dylib )
 			TEST_RESOURCES+=( libtest.dylib libdependsOnTest.dylib )
 			;;
@@ -142,10 +155,16 @@ function build_libraries() {
 	esac
 
 	OS_ARCH=${OS}_${ARCH}
+	OUT=$BASE_DIR/target/$OS_ARCH
+	if [[ "${DEBUG:-0}" == "1" ]]; then
+		OUT="${OUT}_debug"
+	fi
 
-	mkdir -p $BASE_DIR/target/$OS_ARCH
-	cd $BASE_DIR/target/$OS_ARCH
-	cmake ../.. "${CMAKE_FLAGS[@]}"
+	mkdir -p $OUT
+	cd $OUT
+	if [[ "${CMAKE:-1}" != "0" ]]; then
+		cmake ../.. "${CMAKE_FLAGS[@]}"
+	fi
 
 	# TODO: Different command for VS build on Windows
 	make -j10
@@ -169,21 +188,21 @@ if [[ -z "${OS:-}" ]]; then
 fi
 
 if [[ -n "${ARCH:-}" ]]; then
-	build_libraries $OS $ARCH
+	build_libraries $OS $ARCH "$@"
 else
 	case $OS in
 		sunos)
-			build_libraries sunos x86
-			build_libraries sunos x64
+			build_libraries sunos x86 "$@"
+			build_libraries sunos x64 "$@"
 			;;
 		windows)
-			build_libraries windows x86
-			build_libraries windows x64
-			build_libraries windows amd32
-			build_libraries windows amd64
+			build_libraries windows x86 "$@"
+			build_libraries windows x64 "$@"
+			build_libraries windows amd32 "$@"
+			build_libraries windows amd64 "$@"
 			;;
 		*)
 			ARCH="$(get_arch)"
-			build_libraries $OS $ARCH
+			build_libraries $OS $ARCH "$@"
 	esac
 fi

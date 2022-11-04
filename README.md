@@ -19,11 +19,45 @@ It was previously hosted on [ochafik/nativelibs4java](http://github.com/ochafik/
 * [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
 
 # Building
-  ```
-  git clone http://github.com/nativelibs4java/BridJ.git
-  cd BridJ
-  mvn clean install
-  ```
+
+```bash
+git clone http://github.com/nativelibs4java/BridJ.git
+cd BridJ
+mvn clean install
+```
+
+Iterate on native code:
+
+```bash
+mvn native:javah
+./BuildNative && mvn surefire:test
+```
+
+Build M1 (ARM) binary from Intel Mac (and vice versa)
+```
+# Get both ARM and Intel JDKs
+( \
+  cd .. && \
+    wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_macos-{x64,aarch64}_bin.tar.gz && \
+    tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-19.jdk{,-arm64} && \
+    tar zxvf openjdk-19_macos-x64_bin.tar.gz && mv jdk-19.jdk{,-x64} \
+)
+
+ARCH=arm64 ./BuildNative -DBUILD_TESTS=0 -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-arm64/Contents/Home
+ARCH=x64 ./BuildNative -DBUILD_TESTS=0 -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-x64/Contents/Home
+```
+# Debugging
+
+```bash
+mvn dependency:build-classpath -DincludeScope=test -Dmdep.outputFile=deps-classpath-test.txt
+DEBUG=1 mvn clean test-compile
+
+# Or gdb --args java ...
+lldb -- java -cp \
+  target/generated-resources:target/generated-test-resources:target/test-classes:target/classes:$( cat deps-classpath-test.txt ) \
+  org.junit.runner.JUnitCore \
+  org.bridj.BridJTest
+```
 
 # Formatting
 
@@ -37,6 +71,7 @@ Please use the [mailing-list](https://groups.google.com/forum/#!forum/nativelibs
 
 # TODO
 
+* Separate ARM / x86_64 builds on Darwin (link w/ ARM JDK https://jdk.java.net/archive/), or scripting to create fat libjvm.dylib and libjawt.dylib
 * Update pom to make it independent from nativelibs4java-parent
 * Update deps: ASM 5.x, JUnit 4.11
 * Fix BridJ's armhf support
