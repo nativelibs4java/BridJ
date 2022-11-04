@@ -20,7 +20,7 @@ public class Run {
     public static void main(String[] args) throws IOException {
         //Pointer<NSString> ps = FoundationLibrary.pointerToNSString("Hehe");
         //NSString s = ps.get();
-        BridJ.getNativeLibrary("src/test/resources/org/bridj/lib/darwin_universal/libtest.dylib").release(); 
+        BridJ.getNativeLibrary("src/test/resources/org/bridj/lib/darwin_x64/libtest.dylib").release(); 
         /*
         Pointer dc = Pointer.allocateDynamicCallback(
             new DynamicCallback<Integer>() {
