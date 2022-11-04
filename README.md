@@ -77,7 +77,7 @@ OS=windows ARCH=x64 ./BuildNative \
 ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386 i386/debian:bullseye-slim bridj-linux-x86
 ./scripts/build-docker-qemu.sh linux/arm64 arm64v8/debian:bullseye-slim  bridj-linux-arm64
 ./scripts/build-docker-qemu.sh linux/arm/v7 arm32v7/debian:bullseye-slim  bridj-linux-arm
-./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye-slim   bridj-linux-armel
+./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye   bridj-linux-armel
 
 # Windows x64 host (UNTESTED): build Windows X64 & ARM64 binary
 ARCH=x64 ./BuildNative
@@ -109,7 +109,8 @@ Please use the [mailing-list](https://groups.google.com/forum/#!forum/nativelibs
 
 # TODO
 
-* Separate ARM / x86_64 builds on Darwin (link w/ ARM JDK https://jdk.java.net/archive/), or scripting to create fat libjvm.dylib and libjawt.dylib
+* CI w/ all the cross builds (use upload / download artefact github actions)
+* ~~Separate ARM / x86_64 builds on Darwin (link w/ ARM JDK https://jdk.java.net/archive/), or scripting to create fat libjvm.dylib and libjawt.dylib~~
 * Update pom to make it independent from nativelibs4java-parent
 * Update deps: ASM 5.x, JUnit 4.11
 * Fix BridJ's armhf support
