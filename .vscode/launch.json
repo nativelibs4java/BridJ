@@ -1,0 +1,28 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "(lldb) Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/local/opt/openjdk@11/bin/java",
+      "args": [
+        "-cp",
+        // mvn dependency:build-classpath -DincludeScope=test -Dmdep.outputFile=deps-classpath-test.txt
+        // + target/generated-resources:target/generated-test-resources:target/test-classes:target/classes
+        "${workspaceFolder}/target/generated-resources:${workspaceFolder}/target/generated-test-resources:${workspaceFolder}/target/test-classes:${workspaceFolder}/target/classes:/Users/ochafik/.m2/repository/com/google/android/tools/dx/1.7/dx-1.7.jar:/Users/ochafik/.m2/repository/org/khronos/opengl-api/gl1.1-android-2.1_r1/opengl-api-gl1.1-android-2.1_r1.jar:/Users/ochafik/.m2/repository/org/json/json/20080701/json-20080701.jar:/Users/ochafik/.m2/repository/junit/junit/4.13.2/junit-4.13.2.jar:/Users/ochafik/.m2/repository/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar:/Users/ochafik/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/ochafik/.m2/repository/xerces/xmlParserAPIs/2.6.2/xmlParserAPIs-2.6.2.jar:/Users/ochafik/.m2/repository/commons-codec/commons-codec/1.3/commons-codec-1.3.jar:/Users/ochafik/.m2/repository/org/apache/httpcomponents/httpcore/4.0.1/httpcore-4.0.1.jar:/Users/ochafik/.m2/repository/javolution/javolution/5.5.1/javolution-5.5.1.jar:/Users/ochafik/.m2/repository/org/osgi/org.osgi.core/6.0.0/org.osgi.core-6.0.0.jar:/Users/ochafik/.m2/repository/net/java/dev/jna/jna/5.12.1/jna-5.12.1.jar:/Users/ochafik/.m2/repository/xpp3/xpp3/1.1.4c/xpp3-1.1.4c.jar:/Users/ochafik/.m2/repository/org/ow2/asm/asm/9.4/asm-9.4.jar:/Users/ochafik/.m2/repository/org/apache/httpcomponents/httpclient/4.0.1/httpclient-4.0.1.jar:/Users/ochafik/.m2/repository/com/google/android/android/4.1.1.4/android-4.1.1.4.jar",
+        "org.junit.runner.JUnitCore",
+        "org.bridj.BridJTest"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      // "MIMode": "gdb",
+      "MIMode": "lldb"
+    }
+  ]
+}
