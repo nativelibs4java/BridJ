@@ -1,7 +1,19 @@
 cmake_minimum_required(VERSION 3.18.0)
 project(BridJ-Test)
 
-find_package(JNI REQUIRED)
+if ("${FORCE_JAVA_HOME}" STREQUAL "")
+  find_package(JNI REQUIRED)
+else()
+  SET(JNI_INCLUDE_DIRS
+      ${FORCE_JAVA_HOME}/include
+      ${FORCE_JAVA_HOME}/include/linux
+      ${FORCE_JAVA_HOME}/include/solaris
+      ${FORCE_JAVA_HOME}/include/windows
+      ${FORCE_JAVA_HOME}/include/darwin
+  )
+  set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)
+endif()
+
 include_directories(${JNI_INCLUDE_DIRS})
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   include_directories("C:\Program Files\Microsoft SDKs\Windows\v6.0A\Include")

@@ -3,10 +3,20 @@ project(BridJ)
 
 option(DIRECT_CALLS "Enable raw native forward assembler on supported platform" OFF)
 
-find_package(JNI REQUIRED)
-# TODO(ochafik): what about subdirectories /{linux,solaris,windows,darwin}?
-include_directories(${JNI_INCLUDE_DIRS})
+if ("${FORCE_JAVA_HOME}" STREQUAL "")
+  find_package(JNI REQUIRED)
+else()
+  set(JNI_INCLUDE_DIRS
+      ${FORCE_JAVA_HOME}/include
+      ${FORCE_JAVA_HOME}/include/linux
+      ${FORCE_JAVA_HOME}/include/solaris
+      ${FORCE_JAVA_HOME}/include/windows
+      ${FORCE_JAVA_HOME}/include/darwin
+  )
+  set(JNI_LIBRARIES ${FORCE_JAVA_HOME}/lib/server/libjvm.dylib)
+endif()
 
+include_directories(${JNI_INCLUDE_DIRS})
 include_directories(
   ${PROJECT_SOURCE_DIR}/../../../../dyncall/dyncall
   ${PROJECT_SOURCE_DIR}/../../../../dyncall/dyncallback
@@ -40,6 +50,7 @@ list(APPEND BRIDJ_SOURCES
   Platform.c
   ThreadLocal.c
   Utils.c
+  Trampolines.cc
 )
 
 if (${DIRECT_CALLS})

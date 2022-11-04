@@ -90,6 +90,8 @@ function build_libraries() {
 	local ARCH="$2"
 	shift 2
 
+	echo "# Building for $OS on $ARCH"
+
 	local CMAKE_FLAGS=( "$@" )
 	local RESOURCES=()
 	local TEST_RESOURCES=()
@@ -196,10 +198,16 @@ else
 			build_libraries sunos x64 "$@"
 			;;
 		windows)
-			build_libraries windows x86 "$@"
-			build_libraries windows x64 "$@"
-			build_libraries windows amd32 "$@"
-			build_libraries windows amd64 "$@"
+			# See README.md on how to download the JDKs needed here
+			build_libraries windows x64 -DFORCE_JAVA_HOME=${JAVA_HOME_X64} "$@"
+			build_libraries windows arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
+			# build_libraries windows x86 -DFORCE_JAVA_HOME=${JAVA_HOME_X86} "$@"
+			# build_libraries windows arm32 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM32} "$@"
+			;;
+		darwin)
+			# See README.md on how to download the JDKs needed here
+			build_libraries darwin arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
+			build_libraries darwin x64 -DFORCE_JAVA_HOME=${JAVA_HOME_X64} "$@"
 			;;
 		*)
 			ARCH="$(get_arch)"

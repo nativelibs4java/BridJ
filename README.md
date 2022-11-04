@@ -27,7 +27,6 @@ mvn clean install
 ```
 
 Iterate on native code:
-
 ```bash
 mvn native:javah
 ./BuildNative && mvn surefire:test
@@ -43,9 +42,26 @@ Build M1 (ARM) binary from Intel Mac (and vice versa)
     tar zxvf openjdk-19_macos-x64_bin.tar.gz && mv jdk-19.jdk{,-x64} \
 )
 
-ARCH=arm64 ./BuildNative -DBUILD_TESTS=0 -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-arm64/Contents/Home
-ARCH=x64 ./BuildNative -DBUILD_TESTS=0 -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-x64/Contents/Home
+export JAVA_HOME_X64=$PWD/../jdk-19.jdk-x64/Contents/Home
+export JAVA_HOME_ARM64=$PWD/../jdk-19.jdk-arm64/Contents/Home
+
+./BuildNative
 ```
+
+Build ARM64 binary on Windows X86:
+```
+( \
+  cd .. && \
+    wget https://github.com/microsoft/openjdk-aarch64/releases/download/jdk-16.0.2-ga/microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && \
+    tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-arm64}
+)
+
+export JAVA_HOME_X64=$JAVA_HOME
+export JAVA_HOME_ARM64=$PWD/../jdk-16.0.2+7
+
+./BuildNative
+```
+
 # Debugging
 
 ```bash
