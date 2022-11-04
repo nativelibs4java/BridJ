@@ -73,11 +73,11 @@ OS=windows ARCH=x64 ./BuildNative \
   -DFORCE_JAVA_HOME=$PWD/../jdk-19-windows_x64
 
 # Mac or Linux host: build & test Linux binaries inside Docker + QEMU:
-./scripts/build-docker-qemu.sh linux/x86_64 debian:bullseye-slim bridj-linux-x64
-ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386 i386/debian:bullseye-slim bridj-linux-x86
-./scripts/build-docker-qemu.sh linux/arm64 arm64v8/debian:bullseye-slim  bridj-linux-arm64
-./scripts/build-docker-qemu.sh linux/arm/v7 arm32v7/debian:bullseye-slim  bridj-linux-arm
-./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye   bridj-linux-armel
+         ./scripts/build-docker-qemu.sh linux/x86_64 debian:bullseye-slim            bridj-linux-x64
+ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386   i386/debian:bullseye-slim       bridj-linux-x86
+         ./scripts/build-docker-qemu.sh linux/arm64  arm64v8/debian:bullseye-slim    bridj-linux-arm64
+         ./scripts/build-docker-qemu.sh linux/arm/v7 arm32v7/debian:bullseye-slim    bridj-linux-arm
+         ./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye bridj-linux-armel
 
 # Windows x64 host (UNTESTED): build Windows X64 & ARM64 binary
 ARCH=x64 ./BuildNative
