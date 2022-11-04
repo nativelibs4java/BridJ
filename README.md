@@ -80,12 +80,13 @@ OS=windows ARCH=x86 ./BuildNative \
   -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-i686.cmake \
   -DFORCE_JAVA_HOME=$PWD/../openlogic-openjdk-8u352-b08-windows-32
 
-# Mac or Linux host: build & test Linux x86, x64, arm64, arm, armel binaries inside Docker + QEMU:
+# Mac or Linux host: build & test Linux x86, x64, arm64, arm binaries inside Docker + QEMU:
+# TODO: look at armel situation (no openjdk?)
          ./scripts/build-docker-qemu.sh linux/x86_64 debian:bullseye-slim            bridj-linux-x64
 ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386   i386/debian:bullseye-slim       bridj-linux-x86
          ./scripts/build-docker-qemu.sh linux/arm64  arm64v8/debian:bullseye-slim    bridj-linux-arm64
          ./scripts/build-docker-qemu.sh linux/arm/v7 arm32v7/debian:bullseye-slim    bridj-linux-arm
-         ./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye bridj-linux-armel
+#        ./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye bridj-linux-armel
 
 # Windows x64 host (UNTESTED): build Windows X64 & ARM64 binary
 ARCH=x64 ./BuildNative
