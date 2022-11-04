@@ -87,28 +87,6 @@
 			</extension>
 		</extensions>
 		<plugins>
-			<!--plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>native-maven-plugin</artifactId>
-			<version>1.0-alpha-7</version>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>javah</goal>
-				</goals>
-			  </execution>
-			</executions>
-			<configuration>
-			<javahOutputDirectory>${basedir}/src/main/cpp/bridj</javahOutputDirectory>
-			  <javahClassNames>
-				<javahClassName>org.bridj.JNI</javahClassName>
-				<javahClassName>org.bridj.BridJ</javahClassName>
-				<javahClassName>org.bridj.Pointer</javahClassName>
-				<javahClassName>org.bridj.Platform</javahClassName>
-				<javahClassName>org.bridj.objc.ObjCJNI</javahClassName>
-			  </javahClassNames>
-			</configuration>
-		</plugin-->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -449,6 +427,38 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 		</plugins>
 	</build>
 	<profiles>
+		<profile>
+			<id>javah</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>1.0-alpha-7</version>
+						<executions>
+							<execution>
+							<goals>
+								<goal>javah</goal>
+							</goals>
+							</execution>
+						</executions>
+						<configuration>
+						<javahOutputDirectory>${basedir}/src/main/cpp/bridj</javahOutputDirectory>
+							<javahClassNames>
+							<javahClassName>org.bridj.JNI</javahClassName>
+							<javahClassName>org.bridj.BridJ</javahClassName>
+							<javahClassName>org.bridj.Pointer</javahClassName>
+							<javahClassName>org.bridj.Platform</javahClassName>
+							<javahClassName>org.bridj.objc.ObjCJNI</javahClassName>
+							</javahClassNames>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>gpg</id>
 			<activation>
