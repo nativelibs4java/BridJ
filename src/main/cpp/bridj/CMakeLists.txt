@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.18.0)
 project(BridJ)
 
 option(DIRECT_CALLS "Enable raw native forward assembler on supported platform" OFF)
+option(ENABLE_TRAMPOLINES "Enable experimental trampolines WIP" OFF)
 
 if ("${FORCE_JAVA_HOME}" STREQUAL "")
   find_package(JNI REQUIRED)
@@ -34,6 +35,7 @@ include_directories(
 # find_package(DynLoad REQUIRED)
 # include_directories(${DYNCALL_INCLUDE_DIRS} ${DYNCALLBACK_INCLUDE_DIRS} ${DYNLOAD_INCLUDE_DIRS})
 
+add_compile_definitions(ENABLE_TRAMPOLINES=${ENABLE_TRAMPOLINES})
 add_compile_definitions(DISABLE_DCSTRUCT=1)
 if (NOT ${DIRECT_CALLS})
   add_compile_definitions(NO_DIRECT_CALLS=1)
@@ -57,8 +59,10 @@ list(APPEND BRIDJ_SOURCES
   Platform.c
   ThreadLocal.c
   Utils.c
-  Trampolines.cc
 )
+if (${ENABLE_TRAMPOLINES})
+  list(APPEND BRIDJ_SOURCES Trampolines.cc)
+endif()
 
 if (${DIRECT_CALLS})
   list(APPEND BRIDJ_SOURCES

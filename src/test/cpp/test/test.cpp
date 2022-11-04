@@ -113,6 +113,11 @@ TEST_API long testAddCLongs(long a, long b) {
 
 extern "C" {
 
+TEST_API double __cdecl testSin(double x)
+{
+	return sin(x);
+}
+
 void otherFunc() {
 	//cout << "other\n";
 }

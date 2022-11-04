@@ -105,6 +105,14 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_deleteGlobalRef
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    newJNINativeTrampoline
+ * Signature: (Ljava/lang/String;J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_newJNINativeTrampoline
+  (JNIEnv *, jclass, jstring, jlong);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    newWeakGlobalRef
  * Signature: (Ljava/lang/Object;)J
  */

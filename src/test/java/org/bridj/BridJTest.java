@@ -32,12 +32,14 @@ package org.bridj;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 
 import org.bridj.demangling.Demangler;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BridJTest {
@@ -69,5 +71,27 @@ public class BridJTest {
 			}
 		}
 		assertTrue("Failed to find any Ctest-related symbol !", found);
+	}
+
+	public static native double trampolineTestNative(double x);
+
+	@Test
+	@Ignore("Trampolines aren't working yet!")
+	public void trampolineTest() throws Exception {
+		// Java_org_bridj_JNI_newJNINativeTrampoline
+		NativeLibrary lib = BridJ.getNativeLibrary("test");
+		// System.err.println(lib.getSymbols());
+
+		Demangler.Symbol sinSymbol = lib.getSymbol("testSin");
+		
+		long peer = JNI.newJNINativeTrampoline("d)d", sinSymbol.getAddress());
+		assertNotEquals(0, peer);
+		System.err.println("Built trampoline: " + peer);
+		assertTrue(JNI.registerNatives(BridJTest.class.getName().replace('.', '/'), "(D)D", "trampolineTestNative", peer));
+
+		System.err.println("Registered trampoline!");
+		double epsilon = 0.0000001;
+		assertEquals(0.0, trampolineTestNative(0.0), epsilon);
+		assertEquals(Math.sin(1.0), trampolineTestNative(1.0), epsilon);
 	}
 }
