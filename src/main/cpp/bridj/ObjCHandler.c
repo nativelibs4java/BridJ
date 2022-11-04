@@ -36,6 +36,19 @@
 
 #include <objc/message.h>
 
+// There's no longer any /usr/lib/libobjc.A.dylib to look up these symbols from.
+// Instead, we ensure we get a statically-linked copy of them in libbridj.dylib by referencing them here.
+void *retained_objc_runtime_symbols[8] = {
+	object_getClass,
+	objc_getClass,
+	objc_getMetaClass,
+	object_getClassName,
+	class_createInstance,
+	class_respondsToSelector,
+	sel_registerName,
+	sel_getName,
+};
+
 char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
 	JavaToObjCCallInfo* info = (JavaToObjCCallInfo*)userdata;

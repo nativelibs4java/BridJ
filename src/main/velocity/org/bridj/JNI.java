@@ -84,6 +84,8 @@ public class JNI {
 		});
 	}
 	
+	public static native long newJNINativeTrampoline(String dcSignature, long targetFnPtr);
+
 	/**
      * Create a JNI weak global reference to a Java object : long value that can be safely passed to C programs and stored, which validity runs until {@link JNI#deleteWeakGlobalRef(long)} is called.<br>
      * Unlike global references, weak global references don't prevent objects from being garbage-collected.
@@ -135,6 +137,8 @@ public class JNI {
     static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
 	#end
 #end
+
+    static native boolean registerNatives(String declaringClassName, String methodSignature, String methodName, long fptr);
 
 	public static native void callSinglePointerArgVoidFunction(long functionPointer, long pointerArg, int callMode);
 	

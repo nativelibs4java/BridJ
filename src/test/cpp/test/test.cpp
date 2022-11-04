@@ -31,11 +31,11 @@
 
 #include "stdafx.h"
 #include "test.h"
-#include "jni.h"
+#include <jni.h>
 #include "math.h"
 #include <time.h>
 
-#ifdef _WIN32
+#if !defined(__GNUC__)
 struct timeval {
 	long a;
 	long b;
@@ -112,6 +112,11 @@ TEST_API long testAddCLongs(long a, long b) {
 }
 
 extern "C" {
+
+TEST_API double __cdecl testSin(double x)
+{
+	return sin(x);
+}
 
 void otherFunc() {
 	//cout << "other\n";

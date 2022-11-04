@@ -208,7 +208,12 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					throwException(env, "Struct by value cannot be null !");
 					return JNI_FALSE;
 				}
-				dcArgStruct(call->vm, s, pStruct);
+				#ifdef DISABLE_DCSTRUCT
+					throwException(env, "Struct by value are disabled !");
+					return JNI_FALSE;
+				#else
+					dcArgStruct(call->vm, s, pStruct);
+				#endif
 				break;
 			}	
 			case eEllipsis: {

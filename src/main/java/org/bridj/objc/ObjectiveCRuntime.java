@@ -62,8 +62,9 @@ import org.bridj.ann.Ptr;
 import org.bridj.demangling.Demangler;
 import org.bridj.util.Utils;
 
+/// Note that /usr/lib/libobjc.A.dylib is no more. Instead we ensure libbridj.dylib embeds copies of the helpers we bind to. 
 /// http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html
-@Library("/usr/lib/libobjc.A.dylib")
+@Library("bridj")
 public class ObjectiveCRuntime extends CRuntime {
 
     public boolean isAvailable() {

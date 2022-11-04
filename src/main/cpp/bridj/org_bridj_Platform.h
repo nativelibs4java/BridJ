@@ -9,6 +9,8 @@ extern "C" {
 #endif
 #undef org_bridj_Platform_DELETE_OLD_BINARIES_AFTER_MILLIS
 #define org_bridj_Platform_DELETE_OLD_BINARIES_AFTER_MILLIS 86400000LL
+#undef org_bridj_Platform_maxTempFileAttempts
+#define org_bridj_Platform_maxTempFileAttempts 20L
 /*
  * Class:     org_bridj_Platform
  * Method:    init

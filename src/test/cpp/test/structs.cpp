@@ -31,7 +31,7 @@
 
 #include "stdafx.h"
 #include "test.h"
-#include "jni.h"
+#include <jni.h>
 #include "math.h"
 
 #include <iostream>

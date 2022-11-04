@@ -32,7 +32,7 @@
 #define _POSIX_C_SOURCE 200112L
 
 #include "bridj.hpp"
-#include "jni.h"
+#include <jni.h>
 #include "JNI.h"
 
 #include "Errors.h"

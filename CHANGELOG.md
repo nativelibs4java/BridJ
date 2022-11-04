@@ -1,4 +1,7 @@
-## Current development version (0.7.1-SNAPSHOT)
+## Current development version (0.8.0-SNAPSHOT)
+
+- Revamped native build process (cmake), introduce cross-compilation w/ Docker + QEMU & MinGW-w64
+- Fixed MacOS X resolution with recent OS versions (for Frameworks & dyld-cached libraries such as "c" and "m")
 
 ...
 

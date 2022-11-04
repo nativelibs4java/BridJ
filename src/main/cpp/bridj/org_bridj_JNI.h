@@ -105,6 +105,14 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_deleteGlobalRef
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    newJNINativeTrampoline
+ * Signature: (Ljava/lang/String;J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_newJNINativeTrampoline
+  (JNIEnv *, jclass, jstring, jlong);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    newWeakGlobalRef
  * Signature: (Ljava/lang/Object;)J
  */
@@ -718,6 +726,14 @@ JNIEXPORT jbooleanArray JNICALL Java_org_bridj_JNI_get_1boolean_1array
  */
 JNIEXPORT void JNICALL Java_org_bridj_JNI_set_1boolean_1array
   (JNIEnv *, jclass, jlong, jbooleanArray, jint, jint);
+
+/*
+ * Class:     org_bridj_JNI
+ * Method:    registerNatives
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_bridj_JNI_registerNatives
+  (JNIEnv *, jclass, jstring, jstring, jstring, jlong);
 
 /*
  * Class:     org_bridj_JNI

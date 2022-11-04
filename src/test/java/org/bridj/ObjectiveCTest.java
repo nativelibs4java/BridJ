@@ -301,6 +301,7 @@ public class ObjectiveCTest {
    }
    
    @Test
+   @Ignore
    public void testBlock() {
         if (!mac) return;
        FwdBlock block = new FwdBlock() {
