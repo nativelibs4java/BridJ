@@ -526,7 +526,7 @@ public class Platform {
 
     public static boolean isArm() {
         String arch = getArch();
-        return "arm".equals(arch);
+        return "arm".equals(arch) || "arm64".equals(arch);
     }
 
     public static boolean isSparc() {
@@ -569,40 +569,37 @@ public class Platform {
     }
 
     static synchronized List<String> getEmbeddedLibraryPaths(String name) {
-        List<String> paths = new ArrayList<String>(embeddedLibraryResourceRoots.size());
-        for (String root : embeddedLibraryResourceRoots) {
-            if (root == null) {
-                continue;
-            }
+        String os = isWindows() ? "windows"
+            : isMacOSX() ? "darwin"
+            : isLinux() ? "linux"
+            : isSolaris() ? "sunos"
+            : isAndroid() ? "android"
+            : null;
+        
+        List<String> paths = new ArrayList<String>();
 
-            if (isWindows()) {
-                paths.add(root + (is64Bits() ? "win64/" : "win32/"));
-            } else if (isMacOSX()) {
-                if (isArm()) {
-                    paths.add(root + "iphoneos_arm32_arm/");
-                } else {
-                    paths.add(root + "darwin_universal/");
-                    if (isAmd64Arch()) {
-                        paths.add(root + "darwin_x64/");
-                    }
-                }
+        if (os != null) {
+            List<String> archs = new ArrayList<String>();
+            if (isArm()) {
+                // Note: to discriminate between hard-float (armhf) and soft-float (armel), we used to test new File("/lib/arm-linux-gnueabihf").isDirectory().
+                archs.add(is64Bits() ? "arm64" : "arm");
+            } else if (isSparc()) {
+                archs.add(is64Bits() ? "sparc64" : "sparc");
             } else {
-                if (isAndroid()) {
-                    assert root.equals("libs/");
-                    paths.add(root + "armeabi/"); // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
-                } else if (isLinux()) {
-                    if (isArm()) {
-                        paths.add(root + "linux_armhf/");
-                        // To discriminate between hard-float and soft-float, we used to test new File("/lib/arm-linux-gnueabihf").isDirectory().
-                    } else {
-                        paths.add(root + (is64Bits() ? "linux_x64/" : "linux_x86/"));
-                    }
-                } else if (isSolaris()) {
-                    if (isSparc()) {
-                        paths.add(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/"));
-                    } else {
-                        paths.add(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/"));
-                    }
+                if (isMacOSX()) {
+                    // Note: used to handle jailbroken iphones here but whyyyy? iphoneos_arm32_arm
+                    archs.add("universal");
+                }
+                archs.add(is64Bits() ? "x64" : "x86");
+            }
+        
+            for (String root : embeddedLibraryResourceRoots) {
+                if (root == null) {
+                    continue;
+                }
+
+                for (String arch : archs) {
+                    paths.add(root + os + "_" + arch);
                 }
             }
         }
@@ -619,7 +616,7 @@ public class Platform {
         List<String> ret = new ArrayList<String>(paths.size() * fileNames.size());
         for (String path : paths) {
             for (String fileName : fileNames) {
-                ret.add(path + fileName);
+                ret.add(path + "/" + fileName);
             }
         }
 

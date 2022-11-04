@@ -4,14 +4,14 @@
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>bridj</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
-	<url>http://code.google.com/p/bridj/</url>
-	<version>0.7.1-SNAPSHOT</version>
+	<url>https://code.google.com/p/bridj/</url>
+	<version>0.8.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<repositories>
 		<repository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 		</repository>
 	</repositories>
 
@@ -19,17 +19,17 @@
 		<pluginRepository>
 			<id>sonatype</id>
 			<name>Sonatype OSS Snapshots Repository</name>
-			<url>http://oss.sonatype.org/content/groups/public</url>
+			<url>https://oss.sonatype.org/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
 	<properties>
-		<versionSpecificSubPackage>v0_7_0</versionSpecificSubPackage>
+		<versionSpecificSubPackage>v0_8_0</versionSpecificSubPackage>
 		<maven.compiler.optimize>true</maven.compiler.optimize>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:nativelibs4java/BridJ.git</connection>
 		<developerConnection>scm:git:git@github.com:nativelibs4java/BridJ.git</developerConnection>
-		<url>http://github.com/nativelibs4java/BridJ</url>
+		<url>https://github.com/nativelibs4java/BridJ</url>
 	</scm>
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
@@ -40,13 +40,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
-			<version>5.0.3</version>
+			<version>9.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>4.1.0</version>
+			<version>5.12.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -87,28 +87,6 @@
 			</extension>
 		</extensions>
 		<plugins>
-			<!--plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>native-maven-plugin</artifactId>
-			<version>1.0-alpha-7</version>
-			<executions>
-			  <execution>
-				<goals>
-				  <goal>javah</goal>
-				</goals>
-			  </execution>
-			</executions>
-			<configuration>
-			<javahOutputDirectory>${basedir}/src/main/cpp/bridj</javahOutputDirectory>
-			  <javahClassNames>
-				<javahClassName>org.bridj.JNI</javahClassName>
-				<javahClassName>org.bridj.BridJ</javahClassName>
-				<javahClassName>org.bridj.Pointer</javahClassName>
-				<javahClassName>org.bridj.Platform</javahClassName>
-				<javahClassName>org.bridj.objc.ObjCJNI</javahClassName>
-			  </javahClassNames>
-			</configuration>
-		</plugin-->
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -434,7 +412,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
             <dependency>
               <groupId>org.eclipse.tycho</groupId>
               <artifactId>org.eclipse.jdt.core</artifactId>
-              <version>3.10.0.v20140604-1726</version>
+              <version>3.14.0.v20171206-0802</version>
             </dependency>
           </dependencies>
           <executions>
@@ -449,6 +427,38 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 		</plugins>
 	</build>
 	<profiles>
+		<profile>
+			<id>javah</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>1.0-alpha-7</version>
+						<executions>
+							<execution>
+							<goals>
+								<goal>javah</goal>
+							</goals>
+							</execution>
+						</executions>
+						<configuration>
+						<javahOutputDirectory>${basedir}/src/main/cpp/bridj</javahOutputDirectory>
+							<javahClassNames>
+							<javahClassName>org.bridj.JNI</javahClassName>
+							<javahClassName>org.bridj.BridJ</javahClassName>
+							<javahClassName>org.bridj.Pointer</javahClassName>
+							<javahClassName>org.bridj.Platform</javahClassName>
+							<javahClassName>org.bridj.objc.ObjCJNI</javahClassName>
+							</javahClassNames>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>gpg</id>
 			<activation>
@@ -484,7 +494,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 		<profile>
 			<id>native</id>
 			<activation>
-				<activeByDefault>false</activeByDefault>
+				<activeByDefault>true</activeByDefault>
 				<property>
 					<name>native</name>
 				</property>
@@ -505,20 +515,6 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 								<configuration>
 									<executable>${basedir}/BuildNative</executable>
 									<workingDirectory>${basedir}</workingDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>CleanBinaries</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-								<configuration>
-									<executable>${basedir}/BuildNative</executable>
-									<workingDirectory>${basedir}</workingDirectory>
-									<arguments>
-										<argument>clean</argument>
-									</arguments>
 								</configuration>
 							</execution>
 						</executions>

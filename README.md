@@ -19,11 +19,92 @@ It was previously hosted on [ochafik/nativelibs4java](http://github.com/ochafik/
 * [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
 
 # Building
-  ```
-  git clone http://github.com/nativelibs4java/BridJ.git
-  cd BridJ
-  mvn clean install
-  ```
+
+```bash
+git clone http://github.com/nativelibs4java/BridJ.git
+cd BridJ
+mvn clean install
+```
+
+Iterate on native code:
+```bash
+mvn native:javah
+./BuildNative && mvn surefire:test
+```
+
+# Cross-compiling
+
+## Prerequisites
+
+Assuming you have docker:
+
+```bash
+# One-off to let Docker use QEMU to run exotic architectures.
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
+
+# Install the cross-compiler for Windows
+# sudo apt install mingw-w64
+brew install mingw-w64
+
+# https://jdk.java.net/archive/
+
+# Get JDK for Mac ARM64 & X64
+wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_macos-{x64,aarch64}_bin.tar.gz && \
+  tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-19.jdk{,-darwin_arm64} && \
+  tar zxvf openjdk-19_macos-x64_bin.tar.gz && mv jdk-19.jdk{,-darwin_x64} \
+
+# Get JDK for Windows X64
+wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36/GPL/openjdk-19_windows-x64_bin.zip && \
+    unzip openjdk-19_windows-x64_bin.zip && mv jdk-19{,-windows_x64}
+
+# Get JDK for Windows ARM64
+wget https://github.com/microsoft/openjdk-aarch64/releases/download/jdk-16.0.2-ga/microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && \
+  tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-windows_arm64}
+
+wget https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u352-b08/openlogic-openjdk-8u352-b08-windows-x32.zip && \
+    unzip openlogic-openjdk-8u352-b08-windows-x32.zip
+```
+
+## Cross-build commands
+
+```bash
+# Mac host: build Mac M1 & Intel binaries
+ARCH=x64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-darwin_x64/Contents/Home
+ARCH=arm64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-19.jdk-darwin_arm64/Contents/Home
+
+# Mac or Linux host: build Windows X64 & X86 binaries w/ MinGW-w64
+OS=windows ARCH=x64 ./BuildNative \
+  -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-x86_64.cmake \
+  -DFORCE_JAVA_HOME=$PWD/../jdk-19-windows_x64
+OS=windows ARCH=x86 ./BuildNative \
+  -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-i686.cmake \
+  -DFORCE_JAVA_HOME=$PWD/../openlogic-openjdk-8u352-b08-windows-32
+
+# Mac or Linux host: build & test Linux x86, x64, arm64, arm binaries inside Docker + QEMU:
+# TODO: look at armel situation (no openjdk?)
+         ./scripts/build-docker-qemu.sh linux/x86_64 debian:bullseye-slim            bridj-linux-x64
+ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386   i386/debian:bullseye-slim       bridj-linux-x86
+         ./scripts/build-docker-qemu.sh linux/arm64  arm64v8/debian:bullseye-slim    bridj-linux-arm64
+         ./scripts/build-docker-qemu.sh linux/arm/v7 arm32v7/debian:bullseye-slim    bridj-linux-arm
+#        ./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye bridj-linux-armel
+
+# Windows x64 host (UNTESTED): build Windows X64 & ARM64 binary
+ARCH=x64 ./BuildNative
+ARCH=arm64 ./BuildNative -DFORCE_JAVA_HOME=$PWD/../jdk-16.0.2+7-windows_arm64
+```
+
+# Debugging
+
+```bash
+mvn dependency:build-classpath -DincludeScope=test -Dmdep.outputFile=deps-classpath-test.txt
+DEBUG=1 mvn clean test-compile
+
+# Or gdb --args java ...
+lldb -- java -cp \
+  target/generated-resources:target/generated-test-resources:target/test-classes:target/classes:$( cat deps-classpath-test.txt ) \
+  org.junit.runner.JUnitCore \
+  org.bridj.BridJTest
+```
 
 # Formatting
 

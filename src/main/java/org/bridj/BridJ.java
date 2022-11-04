@@ -891,29 +891,38 @@ public class BridJ {
         return env;
     }
 
-    static File findNativeLibraryFile(String libraryName) throws IOException {
+    static List<String> getPossibleLibraryAliases(String libraryName) throws IOException {
         //out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
         List<String> aliases = libraryAliases.get(libraryName);
-        List<String> possibleNames = new ArrayList<String>();
+        List<String> possibleAliases = new ArrayList<String>();
         if (Platform.isWindows()) {
             if (libraryName.equals("c") || libraryName.equals("m")) {
-                possibleNames.add("msvcrt");
+                possibleAliases.add("msvcrt");
             }
         }
         if (aliases != null) {
-            possibleNames.addAll(aliases);
+            possibleAliases.addAll(aliases);
         }
 
-        possibleNames.add(actualName == null ? libraryName : actualName);
+        possibleAliases.add(actualName == null ? libraryName : actualName);
+        return possibleAliases;
+    }
+
+    static File findNativeLibraryFile(String libraryName) throws IOException {
+        File directFile = new File(libraryName);
+        if (directFile.exists()) {
+            return directFile;
+        }
+        List<String> possibleAliases = getPossibleLibraryAliases(libraryName);
 
         //out.println("Possible names = " + possibleNames);
         List<String> paths = getNativeLibraryPaths();
         if (debug) {
-            info("Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
+            info("Looking for library '" + libraryName + "' ('" + possibleAliases + "') in paths " + paths, null);
         }
 
-        for (String name : possibleNames) {
+        for (String name : possibleAliases) {
             String env = getLibraryEnv(name);
             if (env != null) {
                 File f = new File(env);
@@ -974,9 +983,21 @@ public class BridJ {
                     new File(getProperty("user.home"), "Library/Frameworks").toString()
                 }) {
                     try {
-                        File f = new File(new File(s, name + ".framework"), name);
-                        if (f.isFile()) {
-                            return f.getCanonicalFile();
+                        File frameworkDir = new File(s, name + ".framework");
+                        if (frameworkDir.isDirectory()) {
+                            File f = new File(frameworkDir, "Versions/Current/Resources/BridgeSupport/" + name + ".dylib");
+                            if (f.isFile()) {
+                                return f.getCanonicalFile();
+                            }
+                            // Legacy (pre-Big Sur)
+                            f = new File(frameworkDir, "Versions/Current/" + name);
+                            if (f.isFile()) {
+                                return f.getCanonicalFile();
+                            }
+                            f = new File(frameworkDir, name);
+                            if (f.isFile()) {
+                                return f.getCanonicalFile();
+                            }
                         }
                     } catch (IOException ex) {
                         ex.printStackTrace();
@@ -995,7 +1016,7 @@ public class BridJ {
                 return f;
             }
         }
-        throw new FileNotFoundException(StringUtils.implode(possibleNames, ", "));
+        throw new FileNotFoundException(StringUtils.implode(possibleAliases, ", "));
     }
     static Boolean directModeEnabled;
 
@@ -1061,7 +1082,20 @@ public class BridJ {
      * call to {@link #getNativeLibrary(String)} will return this library.
      */
     public static NativeLibrary getNativeLibrary(String name, File f) throws IOException {
-        NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
+        NativeLibrary ll = null;
+        if (f != null) {
+            ll = NativeLibrary.load(f.toString());
+        } else {
+            ll = NativeLibrary.load(name);
+            if (ll == null && !name.contains("/") && !name.contains(File.separator)) {
+                for (String fn : getPossibleFileNames(name)) {
+                    ll = NativeLibrary.load(fn);
+                    if (ll != null) {
+                        break;
+                    }
+                }
+            }
+        }
         if (ll == null) {
             ll = PlatformSupport.getInstance().loadNativeLibrary(name);
             if (ll == null) {

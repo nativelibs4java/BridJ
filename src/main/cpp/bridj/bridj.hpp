@@ -44,6 +44,12 @@
 
 #include "dyncall_macros.h"
 
+#ifdef DISABLE_DCSTRUCT
+// TEMPORARY HACK: disable struct-by-value support until we migrate from legacy DCstruct (dyncall ~0.7?) to DCaggr.
+#define DCstruct void
+inline void dcArgStruct(void* vm, void* a, void* s) {}
+#endif
+
 #ifdef DC__OS_Darwin
 #define BRIDJ_OBJC_SUPPORT
 #endif
@@ -60,11 +66,12 @@
 //#define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
 #endif
 
-#include "dyncallback/dyncall_callback.h"
+#include "dyncall_callback.h"
 #include <jni.h>
 #include <time.h>
 
-#if defined(__GNUC__)
+// #if defined(__GNUC__)
+#ifndef _WIN32
 #include <setjmp.h>
 #endif
 
@@ -147,7 +154,8 @@ typedef struct CallTempStruct {
 	jobject* pCallIOs;
 	LastError lastError;
 	PointerVector localRefsToCleanup;
-#if defined(__GNUC__)
+#ifndef _WIN32
+// #if defined(__GNUC__)
 	jmp_buf exceptionContext;
 	Signals signals;
 	int signal, signalCode;

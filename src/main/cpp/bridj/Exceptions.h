@@ -34,83 +34,84 @@
 
 #include <jni.h>
 
-#define ENABLE_PROTECTED_MODE
-#if defined(ENABLE_PROTECTED_MODE)
+#ifndef ENABLE_PROTECTED_MODE
+#define ENABLE_PROTECTED_MODE 1
+#endif
 
 #include "bridj.hpp"
 //#include "Protected.h"
 extern jboolean gProtected;
 
-#if defined(__GNUC__)
+#if ENABLE_PROTECTED_MODE && !defined(_WIN32)
 
-void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address);
+	// Unix!
 
-static inline jboolean DoTrapSignals(CallTempStruct* call) {
-	//call->signal = call->signalCode = 0;
-	//call->signalAddress = 0;
-	TrapSignals(&call->signals);
-	return JNI_TRUE;
-}
+	void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address);
 
-#define BEGIN_TRY_BASE(env, call, prot) \
-	if (!prot || !DoTrapSignals(call) || (call->signal = setjmp(call->exceptionContext)) == 0) \
-	{
-		
-#define END_TRY_BASE(env, call, prot, ifProt) \
-	} else { \
-		throwSignalError(env, call->signal, call->signalCode, call->signalAddress); \
-	} \
-	if (prot) { \
-		RestoreSignals(&call->signals); \
-		ifProt \
-	}
-	
-#define BEGIN_TRY(env, call) BEGIN_TRY_BASE(env, call, gProtected)
-		
-#define BEGIN_TRY_CALL(env) \
-	{ \
-		jboolean _protected = gProtected; \
-		{ \
-			CallTempStruct* call = _protected ? getTempCallStruct(env) : NULL; \
-			BEGIN_TRY_BASE(env, call, _protected);
-
-#define END_TRY(env, call) END_TRY_BASE(env, call, gProtected, )
-
-#define END_TRY_CALL(env) \
-			END_TRY_BASE(env, call, _protected, releaseTempCallStruct(env, call);) \
-		} \
+	static inline jboolean DoTrapSignals(CallTempStruct* call) {
+		//call->signal = call->signalCode = 0;
+		//call->signalAddress = 0;
+		TrapSignals(&call->signals);
+		return JNI_TRUE;
 	}
 
-#else
-
-// WINDOWS
-#define BEGIN_TRY(env, call) \
-	{ \
-		LPEXCEPTION_POINTERS exceptionPointers = NULL; \
-		__try \
+	#define BEGIN_TRY_BASE(env, call, prot) \
+		if (!prot || !DoTrapSignals(call) || (call->signal = setjmp(call->exceptionContext)) == 0) \
 		{
 			
-#define END_TRY(env, call) \
+	#define END_TRY_BASE(env, call, prot, ifProt) \
+		} else { \
+			throwSignalError(env, call->signal, call->signalCode, call->signalAddress); \
 		} \
-		__except (gProtected ? WinExceptionFilter(exceptionPointers = GetExceptionInformation()) : EXCEPTION_CONTINUE_SEARCH) \
+		if (prot) { \
+			RestoreSignals(&call->signals); \
+			ifProt \
+		}
+		
+	#define BEGIN_TRY(env, call) BEGIN_TRY_BASE(env, call, gProtected)
+			
+	#define BEGIN_TRY_CALL(env) \
 		{ \
-			WinExceptionHandler(env, exceptionPointers); \
-		} \
-	}
+			jboolean _protected = gProtected; \
+			{ \
+				CallTempStruct* call = _protected ? getTempCallStruct(env) : NULL; \
+				BEGIN_TRY_BASE(env, call, _protected);
 
-#define BEGIN_TRY_CALL(env) BEGIN_TRY(env,) 
-#define END_TRY_CALL(env) END_TRY(env, )
+	#define END_TRY(env, call) END_TRY_BASE(env, call, gProtected, )
 
-#endif
+	#define END_TRY_CALL(env) \
+				END_TRY_BASE(env, call, _protected, releaseTempCallStruct(env, call);) \
+			} \
+		}
+
+#elif ENABLE_PROTECTED_MODE && !defined(__GNUC__)
+
+	// MSVC
+	#define BEGIN_TRY(env, call) \
+		{ \
+			LPEXCEPTION_POINTERS exceptionPointers = NULL; \
+			__try \
+			{
+	#define END_TRY(env, call) \
+			} \
+			__except (gProtected ? WinExceptionFilter(exceptionPointers = GetExceptionInformation()) : EXCEPTION_CONTINUE_SEARCH) \
+			{ \
+				WinExceptionHandler(env, exceptionPointers); \
+			} \
+		}
+	#define BEGIN_TRY_CALL(env) BEGIN_TRY(env,) 
+	#define END_TRY_CALL(env) END_TRY(env, )
 
 #else
 
-#define BEGIN_TRY(env, call) {
-#define END_TRY(env, call) }
+	// Non protected mode or MinGW-w64 (GCC targeting Windows) does not support __try (MSVC-specific C extension)
 
-#define BEGIN_TRY_CALL(env) { 
-#define END_TRY_CALL(env) } 
+	#define BEGIN_TRY(env, call) {
+	#define END_TRY(env, call) }
 
-#endif // defined(ENABLE_PROTECTED_MODE)
+	#define BEGIN_TRY_CALL(env) { 
+	#define END_TRY_CALL(env) } 
+
+#endif
 
 #endif // _BRIDJ_EXCEPTIONS_H
