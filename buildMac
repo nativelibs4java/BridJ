@@ -1,6 +1,0 @@
-#!/bin/bash
-
-for T in default ios android ; do
-	TARGET=$T ./CleanNative
-	TARGET=$T ./BuildNative fast || ( echo "Failed to build native target $T !" && exit 1 ) ;
-done

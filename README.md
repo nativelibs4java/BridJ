@@ -82,10 +82,11 @@ OS=windows ARCH=x86 ./BuildNative \
 
 # Mac or Linux host: build & test Linux x86, x64, arm64, arm binaries inside Docker + QEMU:
 # TODO: look at armel situation (no openjdk?)
-         ./scripts/build-docker-qemu.sh linux/x86_64 debian:bullseye-slim            bridj-linux-x64
-ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386   i386/debian:bullseye-slim       bridj-linux-x86
-         ./scripts/build-docker-qemu.sh linux/arm64  arm64v8/debian:bullseye-slim    bridj-linux-arm64
-         ./scripts/build-docker-qemu.sh linux/arm/v7 arm32v7/debian:bullseye-slim    bridj-linux-arm
+         ./scripts/build-docker-qemu.sh linux/x86_64   debian:bullseye-slim           bridj-linux-x64
+ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386     i386/debian:bullseye-slim      bridj-linux-x86
+         ./scripts/build-docker-qemu.sh linux/arm64    arm64v8/debian:bullseye-slim   bridj-linux-arm64
+         ./scripts/build-docker-qemu.sh linux/arm/v7   arm32v7/debian:bullseye-slim   bridj-linux-arm
+         ./scripts/build-docker-qemu.sh linux/ppc64le  ppc64le/debian:bullseye-slim   bridj-linux-ppc64le
 #        ./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye bridj-linux-armel
 
 # Windows x64 host (UNTESTED): build Windows X64 & ARM64 binary
@@ -118,6 +119,18 @@ Please use the [mailing-list](https://groups.google.com/forum/#!forum/nativelibs
 
 # TODO
 
+* Build for MIPS, PPC64Le, Sparc, Sparc64, s390x linux
+  https://hub.docker.com/_/debian
+  i386, mips64le, ppc64le, riscv64, s390x
+  https://github.com/multiarch/qemu-user-static
+  https://hub.docker.com/layers/qemu-user-static/multiarch/qemu-user-static/x86_64-sparc-7.0.0-7/images/sha256-bf38e980ec9303b8942b8a79c1a856d019a6b3f2f16ce0c36973c28110f0015f?context=explore
+  https://github.com/docker-library/official-images#architectures-other-than-amd64
+  https://hub.docker.com/r/arm32v5/debian
+  https://hub.docker.com/r/arm32v5/clojure
+  https://hub.docker.com/r/mips64le/debian
+* Build for Sparc Solaris
+  https://hub.docker.com/r/netcrave/sparcsolaris
+* Try armel vs. arm32v5
 * Rebuild for Android, cmake-style
 * Factor some cruft into cmake helpers
 * CI w/ all the cross builds (use upload / download artefact github actions)

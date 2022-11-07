@@ -1,4 +1,0 @@
-#!/bin/bash
-
-FAST=1 ./BuildNative clean
-./BuildNative
