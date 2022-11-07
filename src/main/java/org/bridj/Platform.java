@@ -206,6 +206,14 @@ public class Platform {
         arch = System.getProperty("os.arch");
         {
             String dataModel = System.getProperty("sun.arch.data.model", System.getProperty("com.ibm.vm.bitmode"));
+            // TODO(ochafik): Look at sun.cpu.endian=little for ppc64le
+            // System.err.println("# os.arch = " + arch);
+            // System.err.println("# sun.arch.data.model = " + dataModel);
+            // try {
+            //     System.getProperties().store(System.out, "");
+            // } catch (Exception ex) {
+            //     throw new RuntimeException(ex);
+            // }
             if ("32".equals(dataModel)) {
                 is64Bits = false;
             } else if ("64".equals(dataModel)) {
@@ -526,7 +534,7 @@ public class Platform {
 
     public static boolean isArm() {
         String arch = getArch();
-        return "arm".equals(arch) || "arm64".equals(arch);
+        return "arm".equals(arch) || "arm64".equals(arch) || "aarch64".equals(arch);
     }
 
     public static boolean isSparc() {
