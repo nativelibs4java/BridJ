@@ -6,17 +6,17 @@
 
 It is similar in spirit to [JNA](https://github.com/twall/jna) (dynamic bindings that don't require any native compilation, unlike JNI), but was designed to support C++, to be blazing fast (thanks to [dyncall](http://dyncall.org) + hand-optimized assembly tweaks) and to use modern Java features.
 
-A comprehensive documentation is available on its [Wiki](https://code.google.com/p/bridj/wiki/FAQ?tm=6) (needs migration to GitHub Pages!).
+A comprehensive documentation is available on its [Wiki](https://github.com/nativelibs4java/BridJ/wiki).
 
 It was previously hosted on [ochafik/nativelibs4java](http://github.com/ochafik/nativelibs4java).
 
 # Quick links
 
-* [Usage](https://code.google.com/p/bridj/wiki/Download) (also see `Examples/BasicExample`)
-* [FAQ](https://code.google.com/p/bridj/wiki/FAQ?tm=6)
+* [Usage](https://github.com/nativelibs4java/BridJ/wiki/Download) (also see `Examples/BasicExample`)
+* [FAQ](https://github.com/nativelibs4java/BridJ/wiki/FAQ)
 * [CHANGELOG](./CHANGELOG.md)
 * [JavaDoc](http://nativelibs4java.sourceforge.net/bridj/api/development/)
-* [Credits and License](http://code.google.com/p/bridj/wiki/CreditsAndLicense)
+* [Credits and License](https://github.com/nativelibs4java/BridJ/wiki/CreditsAndLicense)
 
 # Building
 
