@@ -45,9 +45,9 @@ function get_arch() {
 					;;
         arm*)
 			    if [[ -d /lib/arm-linux-gnueabihf ]] ; then
-	        	# echo "armhf"
+	        	echo "armhf"
 						# echo "arm32v7"
-						echo "arm"
+						# echo "arm"
 	        elif [[ -d /lib/arm-linux-gnueabi ]] ; then
 	        	echo "armel"
 						# echo "arm32v5"
@@ -106,7 +106,8 @@ function build_libraries() {
 	if [[ "${DEBUG:-0}" == "1" ]]; then
 		CMAKE_FLAGS+=( -DCMAKE_BUILD_TYPE=Debug )
 	else
-		CMAKE_FLAGS+=( -DCMAKE_BUILD_TYPE=Release )
+		CMAKE_FLAGS+=( -DCMAKE_BUILD_TYPE=RelWithDebInfo )
+		# CMAKE_FLAGS+=( -DCMAKE_BUILD_TYPE=Release )
 	fi
 
 	case "$OS" in

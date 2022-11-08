@@ -589,8 +589,13 @@ public class Platform {
         if (os != null) {
             List<String> archs = new ArrayList<String>();
             if (isArm()) {
-                // Note: to discriminate between hard-float (armhf) and soft-float (armel), we used to test new File("/lib/arm-linux-gnueabihf").isDirectory().
-                archs.add(is64Bits() ? "arm64" : "arm");
+                // Note: to discriminate between hard-float (armhf) and soft-float (armel), we used to test .
+                archs.add(
+                    is64Bits()
+                        ? "arm64" :
+                    new File("/lib/arm-linux-gnueabihf").isDirectory()
+                        ? "armhf" :
+                    "armel");
             } else if (isSparc()) {
                 archs.add(is64Bits() ? "sparc64" : "sparc");
             } else {
