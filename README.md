@@ -1,4 +1,4 @@
-__BEWARE__: _This project hasn't been maintained since 2015. An effort to refresh it is ongoing (Nov 2022) and 0.8.0-SNAPSHOT contains a sneak peek of it, with no guarantees_.
+__BEWARE__: _This project hasn't been maintained since 2015. An effort to refresh it (and [JNAerator](https://github.com/nativelibs4java/JNAerator)) is ongoing (Nov 2022) and 0.8.0-SNAPSHOT contains a sneak peek of it, with no guarantees_.
 
 # BridJ
 
