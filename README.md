@@ -1,3 +1,5 @@
+__BEWARE__: _This project hasn't been maintained in many years. An effort to refresh it is ongoing (Nov 2022) and 0.8.0-SNAPSHOT contains a sneak peek of it, with no guarantees_.
+
 # BridJ
 
 [![Maven Central](http://maven-badges.herokuapp.com/maven-central/com.nativelibs4java/bridj/badge.svg)](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.nativelibs4java%22%20AND%20a%3A%22bridj%22) [![Build Status (Travis: Linux)](https://travis-ci.org/nativelibs4java/BridJ.svg?branch=master)](https://travis-ci.org/nativelibs4java/BridJ) [![Build Status (AppVeyor: Windows)](https://img.shields.io/appveyor/ci/ochafik/bridj/master.svg?label=windows build)](https://ci.appveyor.com/project/ochafik/bridj/) [![Join the chat at https://gitter.im/nativelibs4java/BridJ](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/nativelibs4java/BridJ?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
@@ -11,6 +13,8 @@ A comprehensive documentation is available on its [Wiki](https://github.com/nati
 It was previously hosted on [ochafik/nativelibs4java](http://github.com/ochafik/nativelibs4java).
 
 # Quick links
+
+__Note__: the [Wiki](https://github.com/nativelibs4java/BridJ/wiki) is being refreshed.
 
 * [Usage](https://github.com/nativelibs4java/BridJ/wiki/Download) (also see `Examples/BasicExample`)
 * [FAQ](https://github.com/nativelibs4java/BridJ/wiki/FAQ)
