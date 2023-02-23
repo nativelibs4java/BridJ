@@ -190,7 +190,7 @@ if [[ -z "${OS:-}" ]]; then
 	OS="$(get_os)"
 fi
 
-if [[ "${ARCH:-}" == "all" ]]; then
+if [[ "${ARCH:-all}" == "all" ]]; then
 	case $OS in
 		sunos)
 			build_libraries sunos x86 "$@"
@@ -202,8 +202,8 @@ if [[ "${ARCH:-}" == "all" ]]; then
 			build_libraries windows arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
 			;;
 		darwin)
-			build_libraries darwin x64 -DFORCE_JAVA_HOME=${JAVA_HOME_X64} "$@"
-			build_libraries darwin arm64 -DFORCE_JAVA_HOME=${JAVA_HOME_ARM64} "$@"
+			build_libraries darwin x64 "$@"
+			build_libraries darwin arm64 "$@"
 			;;
 		*)
 			ARCH="$(get_arch)"

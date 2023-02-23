@@ -1,6 +1,6 @@
-diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c
---- a/dynload/dynload_syms_mach-o.c	Fri Oct 28 20:51:45 2022 +0200
-+++ b/dynload/dynload_syms_mach-o.c	Thu Nov 03 03:34:44 2022 +0000
+diff -r f13444192ceb dynload/dynload_syms_mach-o.c
+--- a/dynload/dynload_syms_mach-o.c	Thu Dec 15 10:27:40 2022 +0100
++++ b/dynload/dynload_syms_mach-o.c	Thu Feb 23 02:53:58 2023 +0000
 @@ -31,6 +31,7 @@
   dynamic symbol resolver for Mach-O
  
@@ -209,9 +209,9 @@ diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c
  
  	if(!pSyms)
  		return NULL;
-diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c.orig
+diff -r f13444192ceb dynload/dynload_syms_mach-o.c.orig
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/dynload/dynload_syms_mach-o.c.orig	Thu Nov 03 03:34:44 2022 +0000
++++ b/dynload/dynload_syms_mach-o.c.orig	Thu Feb 23 02:53:58 2023 +0000
 @@ -0,0 +1,247 @@
 +/*
 +
@@ -460,9 +460,9 @@ diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c.orig
 +	return info.dli_sname;
 +}
 +
-diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c.rej
+diff -r f13444192ceb dynload/dynload_syms_mach-o.c.rej
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/dynload/dynload_syms_mach-o.c.rej	Thu Nov 03 03:34:44 2022 +0000
++++ b/dynload/dynload_syms_mach-o.c.rej	Thu Feb 23 02:53:58 2023 +0000
 @@ -0,0 +1,391 @@
 +***************
 +*** 42,56 ****
@@ -855,9 +855,9 @@ diff -r 97e7d9490752 dynload/dynload_syms_mach-o.c.rej
 +  	const struct NLIST_TYPE* nl = get_nlist(pSyms, index);
 +  	if (!nl)
 +  		return NULL;
-diff -r 97e7d9490752 dynload/dynload_unix.c
---- a/dynload/dynload_unix.c	Fri Oct 28 20:51:45 2022 +0200
-+++ b/dynload/dynload_unix.c	Thu Nov 03 03:34:44 2022 +0000
+diff -r f13444192ceb dynload/dynload_unix.c
+--- a/dynload/dynload_unix.c	Thu Dec 15 10:27:40 2022 +0100
++++ b/dynload/dynload_unix.c	Thu Feb 23 02:53:58 2023 +0000
 @@ -50,10 +50,10 @@
  
  #include <dlfcn.h>
@@ -871,9 +871,9 @@ diff -r 97e7d9490752 dynload/dynload_unix.c
  }
  
  
-diff -r 97e7d9490752 dynload/dynload_unix.c.orig
+diff -r f13444192ceb dynload/dynload_unix.c.orig
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/dynload/dynload_unix.c.orig	Thu Nov 03 03:34:44 2022 +0000
++++ b/dynload/dynload_unix.c.orig	Thu Feb 23 02:53:58 2023 +0000
 @@ -0,0 +1,261 @@
 +/*
 +
@@ -1136,9 +1136,9 @@ diff -r 97e7d9490752 dynload/dynload_unix.c.orig
 +
 +#endif
 +
-diff -r 97e7d9490752 dynload/dynload_unix.c.rej
+diff -r f13444192ceb dynload/dynload_unix.c.rej
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/dynload/dynload_unix.c.rej	Thu Nov 03 03:34:44 2022 +0000
++++ b/dynload/dynload_unix.c.rej	Thu Feb 23 02:53:58 2023 +0000
 @@ -0,0 +1,17 @@
 +***************
 +*** 41,47 ****
@@ -1157,9 +1157,9 @@ diff -r 97e7d9490752 dynload/dynload_unix.c.rej
 +  }
 +  
 +  
-diff -r 97e7d9490752 dynload/dynload_windows.c.orig
+diff -r f13444192ceb dynload/dynload_windows.c.orig
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/dynload/dynload_windows.c.orig	Thu Nov 03 03:34:44 2022 +0000
++++ b/dynload/dynload_windows.c.orig	Thu Feb 23 02:53:58 2023 +0000
 @@ -0,0 +1,137 @@
 +/*
 +
@@ -1298,9 +1298,9 @@ diff -r 97e7d9490752 dynload/dynload_windows.c.orig
 +  return 0;
 +}
 +
-diff -r 97e7d9490752 dynload/dynload_windows.c.rej
+diff -r f13444192ceb dynload/dynload_windows.c.rej
 --- /dev/null	Thu Jan 01 00:00:00 1970 +0000
-+++ b/dynload/dynload_windows.c.rej	Thu Nov 03 03:34:44 2022 +0000
++++ b/dynload/dynload_windows.c.rej	Thu Feb 23 02:53:58 2023 +0000
 @@ -0,0 +1,19 @@
 +***************
 +*** 41,47 ****
