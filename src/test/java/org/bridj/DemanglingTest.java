@@ -549,6 +549,7 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
     }
 
     @Test
+    @Ignore("Can’t work in JVM 12+: https://bugs.openjdk.org/browse/JDK-8210522")
     public void testIntVsPointer_32bits() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         force32Bits();
         
@@ -562,6 +563,7 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
     }
 
     @Test
+    @Ignore("Can’t work in JVM 12+: https://bugs.openjdk.org/browse/JDK-8210522")
     public void testIntVsPointer_64bits() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
         force64Bits();
         

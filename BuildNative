@@ -8,6 +8,11 @@ export DYNCALL_HOME=$BASE_DIR/dyncall
 
 DYNCALL_DIFF=$BASE_DIR/src/main/cpp/bridj/dyncall.diff
 
+function failed() {
+    echo "$@"
+    exit 1
+}
+
 if [[ ! -d "$DYNCALL_HOME" ]]
 then
 	$BASE_DIR/admin/checkout_and_patch_dyncall.sh $DYNCALL_DIFF || failed "Failed to checkout and patch dyncall"
@@ -40,7 +45,7 @@ function get_arch() {
         x86_64|amd64)
 	        echo x64
 	        ;;
-				aarch64)
+				aarch64|arm64)
 					echo arm64
 					;;
         arm*)

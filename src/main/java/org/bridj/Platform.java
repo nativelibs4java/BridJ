@@ -525,6 +525,9 @@ public class Platform {
                 return "i386"; // we are running a 32 bits JVM on a 64 bits platform
             }
         }
+        if (isMacOSX() && arch.equals("aarch64")) {
+            return "arm64";
+        }
         return arch;
     }
 
