@@ -2,11 +2,46 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
-	<artifactId>bridj</artifactId>
+	<artifactId>bridj-odfi</artifactId>
 	<name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
 	<url>https://code.google.com/p/bridj/</url>
 	<version>0.8.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
+
+
+	<!--<parent>
+		<groupId>org.odfi</groupId>
+		<artifactId>superpom</artifactId>
+		<version>1.0.3</version>
+	</parent>-->
+
+
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.10-SNAPSHOT</version>
+	</parent>
+
+	 <!-- Site && Artifacts Distribution -->
+    <!-- ################# -->
+    <distributionManagement>
+    	<site>
+          <id>odfi.central</id>
+          <url>scpexe://cd@deploy.opendesignflow.org/cd/maven/sites/${project.groupId}/${project.artifactId}/</url>
+        </site>
+		<repository>
+			<id>odfi.central</id>
+			<name>ODFI Public Release Repository</name>
+			<url>https://www.opendesignflow.org/maven/repository/internal/</url>
+		</repository>
+		<snapshotRepository>
+			<id>odfi.snapshot</id>
+			<name>ODFI Public Snapshot Repository</name>
+			<url>https://www.opendesignflow.org/maven/repository/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
+
 	<repositories>
 		<repository>
 			<id>sonatype</id>
@@ -26,16 +61,15 @@
 		<versionSpecificSubPackage>v0_8_0</versionSpecificSubPackage>
 		<maven.compiler.optimize>true</maven.compiler.optimize>
 	</properties>
+
+
+
 	<scm>
 		<connection>scm:git:git@github.com:nativelibs4java/BridJ.git</connection>
 		<developerConnection>scm:git:git@github.com:nativelibs4java/BridJ.git</developerConnection>
 		<url>https://github.com/nativelibs4java/BridJ</url>
 	</scm>
-	<parent>
-		<groupId>com.nativelibs4java</groupId>
-		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.10-SNAPSHOT</version>
-	</parent>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
