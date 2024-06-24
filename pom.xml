@@ -522,5 +522,14 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>disable-java8-doclint</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<additionalparam>-Xdoclint:none</additionalparam>
+			</properties>
+		</profile>
 	</profiles>
 </project>
