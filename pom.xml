@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
-			<version>9.4</version>
+			<version>9.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.12.1</version>
+			<version>5.14.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -317,7 +317,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>default-cli</id>
@@ -372,7 +372,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.9.1</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<phase>verify</phase>
@@ -437,7 +437,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>native-maven-plugin</artifactId>
-						<version>1.0-alpha-7</version>
+						<version>1.0-M1</version>
 						<executions>
 							<execution>
 							<goals>
@@ -504,7 +504,7 @@ BridJ is opensource software. Please refer to LICENSE.BridJ.txt to know under wh
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.3.2</version>
+						<version>3.3.0</version>
 						<executions>
 							<execution>
 								<id>BuildBinaries</id>
