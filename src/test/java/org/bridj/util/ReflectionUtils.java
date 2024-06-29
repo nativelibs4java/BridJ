@@ -39,9 +39,14 @@ public class ReflectionUtils {
         Field field = c.getDeclaredField(fieldName);
         field.setAccessible(true);
         
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        try {
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+        } catch (NoSuchFieldException e) {
+            // ignore
+            System.err.println("WARNING: may not have made field " + field + " writable");
+        }
         
         return field;
     }

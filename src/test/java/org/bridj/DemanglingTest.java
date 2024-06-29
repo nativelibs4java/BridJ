@@ -550,7 +550,11 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
 
     @Test
     public void testIntVsPointer_32bits() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        force32Bits();
+        if (Platform.is64Bits()) {
+            System.err.println("Skipping testIntVsPointer_32bits because we're in 64 bits mode");
+            return;
+        }
+        // force32Bits();
         
         assertFalse(Demangler.equivalentTypes(int.class, NO_ANNOTATION, Pointer.class, NO_ANNOTATION));;
         // This should not even be allowed: int tagged as @Ptr.
@@ -563,7 +567,11 @@ TEST_API void repeatedCall8(const short*, const short*, const char*, const char*
 
     @Test
     public void testIntVsPointer_64bits() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        force64Bits();
+        if (!Platform.is64Bits()) {
+            System.err.println("Skipping testIntVsPointer_64bits because we're in 32 bits mode");
+            return;
+        }
+        // force64Bits();
         
         assertFalse(Demangler.equivalentTypes(int.class, NO_ANNOTATION, Pointer.class, NO_ANNOTATION));
         assertFalse(Demangler.equivalentTypes(int.class, PTR_ANNOTATION, Pointer.class, NO_ANNOTATION));

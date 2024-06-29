@@ -63,10 +63,10 @@ wget https://download.java.net/java/GA/jdk19/877d6127e982470ba2a7faa31cc93d04/36
 
 # Get JDK for Windows ARM64
 wget https://github.com/microsoft/openjdk-aarch64/releases/download/jdk-16.0.2-ga/microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && \
-  tar zxvf openjdk-19_macos-aarch64_bin.tar.gz && mv jdk-16.0.2+7{,-windows_arm64}
+  tar zxvf microsoft-jdk-16.0.2.7.1-linux-aarch64.tar.gz && mv jdk-16.0.2+7{,-windows_arm64}
 
 wget https://builds.openlogic.com/downloadJDK/openlogic-openjdk/8u352-b08/openlogic-openjdk-8u352-b08-windows-x32.zip && \
-    unzip openlogic-openjdk-8u352-b08-windows-x32.zip
+    unzip openlogic-openjdk-8u352-b08-windows-x32.zip && mv openlogic-openjdk-8u352-b08-windows-32/ jdk-8u352-b09-windows_x86
 ```
 
 ## Cross-build commands
@@ -82,7 +82,7 @@ OS=windows ARCH=x64 ./BuildNative \
   -DFORCE_JAVA_HOME=$PWD/../jdk-19-windows_x64
 OS=windows ARCH=x86 ./BuildNative \
   -DCMAKE_TOOLCHAIN_FILE=$PWD/mingw-w64-i686.cmake \
-  -DFORCE_JAVA_HOME=$PWD/../openlogic-openjdk-8u352-b08-windows-32
+  -DFORCE_JAVA_HOME=$PWD/../jdk-8u352-b09-windows_x86
 
 # Mac or Linux host: build & test Linux x86, x64, arm64, arm binaries inside Docker + QEMU:
 # TODO: look at armel situation (no openjdk?)

@@ -30,7 +30,10 @@ PATCH_FILE=$1
 #fi
 
 #echo "Checking out dyncall to $DYNCALL_HOME..."
-hg clone https://dyncall.org/pub/dyncall/dyncall $DYNCALL_HOME || failed "Failed to checkout dyncall to $DYNCALL_HOME" 
+hg clone \
+	-r f13444192ceb \
+	https://dyncall.org/pub/dyncall/dyncall \
+	$DYNCALL_HOME || failed "Failed to checkout dyncall to $DYNCALL_HOME" 
 
 cd $DYNCALL_HOME || failed "Failed to go to $DYNCALL_HOME"
 

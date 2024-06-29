@@ -8,7 +8,7 @@ shift 3
 
 if [[ "${BUILD_IMAGE:-1}" == "1" ]]; then
   echo "
-    FROM $FROM_IMAGE
+    FROM --platform=$PLATFORM $FROM_IMAGE
     RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         --mount=type=cache,target=/var/lib/apt,sharing=locked \
         apt-get update -qy && \

@@ -78,6 +78,9 @@ public class PlatformTest {
 		
 		if (m.equals("i386") && Platform.is64Bits())
 			m = "x86_64";
+
+		if (m.equals("aarch64") && Platform.isArm() && Platform.is64Bits())
+			m = "arm64";
 		
 		assertEquals("uname = " + uname + ", Platform.getMachine = " + Platform.getMachine(), m, Platform.getMachine());
 	}

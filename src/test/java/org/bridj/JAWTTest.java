@@ -36,6 +36,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 
 import org.bridj.jawt.JAWTUtils;
 import org.bridj.jawt.JAWT_DrawingSurface;
@@ -46,6 +47,11 @@ public class JAWTTest {
 	
 	@Test
 	public void testWindowPeer() throws Exception {
+		if (GraphicsEnvironment.isHeadless()) {
+			System.err.println("Skipping JAWT test because we're in headless mode");
+			return;
+		}
+		
     if (Platform.isMacOSX() ||
         System.getProperty("java.version").matches("1\\.6\\..*")) {
       // Oracle Java and jawt: it's complicated.
