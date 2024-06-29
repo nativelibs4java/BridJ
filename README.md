@@ -86,11 +86,11 @@ OS=windows ARCH=x86 ./BuildNative \
 
 # Mac or Linux host: build & test Linux x86, x64, arm64, arm binaries inside Docker + QEMU:
 # TODO: look at armel situation (no openjdk?)
-         ./scripts/build-docker-qemu.sh linux/x86_64   debian:stable-slim           bridj-linux-x64
-ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386     i386/debian:stable-slim      bridj-linux-x86
-         ./scripts/build-docker-qemu.sh linux/arm64    arm64v8/debian:stable-slim   bridj-linux-arm64
-         ./scripts/build-docker-qemu.sh linux/arm/v7   arm32v7/debian:stable-slim   bridj-linux-arm
-         ./scripts/build-docker-qemu.sh linux/ppc64le  ppc64le/debian:stable-slim   bridj-linux-ppc64le
+         ./scripts/build-docker-qemu.sh linux/x86_64   debian:bullseye-slim           bridj-linux-x64
+ARCH=x86 ./scripts/build-docker-qemu.sh linux/i386     i386/debian:bullseye-slim      bridj-linux-x86
+         ./scripts/build-docker-qemu.sh linux/arm64    arm64v8/debian:bullseye-slim   bridj-linux-arm64
+         ./scripts/build-docker-qemu.sh linux/arm/v7   arm32v7/debian:bullseye-slim   bridj-linux-arm
+         ./scripts/build-docker-qemu.sh linux/ppc64le  ppc64le/debian:bullseye-slim   bridj-linux-ppc64le
 #        ./scripts/build-docker-qemu.sh linux/arm/v6 balenalib/rpi-raspbian:bullseye bridj-linux-armel
 
 # Windows x64 host (UNTESTED): build Windows X64 & ARM64 binary
