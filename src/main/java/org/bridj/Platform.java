@@ -124,6 +124,7 @@ public class Platform {
             return in;
         }
 
+        path = path.substring(1);
         ClassLoader[] cls = {
             BridJ.class.getClassLoader(),
             Thread.currentThread().getContextClassLoader(),
